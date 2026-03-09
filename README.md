@@ -106,9 +106,10 @@ ctest --preset release
 ## Project Structure
 
 ```
-src/        game source code
-include/    public headers
-tests/      unit tests
-images/     documentation images
+apps/       application entry points
 cmake/      cmake helper files
+images/     documentation images
+include/    public headers
+src/        game source code
+tests/      unit tests
 ```
