@@ -19,11 +19,13 @@ include(compile_flags)
 
 # Catch2 is used for testing.
 find_package(Catch2 CONFIG REQUIRED)
+find_package(SFML 3 REQUIRED COMPONENTS Graphics Audio Network)
 
 # We start off by declaring our main library.
 add_library(mylib src/foo.cpp)
 mylib_cxx_flags(mylib)
 target_include_directories(mylib PUBLIC include)
+target_link_libraries(mylib PUBLIC SFML::Graphics SFML::Audio SFML::Network)
 
 # Followed by the executable using the library. Targets get prefixed with the
 # project name in order to avoid conflicts. We can still adjust the actual
