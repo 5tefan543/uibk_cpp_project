@@ -1,4 +1,4 @@
-name: CI Pipeline - Linux
+name: CI Pipeline for Linux
 
 on:
   push:
@@ -9,13 +9,13 @@ env:
 
 jobs:
    test:
-    name: Build & Test - Ubuntu
+    name: Build & Test on Ubuntu
     runs-on: ubuntu-latest
 
     steps:
       - &checkout
         name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - &setup-dependencies
         name: Install dependencies
@@ -34,7 +34,7 @@ jobs:
         name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
 
-      - &configure-build
+      - &configure
         name: Configure
         run: cmake --preset release
 
