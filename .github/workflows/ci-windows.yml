@@ -24,11 +24,11 @@ jobs:
 
       - &configure
         name: Configure
-        run: cmake --preset debug
+        run: cmake --preset release
 
       - &build
         name: Build
-        run: cmake --build --preset debug
+        run: cmake --build --preset release
 
       - &test
         name: Test
