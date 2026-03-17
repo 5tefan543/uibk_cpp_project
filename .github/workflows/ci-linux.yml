@@ -81,9 +81,3 @@ jobs:
         with:
           files: coverage.xml
           fail_ci_if_error: true
-
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: coverage-report
-          path: coverage.html
