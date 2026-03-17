@@ -1,6 +1,6 @@
 [![ci_linux](https://github.com/5tefan543/uibk_cpp_project/actions/workflows/ci-linux.yml/badge.svg)](https://github.com/5tefan543/uibk_cpp_project/actions/workflows/ci-linux.yml)
 [![ci_windows](https://github.com/5tefan543/uibk_cpp_project/actions/workflows/ci-windows.yml/badge.svg)](https://github.com/5tefan543/uibk_cpp_project/actions/workflows/ci-windows.yml)
-[![codecov](https://codecov.io/gh/5tefan543/uibk_cpp_project/branch/main/graph/badge.svg)](https://codecov.io/gh/5tefan543/uibk_cpp_project)
+[![codecov](https://codecov.io/gh/5tefan543/uibk_cpp_project/graph/badge.svg?token=0EX1YTJ1J5)](https://codecov.io/gh/5tefan543/uibk_cpp_project)
 
 ## Roguelike Specification
 
