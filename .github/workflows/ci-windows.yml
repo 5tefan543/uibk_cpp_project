@@ -1,0 +1,35 @@
+name: CI Pipeline for Windows
+
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  tests:
+    name: Build & Test on Windows
+    runs-on: windows-latest
+
+    steps:
+      - &checkout
+        name: Checkout
+        uses: actions/checkout@v6
+
+      - &setup-msvc
+        name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - &setup-vcpkg
+        name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+
+      - &configure
+        name: Configure
+        run: cmake --preset release
+
+      - &build
+        name: Build
+        run: cmake --build --preset release
+
+      - &test
+        name: Test
+        run: ctest --preset release --output-on-failure --no-tests=error

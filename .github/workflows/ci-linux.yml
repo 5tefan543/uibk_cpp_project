@@ -1,0 +1,83 @@
+name: CI Pipeline for Linux
+
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  tests:
+    name: Build & Test on Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      - &checkout
+        name: Checkout
+        uses: actions/checkout@v6
+
+      - &setup-dependencies
+        name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libx11-dev \
+            libxi-dev \
+            libxrandr-dev \
+            libxcursor-dev \
+            libudev-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev
+
+      - &setup-vcpkg
+        name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+
+      - &configure
+        name: Configure
+        run: cmake --preset release
+
+      - &build
+        name: Build
+        run: cmake --build --preset release
+
+      - &test
+        name: Test
+        run: ctest --preset release --output-on-failure --no-tests=error
+
+  coverage:
+    name: Code Coverage on Ubuntu
+    runs-on: ubuntu-latest
+    needs: tests
+
+    steps:
+      - *checkout
+      - *setup-dependencies
+
+      - name: Install gcovr
+        run: sudo apt-get install -y gcovr
+
+      - *setup-vcpkg
+
+      - name: Configure with coverage flags
+        run: cmake --preset coverage
+
+      - name: Build with coverage flags
+        run: cmake --build --preset coverage
+
+      - name: Run tests with coverage flags
+        run: ctest --preset coverage --output-on-failure --no-tests=error
+
+      - name: Generate coverage report
+        run: |
+          gcovr \
+            --root . \
+            --filter src \
+            --exclude tests \
+            --exclude build \
+            --html-details coverage.html \
+            --xml coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage.xml
+          fail_ci_if_error: true
