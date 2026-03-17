@@ -5,7 +5,7 @@ on:
     branches: ["**"]
 
 jobs:
-  windows:
+  tests:
     name: Build & Test on Windows
     runs-on: windows-latest
 
@@ -32,4 +32,4 @@ jobs:
 
       - &test
         name: Test
-        run: ctest ctest --preset release --output-on-failure
+        run: ctest --preset release --output-on-failure --no-tests=error
