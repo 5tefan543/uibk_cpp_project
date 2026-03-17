@@ -4,6 +4,9 @@ on:
   push:
     branches: ["**"]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
    test:
     name: Build & Test - Ubuntu
@@ -19,13 +22,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            pkg-config \
             libx11-dev \
             libxi-dev \
             libxrandr-dev \
             libxcursor-dev \
             libudev-dev \
-            libgl1-mesa-dev
+            libgl1-mesa-dev \
+            libglu1-mesa-dev
 
       - &setup-vcpkg
         name: Setup vcpkg
