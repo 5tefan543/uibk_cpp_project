@@ -53,22 +53,31 @@ The player controls a character fighting against continuously spawning enemies i
 
 ## Development Setup
 
-### Prerequisites
+### 📦 Prerequisites
 
-Make sure the following tools are installed:
+- [CMake](https://cmake.org/download/)  
+  A cross-platform build system generator
 
-- [CMake](https://cmake.org/download/): a cross-platform build system generator.
-- [VCPKG](https://github.com/Microsoft/vcpkg): a C++ library manager. In order to install and use VCPKG with cmake and Visual Studio Code, follow this [guide](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started-vscode?pivots=shell-bash).
-- [Python](https://www.python.org/downloads/) & [pipx](https://pipx.pypa.io/stable/): for managing Python packages (e.g. pre-commit).
+- [VCPKG](https://github.com/Microsoft/vcpkg)  
+  A C++ library manager  
+  In order to install and use VCPKG with cmake and Visual Studio Code, follow this [guide](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started-vscode?pivots=shell-bash).
+
+- [Python](https://www.python.org/downloads/) & [pipx](https://pipx.pypa.io/stable/)  
+  For managing Python tools (e.g. `pre-commit`)
+
+- On Linux you may also need to install the following dependencies for SFML:
+
+```bash
+sudo apt-get install pkg-config libx11-dev libxi-dev libxrandr-dev libxcursor-dev libudev-dev libgl1-mesa-dev libglu1-mesa-dev
+```
 
 ### Pre-commit Hooks
 
-We use [.clang-format](.clang-format) to enforce consistent code formatting.
+We use [.clang-format](.clang-format) to enforce consistent code formatting. For automatic formatting, we use [pre-commit](https://pre-commit.com/) hooks.
 
 Install the hook:
 
 ```bash
-pipx install pre-commit
 pre-commit install
 ```
 
