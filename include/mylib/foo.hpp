@@ -4,6 +4,7 @@
 namespace mylib {
 
 int foo();
+int foo2();
 
 } // end namespace mylib
 

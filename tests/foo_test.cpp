@@ -2,7 +2,7 @@
 
 #include "mylib/foo.hpp"
 
-TEST_CASE("Foo Test", "[foo]")
+TEST_CASE("Foo Test", "[foo2]")
 {
-	REQUIRE(mylib::foo() == 42);
+	REQUIRE(mylib::foo2() == 42);
 }
