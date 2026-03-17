@@ -1,3 +1,7 @@
+[![ci_linux](https://github.com/5tefan543/uibk_cpp_project/actions/workflows/ci-linux.yml/badge.svg)](https://github.com/5tefan543/uibk_cpp_project/actions/workflows/ci-linux.yml)
+[![ci_windows](https://github.com/5tefan543/uibk_cpp_project/actions/workflows/ci-windows.yml/badge.svg)](https://github.com/5tefan543/uibk_cpp_project/actions/workflows/ci-windows.yml)
+[![codecov](https://codecov.io/gh/5tefan543/uibk_cpp_project/branch/main/graph/badge.svg)](https://codecov.io/gh/5tefan543/uibk_cpp_project)
+
 ## Roguelike Specification
 
 The goal of this project is to implement an **arena-survival [Roguelike](https://en.wikipedia.org/wiki/Roguelike) inspired by [Brotato](https://brotato.wiki.spellsandguns.com/Brotato_Wiki)**.
