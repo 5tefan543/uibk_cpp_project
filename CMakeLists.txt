@@ -21,6 +21,15 @@ find_package(Catch2 CONFIG REQUIRED)
 # SFML is used as the multimedia library.
 find_package(SFML 3 REQUIRED COMPONENTS Graphics Audio)
 
+# Game library
+add_library(roguelike_game
+  src/game/game.cpp
+  src/game/game_state.cpp
+)
+
+roguelike_cxx_flags(roguelike_game)
+target_include_directories(roguelike_game PUBLIC include)
+
 # Controller library
 add_library(roguelike_controller
   src/controller/controller.cpp
@@ -28,6 +37,10 @@ add_library(roguelike_controller
 
 roguelike_cxx_flags(roguelike_controller)
 target_include_directories(roguelike_controller PUBLIC include)
+target_link_libraries(roguelike_controller
+  PUBLIC
+    roguelike_game
+)
 
 # UI library
 add_library(roguelike_ui

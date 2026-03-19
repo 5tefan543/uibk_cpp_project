@@ -1,29 +1,18 @@
-#include "controller/input_state.hpp"
+#include "controller/controller.hpp"
 #include "ui/ui.hpp"
 #include <cstdlib>
-#include <iostream>
-
-void printInputState(const controller::InputState &input)
-{
-	std::cout << "Input State: "
-	          << "Left: " << input.left << ", "
-	          << "Right: " << input.right << ", "
-	          << "Up: " << input.up << ", "
-	          << "Down: " << input.down << ", "
-	          << "Mouse Left: " << input.mouse_left << ", "
-	          << "Mouse Right: " << input.mouse_right << ", "
-	          << "Mouse Middle: " << input.mouse_middle << ", "
-	          << "Mouse X: " << input.mouse_x << ", "
-	          << "Mouse Y: " << input.mouse_y << std::endl;
-}
 
 int main()
 {
+	controller::Controller controller;
 	ui::UI ui;
+
+	const float fixed_dt = 1.0f / 60.0f; // Fixed time step for updates
 
 	while (ui.isOpen()) {
 		controller::InputState input = ui.pollInput();
-		printInputState(input);
+		controller.handleInput(input);
+		controller.update(fixed_dt);
 		ui.render();
 	}
 

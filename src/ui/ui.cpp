@@ -20,6 +20,7 @@ UI::~UI()
 void UI::initWindow()
 {
 	window.create(sf::VideoMode({800, 600}), "My Game");
+	window.setFramerateLimit(60);
 }
 
 bool UI::isOpen() const
@@ -40,8 +41,3 @@ void UI::render()
 }
 
 } // namespace ui
-
-int foo2()
-{
-	return 42;
-}

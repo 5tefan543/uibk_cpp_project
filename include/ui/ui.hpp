@@ -23,5 +23,3 @@ class UI {
 };
 
 } // namespace ui
-
-int foo2();
