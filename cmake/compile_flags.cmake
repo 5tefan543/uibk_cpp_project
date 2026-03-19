@@ -1,6 +1,6 @@
 # Note that functions are also prefixed with the project name to prevent
 # collisions.
-function(mylib_cxx_flags target)
+function(roguelike_cxx_flags target)
   # Instead of setting a specific standard directly, we use the *compile
   # features* to require (at least) C++17 standard.
   target_compile_features(${target} PRIVATE cxx_std_17)

@@ -3,10 +3,9 @@
 # currently using and adjust as you go.
 cmake_minimum_required(VERSION 3.28)
 
-# The name of the core library is used as project name.
-project(mylib
+project(roguelike
   VERSION 0.1.0
-  DESCRIPTION "An example CMake project"
+  DESCRIPTION "An arena-survival roguelike game written in C++ using SFML"
   LANGUAGES CXX)
 
 # This allows us to include CMake modules located in `./cmake`.
@@ -19,26 +18,59 @@ include(compile_flags)
 
 # Catch2 is used for testing.
 find_package(Catch2 CONFIG REQUIRED)
-find_package(SFML 3 REQUIRED COMPONENTS Graphics Audio Network)
+# SFML is used as the multimedia library.
+find_package(SFML 3 REQUIRED COMPONENTS Graphics Audio)
 
-# We start off by declaring our main library.
-add_library(mylib src/foo.cpp)
-mylib_cxx_flags(mylib)
-target_include_directories(mylib PUBLIC include)
-target_link_libraries(mylib PUBLIC SFML::Graphics SFML::Audio SFML::Network)
+# Controller library
+add_library(roguelike_controller
+  src/controller/controller.cpp
+)
 
-# Followed by the executable using the library. Targets get prefixed with the
-# project name in order to avoid conflicts. We can still adjust the actual
-# output name for the executable.
-add_executable(mylib_myapp apps/myapp.cpp)
-mylib_cxx_flags(mylib_myapp)
-set_target_properties(mylib_myapp PROPERTIES OUTPUT_NAME myapp)
-target_link_libraries(mylib_myapp PRIVATE mylib)
+roguelike_cxx_flags(roguelike_controller)
+target_include_directories(roguelike_controller PUBLIC include)
 
-# We also declare a test runner, again targets are prefixed with the project
-# name.
+# UI library
+add_library(roguelike_ui
+  src/ui/ui.cpp
+  src/ui/renderer.cpp
+  src/ui/input_handler.cpp
+)
+
+roguelike_cxx_flags(roguelike_ui)
+target_include_directories(roguelike_ui PUBLIC include)
+target_link_libraries(roguelike_ui
+  PUBLIC
+    SFML::Graphics
+    SFML::Audio
+    roguelike_controller
+)
+
+# Executable
+add_executable(roguelike_app
+  apps/main.cpp
+)
+
+roguelike_cxx_flags(roguelike_app)
+set_target_properties(roguelike_app PROPERTIES OUTPUT_NAME app)
+target_link_libraries(roguelike_app
+  PRIVATE
+    roguelike_controller
+    roguelike_ui
+)
+
+# Tests
 enable_testing()
-add_executable(mylib_test_runner tests/foo_test.cpp)
-mylib_cxx_flags(mylib_test_runner)
-target_link_libraries(mylib_test_runner PRIVATE mylib Catch2::Catch2WithMain)
-add_test(NAME mylib_test_runner COMMAND $<TARGET_FILE:mylib_test_runner>)
+
+add_executable(roguelike_test_runner
+  tests/foo_test.cpp
+)
+
+roguelike_cxx_flags(roguelike_test_runner)
+target_link_libraries(roguelike_test_runner
+  PRIVATE
+    roguelike_controller
+    roguelike_ui
+    Catch2::Catch2WithMain
+)
+
+add_test(NAME roguelike_test_runner COMMAND $<TARGET_FILE:roguelike_test_runner>)
