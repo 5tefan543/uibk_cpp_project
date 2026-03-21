@@ -89,5 +89,7 @@ jobs:
     steps:
       - *checkout
       
-      - name: Upload coverage to Codecov
+      - name: Clang-Format Check
         uses: RafikFarhad/clang-format-github-action@v6
+        with:
+          style: file
