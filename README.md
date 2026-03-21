@@ -103,8 +103,8 @@ cmake --build --preset release
 ### Run the application:
 
 ```bash
-./build/debug/myapp
-./build/release/myapp
+./build/debug/app
+./build/release/app
 ```
 
 

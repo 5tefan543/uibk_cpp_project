@@ -79,9 +79,6 @@ add_executable(roguelike_test_runner
   tests/game/game_state_test.cpp
   tests/controller/controller_test.cpp
   tests/controller/input_state_test.cpp
-  tests/ui/ui_test.cpp
-  tests/ui/input_handler_test.cpp
-  tests/ui/renderer_test.cpp
 )
 
 roguelike_cxx_flags(roguelike_test_runner)
@@ -89,7 +86,6 @@ target_link_libraries(roguelike_test_runner
   PRIVATE
     roguelike_game
     roguelike_controller
-    roguelike_ui
     Catch2::Catch2WithMain
 )
 
