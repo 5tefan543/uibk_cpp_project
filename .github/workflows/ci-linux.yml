@@ -93,3 +93,4 @@ jobs:
         uses: RafikFarhad/clang-format-github-action@v6
         with:
           style: file
+          sources: "**/*.cpp,**/*.hpp,**/*.h,**/*.c"

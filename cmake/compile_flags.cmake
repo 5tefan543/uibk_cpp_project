@@ -10,6 +10,5 @@ function(roguelike_cxx_flags target)
 
   # We enable some warnings, although only if we know the compiler actually
   # supports these flags. The `$<...>` syntax is a *generator expression*.
-  target_compile_options(${target} PRIVATE
-    $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra -pedantic>)
+  target_compile_options(${target} PRIVATE $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra -pedantic>)
 endfunction()
