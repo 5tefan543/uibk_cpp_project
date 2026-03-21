@@ -94,4 +94,4 @@ jobs:
         id: clang-format
         with:
           style: file
-          sources: "**/*.cpp,**/*.hpp,**/*.h,**/*.c"
+          sources: "*.cpp,*.hpp,*.h,*.c"
