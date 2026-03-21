@@ -71,6 +71,7 @@ jobs:
           gcovr \
             --root . \
             --filter src \
+            --exclude apps \
             --exclude tests \
             --exclude build \
             --html-details coverage.html \
