@@ -14,5 +14,3 @@ GameState::~GameState()
 }
 
 } // namespace game
-
-
