@@ -90,7 +90,7 @@ jobs:
       - *checkout
       
       - name: Clang-Format Check
-        uses: RafikFarhad/clang-format-github-action@v6
+        uses: RafikFarhad/clang-format-github-action@v5
         with:
           style: file
           sources: "**/*.cpp,**/*.hpp,**/*.h,**/*.c"
