@@ -81,3 +81,13 @@ jobs:
         with:
           files: coverage.xml
           fail_ci_if_error: true
+
+  clang-format-check:
+    name: Clang-Format Check on Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      - *checkout
+      
+      - name: Upload coverage to Codecov
+        uses: RafikFarhad/clang-format-github-action@v6
