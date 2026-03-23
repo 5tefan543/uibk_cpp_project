@@ -1,82 +1,23 @@
 # Work Split 3 people
 
-
-### Person 1 — Player, combat, progression
-
-#### Owns:
-- basic movement
-- dash
-- defensive/active ability
-- cooldown logic
-- unlock / upgrade integration
-- aiming with mouse
-- melee and/or ranged combat
-- pickups (currency (xp), potions, temporary movement speed, temp shields, etc...)
-- player stats and progression hooks
-
-#### Touches SFML through:
-
-- sf::Keyboard / events
-- sf::Mouse
-- delta time / timing
-- sprite switching / simple animation
-- UI feedback for cooldowns if possible
-
-Why this is a fair chunk:
-This is a big gameplay-heavy pillar with lots of “feel” work and enough complexity to balance the other two.
-
-### Person 2 — Enemies, waves, stages, difficulty
-
-#### Owns:
-- enemy base behavior
-- fast melee enemy variant
-- tanky melee enemy variant
-- ranged enemy variant
-- boss attacks / boss logic
-- wave spawning
-- stage progression
-- 5 waves per stage
-- boss on wave 5
-- infinitely progressing stage scaling
-- hp/damage/count scaling
-- “theme data” per stage
-
-#### Touches SFML through:
-- enemy movement and update timing
-- collision/hitbox behavior
-- enemy projectiles
-- loading enemy sprites / themed assets
-- maybe boss attack telegraphs or effects
-
-Why this is a fair chunk:
-This is another large gameplay/system pillar. It is comparable to player/combat in effort, especially because balancing enemies and bosses takes time.
-
-### Person 3 — Menus, save/load, state management, presentation
-
-#### Owns:
+### Person 1 
 - main menu
+- player controls
+- enemy behaviour
+- special ability A
+
+### Person 2 
 - pause menu
-- game over screen
+- wave spawning
 - progression store
-- high score across restarts
-- save/load after each stage
-- scene/state switching
-- menu ↔ game ↔ pause ↔ game over ↔ shop
-- audio switching
-- stage music
-- menu music
-- stage tone presentation support
-- music/background/theme hookups
+- stage design
+- special ability B
 
-#### Touches SFML through:
-- sf::Text, buttons, menu rendering
-- sf::RenderWindow
-- event handling for menu navigation
-- sf::Music, sf::Sound
-- serialization triggers from gameplay state changes
-
-Why this is a fair chunk:
-Menus plus save/load plus scene/state handling is bigger than it sounds. It is not “easy UI work”; it is core glue code for the entire game.
+### Person 3 
+- game over screen
+- hitboxes and damage systems
+- progression
+- special ability C
 
 ### Secondary ownership
 
