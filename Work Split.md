@@ -1,23 +1,23 @@
 # Work Split 3 people
 
-### Person 1 
+### Martin 
 - main menu
 - player controls
 - enemy behaviour
 - special ability A
 
-### Person 2 
+### Stefan 
 - pause menu
 - wave spawning
 - progression store
-- stage design
 - special ability B
 
-### Person 3 
+### Robert
 - game over screen
 - hitboxes and damage systems
 - progression
 - special ability C
+- stage design
 
 ### Secondary ownership
 
