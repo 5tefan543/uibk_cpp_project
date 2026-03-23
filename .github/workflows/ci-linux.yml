@@ -81,3 +81,17 @@ jobs:
         with:
           files: coverage.xml
           fail_ci_if_error: true
+
+  clang-format-check:
+    name: Clang-Format Check on Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      - *checkout
+      
+      - name: Clang-Format Check
+        uses: RafikFarhad/clang-format-github-action@v6
+        id: clang-format
+        with:
+          style: file
+          sources: "*.cpp,*.hpp,*.h,*.c"
