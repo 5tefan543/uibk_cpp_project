@@ -20,11 +20,9 @@
 - stage design
 
 ### Secondary ownership
-
-The problem with main ownership alone is that one person may end up buried in core architecture while others do isolated features. So give each person a secondary support role:
-- Person 1 secondary: help Person 2 with hit detection / damage system
-- Person 2 secondary: help Person 3 with shop integration and progression scaling
-- Person 3 secondary: help Person 1 with HUD / cooldown display / stat display
+- Martin secondary: help Robert with hit detection / damage system
+- Stefan secondary: help Martin with enemy behaviour
+- Robert secondary: help Stefan with progression store
 
 That way everyone contributes outside their own silo.
 
@@ -60,30 +58,6 @@ All 3 together:
 - menu can switch into game scene
 
 ## MileStone 2 — core feature implementation
-
-Parallel work:
-
-### Person 1
-- player movement
-- aiming
-- combat
-- dash / active ability
-- pickups and stat changes
-
-### Person 2
-- enemy base class/system
-- wave spawning
-- ranged/melee variants
-- boss prototype
-- stage scaling
-
-### Person 3
-- main menu
-- pause menu
-- game over
-- save/load
-- high score
-- progression store shell
 
 ### Deliverable:
 - basic combat loop works
@@ -160,22 +134,11 @@ Define early:
 - how the save manager reads current state
 
 
-
 ## Start with:
-- 1 boss prototype
-- 2 enemy types
+- basic controls
+- 1 enemy types
 - 1 stage theme
 - scaling numbers
 - save/load working
 - menus working
 - Then add more themes and polish after the loop is stable.
-
-## Summary 
-
-Person 1: player movement, advanced abilities, aiming, combat, pickups
-Person 2: enemies, bosses, waves, infinite stage progression, scaling
-Person 3: menus, shop, save/load, high score, state management, music/theme integration
-
-
-## Entity Management
-either EnTT small custom ECS/entity manager
