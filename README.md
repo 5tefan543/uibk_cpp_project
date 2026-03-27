@@ -6,7 +6,7 @@
 
 The goal of this project is to implement an **arena-survival [Roguelike](https://en.wikipedia.org/wiki/Roguelike) inspired by [Brotato](https://brotato.wiki.spellsandguns.com/Brotato_Wiki)**.
 
-![Brotato](images/brotato_example.jpg)
+![Brotato](docs/images/brotato_example.jpg)
 *source: https://store.steampowered.com/app/1942280/Brotato/*
 
 The player controls a character fighting against continuously spawning enemies in a confined arena. Gameplay is organized into **waves**, which are grouped into **stages** consisting of five waves each. In each wave the player must survive enemy attacks while collecting items such as experience points or healing potions. As the game progresses, the difficulty increases through stronger enemies and higher spawn rates in later waves and stages, culminating in a **boss fight** at the end of each stage. After completing a stage, the player can spend collected experience points in the **progression store** to unlock weapons, abilities, or upgrades before continuing with the next stage. The game state can be saved and the game exited while the player is in the progression store, allowing the run to be continued later at the same stage. If the player saves and exits during a stage using the **pause menu**, the current stage is saved but the player will restart at **wave 1 of that stage** when loading the game. If the player dies, the progression is reset and a new run begins at **stage 1, wave 1**.
