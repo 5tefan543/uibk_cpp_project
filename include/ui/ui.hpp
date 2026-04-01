@@ -7,19 +7,19 @@ namespace ui {
 
 class UI {
   private:
-	sf::RenderWindow window;
-	InputHandler input_handler;
-	Renderer renderer;
+    sf::RenderWindow window;
+    InputHandler input_handler;
+    Renderer renderer;
 
-	void initWindow();
+    void initWindow();
 
   public:
-	UI();
-	~UI();
+    UI();
+    ~UI();
 
-	bool isOpen() const;
-	controller::InputState pollInput();
-	void render();
+    bool isOpen() const;
+    controller::InputState pollInput();
+    void render();
 };
 
 } // namespace ui

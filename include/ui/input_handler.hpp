@@ -6,10 +6,10 @@ namespace ui {
 
 class InputHandler {
   public:
-	InputHandler();
-	~InputHandler();
+    InputHandler();
+    ~InputHandler();
 
-	controller::InputState pollInput(sf::RenderWindow &window);
+    controller::InputState pollInput(sf::RenderWindow &window);
 };
 
 } // namespace ui

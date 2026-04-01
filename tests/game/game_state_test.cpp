@@ -3,5 +3,5 @@
 
 TEST_CASE("GameState can be constructed")
 {
-	REQUIRE_NOTHROW(game::GameState{});
+    REQUIRE_NOTHROW(game::GameState{});
 }

@@ -5,10 +5,10 @@ namespace ui {
 
 class Renderer {
   public:
-	Renderer();
-	~Renderer();
+    Renderer();
+    ~Renderer();
 
-	void render(sf::RenderWindow &window);
+    void render(sf::RenderWindow &window);
 };
 
 } // namespace ui

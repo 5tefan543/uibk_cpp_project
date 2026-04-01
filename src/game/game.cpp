@@ -5,12 +5,12 @@ namespace game {
 
 Game::Game()
 {
-	std::cout << "Game constructed" << std::endl;
+    std::cout << "Game constructed" << std::endl;
 }
 
 Game::~Game()
 {
-	std::cout << "Game destructed" << std::endl;
+    std::cout << "Game destructed" << std::endl;
 }
 
 } // namespace game

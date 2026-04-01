@@ -5,8 +5,8 @@ namespace game {
 class GameState {
   private:
   public:
-	GameState();
-	~GameState();
+    GameState();
+    ~GameState();
 };
 
 } // namespace game

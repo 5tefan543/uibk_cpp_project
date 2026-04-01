@@ -4,9 +4,9 @@
 
 TEST_CASE("Controller can be constructed and basic methods can be called")
 {
-	controller::Controller controller;
-	controller::InputState input;
+    controller::Controller controller;
+    controller::InputState input;
 
-	REQUIRE_NOTHROW(controller.handleInput(input));
-	REQUIRE_NOTHROW(controller.update(1.0f / 60.0f));
+    REQUIRE_NOTHROW(controller.handleInput(input));
+    REQUIRE_NOTHROW(controller.update(1.0f / 60.0f));
 }

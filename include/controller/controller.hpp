@@ -6,13 +6,13 @@ namespace controller {
 
 class Controller {
   private:
-	game::Game game;
+    game::Game game;
 
   public:
-	Controller();
-	~Controller();
-	void handleInput(const InputState &input);
-	void update(float dt);
+    Controller();
+    ~Controller();
+    void handleInput(const InputState &input);
+    void update(float dt);
 };
 
 } // namespace controller

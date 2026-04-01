@@ -3,5 +3,5 @@
 
 TEST_CASE("Game can be constructed")
 {
-	REQUIRE_NOTHROW(game::Game{});
+    REQUIRE_NOTHROW(game::Game{});
 }
