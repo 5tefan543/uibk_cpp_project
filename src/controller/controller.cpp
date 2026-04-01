@@ -6,6 +6,7 @@ namespace controller {
 Controller::Controller()
 {
     std::cout << "Controller constructed" << std::endl;
+    states.push(MenuState::createMainMenu());
 }
 
 Controller::~Controller()
@@ -13,23 +14,37 @@ Controller::~Controller()
     std::cout << "Controller destructed" << std::endl;
 }
 
-void Controller::handleInput(const InputState &input)
+void Controller::update(const InputState &input, float dt)
 {
-    std::cout << "Handling input: "
-              << "Left: " << input.left << ", "
-              << "Right: " << input.right << ", "
-              << "Up: " << input.up << ", "
-              << "Down: " << input.down << ", "
-              << "Mouse Left: " << input.mouseLeft << ", "
-              << "Mouse Right: " << input.mouseRight << ", "
-              << "Mouse Middle: " << input.mouseMiddle << ", "
-              << "Mouse X: " << input.mouseX << ", "
-              << "Mouse Y: " << input.mouseY << std::endl;
-}
+    BaseState &currentState = states.current();
+    StateAction action = currentState.update(input, dt);
 
-void controller::Controller::update(float dt)
-{
-    std::cout << "Updating controller with dt: " << dt << std::endl;
+    switch (action) {
+    case StateAction::None:
+        // No state change
+        break;
+    case StateAction::ReplaceWithGameplay:
+        states.replaceCurrent(GameplayState::createGameplay());
+        break;
+    case StateAction::PushPauseMenu:
+        states.push(MenuState::createPauseMenu());
+        break;
+    case StateAction::PushProgressionStore:
+        states.push(ProgressionStoreState::createStore());
+        break;
+    case StateAction::ReplaceWithGameOverMenu:
+        states.replaceCurrent(MenuState::createGameOverMenu());
+        break;
+    case StateAction::Pop:
+        states.pop();
+        break;
+    case StateAction::ReplaceWithMainMenu:
+        states.replaceCurrent(MenuState::createMainMenu());
+        break;
+    default:
+        std::cerr << "Unknown state action!" << std::endl;
+        break;
+    }
 }
 
 } // namespace controller

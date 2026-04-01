@@ -11,8 +11,7 @@ int main()
 
     while (ui.isOpen()) {
         controller::InputState input = ui.pollInput();
-        controller.handleInput(input);
-        controller.update(fixed_dt);
+        controller.update(input, fixed_dt);
         ui.render();
     }
 

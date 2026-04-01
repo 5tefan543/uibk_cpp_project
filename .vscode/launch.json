@@ -8,7 +8,7 @@
             "name": "Debug App",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/myapp",
+            "program": "${workspaceFolder}/build/debug/app",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -16,7 +16,6 @@
             "externalConsole": false,
             "MIMode": "gdb",
             "miDebuggerPath": "/usr/bin/gdb",
-            "preLaunchTask": "build-debug",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

@@ -1,5 +1,5 @@
 #pragma once
-#include "controller/input_state.hpp"
+#include "controller/state/input_state.hpp"
 #include <SFML/Graphics/RenderWindow.hpp>
 
 namespace ui {

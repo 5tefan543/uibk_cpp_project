@@ -24,7 +24,6 @@ find_package(SFML 3 REQUIRED COMPONENTS Graphics Audio)
 # Game library
 add_library(roguelike_game
   src/game/game.cpp
-  src/game/game_state.cpp
 )
 
 roguelike_cxx_flags(roguelike_game)
@@ -33,6 +32,8 @@ target_include_directories(roguelike_game PUBLIC include)
 # Controller library
 add_library(roguelike_controller
   src/controller/controller.cpp
+  src/controller/state/state_stack.cpp
+  src/controller/views/state.cpp
 )
 
 roguelike_cxx_flags(roguelike_controller)
@@ -76,7 +77,6 @@ enable_testing()
 
 add_executable(roguelike_test_runner
   tests/game/game_test.cpp
-  tests/game/game_state_test.cpp
   tests/controller/controller_test.cpp
   tests/controller/input_state_test.cpp
 )

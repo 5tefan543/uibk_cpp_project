@@ -1,18 +1,19 @@
 #pragma once
+
 #include "game/game.hpp"
-#include "input_state.hpp"
+#include "state/input_state.hpp"
+#include "state/state_stack.hpp"
 
 namespace controller {
 
 class Controller {
   private:
-    game::Game game;
+    StateStack states;
 
   public:
     Controller();
     ~Controller();
-    void handleInput(const InputState &input);
-    void update(float dt);
+    void update(const InputState &input, float dt);
 };
 
 } // namespace controller

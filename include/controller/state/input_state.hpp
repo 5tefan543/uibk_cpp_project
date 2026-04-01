@@ -7,11 +7,16 @@ struct InputState {
     bool right = false;
     bool up = false;
     bool down = false;
+
     bool mouseLeft = false;
     bool mouseRight = false;
     bool mouseMiddle = false;
-    float mouseX = 0.0f;
-    float mouseY = 0.0f;
+
+    int mouseX = 0;
+    int mouseY = 0;
+
+    bool confirm = false;
+    bool pause = false;
 };
 
 } // namespace controller
