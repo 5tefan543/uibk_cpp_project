@@ -78,9 +78,10 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
-          disable_search: true
-          files: coverage.xml
-          fail_ci_if_error: true
+          files: coverage.xml     # Upload the gcovr-generated report from previous step.
+          disable_search: true    # Prevent codecov from auto-discovering additional coverage files in the workspace.
+          plugins: noop           # Disable all plugins (e.g. gcov). We already generate a filtered coverage report via gcovr, so no additional coverage collection should run.
+          fail_ci_if_error: true  # Fail the workflow if the upload to codecov fails.
 
   clang-format-check:
     name: Clang-Format Check on Ubuntu
