@@ -72,9 +72,6 @@ void StateManager::applyAction(StateTransitionAction action)
     case StateTransitionAction::ReplaceCurrentWithMainMenu:
         replaceCurrent(MenuState::createMainMenu());
         break;
-    default:
-        std::cerr << "Unknown state manager action!" << std::endl;
-        break;
     }
 }
 

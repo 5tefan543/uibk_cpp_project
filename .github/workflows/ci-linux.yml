@@ -73,7 +73,9 @@ jobs:
             --filter '^(src|include)/' \
             --exclude '^(tests|build|include/ui|src/ui)/' \
             --html-details coverage.html \
-            --xml coverage.xml
+            --xml coverage.xml \
+            --exclude-unreachable-branches \
+            --exclude-throw-branches
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

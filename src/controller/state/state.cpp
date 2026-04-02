@@ -60,9 +60,6 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
             return StateTransitionAction::ReplaceCurrentWithMainMenu;
         }
         break;
-
-    default:
-        return StateTransitionAction::None;
     }
     return StateTransitionAction::None;
 }

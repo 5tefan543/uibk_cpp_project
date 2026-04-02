@@ -19,9 +19,8 @@ inline std::string toString(StateType type)
         return "ProgressionStore";
     case StateType::GameOverMenu:
         return "GameOverMenu";
-    default:
-        return "Unknown";
     }
+    return "Unknown";
 }
 
 } // namespace controller
