@@ -70,9 +70,8 @@ jobs:
         run: |
           gcovr \
             --root . \
-            --filter src \
-            --exclude tests \
-            --exclude build \
+            --filter '^(src|include)/' \
+            --exclude '^(tests|build|include/ui|src/ui)/' \
             --html-details coverage.html \
             --xml coverage.xml
 
