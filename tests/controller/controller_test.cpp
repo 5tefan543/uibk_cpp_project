@@ -1,5 +1,5 @@
 #include "controller/controller.hpp"
-#include "controller/state/input_state.hpp"
+#include "controller/input/input_state.hpp"
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("Controller can be constructed and basic methods can be called")

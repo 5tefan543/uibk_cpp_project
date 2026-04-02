@@ -1,4 +1,4 @@
-#include "controller/state/input_state.hpp"
+#include "controller/input/input_state.hpp"
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("InputState has neutral default values")

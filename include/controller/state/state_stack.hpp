@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include "controller/views/state.hpp"
+#include "controller/state/state.hpp"
 
 namespace controller {
 

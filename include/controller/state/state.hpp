@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "button.hpp"
-#include "color.hpp"
-#include "controller/state/input_state.hpp"
+#include "controller/input/input_state.hpp"
+#include "controller/presentation/button.hpp"
+#include "controller/presentation/color.hpp"
 #include "controller/state/state_action.hpp"
 #include "controller/state/state_type.hpp"
 #include "game/game.hpp"
@@ -16,7 +16,6 @@ namespace controller {
 
 struct BaseState {
     StateType type;
-    std::string title;
     Color backgroundColor;
 
     virtual ~BaseState() = default;
@@ -26,6 +25,7 @@ struct BaseState {
 
 struct MenuState : public BaseState {
     // Add menu-specific state variables here
+    std::string title;
     std::vector<Button> buttons;
     std::size_t selectedButtonIndex = 0;
 

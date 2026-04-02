@@ -1,7 +1,7 @@
 #pragma once
 
 #include "game/game.hpp"
-#include "state/input_state.hpp"
+#include "input/input_state.hpp"
 #include "state/state_stack.hpp"
 
 namespace controller {

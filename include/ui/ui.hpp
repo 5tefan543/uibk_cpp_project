@@ -1,6 +1,7 @@
 #pragma once
 #include "ui/input_handler.hpp"
 #include "ui/renderer.hpp"
+
 #include <SFML/Graphics/RenderWindow.hpp>
 
 namespace ui {

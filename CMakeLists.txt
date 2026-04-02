@@ -33,7 +33,7 @@ target_include_directories(roguelike_game PUBLIC include)
 add_library(roguelike_controller
   src/controller/controller.cpp
   src/controller/state/state_stack.cpp
-  src/controller/views/state.cpp
+  src/controller/state/state.cpp
 )
 
 roguelike_cxx_flags(roguelike_controller)

@@ -1,4 +1,4 @@
-#include "controller/views/state.hpp"
+#include "controller/state/state.hpp"
 
 namespace controller {
 
@@ -71,7 +71,6 @@ std::unique_ptr<GameplayState> GameplayState::createGameplay()
 {
     auto gameplay = std::make_unique<GameplayState>();
     gameplay->type = StateType::Gameplay;
-    gameplay->title = "GAMEPLAY";
     gameplay->backgroundColor = {0, 0, 0};
     // Initialize game and other state variables here
     return gameplay;
@@ -93,7 +92,6 @@ std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
 {
     auto store = std::make_unique<ProgressionStoreState>();
     store->type = StateType::ProgressionStore;
-    store->title = "PROGRESSION STORE";
     store->backgroundColor = {0, 0, 0};
     // Initialize store state variables here
     return store;

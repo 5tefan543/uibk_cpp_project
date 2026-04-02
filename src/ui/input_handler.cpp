@@ -1,5 +1,5 @@
 #include "ui/input_handler.hpp"
-#include "controller/state/input_state.hpp"
+#include "controller/input/input_state.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
