@@ -8,7 +8,7 @@
 #include "controller/input/input_state.hpp"
 #include "controller/presentation/button.hpp"
 #include "controller/presentation/color.hpp"
-#include "controller/state/state_action.hpp"
+#include "controller/state/state_transition_action.hpp"
 #include "controller/state/state_type.hpp"
 #include "game/game.hpp"
 
@@ -20,7 +20,7 @@ struct BaseState {
 
     virtual ~BaseState() = default;
 
-    virtual StateAction update(const InputState &input, float dt) = 0;
+    virtual StateTransitionAction update(const InputState &input, float dt) = 0;
 };
 
 struct MenuState : public BaseState {
@@ -33,7 +33,7 @@ struct MenuState : public BaseState {
     static std::unique_ptr<MenuState> createPauseMenu();
     static std::unique_ptr<MenuState> createGameOverMenu();
 
-    StateAction update(const InputState &input, float dt) override;
+    StateTransitionAction update(const InputState &input, float dt) override;
 };
 
 struct GameplayState : public BaseState {
@@ -42,7 +42,7 @@ struct GameplayState : public BaseState {
 
     static std::unique_ptr<GameplayState> createGameplay();
 
-    StateAction update(const InputState &input, float dt) override;
+    StateTransitionAction update(const InputState &input, float dt) override;
 };
 
 struct ProgressionStoreState : public BaseState {
@@ -50,7 +50,7 @@ struct ProgressionStoreState : public BaseState {
 
     static std::unique_ptr<ProgressionStoreState> createStore();
 
-    StateAction update(const InputState &input, float dt) override;
+    StateTransitionAction update(const InputState &input, float dt) override;
 };
 
 } // namespace controller

@@ -7,18 +7,19 @@
 
 namespace controller {
 
-class StateStack {
+class StateManager {
   private:
     std::vector<std::unique_ptr<BaseState>> states;
 
   public:
     void push(std::unique_ptr<BaseState> state);
     void pop();
-    BaseState &current();
-    bool empty() const;
+    BaseState &getCurrent();
+    bool isEmpty() const;
     void clear();
     void replaceCurrent(std::unique_ptr<BaseState> state);
-    void printStack() const;
+    void applyAction(StateTransitionAction action);
+    void printDebugInfo() const;
 };
 
 } // namespace controller

@@ -40,31 +40,31 @@ std::unique_ptr<MenuState> MenuState::createGameOverMenu()
     return gameOverMenu;
 }
 
-StateAction MenuState::update(const InputState &input, float dt)
+StateTransitionAction MenuState::update(const InputState &input, float dt)
 {
     switch (type) {
     case StateType::MainMenu:
         if (input.confirm) {
-            return StateAction::ReplaceWithGameplay;
+            return StateTransitionAction::ReplaceCurrentWithGameplay;
         }
         break;
 
     case StateType::PauseMenu:
         if (input.confirm) {
-            return StateAction::Pop;
+            return StateTransitionAction::Pop;
         }
         break;
 
     case StateType::GameOverMenu:
         if (input.confirm) {
-            return StateAction::ReplaceWithMainMenu;
+            return StateTransitionAction::ReplaceCurrentWithMainMenu;
         }
         break;
 
     default:
-        return StateAction::None;
+        return StateTransitionAction::None;
     }
-    return StateAction::None;
+    return StateTransitionAction::None;
 }
 
 std::unique_ptr<GameplayState> GameplayState::createGameplay()
@@ -76,16 +76,16 @@ std::unique_ptr<GameplayState> GameplayState::createGameplay()
     return gameplay;
 }
 
-StateAction GameplayState::update(const InputState &input, float dt)
+StateTransitionAction GameplayState::update(const InputState &input, float dt)
 {
     if (input.pause) {
-        return StateAction::PushPauseMenu;
+        return StateTransitionAction::PushPauseMenu;
     } else if (input.mouseLeft) {
-        return StateAction::PushProgressionStore;
+        return StateTransitionAction::PushProgressionStore;
     } else if (input.confirm) {
-        return StateAction::ReplaceWithGameOverMenu;
+        return StateTransitionAction::ReplaceCurrentWithGameOverMenu;
     }
-    return StateAction::None;
+    return StateTransitionAction::None;
 }
 
 std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
@@ -97,12 +97,12 @@ std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
     return store;
 }
 
-StateAction ProgressionStoreState::update(const InputState &input, float dt)
+StateTransitionAction ProgressionStoreState::update(const InputState &input, float dt)
 {
     if (input.confirm) {
-        return StateAction::Pop;
+        return StateTransitionAction::Pop;
     }
-    return StateAction::None;
+    return StateTransitionAction::None;
 }
 
 } // namespace controller

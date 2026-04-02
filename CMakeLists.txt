@@ -32,8 +32,8 @@ target_include_directories(roguelike_game PUBLIC include)
 # Controller library
 add_library(roguelike_controller
   src/controller/controller.cpp
-  src/controller/state/state_stack.cpp
   src/controller/state/state.cpp
+  src/controller/state/state_manager.cpp
 )
 
 roguelike_cxx_flags(roguelike_controller)
@@ -78,10 +78,13 @@ enable_testing()
 add_executable(roguelike_test_runner
   tests/game/game_test.cpp
   tests/controller/controller_test.cpp
-  tests/controller/input_state_test.cpp
+  tests/controller/input/input_state_test.cpp
+  tests/controller/state/state_test.cpp
+  tests/controller/state/state_manager_test.cpp
 )
 
 roguelike_cxx_flags(roguelike_test_runner)
+target_include_directories(roguelike_test_runner PRIVATE tests)
 target_link_libraries(roguelike_test_runner
   PRIVATE
     roguelike_game
