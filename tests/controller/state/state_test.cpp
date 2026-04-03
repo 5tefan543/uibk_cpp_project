@@ -12,7 +12,6 @@ TEST_CASE("MenuState::createMainMenu constructs main menu with expected properti
     // ASSERT
     REQUIRE(state != nullptr);
     REQUIRE(state->type == StateType::MainMenu);
-    REQUIRE(state->buttons.size() == 2);
     REQUIRE(state->selectedButtonIndex == 0);
 }
 
@@ -24,7 +23,6 @@ TEST_CASE("MenuState::createPauseMenu constructs pause menu with expected proper
     // ASSERT
     REQUIRE(state != nullptr);
     REQUIRE(state->type == StateType::PauseMenu);
-    REQUIRE(state->buttons.size() == 2);
     REQUIRE(state->selectedButtonIndex == 0);
 }
 
@@ -36,7 +34,6 @@ TEST_CASE("MenuState::createGameOverMenu constructs game over menu with expected
     // ASSERT
     REQUIRE(state != nullptr);
     REQUIRE(state->type == StateType::GameOverMenu);
-    REQUIRE(state->buttons.size() == 1);
     REQUIRE(state->selectedButtonIndex == 0);
 }
 

@@ -33,10 +33,10 @@ controller::InputState UI::pollInput()
     return input_handler.pollInput(window);
 }
 
-void UI::render()
+void UI::render(const controller::View &view)
 {
-    window.clear(sf::Color::Black);
-    renderer.render(window);
+    window.clear(renderer.toSfColor(view.backgroundColor));
+    renderer.renderItems(window, view.items);
     window.display();
 }
 

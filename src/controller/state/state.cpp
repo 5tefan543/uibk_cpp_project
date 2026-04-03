@@ -6,12 +6,6 @@ std::unique_ptr<MenuState> MenuState::createMainMenu()
 {
     auto mainMenu = std::make_unique<MenuState>();
     mainMenu->type = StateType::MainMenu;
-    mainMenu->title = "GAME TITLE";
-    mainMenu->backgroundColor = {0, 0, 0};
-    mainMenu->buttons = {
-        {"Start Game", 0.0f, -40.0f, 220.0f, 50.0f},
-        {"Quit", 0.0f, 40.0f, 220.0f, 50.0f},
-    };
     return mainMenu;
 }
 
@@ -19,12 +13,6 @@ std::unique_ptr<MenuState> MenuState::createPauseMenu()
 {
     auto pauseMenu = std::make_unique<MenuState>();
     pauseMenu->type = StateType::PauseMenu;
-    pauseMenu->title = "PAUSED";
-    pauseMenu->backgroundColor = {20, 20, 60};
-    pauseMenu->buttons = {
-        {"Resume", 0.0f, -40.0f, 220.0f, 50.0f},
-        {"Quit", 0.0f, 40.0f, 220.0f, 50.0f},
-    };
     return pauseMenu;
 }
 
@@ -32,11 +20,6 @@ std::unique_ptr<MenuState> MenuState::createGameOverMenu()
 {
     auto gameOverMenu = std::make_unique<MenuState>();
     gameOverMenu->type = StateType::GameOverMenu;
-    gameOverMenu->title = "GAME OVER";
-    gameOverMenu->backgroundColor = {80, 0, 0};
-    gameOverMenu->buttons = {
-        {"Back to Main Menu", 0.0f, -40.0f, 300.0f, 50.0f},
-    };
     return gameOverMenu;
 }
 
@@ -64,12 +47,40 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
     return StateTransitionAction::None;
 }
 
+View MenuState::getView()
+{
+    View view;
+    switch (type) {
+    case StateType::MainMenu:
+        // Construct view for main menu
+        break;
+    case StateType::PauseMenu: {
+        // Construct view for pause menu
+        Button resumeButton;
+        resumeButton.text = "Resume";
+        resumeButton.centerOffsetX = -100;
+        Button quitButton;
+        quitButton.text = "Quit";
+        quitButton.centerOffsetX = 100;
+
+        std::unique_ptr<Card> pauseCard = std::make_unique<Card>();
+        pauseCard->items.push_back(resumeButton);
+        pauseCard->items.push_back(quitButton);
+
+        view.items.push_back(std::move(pauseCard)); // this breaks
+        break;
+    }
+    case StateType::GameOverMenu:
+        // Construct view for game over menu
+        break;
+    }
+    return view;
+}
+
 std::unique_ptr<GameplayState> GameplayState::createGameplay()
 {
     auto gameplay = std::make_unique<GameplayState>();
     gameplay->type = StateType::Gameplay;
-    gameplay->backgroundColor = {0, 0, 0};
-    // Initialize game and other state variables here
     return gameplay;
 }
 
@@ -85,12 +96,17 @@ StateTransitionAction GameplayState::update(const InputState &input, float dt)
     return StateTransitionAction::None;
 }
 
+View GameplayState::getView()
+{
+    View view;
+    // Construct view based on gameplay state
+    return view;
+}
+
 std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
 {
     auto store = std::make_unique<ProgressionStoreState>();
     store->type = StateType::ProgressionStore;
-    store->backgroundColor = {0, 0, 0};
-    // Initialize store state variables here
     return store;
 }
 
@@ -100,6 +116,13 @@ StateTransitionAction ProgressionStoreState::update(const InputState &input, flo
         return StateTransitionAction::Pop;
     }
     return StateTransitionAction::None;
+}
+
+View ProgressionStoreState::getView()
+{
+    View view;
+    // Construct view based on progression store state
+    return view;
 }
 
 } // namespace controller

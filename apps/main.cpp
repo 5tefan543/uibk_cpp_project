@@ -1,4 +1,5 @@
 #include "controller/controller.hpp"
+#include "controller/view/view.hpp"
 #include "ui/ui.hpp"
 #include <cstdlib>
 
@@ -12,7 +13,9 @@ int main()
     while (ui.isOpen()) {
         controller::InputState input = ui.pollInput();
         controller.update(input, fixed_dt);
-        ui.render();
+        controller::BaseState &currentState = controller.getCurrentState();
+        controller::View view = currentState.getView();
+        ui.render(view);
     }
 
     return EXIT_SUCCESS;

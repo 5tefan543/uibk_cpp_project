@@ -1,4 +1,6 @@
 #pragma once
+
+#include "controller/view/view.hpp"
 #include "ui/input_handler.hpp"
 #include "ui/renderer.hpp"
 
@@ -20,7 +22,7 @@ class UI {
 
     bool isOpen() const;
     controller::InputState pollInput();
-    void render();
+    void render(const controller::View &view);
 };
 
 } // namespace ui
