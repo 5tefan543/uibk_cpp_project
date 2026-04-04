@@ -12,6 +12,8 @@ struct Button {
     float centerOffsetY = 0.0f;
     float width = 100.0f;
     float height = 50.0f;
+    bool isSelected = false;
+    Color selectedColor = {0, 255, 0};
 };
 
 } // namespace controller

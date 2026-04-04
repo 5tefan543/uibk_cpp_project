@@ -80,7 +80,7 @@ void StateManager::printDebugInfo() const
     std::cout << "States: [";
     for (auto it = states.begin(); it != states.end(); ++it) {
 
-        std::cout << toString((*it)->type);
+        std::cout << (*it)->toString();
 
         if (std::next(it) != states.end()) {
             std::cout << " -> ";

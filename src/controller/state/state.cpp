@@ -5,40 +5,45 @@ namespace controller {
 std::unique_ptr<MenuState> MenuState::createMainMenu()
 {
     auto mainMenu = std::make_unique<MenuState>();
-    mainMenu->type = StateType::MainMenu;
+    mainMenu->type = MenuType::MainMenu;
     return mainMenu;
 }
 
 std::unique_ptr<MenuState> MenuState::createPauseMenu()
 {
     auto pauseMenu = std::make_unique<MenuState>();
-    pauseMenu->type = StateType::PauseMenu;
+    pauseMenu->type = MenuType::PauseMenu;
     return pauseMenu;
 }
 
 std::unique_ptr<MenuState> MenuState::createGameOverMenu()
 {
     auto gameOverMenu = std::make_unique<MenuState>();
-    gameOverMenu->type = StateType::GameOverMenu;
+    gameOverMenu->type = MenuType::GameOverMenu;
     return gameOverMenu;
 }
 
 StateTransitionAction MenuState::update(const InputState &input, float dt)
 {
     switch (type) {
-    case StateType::MainMenu:
+    case MenuType::MainMenu:
         if (input.confirm) {
             return StateTransitionAction::ReplaceCurrentWithGameplay;
         }
         break;
 
-    case StateType::PauseMenu:
-        if (input.confirm) {
+    case MenuType::PauseMenu:
+        if (input.confirm && selectedButtonIndex == 0) {
             return StateTransitionAction::Pop;
+        }
+        if (input.left) {
+            selectedButtonIndex = 0;
+        } else if (input.right) {
+            selectedButtonIndex = 1;
         }
         break;
 
-    case StateType::GameOverMenu:
+    case MenuType::GameOverMenu:
         if (input.confirm) {
             return StateTransitionAction::ReplaceCurrentWithMainMenu;
         }
@@ -51,17 +56,19 @@ View MenuState::getView()
 {
     View view;
     switch (type) {
-    case StateType::MainMenu:
+    case MenuType::MainMenu:
         // Construct view for main menu
         break;
-    case StateType::PauseMenu: {
+    case MenuType::PauseMenu: {
         // Construct view for pause menu
         Button resumeButton;
         resumeButton.text = "Resume";
         resumeButton.centerOffsetX = -100;
+        resumeButton.isSelected = (selectedButtonIndex == 0);
         Button quitButton;
         quitButton.text = "Quit";
         quitButton.centerOffsetX = 100;
+        quitButton.isSelected = (selectedButtonIndex == 1);
 
         std::unique_ptr<Card> pauseCard = std::make_unique<Card>();
         pauseCard->items.push_back(resumeButton);
@@ -70,17 +77,28 @@ View MenuState::getView()
         view.items.push_back(std::move(pauseCard)); // this breaks
         break;
     }
-    case StateType::GameOverMenu:
+    case MenuType::GameOverMenu:
         // Construct view for game over menu
         break;
     }
     return view;
 }
 
+std::string MenuState::toString() const
+{
+    switch (type) {
+    case MenuType::MainMenu:
+        return "MainMenu";
+    case MenuType::PauseMenu:
+        return "PauseMenu";
+    case MenuType::GameOverMenu:
+        return "GameOverMenu";
+    }
+}
+
 std::unique_ptr<GameplayState> GameplayState::createGameplay()
 {
     auto gameplay = std::make_unique<GameplayState>();
-    gameplay->type = StateType::Gameplay;
     return gameplay;
 }
 
@@ -103,10 +121,14 @@ View GameplayState::getView()
     return view;
 }
 
+std::string GameplayState::toString() const
+{
+    return "Gameplay";
+}
+
 std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
 {
     auto store = std::make_unique<ProgressionStoreState>();
-    store->type = StateType::ProgressionStore;
     return store;
 }
 
@@ -123,6 +145,11 @@ View ProgressionStoreState::getView()
     View view;
     // Construct view based on progression store state
     return view;
+}
+
+std::string ProgressionStoreState::toString() const
+{
+    return "ProgressionStore";
 }
 
 } // namespace controller
