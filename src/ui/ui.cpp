@@ -1,5 +1,6 @@
 #include "ui/ui.hpp"
 
+#include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <iostream>
 #include <optional>
@@ -19,7 +20,9 @@ UI::~UI()
 
 void UI::initWindow()
 {
-    window.create(sf::VideoMode({800, 600}), "My Game");
+    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+    window.create(desktop, "My Game");
+    window.setPosition({0, 0});
     window.setFramerateLimit(60);
 }
 
