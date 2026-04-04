@@ -11,7 +11,7 @@ TEST_CASE("Controller is constructed with main menu as current state")
     Controller controller;
 
     // ASSERT
-    REQUIRE(controller.getCurrentState().type == StateType::MainMenu);
+    REQUIRE(dynamic_cast<MenuState *>(&controller.getCurrentState()) != nullptr);
 }
 
 TEST_CASE("Controller update with no relevant input keeps main menu")
@@ -24,7 +24,7 @@ TEST_CASE("Controller update with no relevant input keeps main menu")
     controller.update(input, dummyDeltaTime);
 
     // ASSERT
-    REQUIRE(controller.getCurrentState().type == StateType::MainMenu);
+    REQUIRE(dynamic_cast<MenuState *>(&controller.getCurrentState()) != nullptr);
 }
 
 TEST_CASE("Controller forwards state update result to state manager")
@@ -38,5 +38,5 @@ TEST_CASE("Controller forwards state update result to state manager")
     controller.update(input, dummyDeltaTime);
 
     // ASSERT
-    REQUIRE(controller.getCurrentState().type == StateType::Gameplay);
+    REQUIRE(dynamic_cast<GameplayState *>(&controller.getCurrentState()) != nullptr);
 }

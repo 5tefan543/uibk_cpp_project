@@ -11,7 +11,7 @@ TEST_CASE("MenuState::createMainMenu constructs main menu with expected properti
 
     // ASSERT
     REQUIRE(state != nullptr);
-    REQUIRE(state->type == StateType::MainMenu);
+    REQUIRE(state->type == MenuType::MainMenu);
     REQUIRE(state->selectedButtonIndex == 0);
 }
 
@@ -22,7 +22,7 @@ TEST_CASE("MenuState::createPauseMenu constructs pause menu with expected proper
 
     // ASSERT
     REQUIRE(state != nullptr);
-    REQUIRE(state->type == StateType::PauseMenu);
+    REQUIRE(state->type == MenuType::PauseMenu);
     REQUIRE(state->selectedButtonIndex == 0);
 }
 
@@ -33,7 +33,7 @@ TEST_CASE("MenuState::createGameOverMenu constructs game over menu with expected
 
     // ASSERT
     REQUIRE(state != nullptr);
-    REQUIRE(state->type == StateType::GameOverMenu);
+    REQUIRE(state->type == MenuType::GameOverMenu);
     REQUIRE(state->selectedButtonIndex == 0);
 }
 
@@ -44,7 +44,6 @@ TEST_CASE("GameplayState::createGameplay constructs gameplay state with expected
 
     // ASSERT
     REQUIRE(state != nullptr);
-    REQUIRE(state->type == StateType::Gameplay);
 }
 
 TEST_CASE("ProgressionStoreState::createStore constructs store state with expected properties")
@@ -54,7 +53,6 @@ TEST_CASE("ProgressionStoreState::createStore constructs store state with expect
 
     // ASSERT
     REQUIRE(state != nullptr);
-    REQUIRE(state->type == StateType::ProgressionStore);
 }
 
 TEST_CASE("Main menu update returns correct actions")

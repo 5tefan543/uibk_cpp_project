@@ -24,7 +24,7 @@ TEST_CASE("push adds a state and getCurrent returns it")
 
     // ASSERT
     REQUIRE_FALSE(stateManager.isEmpty());
-    REQUIRE(stateManager.getCurrent().type == StateType::MainMenu);
+    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::MainMenu);
 }
 
 TEST_CASE("push multiple states and getCurrent returns top")
@@ -37,7 +37,7 @@ TEST_CASE("push multiple states and getCurrent returns top")
     stateManager.push(MenuState::createPauseMenu());
 
     // ASSERT
-    REQUIRE(stateManager.getCurrent().type == StateType::PauseMenu);
+    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::PauseMenu);
 }
 
 TEST_CASE("getCurrent on empty state manager throws")
@@ -60,7 +60,7 @@ TEST_CASE("pop removes the top state")
     stateManager.pop();
 
     // ASSERT
-    REQUIRE(stateManager.getCurrent().type == StateType::MainMenu);
+    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::MainMenu);
 }
 
 TEST_CASE("pop on single element results in empty state manager")
@@ -110,7 +110,7 @@ TEST_CASE("replaceCurrent replaces the top state")
     stateManager.replaceCurrent(MenuState::createGameOverMenu());
 
     // ASSERT
-    REQUIRE(stateManager.getCurrent().type == StateType::GameOverMenu);
+    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::GameOverMenu);
 }
 
 TEST_CASE("replaceCurrent on empty state manager throws")
@@ -132,7 +132,7 @@ TEST_CASE("applyAction None does not change current state")
     stateManager.applyAction(StateTransitionAction::None);
 
     // ASSERT
-    REQUIRE(stateManager.getCurrent().type == StateType::MainMenu);
+    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::MainMenu);
 }
 
 TEST_CASE("applyAction ReplaceCurrentWithGameplay replaces current state with gameplay")
@@ -145,7 +145,7 @@ TEST_CASE("applyAction ReplaceCurrentWithGameplay replaces current state with ga
     stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithGameplay);
 
     // ASSERT
-    REQUIRE(stateManager.getCurrent().type == StateType::Gameplay);
+    REQUIRE(dynamic_cast<GameplayState *>(&stateManager.getCurrent()) != nullptr);
 }
 
 TEST_CASE("applyAction PushPauseMenu pushes pause menu on top")
@@ -158,7 +158,7 @@ TEST_CASE("applyAction PushPauseMenu pushes pause menu on top")
     stateManager.applyAction(StateTransitionAction::PushPauseMenu);
 
     // ASSERT
-    REQUIRE(stateManager.getCurrent().type == StateType::PauseMenu);
+    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::PauseMenu);
 }
 
 TEST_CASE("applyAction PushProgressionStore pushes progression store on top")
@@ -171,7 +171,7 @@ TEST_CASE("applyAction PushProgressionStore pushes progression store on top")
     stateManager.applyAction(StateTransitionAction::PushProgressionStore);
 
     // ASSERT
-    REQUIRE(stateManager.getCurrent().type == StateType::ProgressionStore);
+    REQUIRE(dynamic_cast<ProgressionStoreState *>(&stateManager.getCurrent()) != nullptr);
 }
 
 TEST_CASE("applyAction ReplaceCurrentWithGameOverMenu replaces current state with game over menu")
@@ -184,7 +184,7 @@ TEST_CASE("applyAction ReplaceCurrentWithGameOverMenu replaces current state wit
     stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithGameOverMenu);
 
     // ASSERT
-    REQUIRE(stateManager.getCurrent().type == StateType::GameOverMenu);
+    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::GameOverMenu);
 }
 
 TEST_CASE("applyAction Pop removes the top state")
@@ -198,7 +198,7 @@ TEST_CASE("applyAction Pop removes the top state")
     stateManager.applyAction(StateTransitionAction::Pop);
 
     // ASSERT
-    REQUIRE(stateManager.getCurrent().type == StateType::MainMenu);
+    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::MainMenu);
 }
 
 TEST_CASE("applyAction ReplaceCurrentWithMainMenu replaces current state with main menu")
@@ -211,5 +211,5 @@ TEST_CASE("applyAction ReplaceCurrentWithMainMenu replaces current state with ma
     stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithMainMenu);
 
     // ASSERT
-    REQUIRE(stateManager.getCurrent().type == StateType::MainMenu);
+    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::MainMenu);
 }
