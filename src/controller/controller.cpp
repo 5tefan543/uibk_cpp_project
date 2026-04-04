@@ -6,7 +6,7 @@ namespace controller {
 Controller::Controller()
 {
     std::cout << "Controller constructed" << std::endl;
-    stateManager.push(MenuState::createMainMenu());
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
 }
 
 Controller::~Controller()

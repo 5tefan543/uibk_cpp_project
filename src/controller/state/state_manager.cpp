@@ -58,19 +58,19 @@ void StateManager::applyAction(StateTransitionAction action)
         replaceCurrent(GameplayState::createGameplay());
         break;
     case StateTransitionAction::PushPauseMenu:
-        push(MenuState::createPauseMenu());
+        push(MenuState::createMenu(MenuType::PauseMenu));
         break;
     case StateTransitionAction::PushProgressionStore:
         push(ProgressionStoreState::createStore());
         break;
     case StateTransitionAction::ReplaceCurrentWithGameOverMenu:
-        replaceCurrent(MenuState::createGameOverMenu());
+        replaceCurrent(MenuState::createMenu(MenuType::GameOverMenu));
         break;
     case StateTransitionAction::Pop:
         pop();
         break;
     case StateTransitionAction::ReplaceCurrentWithMainMenu:
-        replaceCurrent(MenuState::createMainMenu());
+        replaceCurrent(MenuState::createMenu(MenuType::MainMenu));
         break;
     }
 }

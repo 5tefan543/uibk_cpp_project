@@ -2,25 +2,11 @@
 
 namespace controller {
 
-std::unique_ptr<MenuState> MenuState::createMainMenu()
+std::unique_ptr<MenuState> MenuState::createMenu(MenuType menuType)
 {
-    auto mainMenu = std::make_unique<MenuState>();
-    mainMenu->type = MenuType::MainMenu;
-    return mainMenu;
-}
-
-std::unique_ptr<MenuState> MenuState::createPauseMenu()
-{
-    auto pauseMenu = std::make_unique<MenuState>();
-    pauseMenu->type = MenuType::PauseMenu;
-    return pauseMenu;
-}
-
-std::unique_ptr<MenuState> MenuState::createGameOverMenu()
-{
-    auto gameOverMenu = std::make_unique<MenuState>();
-    gameOverMenu->type = MenuType::GameOverMenu;
-    return gameOverMenu;
+    auto menu = std::make_unique<MenuState>();
+    menu->type = menuType;
+    return menu;
 }
 
 StateTransitionAction MenuState::update(const InputState &input, float dt)
@@ -57,14 +43,14 @@ View MenuState::getView()
     View view;
     switch (type) {
     case MenuType::MainMenu:
-        // Construct view for main menu
+        // TODO: Construct view for main menu
         break;
     case MenuType::PauseMenu: {
-        // Construct view for pause menu
         Button resumeButton;
         resumeButton.text = "Resume";
         resumeButton.centerOffsetX = -100;
         resumeButton.isSelected = (selectedButtonIndex == 0);
+
         Button quitButton;
         quitButton.text = "Quit";
         quitButton.centerOffsetX = 100;
@@ -74,11 +60,11 @@ View MenuState::getView()
         pauseCard->items.push_back(resumeButton);
         pauseCard->items.push_back(quitButton);
 
-        view.items.push_back(std::move(pauseCard)); // this breaks
+        view.items.push_back(std::move(pauseCard));
         break;
     }
     case MenuType::GameOverMenu:
-        // Construct view for game over menu
+        // TODO: Construct view for game over menu
         break;
     }
     return view;
@@ -117,7 +103,7 @@ StateTransitionAction GameplayState::update(const InputState &input, float dt)
 View GameplayState::getView()
 {
     View view;
-    // Construct view based on gameplay state
+    // TODO: Construct view based on gameplay state
     return view;
 }
 
@@ -143,7 +129,7 @@ StateTransitionAction ProgressionStoreState::update(const InputState &input, flo
 View ProgressionStoreState::getView()
 {
     View view;
-    // Construct view based on progression store state
+    // TODO: Construct view based on progression store state
     return view;
 }
 

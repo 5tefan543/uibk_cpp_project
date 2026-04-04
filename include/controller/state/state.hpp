@@ -27,9 +27,7 @@ struct MenuState : public BaseState {
     MenuType type;
     std::size_t selectedButtonIndex = 0;
 
-    static std::unique_ptr<MenuState> createMainMenu();
-    static std::unique_ptr<MenuState> createPauseMenu();
-    static std::unique_ptr<MenuState> createGameOverMenu();
+    static std::unique_ptr<MenuState> createMenu(MenuType menuType);
 
     StateTransitionAction update(const InputState &input, float dt) override;
     View getView() override;

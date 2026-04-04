@@ -20,7 +20,7 @@ TEST_CASE("push adds a state and getCurrent returns it")
     StateManager stateManager;
 
     // ACT
-    stateManager.push(MenuState::createMainMenu());
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
 
     // ASSERT
     REQUIRE_FALSE(stateManager.isEmpty());
@@ -33,8 +33,8 @@ TEST_CASE("push multiple states and getCurrent returns top")
     StateManager stateManager;
 
     // ACT
-    stateManager.push(MenuState::createMainMenu());
-    stateManager.push(MenuState::createPauseMenu());
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
+    stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
 
     // ASSERT
     REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::PauseMenu);
@@ -53,8 +53,8 @@ TEST_CASE("pop removes the top state")
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(MenuState::createMainMenu());
-    stateManager.push(MenuState::createPauseMenu());
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
+    stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
 
     // ACT
     stateManager.pop();
@@ -67,7 +67,7 @@ TEST_CASE("pop on single element results in empty state manager")
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(MenuState::createMainMenu());
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
 
     // ACT
     stateManager.pop();
@@ -89,8 +89,8 @@ TEST_CASE("clear removes all states")
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(MenuState::createMainMenu());
-    stateManager.push(MenuState::createPauseMenu());
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
+    stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
 
     // ACT
     stateManager.clear();
@@ -103,11 +103,11 @@ TEST_CASE("replaceCurrent replaces the top state")
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(MenuState::createMainMenu());
-    stateManager.push(MenuState::createPauseMenu());
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
+    stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
 
     // ACT
-    stateManager.replaceCurrent(MenuState::createGameOverMenu());
+    stateManager.replaceCurrent(MenuState::createMenu(MenuType::GameOverMenu));
 
     // ASSERT
     REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::GameOverMenu);
@@ -119,14 +119,14 @@ TEST_CASE("replaceCurrent on empty state manager throws")
     StateManager stateManager;
 
     // ACT & ASSERT
-    REQUIRE_THROWS(stateManager.replaceCurrent(MenuState::createMainMenu()));
+    REQUIRE_THROWS(stateManager.replaceCurrent(MenuState::createMenu(MenuType::MainMenu)));
 }
 
 TEST_CASE("applyAction None does not change current state")
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(MenuState::createMainMenu());
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
 
     // ACT
     stateManager.applyAction(StateTransitionAction::None);
@@ -139,7 +139,7 @@ TEST_CASE("applyAction ReplaceCurrentWithGameplay replaces current state with ga
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(MenuState::createMainMenu());
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
 
     // ACT
     stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithGameplay);
@@ -191,8 +191,8 @@ TEST_CASE("applyAction Pop removes the top state")
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(MenuState::createMainMenu());
-    stateManager.push(MenuState::createPauseMenu());
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
+    stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
 
     // ACT
     stateManager.applyAction(StateTransitionAction::Pop);
@@ -205,7 +205,7 @@ TEST_CASE("applyAction ReplaceCurrentWithMainMenu replaces current state with ma
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(MenuState::createMainMenu());
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
 
     // ACT
     stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithMainMenu);
