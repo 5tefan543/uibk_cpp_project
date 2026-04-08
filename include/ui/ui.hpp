@@ -1,25 +1,28 @@
 #pragma once
+
+#include "controller/view/view.hpp"
 #include "ui/input_handler.hpp"
 #include "ui/renderer.hpp"
+
 #include <SFML/Graphics/RenderWindow.hpp>
 
 namespace ui {
 
 class UI {
   private:
-	sf::RenderWindow window;
-	InputHandler input_handler;
-	Renderer renderer;
+    sf::RenderWindow window;
+    InputHandler input_handler;
+    Renderer renderer;
 
-	void initWindow();
+    void initWindow();
 
   public:
-	UI();
-	~UI();
+    UI();
+    ~UI();
 
-	bool isOpen() const;
-	controller::InputState pollInput();
-	void render();
+    bool isOpen() const;
+    controller::InputState pollInput();
+    void render(const controller::View &view);
 };
 
 } // namespace ui

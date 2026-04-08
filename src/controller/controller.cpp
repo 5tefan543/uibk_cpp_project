@@ -5,31 +5,25 @@ namespace controller {
 
 Controller::Controller()
 {
-	std::cout << "Controller constructed" << std::endl;
+    std::cout << "Controller constructed" << std::endl;
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
 }
 
 Controller::~Controller()
 {
-	std::cout << "Controller destructed" << std::endl;
+    std::cout << "Controller destructed" << std::endl;
 }
 
-void Controller::handleInput(const InputState &input)
+void Controller::update(const InputState &input, float dt)
 {
-	std::cout << "Handling input: "
-	          << "Left: " << input.left << ", "
-	          << "Right: " << input.right << ", "
-	          << "Up: " << input.up << ", "
-	          << "Down: " << input.down << ", "
-	          << "Mouse Left: " << input.mouseLeft << ", "
-	          << "Mouse Right: " << input.mouseRight << ", "
-	          << "Mouse Middle: " << input.mouseMiddle << ", "
-	          << "Mouse X: " << input.mouseX << ", "
-	          << "Mouse Y: " << input.mouseY << std::endl;
+    BaseState &currentState = stateManager.getCurrent();
+    StateTransitionAction action = currentState.update(input, dt);
+    stateManager.applyAction(action);
 }
 
-void controller::Controller::update(float dt)
+BaseState &Controller::getCurrentState()
 {
-	std::cout << "Updating controller with dt: " << dt << std::endl;
+    return stateManager.getCurrent();
 }
 
 } // namespace controller

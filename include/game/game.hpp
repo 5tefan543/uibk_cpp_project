@@ -1,15 +1,15 @@
 #pragma once
-#include "game_state.hpp"
 
 namespace game {
 
 class Game {
   private:
-	GameState gameState;
+    // Add private member variables
 
   public:
-	Game();
-	~Game();
+    Game();
+    Game(const Game &);
+    ~Game();
 };
 
 } // namespace game
