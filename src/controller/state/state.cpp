@@ -90,21 +90,12 @@ std::unique_ptr<GameplayState> GameplayState::createGameplay()
 
 StateTransitionAction GameplayState::update(const InputState &input, float dt)
 {
-    if (input.pause) {
-        return StateTransitionAction::PushPauseMenu;
-    } else if (input.mouseLeft) {
-        return StateTransitionAction::PushProgressionStore;
-    } else if (input.confirm) {
-        return StateTransitionAction::ReplaceCurrentWithGameOverMenu;
-    }
-    return StateTransitionAction::None;
+    return game.update(input, dt);
 }
 
 View GameplayState::getView()
 {
-    View view;
-    // TODO: Construct view based on gameplay state
-    return view;
+    return game.getView();
 }
 
 std::string GameplayState::toString() const
