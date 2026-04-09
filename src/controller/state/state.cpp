@@ -1,4 +1,5 @@
 #include "controller/state/state.hpp"
+#include "controller/view/text.hpp"
 
 namespace controller {
 
@@ -42,17 +43,48 @@ View MenuState::getView()
 {
     View view;
     switch (type) {
-    case MenuType::MainMenu:
-        // TODO: Construct view for main menu
-        break;
+    case MenuType::MainMenu: {
+        std::unique_ptr<Card> mainMenuCard = std::make_unique<Card>();
+        mainMenuCard->backgroundColor = {50, 50, 50};
+        mainMenuCard->width = 960;
+        mainMenuCard->height = 540;
+
+        Text title;
+        title.text = std::string("Main Menu");
+        title.centerOffsetY = -(mainMenuCard->height / 2 - 10);
+
+        Text text;
+        text.text = std::string("Start Game");
+        Button startGameButton;
+        startGameButton.width = 300.0f;
+        startGameButton.text = text;
+
+        Text textQuit;
+        textQuit.text = std::string("Quit");
+        Button quitButton;
+        quitButton.text = textQuit;
+        quitButton.width = 300.0f;
+        quitButton.centerOffsetY = 100;
+
+        mainMenuCard->items.push_back(title);
+        mainMenuCard->items.push_back(startGameButton);
+        mainMenuCard->items.push_back(quitButton);
+        view.items.push_back(std::move(mainMenuCard));
+    } break;
     case MenuType::PauseMenu: {
+        Text textResume;
+        textResume.text = std::string("Resume");
+
         Button resumeButton;
-        resumeButton.text = "Resume";
+        resumeButton.text = textResume;
         resumeButton.centerOffsetX = -100;
         resumeButton.isSelected = (selectedButtonIndex == 0);
 
+        Text textQuit;
+        textResume.text = std::string("Quit");
+
         Button quitButton;
-        quitButton.text = "Quit";
+        quitButton.text = textQuit;
         quitButton.centerOffsetX = 100;
         quitButton.isSelected = (selectedButtonIndex == 1);
 
