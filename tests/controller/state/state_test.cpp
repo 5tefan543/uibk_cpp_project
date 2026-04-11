@@ -301,7 +301,16 @@ TEST_CASE("MenuState::getView returns expected view")
 
         View view = state->getView();
 
-        REQUIRE(view.items.empty());
+        REQUIRE(view.items.size() == 1);
+        auto &card = std::get<std::unique_ptr<Card>>(view.items[0]);
+        Text title = std::get<Text>(card->items[0]);
+        REQUIRE(title.text == "Main Menu");
+
+        Button startButton = std::get<Button>(card->items[1]);
+        REQUIRE(startButton.text.text == "Start Game");
+
+        Button quitButton = std::get<Button>(card->items[2]);
+        REQUIRE(quitButton.text.text == "Quit");
     }
 
     SECTION("pause menu returns expected view")
@@ -365,7 +374,8 @@ TEST_CASE("GameplayState::getView returns expected view")
 
     View view = state->getView();
 
-    REQUIRE(view.items.empty());
+    REQUIRE(view.items.size() == 1);
+    REQUIRE(std::holds_alternative<controller::Text>(view.items.back()));
 }
 
 TEST_CASE("ProgressionStoreState::getView returns expected view")
