@@ -17,6 +17,7 @@ class Registry {
   private:
     Entity nextEntity = 1;
     std::vector<Entity> aliveEntities;
+    std::vector<Entity> freeEntities;
     std::unordered_map<std::type_index, std::unique_ptr<IStorage>> storages;
 
     template <typename T>
@@ -56,7 +57,15 @@ class Registry {
   public:
     Entity createEntity()
     {
-        const Entity entity = nextEntity++;
+        Entity entity;
+
+        if (!freeEntities.empty()) {
+            entity = freeEntities.back();
+            freeEntities.pop_back();
+        } else {
+            entity = nextEntity++;
+        }
+
         aliveEntities.push_back(entity);
         return entity;
     }
@@ -69,6 +78,7 @@ class Registry {
         }
 
         aliveEntities.erase(it);
+        freeEntities.push_back(entity);
 
         for (auto &[type, storage] : storages) {
             storage->removeComponent(entity);
