@@ -1,6 +1,7 @@
 #include "game/game.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/velocity.hpp"
+#include <controller/view/text.hpp>
 #include <iostream>
 
 namespace game {
@@ -51,6 +52,12 @@ controller::View Game::getView()
 {
     controller::View view;
     // TODO: Construct view based on game state
+    controller::Text text;
+    text.text = std::string("<< GAMEPLAY STATE PLACEHOLDER >>\n\n"
+                            "- left-mouse-btn -> Progression Store\n"
+                            "- enter          -> Game Over\n"
+                            "- esc            -> Pause Menu");
+    view.items.push_back(text);
     return view;
 }
 

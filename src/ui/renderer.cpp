@@ -6,6 +6,8 @@ namespace ui {
 
 Renderer::Renderer()
 {
+    // Load all fonts from disk once upon instantiation
+    fonts = std::vector<sf::Font>({sf::Font("assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf")});
     std::cout << "Renderer constructed" << std::endl;
 }
 
@@ -17,6 +19,18 @@ Renderer::~Renderer()
 sf::Color Renderer::toSfColor(const controller::Color &color)
 {
     return sf::Color(color.red, color.green, color.blue);
+}
+
+const sf::Font &Renderer::toSfFont(const controller::Font font)
+{
+    return fonts.at(font);
+}
+
+sf::Text Renderer::toSfText(const controller::Text text)
+{
+    sf::Text t(toSfFont(text.font), text.text, text.size);
+    t.setPosition(sf::Vector2f(text.centerOffsetX, text.centerOffsetX));
+    return t;
 }
 
 void Renderer::renderItems(sf::RenderWindow &window, const std::vector<controller::ViewItem> &items)
@@ -58,6 +72,27 @@ void Renderer::renderItem(sf::RenderWindow &window, const controller::Button &bu
     rect.setPosition({centerX, centerY});
 
     window.draw(rect);
+
+    sf::Text text = toSfText(button.text);
+    // Calc button text position based on button's position
+    text.setPosition(sf::Vector2f(centerX + button.text.centerOffsetX, centerY + button.text.centerOffsetY));
+    window.draw(text);
+}
+
+void Renderer::renderItem(sf::RenderWindow &window, const controller::Text &text)
+{
+    sf::Text t = toSfText(text);
+
+    auto x = window.getSize().x / 2.0f + text.centerOffsetX;
+    auto y = window.getSize().y / 2.0f + text.centerOffsetY;
+    t.setPosition(sf::Vector2f(x, y));
+
+    sf::Vector2<float> pos = t.getLocalBounds().getCenter();
+    pos.x += text.originOffsetX;
+    pos.y += text.originOffsetY;
+    t.setOrigin(pos);
+
+    window.draw(t);
 }
 
 } // namespace ui
