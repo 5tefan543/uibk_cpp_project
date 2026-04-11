@@ -1,4 +1,5 @@
 #include "controller/state/state.hpp"
+#include "controller/view/text.hpp"
 
 namespace controller {
 
@@ -13,8 +14,19 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
 {
     switch (type) {
     case MenuType::MainMenu:
+        if (input.down || input.up) {
+            selectedButtonIndex ^= 1;
+        }
         if (input.confirm) {
-            return StateTransitionAction::ReplaceCurrentWithGameplay;
+            switch (selectedButtonIndex) {
+            case 0:
+                return StateTransitionAction::ReplaceCurrentWithGameplay;
+                break;
+            case 1:
+                // TODO: how to close window
+                return StateTransitionAction::None;
+                break;
+            }
         }
         break;
 
@@ -42,17 +54,50 @@ View MenuState::getView()
 {
     View view;
     switch (type) {
-    case MenuType::MainMenu:
-        // TODO: Construct view for main menu
-        break;
+    case MenuType::MainMenu: {
+        std::unique_ptr<Card> mainMenuCard = std::make_unique<Card>();
+        mainMenuCard->backgroundColor = {50, 50, 50};
+        mainMenuCard->width = 960;
+        mainMenuCard->height = 540;
+
+        Text title;
+        title.text = std::string("Main Menu");
+        title.centerOffsetY = -(mainMenuCard->height / 2 - 10);
+
+        Text text;
+        text.text = std::string("Start Game");
+        Button startGameButton;
+        startGameButton.width = 300.0f;
+        startGameButton.text = text;
+        startGameButton.isSelected = (selectedButtonIndex == 0);
+
+        Text textQuit;
+        textQuit.text = std::string("Quit");
+        Button quitButton;
+        quitButton.text = textQuit;
+        quitButton.width = 300.0f;
+        quitButton.centerOffsetY = 100;
+        quitButton.isSelected = (selectedButtonIndex == 1);
+
+        mainMenuCard->items.push_back(title);
+        mainMenuCard->items.push_back(startGameButton);
+        mainMenuCard->items.push_back(quitButton);
+        view.items.push_back(std::move(mainMenuCard));
+    } break;
     case MenuType::PauseMenu: {
+        Text textResume;
+        textResume.text = std::string("Resume");
+
         Button resumeButton;
-        resumeButton.text = "Resume";
+        resumeButton.text = textResume;
         resumeButton.centerOffsetX = -100;
         resumeButton.isSelected = (selectedButtonIndex == 0);
 
+        Text textQuit;
+        textQuit.text = std::string("Quit");
+
         Button quitButton;
-        quitButton.text = "Quit";
+        quitButton.text = textQuit;
         quitButton.centerOffsetX = 100;
         quitButton.isSelected = (selectedButtonIndex == 1);
 
@@ -104,6 +149,12 @@ View GameplayState::getView()
 {
     View view;
     // TODO: Construct view based on gameplay state
+    Text text;
+    text.text = std::string("<< GAMEPLAY STATE PLACEHOLDER >>\n\n"
+                            "- left-mouse-btn -> Progression Store\n"
+                            "- enter          -> Game Over\n"
+                            "- esc            -> Pause Menu");
+    view.items.push_back(text);
     return view;
 }
 

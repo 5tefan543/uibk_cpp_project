@@ -1,12 +1,13 @@
 #pragma once
 
 #include "controller/view/color.hpp"
+#include "controller/view/text.hpp"
 #include <string>
 
 namespace controller {
 
 struct Button {
-    std::string text;
+    Text text;
     Color backgroundColor = {100, 100, 100};
     float centerOffsetX = 0.0f;
     float centerOffsetY = 0.0f;
