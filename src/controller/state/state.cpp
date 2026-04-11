@@ -94,7 +94,7 @@ View MenuState::getView()
         resumeButton.isSelected = (selectedButtonIndex == 0);
 
         Text textQuit;
-        textResume.text = std::string("Quit");
+        textQuit.text = std::string("Quit");
 
         Button quitButton;
         quitButton.text = textQuit;
@@ -149,6 +149,12 @@ View GameplayState::getView()
 {
     View view;
     // TODO: Construct view based on gameplay state
+    Text text;
+    text.text = std::string("<< GAMEPLAY STATE PLACEHOLDER >>\n\n"
+                            "- left-mouse-btn -> Progression Store\n"
+                            "- enter          -> Game Over\n"
+                            "- esc            -> Pause Menu");
+    view.items.push_back(text);
     return view;
 }
 
