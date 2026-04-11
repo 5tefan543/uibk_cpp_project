@@ -14,8 +14,19 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
 {
     switch (type) {
     case MenuType::MainMenu:
+        if (input.down || input.up) {
+            selectedButtonIndex ^= 1;
+        }
         if (input.confirm) {
-            return StateTransitionAction::ReplaceCurrentWithGameplay;
+            switch (selectedButtonIndex) {
+            case 0:
+                return StateTransitionAction::ReplaceCurrentWithGameplay;
+                break;
+            case 1:
+                // TODO: how to close window
+                return StateTransitionAction::None;
+                break;
+            }
         }
         break;
 
@@ -58,6 +69,7 @@ View MenuState::getView()
         Button startGameButton;
         startGameButton.width = 300.0f;
         startGameButton.text = text;
+        startGameButton.isSelected = (selectedButtonIndex == 0);
 
         Text textQuit;
         textQuit.text = std::string("Quit");
@@ -65,6 +77,7 @@ View MenuState::getView()
         quitButton.text = textQuit;
         quitButton.width = 300.0f;
         quitButton.centerOffsetY = 100;
+        quitButton.isSelected = (selectedButtonIndex == 1);
 
         mainMenuCard->items.push_back(title);
         mainMenuCard->items.push_back(startGameButton);
