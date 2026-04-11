@@ -9,11 +9,9 @@ namespace game {
 
 void MovementSystem::update(Registry &registry, float dt)
 {
-    auto view = registry.view<Position, Velocity>();
-
-    for (auto entity : view) {
-        auto &position = view.get<Position>(entity);
-        auto &velocity = view.get<Velocity>(entity);
+    for (auto entity : registry.view<Position, Velocity>()) {
+        Position &position = registry.getComponent<Position>(entity);
+        Velocity &velocity = registry.getComponent<Velocity>(entity);
 
         Position before = position;
 

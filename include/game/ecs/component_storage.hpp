@@ -10,32 +10,35 @@
 
 namespace game {
 
+class IStorage {
+  public:
+    virtual ~IStorage() = default;
+    virtual void removeComponent(Entity entity) = 0;
+};
+
 template <typename T>
-class ComponentStorage {
+class ComponentStorage : public IStorage {
   private:
     std::vector<Entity> entities;
     std::vector<T> components;
     std::unordered_map<Entity, std::size_t> entityToIndex;
 
   public:
-    bool has(Entity entity) const { return entityToIndex.find(entity) != entityToIndex.end(); }
-
-    template <typename... Args>
-    T &emplace(Entity entity, Args &&...args)
+    T &addComponent(Entity entity, T component)
     {
-        if (has(entity)) {
+        if (hasComponent(entity)) {
             throw std::runtime_error("Component already exists on entity");
         }
 
         const std::size_t index = components.size();
         entities.push_back(entity);
-        components.push_back(T{std::forward<Args>(args)...});
+        components.push_back(component);
         entityToIndex[entity] = index;
 
         return components.back();
     }
 
-    void remove(Entity entity)
+    void removeComponent(Entity entity) override
     {
         auto it = entityToIndex.find(entity);
         if (it == entityToIndex.end()) {
@@ -56,7 +59,9 @@ class ComponentStorage {
         entityToIndex.erase(it);
     }
 
-    T &get(Entity entity)
+    bool hasComponent(Entity entity) const { return entityToIndex.contains(entity); }
+
+    T &getComponent(Entity entity)
     {
         auto it = entityToIndex.find(entity);
         if (it == entityToIndex.end()) {
@@ -66,7 +71,7 @@ class ComponentStorage {
         return components[it->second];
     }
 
-    const T &get(Entity entity) const
+    const T &getComponent(Entity entity) const
     {
         auto it = entityToIndex.find(entity);
         if (it == entityToIndex.end()) {
@@ -75,13 +80,6 @@ class ComponentStorage {
 
         return components[it->second];
     }
-
-    // const std::vector<Entity> &entities() const
-    // {
-    //     return entities;
-    // }
-
-    std::size_t size() const { return components.size(); }
 };
 
 } // namespace game

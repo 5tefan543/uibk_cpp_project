@@ -6,10 +6,8 @@ namespace game {
 
 void InputSystem::update(Registry &registry, const controller::InputState &input)
 {
-    auto view = registry.view<Velocity>();
-
-    for (auto entity : view) {
-        auto &velocity = view.get<Velocity>(entity);
+    for (auto entity : registry.view<Velocity>()) {
+        Velocity &velocity = registry.getComponent<Velocity>(entity);
 
         velocity.dx = 0.0F;
         velocity.dy = 0.0F;

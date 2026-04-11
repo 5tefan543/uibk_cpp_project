@@ -18,9 +18,9 @@ Game::~Game()
 
 void Game::initEntities()
 {
-    Entity player = registry.create();
-    registry.emplace<Position>(player, 100.0f, 100.0f);
-    registry.emplace<Velocity>(player, 0.0f, 0.0f);
+    Entity player = registry.createEntity();
+    registry.addComponent<Position>(player, {100.0f, 100.0f});
+    registry.addComponent<Velocity>(player, {0.0f, 0.0f});
 }
 
 controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
@@ -34,6 +34,15 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
         return controller::StateTransitionAction::PushProgressionStore;
     } else if (input.confirm) {
         return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
+    } else if (input.mouseRight) {
+        if (registry.entities().empty()) {
+            initEntities();
+        } else {
+            auto view = registry.view<Position, Velocity>();
+            for (auto entity : view) {
+                registry.destroyEntity(entity);
+            }
+        }
     }
     return controller::StateTransitionAction::None;
 }
