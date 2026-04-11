@@ -320,11 +320,11 @@ TEST_CASE("MenuState::getView returns expected view")
         Button resumeButton = std::get<Button>(pauseCard->items[0]);
         Button quitButton = std::get<Button>(pauseCard->items[1]);
 
-        REQUIRE(resumeButton.text == "Resume");
+        REQUIRE(resumeButton.text.text == "Resume");
         REQUIRE(resumeButton.centerOffsetX == -100);
         REQUIRE(resumeButton.isSelected == true);
 
-        REQUIRE(quitButton.text == "Quit");
+        REQUIRE(quitButton.text.text == "Quit");
         REQUIRE(quitButton.centerOffsetX == 100);
         REQUIRE(quitButton.isSelected == false);
     }

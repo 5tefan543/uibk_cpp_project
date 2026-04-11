@@ -73,25 +73,25 @@ target_link_libraries(roguelike_app
 )
 
 # Tests
-# enable_testing()
+enable_testing()
 
-# add_executable(roguelike_test_runner
-#   tests/game/game_test.cpp
-#   tests/controller/controller_test.cpp
-#   tests/controller/input/input_state_test.cpp
-#   tests/controller/state/state_test.cpp
-#   tests/controller/state/state_manager_test.cpp
-# )
+add_executable(roguelike_test_runner
+  tests/game/game_test.cpp
+  tests/controller/controller_test.cpp
+  tests/controller/input/input_state_test.cpp
+  tests/controller/state/state_test.cpp
+  tests/controller/state/state_manager_test.cpp
+)
 
-# roguelike_cxx_flags(roguelike_test_runner)
-# target_include_directories(roguelike_test_runner PRIVATE tests)
-# target_link_libraries(roguelike_test_runner
-#   PRIVATE
-#     roguelike_game
-#     roguelike_controller
-#     Catch2::Catch2WithMain
-# )
+roguelike_cxx_flags(roguelike_test_runner)
+target_include_directories(roguelike_test_runner PRIVATE tests)
+target_link_libraries(roguelike_test_runner
+  PRIVATE
+    roguelike_game
+    roguelike_controller
+    Catch2::Catch2WithMain
+)
 
-# include(CTest)
-# include(Catch)
-# catch_discover_tests(roguelike_test_runner)
+include(CTest)
+include(Catch)
+catch_discover_tests(roguelike_test_runner)
