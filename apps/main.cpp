@@ -17,7 +17,7 @@ int main()
         if (currentState.toString() == "ExitState") {
             break;
         }
-        currentState.controller::View view = currentState.getView();
+        controller::View view = currentState.getView();
         ui.render(view);
     }
 
