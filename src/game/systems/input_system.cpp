@@ -1,12 +1,12 @@
 #include "game/ecs/systems/input_system.hpp"
-
+#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/velocity.hpp"
 
 namespace game {
 
 void InputSystem::update(Registry &registry, const controller::InputState &input)
 {
-    for (auto entity : registry.view<Velocity>()) {
+    for (auto entity : registry.view<Velocity, PlayerTag>()) {
         Velocity &velocity = registry.getComponent<Velocity>(entity);
 
         velocity.dx = 0.0F;

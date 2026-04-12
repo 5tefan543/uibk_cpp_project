@@ -15,7 +15,7 @@ namespace game {
 
 class Registry {
   private:
-    Entity nextEntity = 1;
+    Entity nextEntity = 0;
     std::vector<Entity> aliveEntities;
     std::vector<Entity> freeEntities;
     std::unordered_map<std::type_index, std::unique_ptr<IStorage>> storages;

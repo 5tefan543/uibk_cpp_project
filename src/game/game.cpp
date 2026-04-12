@@ -1,4 +1,5 @@
 #include "game/game.hpp"
+#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include <controller/view/text.hpp>
@@ -20,6 +21,7 @@ Game::~Game()
 void Game::initEntities()
 {
     Entity player = registry.createEntity();
+    registry.addComponent<PlayerTag>(player, {});
     registry.addComponent<Position>(player, {100.0f, 100.0f});
     registry.addComponent<Velocity>(player, {0.0f, 0.0f});
 }
@@ -39,7 +41,7 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
         if (registry.entities().empty()) {
             initEntities();
         } else {
-            auto view = registry.view<Position, Velocity>();
+            auto view = registry.view<PlayerTag>();
             for (auto entity : view) {
                 registry.destroyEntity(entity);
             }
