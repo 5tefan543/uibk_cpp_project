@@ -14,10 +14,10 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
 {
     switch (type) {
     case MenuType::MainMenu:
-        if (input.down || input.up) {
+        if (input.downPressed || input.upPressed) {
             selectedButtonIndex ^= 1;
         }
-        if (input.confirm) {
+        if (input.confirmPressed) {
             switch (selectedButtonIndex) {
             case 0:
                 return StateTransitionAction::ReplaceCurrentWithGameplay;
@@ -29,22 +29,22 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
         break;
 
     case MenuType::PauseMenu:
-        if (input.confirm && selectedButtonIndex == 0) {
+        if (input.confirmPressed && selectedButtonIndex == 0) {
             return StateTransitionAction::Pop;
         }
-        if (input.left) {
+        if (input.leftPressed) {
             selectedButtonIndex = 0;
-        } else if (input.right) {
+        } else if (input.rightPressed) {
             selectedButtonIndex = 1;
         }
         break;
 
     case MenuType::GameOverMenu:
         // TODO delete old Game State
-        if (input.left || input.right) {
+        if (input.leftPressed || input.rightPressed) {
             selectedButtonIndex ^= 1;
         }
-        if (input.confirm) {
+        if (input.confirmPressed) {
             switch (selectedButtonIndex) {
             case 0:
                 return StateTransitionAction::ReplaceCurrentWithMainMenu;
@@ -170,27 +170,12 @@ std::unique_ptr<GameplayState> GameplayState::createGameplay()
 
 StateTransitionAction GameplayState::update(const InputState &input, float dt)
 {
-    if (input.pause) {
-        return StateTransitionAction::PushPauseMenu;
-    } else if (input.mouseLeft) {
-        return StateTransitionAction::PushProgressionStore;
-    } else if (input.confirm) {
-        return StateTransitionAction::ReplaceCurrentWithGameOverMenu;
-    }
-    return StateTransitionAction::None;
+    return game.update(input, dt);
 }
 
 View GameplayState::getView()
 {
-    View view;
-    // TODO: Construct view based on gameplay state
-    Text text;
-    text.text = std::string("<< GAMEPLAY STATE PLACEHOLDER >>\n\n"
-                            "- left-mouse-btn -> Progression Store\n"
-                            "- enter          -> Game Over\n"
-                            "- esc            -> Pause Menu");
-    view.items.push_back(text);
-    return view;
+    return game.getView();
 }
 
 std::string GameplayState::toString() const
@@ -206,7 +191,7 @@ std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
 
 StateTransitionAction ProgressionStoreState::update(const InputState &input, float dt)
 {
-    if (input.confirm) {
+    if (input.confirmPressed) {
         return StateTransitionAction::Pop;
     }
     return StateTransitionAction::None;
