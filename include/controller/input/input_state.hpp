@@ -1,5 +1,7 @@
 #pragma once
 
+#include "controller/debug/debug_state.hpp"
+
 namespace controller {
 
 struct InputState {
@@ -26,6 +28,8 @@ struct InputState {
 
     bool confirmPressed = false;
     bool cancelPressed = false;
+
+    bool toggleDebugPressed = false;
 };
 
 } // namespace controller

@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
+#include <imgui-SFML.h>
 #include <iostream>
 #include <optional>
 
@@ -11,11 +12,13 @@ UI::UI()
 {
     std::cout << "UI constructed" << std::endl;
     initWindow();
+    initDebugWindow(window);
 }
 
 UI::~UI()
 {
     std::cout << "UI destructed" << std::endl;
+    ImGui::SFML::Shutdown();
 }
 
 void UI::initWindow()
@@ -26,6 +29,13 @@ void UI::initWindow()
     window.setFramerateLimit(60);
 }
 
+void UI::initDebugWindow(sf::RenderWindow &window)
+{
+    if (!ImGui::SFML::Init(window)) {
+        throw std::runtime_error("Failed to initialize ImGui-SFML");
+    }
+}
+
 bool UI::isOpen() const
 {
     return window.isOpen();
@@ -33,13 +43,23 @@ bool UI::isOpen() const
 
 controller::InputState UI::pollInput()
 {
-    return input_handler.pollInput(window);
+    return inputHandler.pollInput(window);
 }
 
-void UI::render(const controller::View &view)
+void UI::render(const controller::View &view, controller::DebugState &debugState)
 {
+    // 1. Start ImGui frame
+    ImGui::SFML::Update(window, imguiClock.restart());
+
+    // 2. Normal rendering
     window.clear(renderer.toSfColor(view.backgroundColor));
     renderer.renderItems(window, view.items);
+
+    // 3. Render debug UI on top
+    debugUI.render(debugState);
+    ImGui::SFML::Render(window);
+
+    // 4. Display everything
     window.display();
 }
 

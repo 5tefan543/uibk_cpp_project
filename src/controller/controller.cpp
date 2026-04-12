@@ -16,6 +16,10 @@ Controller::~Controller()
 
 void Controller::update(const InputState &input, float dt)
 {
+    if (input.toggleDebugPressed) {
+        debugState.active = !debugState.active;
+    }
+
     BaseState &currentState = stateManager.getCurrent();
     StateTransitionAction action = currentState.update(input, dt);
     stateManager.applyAction(action);
@@ -24,6 +28,11 @@ void Controller::update(const InputState &input, float dt)
 BaseState &Controller::getCurrentState()
 {
     return stateManager.getCurrent();
+}
+
+DebugState &Controller::getDebugState()
+{
+    return debugState;
 }
 
 } // namespace controller

@@ -20,6 +20,8 @@ include(compile_flags)
 find_package(Catch2 CONFIG REQUIRED)
 # SFML is used as the multimedia library.
 find_package(SFML 3 REQUIRED COMPONENTS Graphics Audio)
+# ImGui-SFML wrapper
+find_package(ImGui-SFML CONFIG REQUIRED)
 
 # Game library
 add_library(roguelike_game
@@ -50,6 +52,7 @@ add_library(roguelike_ui
   src/ui/ui.cpp
   src/ui/renderer.cpp
   src/ui/input_handler.cpp
+  src/ui/debug_ui.cpp
 )
 
 roguelike_cxx_flags(roguelike_ui)
@@ -59,6 +62,7 @@ target_link_libraries(roguelike_ui
     SFML::Graphics
     SFML::Audio
     roguelike_controller
+    ImGui-SFML::ImGui-SFML
 )
 
 # Executable
