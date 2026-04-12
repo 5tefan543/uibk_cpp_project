@@ -393,3 +393,22 @@ TEST_CASE("ProgressionStoreState::getView returns expected view")
 
     REQUIRE(view.items.empty());
 }
+
+TEST_CASE("ExitState::getView returns expected view")
+{
+    std::unique_ptr<ExitState> state = ExitState::createExitState();
+
+    View view = state->getView();
+
+    REQUIRE(view.items.empty());
+}
+
+TEST_CASE("ExitState::update returns ReplaceCurrentWithExitState")
+{
+    std::unique_ptr<ExitState> state = ExitState::createExitState();
+
+    InputState input;
+    StateTransitionAction action = state->update(input, dummyDeltaTime);
+
+    REQUIRE(action == StateTransitionAction::ReplaceCurrentWithExitState);
+}

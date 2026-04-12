@@ -213,3 +213,17 @@ TEST_CASE("applyAction ReplaceCurrentWithMainMenu replaces current state with ma
     // ASSERT
     REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::MainMenu);
 }
+
+TEST_CASE("applyAction ReplaceCurrentWithExitState clears all states and adds exit state")
+{
+    // ARRANGE
+    StateManager stateManager;
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
+    stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
+
+    // ACT
+    stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithExitState);
+
+    // ASSERT
+    REQUIRE(stateManager.getCurrent().toString() == "ExitState");
+}
