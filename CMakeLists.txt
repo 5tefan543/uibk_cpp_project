@@ -24,6 +24,8 @@ find_package(SFML 3 REQUIRED COMPONENTS Graphics Audio)
 # Game library
 add_library(roguelike_game
   src/game/game.cpp
+  src/game/systems/input_system.cpp
+  src/game/systems/movement_system.cpp
 )
 
 roguelike_cxx_flags(roguelike_game)
@@ -72,15 +74,25 @@ target_link_libraries(roguelike_app
     roguelike_ui
 )
 
+add_custom_command(TARGET roguelike_app POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets
+            $<TARGET_FILE_DIR:roguelike_app>/assets
+)
+
 # Tests
 enable_testing()
 
 add_executable(roguelike_test_runner
-  tests/game/game_test.cpp
   tests/controller/controller_test.cpp
   tests/controller/input/input_state_test.cpp
   tests/controller/state/state_test.cpp
   tests/controller/state/state_manager_test.cpp
+  tests/game/game_test.cpp
+  tests/game/ecs/component_storage_test.cpp
+  tests/game/ecs/registry_test.cpp
+  tests/game/ecs/systems/input_system_test.cpp
+  tests/game/ecs/systems/movement_system_test.cpp
 )
 
 roguelike_cxx_flags(roguelike_test_runner)

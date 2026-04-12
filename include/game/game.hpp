@@ -1,15 +1,29 @@
 #pragma once
 
+#include "controller/input/input_state.hpp"
+#include "controller/state/state_transition_action.hpp"
+#include "controller/view/view.hpp"
+#include "game/ecs/registry.hpp"
+#include "game/ecs/systems/input_system.hpp"
+#include "game/ecs/systems/movement_system.hpp"
+
 namespace game {
 
 class Game {
   private:
-    // Add private member variables
+    Registry registry;
+    InputSystem inputSystem;
+    MovementSystem movementSystem;
+
+    void initPlayer();
 
   public:
     Game();
-    Game(const Game &);
+    Game(const Game &) = delete;
     ~Game();
+
+    controller::StateTransitionAction update(const controller::InputState &input, float dt);
+    controller::View getView();
 };
 
 } // namespace game

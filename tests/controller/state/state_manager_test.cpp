@@ -148,7 +148,7 @@ TEST_CASE("applyAction ReplaceCurrentWithGameplay replaces current state with ga
     REQUIRE(dynamic_cast<GameplayState *>(&stateManager.getCurrent()) != nullptr);
 }
 
-TEST_CASE("applyAction PushPauseMenu pushes pause menu on top")
+TEST_CASE("applyAction PushPauseMenu pushes cancelPressed menu on top")
 {
     // ARRANGE
     StateManager stateManager;

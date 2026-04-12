@@ -3,7 +3,7 @@
 function(roguelike_cxx_flags target)
   # Instead of setting a specific standard directly, we use the *compile
   # features* to require (at least) C++17 standard.
-  target_compile_features(${target} PRIVATE cxx_std_17)
+  target_compile_features(${target} PRIVATE cxx_std_20)
 
   # Furthermore, we turn off compiler extensions.
   set_target_properties(${target} PROPERTIES CXX_EXTENSIONS OFF)

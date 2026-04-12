@@ -32,7 +32,7 @@ TEST_CASE("Controller forwards state update result to state manager")
     // ARRANGE
     Controller controller;
     InputState input;
-    input.confirm = true;
+    input.confirmPressed = true;
 
     // ACT
     controller.update(input, dummyDeltaTime);
