@@ -84,11 +84,15 @@ add_custom_command(TARGET roguelike_app POST_BUILD
 enable_testing()
 
 add_executable(roguelike_test_runner
-  tests/game/game_test.cpp
   tests/controller/controller_test.cpp
   tests/controller/input/input_state_test.cpp
   tests/controller/state/state_test.cpp
   tests/controller/state/state_manager_test.cpp
+  tests/game/game_test.cpp
+  tests/game/ecs/component_storage_test.cpp
+  tests/game/ecs/registry_test.cpp
+  tests/game/ecs/systems/input_system_test.cpp
+  tests/game/ecs/systems/movement_system_test.cpp
 )
 
 roguelike_cxx_flags(roguelike_test_runner)
