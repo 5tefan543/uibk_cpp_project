@@ -222,7 +222,7 @@ TEST_CASE("applyAction ReplaceCurrentWithExitState clears all states and adds ex
     stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
 
     // ACT
-    stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithExitState);
+    stateManager.applyAction(StateTransitionAction::ReplaceAllStatesWithExit);
 
     // ASSERT
     REQUIRE(stateManager.getCurrent().toString() == "ExitState");

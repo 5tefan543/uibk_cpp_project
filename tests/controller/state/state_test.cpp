@@ -81,7 +81,7 @@ TEST_CASE("Main menu update returns correct actions")
         input.confirmPressed = true;
 
         // ACT & ASSERT
-        REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithExitState);
+        REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 
     SECTION("up or down toggles selected button")
@@ -204,7 +204,7 @@ TEST_CASE("Game over menu update returns correct actions")
         input.confirmPressed = true;
 
         // ACT & ASSERT
-        REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithExitState);
+        REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 
     SECTION("no relevant input returns None")
@@ -403,12 +403,12 @@ TEST_CASE("ExitState::getView returns expected view")
     REQUIRE(view.items.empty());
 }
 
-TEST_CASE("ExitState::update returns ReplaceCurrentWithExitState")
+TEST_CASE("ExitState::update returns ReplaceAllStatesWithExit")
 {
     std::unique_ptr<ExitState> state = ExitState::createExitState();
 
     InputState input;
     StateTransitionAction action = state->update(input, dummyDeltaTime);
 
-    REQUIRE(action == StateTransitionAction::ReplaceCurrentWithExitState);
+    REQUIRE(action == StateTransitionAction::ReplaceAllStatesWithExit);
 }

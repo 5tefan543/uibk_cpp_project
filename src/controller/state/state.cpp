@@ -23,7 +23,7 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
                 return StateTransitionAction::ReplaceCurrentWithGameplay;
                 break;
             case 1:
-                return StateTransitionAction::ReplaceCurrentWithExitState;
+                return StateTransitionAction::ReplaceAllStatesWithExit;
             }
         }
         break;
@@ -49,7 +49,7 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
             case 0:
                 return StateTransitionAction::ReplaceCurrentWithMainMenu;
             case 1:
-                return StateTransitionAction::ReplaceCurrentWithExitState;
+                return StateTransitionAction::ReplaceAllStatesWithExit;
             }
         }
         break;
@@ -216,7 +216,7 @@ std::unique_ptr<ExitState> ExitState::createExitState()
 
 StateTransitionAction ExitState::update(const InputState &input, float dt)
 {
-    return StateTransitionAction::ReplaceCurrentWithExitState;
+    return StateTransitionAction::ReplaceAllStatesWithExit;
 }
 
 View ExitState::getView()

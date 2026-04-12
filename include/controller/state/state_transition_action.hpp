@@ -10,7 +10,7 @@ enum class StateTransitionAction {
     ReplaceCurrentWithGameOverMenu,
     Pop,
     ReplaceCurrentWithMainMenu,
-    ReplaceCurrentWithExitState,
+    ReplaceAllStatesWithExit,
 };
 
 } // namespace controller
