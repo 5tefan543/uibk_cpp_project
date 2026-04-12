@@ -37,15 +37,6 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
         return controller::StateTransitionAction::PushProgressionStore;
     } else if (input.confirmPressed) {
         return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
-    } else if (input.mouseRightPressed) {
-        if (registry.entities().empty()) {
-            initPlayer();
-        } else {
-            auto view = registry.view<PlayerTag>();
-            for (auto entity : view) {
-                registry.destroyEntity(entity);
-            }
-        }
     }
     return controller::StateTransitionAction::None;
 }
