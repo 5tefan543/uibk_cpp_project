@@ -23,9 +23,7 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
                 return StateTransitionAction::ReplaceCurrentWithGameplay;
                 break;
             case 1:
-                // TODO: how to close window
-                return StateTransitionAction::None;
-                break;
+                exit(0);
             }
         }
         break;
@@ -42,8 +40,18 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
         break;
 
     case MenuType::GameOverMenu:
+        // TODO delete old Game State
+        if (input.left || input.right) {
+            selectedButtonIndex ^= 1;
+        }
         if (input.confirm) {
-            return StateTransitionAction::ReplaceCurrentWithMainMenu;
+            switch (selectedButtonIndex) {
+            case 0:
+                return StateTransitionAction::ReplaceCurrentWithMainMenu;
+                break;
+            case 1:
+                exit(0);
+            }
         }
         break;
     }
@@ -83,7 +91,8 @@ View MenuState::getView()
         mainMenuCard->items.push_back(startGameButton);
         mainMenuCard->items.push_back(quitButton);
         view.items.push_back(std::move(mainMenuCard));
-    } break;
+        break;
+    }
     case MenuType::PauseMenu: {
         Text textResume;
         textResume.text = std::string("Resume");
@@ -109,7 +118,33 @@ View MenuState::getView()
         break;
     }
     case MenuType::GameOverMenu:
-        // TODO: Construct view for game over menu
+
+        Text TextGameOver;
+        TextGameOver.text = std::string("Game Over!");
+        TextGameOver.centerOffsetY = -100;
+
+        Text textMainMenu;
+        textMainMenu.text = std::string("Main Menu");
+
+        Button mainMenuButton;
+        mainMenuButton.text = textMainMenu;
+        mainMenuButton.centerOffsetX = -100;
+        mainMenuButton.isSelected = (selectedButtonIndex == 0);
+
+        Text textQuit;
+        textQuit.text = std::string("Quit");
+
+        Button quitButton;
+        quitButton.text = textQuit;
+        quitButton.centerOffsetX = 100;
+        quitButton.isSelected = (selectedButtonIndex == 1);
+
+        std::unique_ptr<Card> gameOverCard = std::make_unique<Card>();
+        gameOverCard->items.push_back(TextGameOver);
+        gameOverCard->items.push_back(mainMenuButton);
+        gameOverCard->items.push_back(quitButton);
+
+        view.items.push_back(std::move(gameOverCard));
         break;
     }
     return view;
