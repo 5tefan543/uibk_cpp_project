@@ -92,6 +92,16 @@ TEST_CASE("Registry destroyEntity removes all components")
     REQUIRE(registry.entities().empty());
 }
 
+TEST_CASE("Registry destroyEntity on non-existing entity does nothing")
+{
+    // ARRANGE
+    game::Registry registry;
+    game::Entity nonExistingEntity = 42;
+
+    // ACT & ASSERT
+    REQUIRE_NOTHROW(registry.destroyEntity(nonExistingEntity));
+}
+
 TEST_CASE("Registry view returns only entities with all requested components")
 {
     // ARRANGE

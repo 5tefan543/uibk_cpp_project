@@ -15,7 +15,7 @@ class Game {
     InputSystem inputSystem;
     MovementSystem movementSystem;
 
-    void initEntities();
+    void initPlayer();
 
   public:
     Game();

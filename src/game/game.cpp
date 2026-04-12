@@ -10,7 +10,7 @@ namespace game {
 Game::Game()
 {
     std::cout << "Game constructed" << std::endl;
-    initEntities();
+    initPlayer();
 }
 
 Game::~Game()
@@ -18,7 +18,7 @@ Game::~Game()
     std::cout << "Game destructed" << std::endl;
 }
 
-void Game::initEntities()
+void Game::initPlayer()
 {
     Entity player = registry.createEntity();
     registry.addComponent<PlayerTag>(player, {});
@@ -39,7 +39,7 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
         return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
     } else if (input.mouseRight) {
         if (registry.entities().empty()) {
-            initEntities();
+            initPlayer();
         } else {
             auto view = registry.view<PlayerTag>();
             for (auto entity : view) {
