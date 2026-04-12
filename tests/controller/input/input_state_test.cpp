@@ -19,6 +19,10 @@ TEST_CASE("InputState has neutral default values")
     REQUIRE_FALSE(state.mouseRightPressed);
     REQUIRE_FALSE(state.mouseMiddlePressed);
 
+    REQUIRE_FALSE(state.mouseLeftHeld);
+    REQUIRE_FALSE(state.mouseRightHeld);
+    REQUIRE_FALSE(state.mouseMiddleHeld);
+
     REQUIRE(state.mouseX == 0);
     REQUIRE(state.mouseY == 0);
 

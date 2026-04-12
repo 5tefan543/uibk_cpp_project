@@ -82,6 +82,10 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
     state.rightHeld =
         sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
 
+    state.mouseLeftHeld = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+    state.mouseRightHeld = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
+    state.mouseMiddleHeld = sf::Mouse::isButtonPressed(sf::Mouse::Button::Middle);
+
     state.mouseX = sf::Mouse::getPosition(window).x;
     state.mouseY = sf::Mouse::getPosition(window).y;
 

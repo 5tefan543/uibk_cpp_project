@@ -17,6 +17,10 @@ struct InputState {
     bool mouseRightPressed = false;
     bool mouseMiddlePressed = false;
 
+    bool mouseLeftHeld = false;
+    bool mouseRightHeld = false;
+    bool mouseMiddleHeld = false;
+
     int mouseX = 0;
     int mouseY = 0;
 
