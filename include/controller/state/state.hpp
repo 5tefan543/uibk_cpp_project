@@ -55,4 +55,13 @@ struct ProgressionStoreState : public BaseState {
     std::string toString() const override;
 };
 
+struct ExitState : public BaseState {
+
+    static std::unique_ptr<ExitState> createExitState();
+
+    StateTransitionAction update(const InputState &input, float dt) override;
+    std::string toString() const override;
+    View getView() override;
+};
+
 } // namespace controller

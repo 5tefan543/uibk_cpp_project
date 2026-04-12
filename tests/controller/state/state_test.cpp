@@ -35,6 +35,10 @@ TEST_CASE("MenuState::createMenu of type GameOverMenu constructs game over menu 
     REQUIRE(state != nullptr);
     REQUIRE(state->type == MenuType::GameOverMenu);
     REQUIRE(state->selectedButtonIndex == 0);
+    // check that if the button is confirmed, it triggers the expected action
+    InputState input;
+    input.confirmPressed = true;
+    REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithMainMenu);
 }
 
 TEST_CASE("GameplayState::createGameplay constructs gameplay state with expected properties")
@@ -67,6 +71,38 @@ TEST_CASE("Main menu update returns correct actions")
 
         // ACT & ASSERT
         REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithGameplay);
+    }
+
+    SECTION("confirm exits game when quit button is selected")
+    {
+        // ARRANGE
+        state->selectedButtonIndex = 1;
+        InputState input;
+        input.confirmPressed = true;
+
+        // ACT & ASSERT
+        REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::ReplaceAllStatesWithExit);
+    }
+
+    SECTION("up or down toggles selected button")
+    {
+        // ARRANGE
+        InputState input;
+        input.downPressed = true;
+
+        // ACT
+        StateTransitionAction action = state->update(input, dummyDeltaTime);
+
+        // ASSERT
+        REQUIRE(action == StateTransitionAction::None);
+        REQUIRE(state->selectedButtonIndex == 1);
+
+        // ACT again to toggle back
+        action = state->update(input, dummyDeltaTime);
+
+        // ASSERT
+        REQUIRE(action == StateTransitionAction::None);
+        REQUIRE(state->selectedButtonIndex == 0);
     }
 
     SECTION("no relevant input returns None")
@@ -152,11 +188,23 @@ TEST_CASE("Game over menu update returns correct actions")
     SECTION("confirmPressed triggers ReplaceCurrentWithMainMenu")
     {
         // ARRANGE
+        state->selectedButtonIndex = 0;
         InputState input;
         input.confirmPressed = true;
 
         // ACT & ASSERT
         REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithMainMenu);
+    }
+
+    SECTION("confirm exits game when quit button is selected")
+    {
+        // ARRANGE
+        state->selectedButtonIndex = 1;
+        InputState input;
+        input.confirmPressed = true;
+
+        // ACT & ASSERT
+        REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 
     SECTION("no relevant input returns None")
@@ -304,10 +352,27 @@ TEST_CASE("MenuState::getView returns expected view")
     SECTION("game over menu returns expected view")
     {
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::GameOverMenu);
+        state->selectedButtonIndex = 0;
 
         View view = state->getView();
+        REQUIRE(view.items.size() == 1);
 
-        REQUIRE(view.items.empty());
+        auto &gameOverCard = std::get<std::unique_ptr<Card>>(view.items[0]);
+        REQUIRE(gameOverCard->items.size() == 3);
+
+        Text gameOverText = std::get<Text>(gameOverCard->items[0]);
+        REQUIRE(gameOverText.text == "Game Over!");
+        REQUIRE(gameOverText.centerOffsetY == -100);
+
+        Button mainMenuButton = std::get<Button>(gameOverCard->items[1]);
+        REQUIRE(mainMenuButton.text.text == "Main Menu");
+        REQUIRE(mainMenuButton.centerOffsetX == -100);
+        REQUIRE(mainMenuButton.isSelected == true);
+
+        Button quitButton = std::get<Button>(gameOverCard->items[2]);
+        REQUIRE(quitButton.text.text == "Quit");
+        REQUIRE(quitButton.centerOffsetX == 100);
+        REQUIRE(quitButton.isSelected == false);
     }
 }
 
@@ -327,4 +392,23 @@ TEST_CASE("ProgressionStoreState::getView returns expected view")
     View view = state->getView();
 
     REQUIRE(view.items.empty());
+}
+
+TEST_CASE("ExitState::getView returns expected view")
+{
+    std::unique_ptr<ExitState> state = ExitState::createExitState();
+
+    View view = state->getView();
+
+    REQUIRE(view.items.empty());
+}
+
+TEST_CASE("ExitState::update returns ReplaceAllStatesWithExit")
+{
+    std::unique_ptr<ExitState> state = ExitState::createExitState();
+
+    InputState input;
+    StateTransitionAction action = state->update(input, dummyDeltaTime);
+
+    REQUIRE(action == StateTransitionAction::ReplaceAllStatesWithExit);
 }

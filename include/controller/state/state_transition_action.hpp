@@ -9,7 +9,8 @@ enum class StateTransitionAction {
     PushProgressionStore,
     ReplaceCurrentWithGameOverMenu,
     Pop,
-    ReplaceCurrentWithMainMenu
+    ReplaceCurrentWithMainMenu,
+    ReplaceAllStatesWithExit,
 };
 
 } // namespace controller
