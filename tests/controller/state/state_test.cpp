@@ -73,6 +73,38 @@ TEST_CASE("Main menu update returns correct actions")
         REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithGameplay);
     }
 
+    SECTION("confirm exits game when quit button is selected")
+    {
+        // ARRANGE
+        state->selectedButtonIndex = 1;
+        InputState input;
+        input.confirmPressed = true;
+
+        // ACT & ASSERT
+        REQUIRE_THROWS(state->update(input, dummyDeltaTime));
+    }
+
+    SECTION("up or down toggles selected button")
+    {
+        // ARRANGE
+        InputState input;
+        input.downPressed = true;
+
+        // ACT
+        StateTransitionAction action = state->update(input, dummyDeltaTime);
+
+        // ASSERT
+        REQUIRE(action == StateTransitionAction::None);
+        REQUIRE(state->selectedButtonIndex == 1);
+
+        // ACT again to toggle back
+        action = state->update(input, dummyDeltaTime);
+
+        // ASSERT
+        REQUIRE(action == StateTransitionAction::None);
+        REQUIRE(state->selectedButtonIndex == 0);
+    }
+
     SECTION("no relevant input returns None")
     {
         // ARRANGE
