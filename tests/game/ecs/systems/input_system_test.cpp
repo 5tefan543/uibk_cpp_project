@@ -17,8 +17,8 @@ TEST_CASE("InputSystem sets player velocity from input")
     registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
 
     controller::InputState input;
-    input.left = true;
-    input.up = true;
+    input.leftHeld = true;
+    input.upHeld = true;
 
     // ACT
     system.update(registry, input);
@@ -60,8 +60,8 @@ TEST_CASE("InputSystem does not update entity without PlayerTag")
     registry.addComponent<game::Velocity>(notPlayer, {5.0f, 6.0f});
 
     controller::InputState input;
-    input.right = true;
-    input.down = true;
+    input.rightHeld = true;
+    input.downHeld = true;
 
     // ACT
     system.update(registry, input);
@@ -83,10 +83,10 @@ TEST_CASE("InputSystem opposing directions cancel each other")
     registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
 
     controller::InputState input;
-    input.left = true;
-    input.right = true;
-    input.up = true;
-    input.down = true;
+    input.leftHeld = true;
+    input.rightHeld = true;
+    input.upHeld = true;
+    input.downHeld = true;
 
     // ACT
     system.update(registry, input);

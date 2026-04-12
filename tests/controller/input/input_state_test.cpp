@@ -5,18 +5,23 @@ TEST_CASE("InputState has neutral default values")
 {
     controller::InputState state;
 
-    REQUIRE_FALSE(state.left);
-    REQUIRE_FALSE(state.right);
-    REQUIRE_FALSE(state.up);
-    REQUIRE_FALSE(state.down);
+    REQUIRE_FALSE(state.upPressed);
+    REQUIRE_FALSE(state.downPressed);
+    REQUIRE_FALSE(state.leftPressed);
+    REQUIRE_FALSE(state.rightPressed);
 
-    REQUIRE_FALSE(state.mouseLeft);
-    REQUIRE_FALSE(state.mouseRight);
-    REQUIRE_FALSE(state.mouseMiddle);
+    REQUIRE_FALSE(state.upHeld);
+    REQUIRE_FALSE(state.downHeld);
+    REQUIRE_FALSE(state.leftHeld);
+    REQUIRE_FALSE(state.rightHeld);
+
+    REQUIRE_FALSE(state.mouseLeftPressed);
+    REQUIRE_FALSE(state.mouseRightPressed);
+    REQUIRE_FALSE(state.mouseMiddlePressed);
 
     REQUIRE(state.mouseX == 0);
     REQUIRE(state.mouseY == 0);
 
-    REQUIRE_FALSE(state.confirm);
-    REQUIRE_FALSE(state.pause);
+    REQUIRE_FALSE(state.confirmPressed);
+    REQUIRE_FALSE(state.cancelPressed);
 }

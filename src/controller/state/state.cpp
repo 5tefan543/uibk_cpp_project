@@ -14,10 +14,10 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
 {
     switch (type) {
     case MenuType::MainMenu:
-        if (input.down || input.up) {
+        if (input.downPressed || input.upPressed) {
             selectedButtonIndex ^= 1;
         }
-        if (input.confirm) {
+        if (input.confirmPressed) {
             switch (selectedButtonIndex) {
             case 0:
                 return StateTransitionAction::ReplaceCurrentWithGameplay;
@@ -31,18 +31,18 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
         break;
 
     case MenuType::PauseMenu:
-        if (input.confirm && selectedButtonIndex == 0) {
+        if (input.confirmPressed && selectedButtonIndex == 0) {
             return StateTransitionAction::Pop;
         }
-        if (input.left) {
+        if (input.leftPressed) {
             selectedButtonIndex = 0;
-        } else if (input.right) {
+        } else if (input.rightPressed) {
             selectedButtonIndex = 1;
         }
         break;
 
     case MenuType::GameOverMenu:
-        if (input.confirm) {
+        if (input.confirmPressed) {
             return StateTransitionAction::ReplaceCurrentWithMainMenu;
         }
         break;
@@ -156,7 +156,7 @@ std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
 
 StateTransitionAction ProgressionStoreState::update(const InputState &input, float dt)
 {
-    if (input.confirm) {
+    if (input.confirmPressed) {
         return StateTransitionAction::Pop;
     }
     return StateTransitionAction::None;

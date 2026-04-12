@@ -1,5 +1,8 @@
 #pragma once
 
 namespace game {
-struct PlayerTag {}; // used to identify the player entity
+// used to identify the player entity
+struct PlayerTag {
+    float moveSpeed = 200.0f;
+};
 } // namespace game

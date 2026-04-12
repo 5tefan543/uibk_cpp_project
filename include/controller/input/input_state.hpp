@@ -3,20 +3,25 @@
 namespace controller {
 
 struct InputState {
-    bool left = false;
-    bool right = false;
-    bool up = false;
-    bool down = false;
+    bool upPressed = false;
+    bool downPressed = false;
+    bool leftPressed = false;
+    bool rightPressed = false;
 
-    bool mouseLeft = false;
-    bool mouseRight = false;
-    bool mouseMiddle = false;
+    bool upHeld = false;
+    bool downHeld = false;
+    bool leftHeld = false;
+    bool rightHeld = false;
+
+    bool mouseLeftPressed = false;
+    bool mouseRightPressed = false;
+    bool mouseMiddlePressed = false;
 
     int mouseX = 0;
     int mouseY = 0;
 
-    bool confirm = false;
-    bool pause = false;
+    bool confirmPressed = false;
+    bool cancelPressed = false;
 };
 
 } // namespace controller

@@ -27,26 +27,26 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
         if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>()) {
             switch (keyPressed->code) {
             case sf::Keyboard::Key::Enter:
-                state.confirm = true;
+                state.confirmPressed = true;
                 break;
             case sf::Keyboard::Key::Escape:
-                state.pause = true;
+                state.cancelPressed = true;
                 break;
             case sf::Keyboard::Key::Up:
             case sf::Keyboard::Key::W:
-                state.up = true;
+                state.upPressed = true;
                 break;
             case sf::Keyboard::Key::Down:
             case sf::Keyboard::Key::S:
-                state.down = true;
+                state.downPressed = true;
                 break;
             case sf::Keyboard::Key::Left:
             case sf::Keyboard::Key::A:
-                state.left = true;
+                state.leftPressed = true;
                 break;
             case sf::Keyboard::Key::Right:
             case sf::Keyboard::Key::D:
-                state.right = true;
+                state.rightPressed = true;
                 break;
             default:
                 break;
@@ -56,19 +56,31 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
         if (const auto *mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>()) {
             switch (mouseButtonPressed->button) {
             case sf::Mouse::Button::Left:
-                state.mouseLeft = true;
+                state.mouseLeftPressed = true;
                 break;
             case sf::Mouse::Button::Right:
-                state.mouseRight = true;
+                state.mouseRightPressed = true;
                 break;
             case sf::Mouse::Button::Middle:
-                state.mouseMiddle = true;
+                state.mouseMiddlePressed = true;
                 break;
             default:
                 break;
             }
         }
     }
+
+    state.upHeld =
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W);
+
+    state.downHeld =
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S);
+
+    state.leftHeld =
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A);
+
+    state.rightHeld =
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
 
     state.mouseX = sf::Mouse::getPosition(window).x;
     state.mouseY = sf::Mouse::getPosition(window).y;

@@ -31,13 +31,13 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
     inputSystem.update(registry, input);
     movementSystem.update(registry, dt);
 
-    if (input.pause) {
+    if (input.cancelPressed) {
         return controller::StateTransitionAction::PushPauseMenu;
-    } else if (input.mouseLeft) {
+    } else if (input.mouseLeftPressed) {
         return controller::StateTransitionAction::PushProgressionStore;
-    } else if (input.confirm) {
+    } else if (input.confirmPressed) {
         return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
-    } else if (input.mouseRight) {
+    } else if (input.mouseRightPressed) {
         if (registry.entities().empty()) {
             initPlayer();
         } else {

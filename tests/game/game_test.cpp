@@ -12,37 +12,37 @@ TEST_CASE("Game can be constructed")
     REQUIRE_NOTHROW(game::Game{});
 }
 
-TEST_CASE("Game update returns PushPauseMenu on pause")
+TEST_CASE("Game update returns PushPauseMenu on cancelPressed")
 {
     // ARRANGE
     game::Game game;
 
     controller::InputState input;
-    input.pause = true;
+    input.cancelPressed = true;
 
     // ACT & ASSERT
     REQUIRE(game.update(input, dummyDeltaTime) == controller::StateTransitionAction::PushPauseMenu);
 }
 
-TEST_CASE("Game update returns PushProgressionStore on mouseLeft")
+TEST_CASE("Game update returns PushProgressionStore on mouseLeftPressed")
 {
     // ARRANGE
     game::Game game;
 
     controller::InputState input;
-    input.mouseLeft = true;
+    input.mouseLeftPressed = true;
 
     // ACT & ASSERT
     REQUIRE(game.update(input, dummyDeltaTime) == controller::StateTransitionAction::PushProgressionStore);
 }
 
-TEST_CASE("Game update returns ReplaceCurrentWithGameOverMenu on confirm")
+TEST_CASE("Game update returns ReplaceCurrentWithGameOverMenu on confirmPressed")
 {
     // ARRANGE
     game::Game game;
 
     controller::InputState input;
-    input.confirm = true;
+    input.confirmPressed = true;
 
     // ACT & ASSERT
     REQUIRE(game.update(input, dummyDeltaTime) == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu);
