@@ -74,6 +74,12 @@ target_link_libraries(roguelike_app
     roguelike_ui
 )
 
+add_custom_command(TARGET roguelike_app POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets
+            $<TARGET_FILE_DIR:roguelike_app>/assets
+)
+
 # Tests
 enable_testing()
 
