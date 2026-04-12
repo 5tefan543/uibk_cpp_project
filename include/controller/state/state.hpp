@@ -20,11 +20,7 @@ struct BaseState {
     virtual std::string toString() const = 0;
 };
 
-enum class MenuType {
-    MainMenu,
-    PauseMenu,
-    GameOverMenu,
-};
+enum class MenuType { MainMenu, PauseMenu, GameOverMenu };
 
 struct MenuState : public BaseState {
     // Add menu-specific state variables here
