@@ -14,7 +14,10 @@ int main()
         controller::InputState input = ui.pollInput();
         controller.update(input, fixed_dt);
         controller::BaseState &currentState = controller.getCurrentState();
-        controller::View view = currentState.getView();
+        if (currentState.toString() == "ExitState") {
+            break;
+        }
+        currentState.controller::View view = currentState.getView();
         ui.render(view);
     }
 

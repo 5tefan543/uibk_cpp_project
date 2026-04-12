@@ -23,7 +23,7 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
                 return StateTransitionAction::ReplaceCurrentWithGameplay;
                 break;
             case 1:
-                exit(0);
+                return StateTransitionAction::ReplaceCurrentWithExitState;
             }
         }
         break;
@@ -48,9 +48,8 @@ StateTransitionAction MenuState::update(const InputState &input, float dt)
             switch (selectedButtonIndex) {
             case 0:
                 return StateTransitionAction::ReplaceCurrentWithMainMenu;
-                break;
             case 1:
-                exit(0);
+                return StateTransitionAction::ReplaceCurrentWithExitState;
             }
         }
         break;
@@ -209,4 +208,28 @@ std::string ProgressionStoreState::toString() const
     return "ProgressionStore";
 }
 
+std::unique_ptr<ExitState> ExitState::createExitState()
+{
+    auto exitState = std::make_unique<ExitState>();
+    return exitState;
+}
+
+StateTransitionAction ExitState::update(const InputState &input, float dt)
+{
+    return StateTransitionAction::ReplaceCurrentWithExitState;
+}
+
+View ExitState::getView()
+{
+    View view;
+    // Implement view for exit state,
+    return view;
+}
+
+std::string ExitState::toString() const
+{
+    return "ExitState";
+}
+
 } // namespace controller
+// namespace controller

@@ -20,7 +20,11 @@ struct BaseState {
     virtual std::string toString() const = 0;
 };
 
-enum class MenuType { MainMenu, PauseMenu, GameOverMenu };
+enum class MenuType {
+    MainMenu,
+    PauseMenu,
+    GameOverMenu,
+};
 
 struct MenuState : public BaseState {
     // Add menu-specific state variables here
@@ -53,6 +57,15 @@ struct ProgressionStoreState : public BaseState {
     StateTransitionAction update(const InputState &input, float dt) override;
     View getView() override;
     std::string toString() const override;
+};
+
+struct ExitState : public BaseState {
+
+    static std::unique_ptr<ExitState> createExitState();
+
+    StateTransitionAction update(const InputState &input, float dt) override;
+    std::string toString() const override;
+    View getView() override;
 };
 
 } // namespace controller

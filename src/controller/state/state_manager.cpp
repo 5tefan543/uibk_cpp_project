@@ -72,6 +72,10 @@ void StateManager::applyAction(StateTransitionAction action)
     case StateTransitionAction::ReplaceCurrentWithMainMenu:
         replaceCurrent(MenuState::createMenu(MenuType::MainMenu));
         break;
+    case StateTransitionAction::ReplaceCurrentWithExitState:
+        clear();
+        push(ExitState::createExitState());
+        break;
     }
 }
 

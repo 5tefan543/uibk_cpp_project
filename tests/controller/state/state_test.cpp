@@ -81,7 +81,7 @@ TEST_CASE("Main menu update returns correct actions")
         input.confirmPressed = true;
 
         // ACT & ASSERT
-        REQUIRE_THROWS(state->update(input, dummyDeltaTime));
+        REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithExitState);
     }
 
     SECTION("up or down toggles selected button")
@@ -204,7 +204,7 @@ TEST_CASE("Game over menu update returns correct actions")
         input.confirmPressed = true;
 
         // ACT & ASSERT
-        REQUIRE_THROWS(state->update(input, dummyDeltaTime));
+        REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithExitState);
     }
 
     SECTION("no relevant input returns None")
