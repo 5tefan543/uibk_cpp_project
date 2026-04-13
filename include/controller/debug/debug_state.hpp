@@ -1,12 +1,14 @@
 #pragma once
 
+#include "game/debug/game_debug_state.hpp"
+#include <string>
+
 namespace controller {
 
 struct DebugState {
     bool active = false;
-    bool showFPS = false;
-    bool showHitboxes = false;
-    // Add more debug options as needed
+    std::string currentStates;
+    game::GameDebugState gameDebugState;
 };
 
 } // namespace controller

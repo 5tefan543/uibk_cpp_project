@@ -79,18 +79,23 @@ void StateManager::applyAction(StateTransitionAction action)
     }
 }
 
-void StateManager::printDebugInfo() const
+std::string StateManager::getDebugInfo() const
 {
-    std::cout << "States: [";
+    std::string debugInfo = "States: [";
     for (auto it = states.begin(); it != states.end(); ++it) {
-
-        std::cout << (*it)->toString();
+        debugInfo += (*it)->toString();
 
         if (std::next(it) != states.end()) {
-            std::cout << " -> ";
+            debugInfo += " -> ";
         }
     }
-    std::cout << "]\n";
+    debugInfo += "]";
+    return debugInfo;
+}
+
+void StateManager::printDebugInfo() const
+{
+    std::cout << getDebugInfo() << std::endl;
 }
 
 } // namespace controller

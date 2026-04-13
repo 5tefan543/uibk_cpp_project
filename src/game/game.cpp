@@ -26,8 +26,11 @@ void Game::initPlayer()
     registry.addComponent<Velocity>(player, {0.0f, 0.0f});
 }
 
-controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
+controller::StateTransitionAction Game::update(const controller::InputState &input, controller::DebugState &debugState,
+                                               float dt)
 {
+    handleDebugState(debugState);
+
     inputSystem.update(registry, input);
     movementSystem.update(registry, dt);
 
@@ -39,6 +42,20 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
         return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
     }
     return controller::StateTransitionAction::None;
+}
+
+void Game::handleDebugState(controller::DebugState &debugState)
+{
+    if (debugState.active) {
+        debugState.gameDebugState.entities = registry.entities();
+
+        if (debugState.gameDebugState.isStageWaveReloadRequested) {
+            debugState.gameDebugState.isStageWaveReloadRequested = false;
+            std::cout << "Reloading stage " << debugState.gameDebugState.stage << ", wave "
+                      << debugState.gameDebugState.wave << std::endl;
+            // TODO: Implement actual stage/wave reloading logic
+        }
+    }
 }
 
 controller::View Game::getView()

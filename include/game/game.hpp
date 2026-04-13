@@ -16,13 +16,15 @@ class Game {
     MovementSystem movementSystem;
 
     void initPlayer();
+    void handleDebugState(controller::DebugState &debugState);
 
   public:
     Game();
     Game(const Game &) = delete;
     ~Game();
 
-    controller::StateTransitionAction update(const controller::InputState &input, float dt);
+    controller::StateTransitionAction update(const controller::InputState &input, controller::DebugState &debugState,
+                                             float dt);
     controller::View getView();
 };
 

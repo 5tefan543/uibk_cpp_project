@@ -18,7 +18,6 @@ UI::UI()
 UI::~UI()
 {
     std::cout << "UI destructed" << std::endl;
-    ImGui::SFML::Shutdown();
 }
 
 void UI::initWindow()
@@ -43,20 +42,23 @@ bool UI::isOpen() const
 
 controller::InputState UI::pollInput()
 {
-    return inputHandler.pollInput(window);
+    inputState = inputHandler.pollInput(window);
+    return inputState;
 }
 
 void UI::render(const controller::View &view, controller::DebugState &debugState)
 {
     // 1. Start ImGui frame
-    ImGui::SFML::Update(window, imguiClock.restart());
+    sf::Time deltaTime = imguiClock.restart();
+    fps = 1.0f / deltaTime.asSeconds();
+    ImGui::SFML::Update(window, deltaTime);
 
     // 2. Normal rendering
     window.clear(renderer.toSfColor(view.backgroundColor));
     renderer.renderItems(window, view.items);
 
     // 3. Render debug UI on top
-    debugUI.render(debugState);
+    debugUI.render(debugState, inputState, fps);
     ImGui::SFML::Render(window);
 
     // 4. Display everything

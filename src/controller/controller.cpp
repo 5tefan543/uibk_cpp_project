@@ -21,8 +21,12 @@ void Controller::update(const InputState &input, float dt)
     }
 
     BaseState &currentState = stateManager.getCurrent();
-    StateTransitionAction action = currentState.update(input, dt);
+    StateTransitionAction action = currentState.update(input, debugState, dt);
     stateManager.applyAction(action);
+
+    if (debugState.active) {
+        debugState.currentStates = stateManager.getDebugInfo();
+    }
 }
 
 BaseState &Controller::getCurrentState()

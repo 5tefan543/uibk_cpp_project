@@ -10,7 +10,7 @@ std::unique_ptr<MenuState> MenuState::createMenu(MenuType menuType)
     return menu;
 }
 
-StateTransitionAction MenuState::update(const InputState &input, float dt)
+StateTransitionAction MenuState::update(const InputState &input, DebugState &debugState, float dt)
 {
     switch (type) {
     case MenuType::MainMenu:
@@ -167,9 +167,9 @@ std::unique_ptr<GameplayState> GameplayState::createGameplay()
     return gameplay;
 }
 
-StateTransitionAction GameplayState::update(const InputState &input, float dt)
+StateTransitionAction GameplayState::update(const InputState &input, DebugState &debugState, float dt)
 {
-    return game.update(input, dt);
+    return game.update(input, debugState, dt);
 }
 
 View GameplayState::getView()
@@ -188,7 +188,7 @@ std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
     return store;
 }
 
-StateTransitionAction ProgressionStoreState::update(const InputState &input, float dt)
+StateTransitionAction ProgressionStoreState::update(const InputState &input, DebugState &debugState, float dt)
 {
     if (input.confirmPressed) {
         return StateTransitionAction::Pop;
@@ -214,7 +214,7 @@ std::unique_ptr<ExitState> ExitState::createExitState()
     return exitState;
 }
 
-StateTransitionAction ExitState::update(const InputState &input, float dt)
+StateTransitionAction ExitState::update(const InputState &input, DebugState &debugState, float dt)
 {
     return StateTransitionAction::ReplaceAllStatesWithExit;
 }

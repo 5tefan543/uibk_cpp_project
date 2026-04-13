@@ -17,6 +17,8 @@ class UI {
     Renderer renderer;
     sf::Clock imguiClock;
     DebugUI debugUI;
+    controller::InputState inputState;
+    float fps = 0.0f;
 
     void initWindow();
     void initImGuiSfml(sf::RenderWindow &window);

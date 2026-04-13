@@ -1,6 +1,7 @@
 #pragma once
 
 #include "controller/debug/debug_state.hpp"
+#include "controller/input/input_state.hpp"
 
 namespace ui {
 
@@ -9,7 +10,9 @@ class DebugUI {
     DebugUI();
     ~DebugUI();
 
-    void render(controller::DebugState &debugState, const char *windowTitle = "Debug");
+    float prevFPS = 0.0f;
+
+    void render(controller::DebugState &debugState, const controller::InputState &inputState, float fps);
 };
 
 } // namespace ui
