@@ -11,7 +11,7 @@ TEST_CASE("Controller is constructed with main menu as current state")
     Controller controller;
 
     // ASSERT
-    REQUIRE(dynamic_cast<MenuState *>(&controller.getCurrentState()) != nullptr);
+    REQUIRE(typeid(controller.getCurrentState()) == typeid(MenuState));
 }
 
 TEST_CASE("Controller update with no relevant input keeps main menu")
@@ -24,7 +24,7 @@ TEST_CASE("Controller update with no relevant input keeps main menu")
     controller.update(input, dummyDeltaTime);
 
     // ASSERT
-    REQUIRE(dynamic_cast<MenuState *>(&controller.getCurrentState()) != nullptr);
+    REQUIRE(typeid(controller.getCurrentState()) == typeid(MenuState));
 }
 
 TEST_CASE("Controller forwards state update result to state manager")
@@ -38,5 +38,34 @@ TEST_CASE("Controller forwards state update result to state manager")
     controller.update(input, dummyDeltaTime);
 
     // ASSERT
-    REQUIRE(dynamic_cast<GameplayState *>(&controller.getCurrentState()) != nullptr);
+    REQUIRE(typeid(controller.getCurrentState()) == typeid(GameplayState));
+}
+
+TEST_CASE("Controller toggles debug mode on")
+{
+    // Arrange
+    Controller controller;
+    InputState input;
+    input.toggleDebugPressed = true;
+
+    // Act
+    controller.update(input, dummyDeltaTime);
+
+    // Assert
+    REQUIRE(controller.getDebugState().active == true);
+}
+
+TEST_CASE("Controller toggles debug mode off when toggle is pressed twice")
+{
+    // Arrange
+    Controller controller;
+    InputState input;
+    input.toggleDebugPressed = true;
+
+    // Act
+    controller.update(input, dummyDeltaTime);
+    controller.update(input, dummyDeltaTime);
+
+    // Assert
+    REQUIRE(controller.getDebugState().active == false);
 }

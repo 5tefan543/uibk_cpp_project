@@ -19,7 +19,7 @@ class UI {
     DebugUI debugUI;
 
     void initWindow();
-    void initDebugWindow(sf::RenderWindow &window);
+    void initImGuiSfml(sf::RenderWindow &window);
 
   public:
     UI();

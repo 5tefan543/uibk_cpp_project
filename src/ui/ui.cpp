@@ -12,7 +12,7 @@ UI::UI()
 {
     std::cout << "UI constructed" << std::endl;
     initWindow();
-    initDebugWindow(window);
+    initImGuiSfml(window);
 }
 
 UI::~UI()
@@ -29,7 +29,7 @@ void UI::initWindow()
     window.setFramerateLimit(60);
 }
 
-void UI::initDebugWindow(sf::RenderWindow &window)
+void UI::initImGuiSfml(sf::RenderWindow &window)
 {
     if (!ImGui::SFML::Init(window)) {
         throw std::runtime_error("Failed to initialize ImGui-SFML");
