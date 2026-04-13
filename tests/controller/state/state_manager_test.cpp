@@ -24,7 +24,7 @@ TEST_CASE("push adds a state and getCurrent returns it")
 
     // ASSERT
     REQUIRE_FALSE(stateManager.isEmpty());
-    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::MainMenu);
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(MenuState));
 }
 
 TEST_CASE("push multiple states and getCurrent returns top")
@@ -34,10 +34,10 @@ TEST_CASE("push multiple states and getCurrent returns top")
 
     // ACT
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
-    stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
+    stateManager.push(GameplayState::createGameplay());
 
     // ASSERT
-    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::PauseMenu);
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
 }
 
 TEST_CASE("getCurrent on empty state manager throws")
@@ -54,13 +54,13 @@ TEST_CASE("pop removes the top state")
     // ARRANGE
     StateManager stateManager;
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
-    stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
+    stateManager.push(GameplayState::createGameplay());
 
     // ACT
     stateManager.pop();
 
     // ASSERT
-    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::MainMenu);
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(MenuState));
 }
 
 TEST_CASE("pop on single element results in empty state manager")
@@ -107,10 +107,14 @@ TEST_CASE("replaceCurrent replaces the top state")
     stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
 
     // ACT
-    stateManager.replaceCurrent(MenuState::createMenu(MenuType::GameOverMenu));
+    stateManager.replaceCurrent(GameplayState::createGameplay());
 
     // ASSERT
-    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::GameOverMenu);
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
+    stateManager.pop();
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(MenuState));
+    stateManager.pop();
+    REQUIRE(stateManager.isEmpty());
 }
 
 TEST_CASE("replaceCurrent on empty state manager throws")
@@ -132,7 +136,7 @@ TEST_CASE("applyAction None does not change current state")
     stateManager.applyAction(StateTransitionAction::None);
 
     // ASSERT
-    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::MainMenu);
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(MenuState));
 }
 
 TEST_CASE("applyAction ReplaceCurrentWithGameplay replaces current state with gameplay")
@@ -145,7 +149,9 @@ TEST_CASE("applyAction ReplaceCurrentWithGameplay replaces current state with ga
     stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithGameplay);
 
     // ASSERT
-    REQUIRE(dynamic_cast<GameplayState *>(&stateManager.getCurrent()) != nullptr);
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
+    stateManager.pop();
+    REQUIRE(stateManager.isEmpty());
 }
 
 TEST_CASE("applyAction PushPauseMenu pushes cancelPressed menu on top")
@@ -171,7 +177,7 @@ TEST_CASE("applyAction PushProgressionStore pushes progression store on top")
     stateManager.applyAction(StateTransitionAction::PushProgressionStore);
 
     // ASSERT
-    REQUIRE(dynamic_cast<ProgressionStoreState *>(&stateManager.getCurrent()) != nullptr);
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(ProgressionStoreState));
 }
 
 TEST_CASE("applyAction ReplaceCurrentWithGameOverMenu replaces current state with game over menu")
@@ -225,5 +231,7 @@ TEST_CASE("applyAction ReplaceCurrentWithExitState clears all states and adds ex
     stateManager.applyAction(StateTransitionAction::ReplaceAllStatesWithExit);
 
     // ASSERT
-    REQUIRE(stateManager.getCurrent().toString() == "ExitState");
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(ExitState));
+    stateManager.pop();
+    REQUIRE(stateManager.isEmpty());
 }
