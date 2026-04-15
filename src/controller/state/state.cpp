@@ -10,7 +10,7 @@ std::unique_ptr<MenuState> MenuState::createMenu(MenuType menuType)
     return menu;
 }
 
-StateTransitionAction MenuState::update(const InputState &input, float dt)
+StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]] float dt)
 {
     switch (type) {
     case MenuType::MainMenu:
@@ -158,6 +158,8 @@ std::string MenuState::toString() const
         return "PauseMenu";
     case MenuType::GameOverMenu:
         return "GameOverMenu";
+    default:
+        return "Unknown (prob. forgot to implement) MenuState";
     }
 }
 
@@ -188,7 +190,7 @@ std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
     return store;
 }
 
-StateTransitionAction ProgressionStoreState::update(const InputState &input, float dt)
+StateTransitionAction ProgressionStoreState::update(const InputState &input, [[maybe_unused]] float dt)
 {
     if (input.confirmPressed) {
         return StateTransitionAction::Pop;
@@ -214,7 +216,7 @@ std::unique_ptr<ExitState> ExitState::createExitState()
     return exitState;
 }
 
-StateTransitionAction ExitState::update(const InputState &input, float dt)
+StateTransitionAction ExitState::update([[maybe_unused]] const InputState &input, [[maybe_unused]] float dt)
 {
     return StateTransitionAction::ReplaceAllStatesWithExit;
 }
