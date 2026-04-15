@@ -33,7 +33,20 @@ sf::Text Renderer::toSfText(const controller::Text text)
     return t;
 }
 
-void Renderer::renderItems(sf::RenderWindow &window, const std::vector<controller::ViewItem> &items)
+void Renderer::renderItems(sf::RenderWindow &window, const controller::View &view)
+{
+    // Store camera data
+    cameraX = view.cameraX;
+    cameraY = view.cameraY;
+    mapWidth = view.mapWidth;
+    mapHeight = view.mapHeight;
+
+    for (const controller::ViewItem &item : view.items) {
+        std::visit([this, &window](const auto &item) { renderItem(window, item); }, item);
+    }
+}
+
+void Renderer::renderItem(sf::RenderWindow &window, const std::vector<controller::ViewItem> &items)
 {
     for (const controller::ViewItem &item : items) {
         std::visit([this, &window](const auto &item) { renderItem(window, item); }, item);
@@ -54,7 +67,9 @@ void Renderer::renderItem(sf::RenderWindow &window, const std::unique_ptr<contro
     window.draw(rect);
 
     // Render items on the card
-    renderItems(window, card->items);
+    for (const controller::ViewItem &item : card->items) {
+        std::visit([this, &window](const auto &item) { renderItem(window, item); }, item);
+    }
 }
 
 void Renderer::renderItem(sf::RenderWindow &window, const controller::Button &button)
@@ -93,6 +108,45 @@ void Renderer::renderItem(sf::RenderWindow &window, const controller::Text &text
     t.setOrigin(pos);
 
     window.draw(t);
+}
+
+void Renderer::renderItem(sf::RenderWindow &window, const controller::Sprite &sprite)
+{
+    // Load or get texture from cache
+    if (textureCache.find(sprite.imagePath) == textureCache.end()) {
+        sf::Texture texture;
+        if (!texture.loadFromFile(sprite.imagePath)) {
+            std::cerr << "Failed to load texture: " << sprite.imagePath << std::endl;
+            return;
+        }
+        textureCache[sprite.imagePath] = texture;
+    }
+
+    sf::Sprite sfSprite(textureCache[sprite.imagePath]);
+
+    // Calculate position with camera offset and scaling
+    float x = sprite.x;
+    float y = sprite.y;
+    float scale = sprite.scale;
+
+    // Apply camera offset only if not a map
+    if (!sprite.isMap) {
+        x -= cameraX;
+        y -= cameraY;
+    }
+
+    // Apply scaling
+    x *= scale;
+    y *= scale;
+
+    sfSprite.setPosition(sf::Vector2f(x, y));
+
+    float scaledWidth = sprite.width * scale / sfSprite.getLocalBounds().size.x;
+    float scaledHeight = sprite.height * scale / sfSprite.getLocalBounds().size.y;
+
+    sfSprite.setScale(sf::Vector2f(scaledWidth, scaledHeight));
+
+    window.draw(sfSprite);
 }
 
 } // namespace ui

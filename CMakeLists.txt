@@ -26,6 +26,8 @@ add_library(roguelike_game
   src/game/game.cpp
   src/game/systems/input_system.cpp
   src/game/systems/movement_system.cpp
+  src/game/systems/animation_system.cpp
+  src/game/systems/camera_system.cpp
 )
 
 roguelike_cxx_flags(roguelike_game)

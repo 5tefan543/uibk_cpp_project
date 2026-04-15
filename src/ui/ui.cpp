@@ -39,7 +39,7 @@ controller::InputState UI::pollInput()
 void UI::render(const controller::View &view)
 {
     window.clear(renderer.toSfColor(view.backgroundColor));
-    renderer.renderItems(window, view.items);
+    renderer.renderItems(window, view);
     window.display();
 }
 

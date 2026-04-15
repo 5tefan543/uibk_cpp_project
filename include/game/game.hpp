@@ -4,6 +4,8 @@
 #include "controller/state/state_transition_action.hpp"
 #include "controller/view/view.hpp"
 #include "game/ecs/registry.hpp"
+#include "game/ecs/systems/animation_system.hpp"
+#include "game/ecs/systems/camera_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
 
@@ -14,6 +16,8 @@ class Game {
     Registry registry;
     InputSystem inputSystem;
     MovementSystem movementSystem;
+    AnimationSystem animationSystem;
+    CameraSystem cameraSystem;
 
     void initPlayer();
 
