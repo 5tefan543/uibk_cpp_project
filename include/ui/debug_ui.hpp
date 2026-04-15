@@ -10,9 +10,9 @@ class DebugUI {
     DebugUI();
     ~DebugUI();
 
-    float prevFPS = 0.0f;
+    float prevFps = 0.0f;
 
-    void render(controller::DebugState &debugState, const controller::InputState &inputState, float fps);
+    void render(controller::DebugState &debug, const controller::InputState &input, float fps);
 };
 
 } // namespace ui

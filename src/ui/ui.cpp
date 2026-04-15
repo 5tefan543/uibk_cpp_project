@@ -11,7 +11,7 @@ namespace ui {
 UI::UI()
 {
     std::cout << "UI constructed" << std::endl;
-    initWindow();
+    initSfmlWindow();
     initImGuiSfml(window);
 }
 
@@ -20,7 +20,7 @@ UI::~UI()
     std::cout << "UI destructed" << std::endl;
 }
 
-void UI::initWindow()
+void UI::initSfmlWindow()
 {
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     window.create(desktop, "My Game");
@@ -46,7 +46,7 @@ controller::InputState UI::pollInput()
     return inputState;
 }
 
-void UI::render(const controller::View &view, controller::DebugState &debugState)
+void UI::render(const controller::View &view, controller::DebugState &debug)
 {
     // 1. Start ImGui frame
     sf::Time deltaTime = imguiClock.restart();
@@ -58,7 +58,7 @@ void UI::render(const controller::View &view, controller::DebugState &debugState
     renderer.renderItems(window, view.items);
 
     // 3. Render debug UI on top
-    debugUI.render(debugState, inputState, fps);
+    debugUI.render(debug, inputState, fps);
     ImGui::SFML::Render(window);
 
     // 4. Display everything

@@ -20,7 +20,7 @@ class UI {
     controller::InputState inputState;
     float fps = 0.0f;
 
-    void initWindow();
+    void initSfmlWindow();
     void initImGuiSfml(sf::RenderWindow &window);
 
   public:
@@ -29,7 +29,7 @@ class UI {
 
     bool isOpen() const;
     controller::InputState pollInput();
-    void render(const controller::View &view, controller::DebugState &debugState);
+    void render(const controller::View &view, controller::DebugState &debug);
 };
 
 } // namespace ui

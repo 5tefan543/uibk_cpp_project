@@ -33,9 +33,9 @@ int main()
             break;
         }
         controller::View view = currentState.getView();
-        controller::DebugState &debugState = controller.getDebugState();
+        controller::DebugState &debug = controller.getDebugState();
 
-        ui.render(view, debugState);
+        ui.render(view, debug);
     }
 
     return EXIT_SUCCESS;

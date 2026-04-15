@@ -1,7 +1,5 @@
 #pragma once
 
-#include "controller/debug/debug_state.hpp"
-
 namespace controller {
 
 struct InputState {

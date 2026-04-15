@@ -1,5 +1,6 @@
 #pragma once
 
+#include "controller/debug/debug_state.hpp"
 #include "controller/input/input_state.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "controller/view/view.hpp"
@@ -16,14 +17,14 @@ class Game {
     MovementSystem movementSystem;
 
     void initPlayer();
-    void handleDebugState(controller::DebugState &debugState);
+    void handleDebugState(controller::DebugState &debug);
 
   public:
     Game();
     Game(const Game &) = delete;
     ~Game();
 
-    controller::StateTransitionAction update(const controller::InputState &input, controller::DebugState &debugState,
+    controller::StateTransitionAction update(const controller::InputState &input, controller::DebugState &debug,
                                              float dt);
     controller::View getView();
 };

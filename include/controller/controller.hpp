@@ -10,7 +10,7 @@ namespace controller {
 class Controller {
   private:
     StateManager stateManager;
-    DebugState debugState;
+    DebugState debug;
 
   public:
     Controller();

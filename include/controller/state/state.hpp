@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "controller/debug/debug_state.hpp"
 #include "controller/input/input_state.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "controller/view/view.hpp"
@@ -15,7 +16,7 @@ namespace controller {
 struct BaseState {
     virtual ~BaseState() = default;
 
-    virtual StateTransitionAction update(const InputState &input, DebugState &debugState, float dt) = 0;
+    virtual StateTransitionAction update(const InputState &input, DebugState &debug, float dt) = 0;
     virtual View getView() = 0;
     virtual std::string toString() const = 0;
 };
@@ -29,7 +30,7 @@ struct MenuState : public BaseState {
 
     static std::unique_ptr<MenuState> createMenu(MenuType menuType);
 
-    StateTransitionAction update(const InputState &input, DebugState &debugState, float dt) override;
+    StateTransitionAction update(const InputState &input, DebugState &debug, float dt) override;
     View getView() override;
     std::string toString() const override;
 };
@@ -40,7 +41,7 @@ struct GameplayState : public BaseState {
 
     static std::unique_ptr<GameplayState> createGameplay();
 
-    StateTransitionAction update(const InputState &input, DebugState &debugState, float dt) override;
+    StateTransitionAction update(const InputState &input, DebugState &debug, float dt) override;
     View getView() override;
     std::string toString() const override;
 };
@@ -50,7 +51,7 @@ struct ProgressionStoreState : public BaseState {
 
     static std::unique_ptr<ProgressionStoreState> createStore();
 
-    StateTransitionAction update(const InputState &input, DebugState &debugState, float dt) override;
+    StateTransitionAction update(const InputState &input, DebugState &debug, float dt) override;
     View getView() override;
     std::string toString() const override;
 };
@@ -59,7 +60,7 @@ struct ExitState : public BaseState {
 
     static std::unique_ptr<ExitState> createExitState();
 
-    StateTransitionAction update(const InputState &input, DebugState &debugState, float dt) override;
+    StateTransitionAction update(const InputState &input, DebugState &debug, float dt) override;
     std::string toString() const override;
     View getView() override;
 };
