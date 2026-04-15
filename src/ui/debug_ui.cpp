@@ -48,35 +48,79 @@ void DebugUI::render(controller::DebugState &debug, const controller::InputState
         ImGui::Checkbox("Show Hitboxes", &debug.game.showHitboxes);
     }
 
-    if (ImGui::CollapsingHeader("Entities", ImGuiTreeNodeFlags_DefaultOpen)) {
-        const char *preview = "Select entity";
+    game::Registry *registry = debug.game.registry;
+    std::optional<game::Entity> &selectedEntity = debug.game.selectedEntity;
 
-        if (debug.game.selectedEntity.has_value()) {
-            static std::string previewStr;
-            previewStr = "Entity " + std::to_string(debug.game.selectedEntity.value());
-            preview = previewStr.c_str();
-        }
+    if (ImGui::CollapsingHeader("ECS", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-        if (ImGui::BeginCombo("Entity", preview)) {
-            for (const auto &entity : debug.game.entities) {
-                bool isSelected = debug.game.selectedEntity.has_value() && debug.game.selectedEntity.value() == entity;
+        const std::size_t entityCount = (registry) ? registry->entities().size() : 0;
+        ImGui::Text("Entity count: %d", entityCount);
 
-                std::string label = "Entity " + std::to_string(entity);
+        if (ImGui::BeginListBox("##entity_list")) {
+            if (registry) {
+                for (const auto &entity : registry->entities()) {
+                    const bool isSelected = selectedEntity.has_value() && selectedEntity.value() == entity;
 
-                if (ImGui::Selectable(label.c_str(), isSelected)) {
-                    debug.game.selectedEntity = entity;
-                }
+                    std::string entityLabel = "Entity " + std::to_string(entity);
 
-                if (isSelected) {
-                    ImGui::SetItemDefaultFocus();
+                    if (ImGui::Selectable(entityLabel.c_str(), isSelected)) {
+                        selectedEntity = entity;
+                    }
+
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
                 }
             }
 
-            ImGui::EndCombo();
+            ImGui::EndListBox();
+        }
+
+        if (selectedEntity.has_value()) {
+            game::Entity entity = selectedEntity.value();
+
+            if (registry && registry->isEntityAlive(entity)) {
+                ImGui::Text("Selected entity: %u", entity);
+
+                if (registry->hasComponent<game::Position>(entity)) {
+                    renderComponent(registry->getComponent<game::Position>(entity));
+                }
+                if (registry->hasComponent<game::Velocity>(entity)) {
+                    renderComponent(registry->getComponent<game::Velocity>(entity));
+                }
+                if (registry->hasComponent<game::PlayerTag>(entity)) {
+                    renderComponent(registry->getComponent<game::PlayerTag>(entity));
+                }
+
+            } else {
+                selectedEntity.reset();
+            }
+        } else {
+            ImGui::Text("No entity selected");
         }
     }
 
     ImGui::End();
+}
+
+void DebugUI::renderComponent(game::PlayerTag &c)
+{
+    ImGui::SeparatorText("PlayerTag");
+    ImGui::InputFloat("moveSpeed", &c.moveSpeed);
+}
+
+void DebugUI::renderComponent(game::Position &c)
+{
+    ImGui::SeparatorText("Position");
+    ImGui::InputFloat("x", &c.x);
+    ImGui::InputFloat("y", &c.y);
+}
+
+void DebugUI::renderComponent(game::Velocity &c)
+{
+    ImGui::SeparatorText("Velocity");
+    ImGui::InputFloat("dx", &c.dx);
+    ImGui::InputFloat("dy", &c.dy);
 }
 
 } // namespace ui

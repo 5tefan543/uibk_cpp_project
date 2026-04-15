@@ -17,7 +17,7 @@ class Game {
     MovementSystem movementSystem;
 
     void initPlayer();
-    void handleDebugState(controller::DebugState &debug);
+    void handleDebugState(controller::DebugState &debug, controller::StateTransitionAction &action);
 
   public:
     Game();

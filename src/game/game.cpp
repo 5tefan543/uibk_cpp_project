@@ -29,26 +29,53 @@ void Game::initPlayer()
 controller::StateTransitionAction Game::update(const controller::InputState &input, controller::DebugState &debug,
                                                float dt)
 {
-    handleDebugState(debug);
-
     inputSystem.update(registry, input);
     movementSystem.update(registry, dt);
 
+    controller::StateTransitionAction action = controller::StateTransitionAction::None;
+
     if (input.cancelPressed) {
-        return controller::StateTransitionAction::PushPauseMenu;
+        action = controller::StateTransitionAction::PushPauseMenu;
     } else if (input.mouseLeftPressed) {
-        return controller::StateTransitionAction::PushProgressionStore;
+        action = controller::StateTransitionAction::PushProgressionStore;
     } else if (input.confirmPressed) {
-        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
+        action = controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
+    } else if (input.mouseRightPressed) {
+        if (registry.view<PlayerTag>().empty()) {
+            initPlayer();
+        } else {
+            for (Entity entity : registry.view<PlayerTag>()) {
+                registry.destroyEntity(entity);
+            }
+
+            // for (Entity entity : registry.view<Position>()) {
+            //     registry.removeComponent<Position>(entity);
+            // }
+        }
+    } else if (input.mouseMiddlePressed) {
+        initPlayer();
     }
-    return controller::StateTransitionAction::None;
+
+    handleDebugState(debug, action);
+
+    return action;
 }
 
-void Game::handleDebugState(controller::DebugState &debug)
+void Game::handleDebugState(controller::DebugState &debug, controller::StateTransitionAction &action)
 {
     if (debug.active) {
-        debug.game.entities = registry.entities();
 
+        // reset debug info on game over
+        if (action == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu) {
+            debug.game.registry = nullptr;
+            debug.game.selectedEntity.reset();
+            return;
+        }
+
+        // ecs management
+        debug.game.registry = &registry;
+
+        // Handle stage/wave reload request
         if (debug.game.isStageWaveReloadRequested) {
             debug.game.isStageWaveReloadRequested = false;
             std::cout << "Reloading stage " << debug.game.stage << ", wave " << debug.game.wave << std::endl;

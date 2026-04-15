@@ -49,11 +49,6 @@ class Registry {
         return static_cast<const ComponentStorage<T> *>(it->second.get());
     }
 
-    bool isEntityAlive(Entity entity) const
-    {
-        return std::find(aliveEntities.begin(), aliveEntities.end(), entity) != aliveEntities.end();
-    }
-
   public:
     Entity createEntity()
     {
@@ -83,6 +78,11 @@ class Registry {
         for (auto &[type, storage] : storages) {
             storage->removeComponent(entity);
         }
+    }
+
+    bool isEntityAlive(Entity entity) const
+    {
+        return std::find(aliveEntities.begin(), aliveEntities.end(), entity) != aliveEntities.end();
     }
 
     const std::vector<Entity> &entities() const { return aliveEntities; }
