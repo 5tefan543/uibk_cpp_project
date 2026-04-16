@@ -19,19 +19,17 @@ class Game {
     MovementSystem movementSystem;
 
     void initPlayer();
-    void initDebugContext(controller::DebugContext &debug);
+    void processDebugSession(controller::DebugContext &debug);
     void updateSystems(const controller::InputState &input, controller::DebugContext &debug, float dt);
-    controller::StateTransitionAction determineStateAction(const controller::InputState &input,
-                                                           controller::DebugContext &debug);
-    void cleanUpDebugContext(controller::StateTransitionAction action, controller::DebugContext &debug);
+    bool isGameOver();
 
   public:
     Game();
     Game(const Game &) = delete;
     ~Game();
 
-    controller::StateTransitionAction update(const controller::InputState &input, controller::DebugContext &debug,
-                                             float dt);
+    GameDebugSession &getDebugSession();
+    bool update(const controller::InputState &input, controller::DebugContext &debug, float dt);
     controller::View getView();
 };
 

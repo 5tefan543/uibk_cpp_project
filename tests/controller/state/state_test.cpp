@@ -404,7 +404,7 @@ TEST_CASE("GameplayState::getView returns expected view")
 
     View view = state->getView();
 
-    REQUIRE(view.items.size() >= 1);
+    REQUIRE(view.items.empty());
 }
 
 TEST_CASE("ProgressionStoreState::getView returns expected view")

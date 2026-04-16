@@ -9,7 +9,7 @@ namespace game {
 struct GameDebugSession {
     // Requests
     bool isStageWaveReloadRequested = false;
-    bool isPushStoreRequested = false;
+    bool isStoreOpenRequested = false;
     bool isPlayerDestructionRequested = false;
 
     // ecs management

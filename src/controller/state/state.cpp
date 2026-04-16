@@ -172,7 +172,25 @@ std::unique_ptr<GameplayState> GameplayState::createGameplay()
 
 StateTransitionAction GameplayState::update(const InputState &input, DebugContext &debug, float dt)
 {
-    return game.update(input, debug, dt);
+    debug.gameSession = &game.getDebugSession();
+
+    if (input.cancelPressed) {
+        return controller::StateTransitionAction::PushPauseMenu;
+    }
+
+    bool isGameOver = game.update(input, debug, dt);
+
+    if (isGameOver) {
+        debug.gameSession = nullptr;
+        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
+    }
+
+    if (debug.active && debug.gameSession && debug.gameSession->isStoreOpenRequested) {
+        debug.gameSession->isStoreOpenRequested = false;
+        return controller::StateTransitionAction::PushProgressionStore;
+    }
+
+    return controller::StateTransitionAction::None;
 }
 
 View GameplayState::getView()
@@ -237,4 +255,3 @@ std::string ExitState::toString() const
 }
 
 } // namespace controller
-// namespace controller

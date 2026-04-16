@@ -13,11 +13,6 @@ Game::Game()
     initPlayer();
 }
 
-Game::~Game()
-{
-    std::cout << "Game destructed" << std::endl;
-}
-
 void Game::initPlayer()
 {
     Entity player = registry.createEntity();
@@ -26,35 +21,40 @@ void Game::initPlayer()
     registry.addComponent<Velocity>(player, {0.0f, 0.0f});
 }
 
-controller::StateTransitionAction Game::update(const controller::InputState &input, controller::DebugContext &debug,
-                                               float dt)
+Game::~Game()
 {
-    initDebugContext(debug);
-    updateSystems(input, debug, dt);
-    controller::StateTransitionAction action = determineStateAction(input, debug);
-    cleanUpDebugContext(action, debug);
-    return action;
+    std::cout << "Game destructed" << std::endl;
 }
 
-void Game::initDebugContext(controller::DebugContext &debug)
+GameDebugSession &Game::getDebugSession()
 {
-    debug.gameSession = &debugSession; // TODO: set outside or inside active check???
+    return debugSession;
+}
 
+bool Game::update(const controller::InputState &input, controller::DebugContext &debug, float dt)
+{
+    processDebugSession(debug);
+    updateSystems(input, debug, dt);
+    return isGameOver();
+}
+
+void Game::processDebugSession(controller::DebugContext &debug)
+{
     if (!debug.active) {
         return;
     }
 
     // Handle stage/wave reload request
-    if (debug.gameSession->isStageWaveReloadRequested) {
-        debug.gameSession->isStageWaveReloadRequested = false;
+    if (debugSession.isStageWaveReloadRequested) {
+        debugSession.isStageWaveReloadRequested = false;
         std::cout << "Reloading stage " << debug.gameSettings.stage << ", wave " << debug.gameSettings.wave
                   << std::endl;
         // TODO: Implement actual stage/wave reloading logic
     }
 
     // Handle player destruction request
-    if (debug.gameSession->isPlayerDestructionRequested) {
-        debug.gameSession->isPlayerDestructionRequested = false;
+    if (debugSession.isPlayerDestructionRequested) {
+        debugSession.isPlayerDestructionRequested = false;
         std::cout << "Destroying player entity!" << std::endl;
         for (Entity player : registry.view<PlayerTag>()) {
             registry.destroyEntity(player);
@@ -64,7 +64,7 @@ void Game::initDebugContext(controller::DebugContext &debug)
 
 void Game::updateSystems(const controller::InputState &input, controller::DebugContext &debug, float dt)
 {
-    if (debug.active && !debug.gameSession->isSystemUpdateActive) {
+    if (debug.active && !debugSession.isSystemUpdateActive) {
         return;
     }
 
@@ -72,30 +72,9 @@ void Game::updateSystems(const controller::InputState &input, controller::DebugC
     movementSystem.update(registry, dt);
 }
 
-controller::StateTransitionAction Game::determineStateAction(const controller::InputState &input,
-                                                             controller::DebugContext &debug)
+bool Game::isGameOver()
 {
-    if (input.cancelPressed) {
-        return controller::StateTransitionAction::PushPauseMenu;
-    }
-
-    if (registry.view<PlayerTag>().empty()) {
-        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
-    }
-
-    if (debug.active && debug.gameSession->isPushStoreRequested) {
-        debug.gameSession->isPushStoreRequested = false;
-        return controller::StateTransitionAction::PushProgressionStore;
-    }
-
-    return controller::StateTransitionAction::None;
-}
-
-void Game::cleanUpDebugContext(controller::StateTransitionAction action, controller::DebugContext &debug)
-{
-    if (action == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu) {
-        debug.gameSession = nullptr;
-    }
+    return registry.view<PlayerTag>().empty();
 }
 
 controller::View Game::getView()

@@ -69,7 +69,7 @@ void DebugUI::renderGameSession(controller::DebugContext &debug)
         if (ImGui::CollapsingHeader("Game Session", ImGuiTreeNodeFlags_DefaultOpen)) {
 
             if (ImGui::Button("Open Store")) {
-                debug.gameSession->isPushStoreRequested = true;
+                debug.gameSession->isStoreOpenRequested = true;
             }
 
             if (ImGui::Button("Destroy Player")) {
