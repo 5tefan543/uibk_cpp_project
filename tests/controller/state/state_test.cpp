@@ -237,8 +237,84 @@ TEST_CASE("Gameplay state update returns correct actions")
     InputState input;
     DebugContext debug;
 
-    // ACT & ASSERT
-    REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::None);
+    auto updateOnce = [&]() { return state->update(input, debug, dummyDeltaTime); };
+
+    auto initializeGameSession = [&]() {
+        StateTransitionAction firstAction = updateOnce();
+        REQUIRE(firstAction == StateTransitionAction::None);
+        REQUIRE(debug.gameSession != nullptr);
+    };
+
+    SECTION("normal update returns None and sets gameSession")
+    {
+        // PRECONDITION
+        REQUIRE(debug.gameSession == nullptr);
+
+        // ACT
+        StateTransitionAction action = updateOnce();
+
+        // ASSERT
+        REQUIRE(action == StateTransitionAction::None);
+        REQUIRE(debug.gameSession != nullptr);
+    }
+
+    SECTION("cancelPressed returns PushPauseMenu")
+    {
+        // ARRANGE
+        input.cancelPressed = true;
+
+        // ACT
+        StateTransitionAction action = updateOnce();
+
+        // ASSERT
+        REQUIRE(action == StateTransitionAction::PushPauseMenu);
+        REQUIRE(debug.gameSession != nullptr);
+    }
+
+    SECTION("game over returns ReplaceCurrentWithGameOverMenu and resets gameSession")
+    {
+        // ARRANGE
+        debug.active = true;
+        initializeGameSession();
+        debug.gameSession->isPlayerDestructionRequested = true;
+
+        // ACT
+        StateTransitionAction action = updateOnce();
+
+        // ASSERT
+        REQUIRE(action == StateTransitionAction::ReplaceCurrentWithGameOverMenu);
+        REQUIRE(debug.gameSession == nullptr);
+    }
+
+    SECTION("store open request returns PushProgressionStore when debug is active")
+    {
+        // ARRANGE
+        debug.active = true;
+        initializeGameSession();
+        debug.gameSession->isStoreOpenRequested = true;
+
+        // ACT
+        StateTransitionAction action = updateOnce();
+
+        // ASSERT
+        REQUIRE(action == StateTransitionAction::PushProgressionStore);
+        REQUIRE_FALSE(debug.gameSession->isStoreOpenRequested);
+    }
+
+    SECTION("store open request is ignored when debug is inactive")
+    {
+        // ARRANGE
+        debug.active = false;
+        initializeGameSession();
+        debug.gameSession->isStoreOpenRequested = true;
+
+        // ACT
+        StateTransitionAction action = updateOnce();
+
+        // ASSERT
+        REQUIRE(action == StateTransitionAction::None);
+        REQUIRE(debug.gameSession->isStoreOpenRequested);
+    }
 }
 
 TEST_CASE("ProgressionStoreState update returns correct actions")

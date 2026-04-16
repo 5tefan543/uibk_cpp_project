@@ -11,7 +11,7 @@ run: debug
 	./build/debug/app
 
 test: debug
-	ctest --preset debug
+	ctest --preset debug --output-on-failure
 
 # Release
 release:
@@ -22,7 +22,7 @@ run_release: release
 	./build/release/app
 
 test_release: release
-	ctest --preset release
+	ctest --preset release --output-on-failure
 
 clean:
 	rm -rf build
