@@ -29,47 +29,16 @@ void Game::initPlayer()
 controller::StateTransitionAction Game::update(const controller::InputState &input, controller::DebugContext &debug,
                                                float dt)
 {
-    inputSystem.update(registry, input);
-    movementSystem.update(registry, dt);
-
-    controller::StateTransitionAction action = controller::StateTransitionAction::None;
-
-    if (input.cancelPressed) {
-        action = controller::StateTransitionAction::PushPauseMenu;
-    } else if (input.mouseLeftPressed) {
-        action = controller::StateTransitionAction::PushProgressionStore;
-    } else if (input.confirmPressed) {
-        action = controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
-    } else if (input.mouseRightPressed) {
-        if (registry.view<PlayerTag>().empty()) {
-            initPlayer();
-        } else {
-            for (Entity entity : registry.view<PlayerTag>()) {
-                registry.destroyEntity(entity);
-            }
-
-            // for (Entity entity : registry.view<Position>()) {
-            //     registry.removeComponent<Position>(entity);
-            // }
-        }
-    } else if (input.mouseMiddlePressed) {
-        initPlayer();
-    }
-
-    handleDebugContext(debug, action);
-
+    initDebugContext(debug);
+    updateSystems(input, debug, dt);
+    controller::StateTransitionAction action = determineStateAction(input, debug);
+    cleanUpDebugContext(action, debug);
     return action;
 }
 
-void Game::handleDebugContext(controller::DebugContext &debug, controller::StateTransitionAction &action)
+void Game::initDebugContext(controller::DebugContext &debug)
 {
-
     debug.gameSession = &debugSession; // TODO: set outside or inside active check???
-
-    if (action == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu) {
-        debug.gameSession = nullptr;
-        return;
-    }
 
     if (!debug.active) {
         return;
@@ -82,18 +51,57 @@ void Game::handleDebugContext(controller::DebugContext &debug, controller::State
                   << std::endl;
         // TODO: Implement actual stage/wave reloading logic
     }
+
+    // Handle player destruction request
+    if (debug.gameSession->isPlayerDestructionRequested) {
+        debug.gameSession->isPlayerDestructionRequested = false;
+        std::cout << "Destroying player entity!" << std::endl;
+        for (Entity player : registry.view<PlayerTag>()) {
+            registry.destroyEntity(player);
+        }
+    }
+}
+
+void Game::updateSystems(const controller::InputState &input, controller::DebugContext &debug, float dt)
+{
+    if (debug.active && !debug.gameSession->isSystemUpdateActive) {
+        return;
+    }
+
+    inputSystem.update(registry, input);
+    movementSystem.update(registry, dt);
+}
+
+controller::StateTransitionAction Game::determineStateAction(const controller::InputState &input,
+                                                             controller::DebugContext &debug)
+{
+    if (input.cancelPressed) {
+        return controller::StateTransitionAction::PushPauseMenu;
+    }
+
+    if (registry.view<PlayerTag>().empty()) {
+        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
+    }
+
+    if (debug.active && debug.gameSession->isPushStoreRequested) {
+        debug.gameSession->isPushStoreRequested = false;
+        return controller::StateTransitionAction::PushProgressionStore;
+    }
+
+    return controller::StateTransitionAction::None;
+}
+
+void Game::cleanUpDebugContext(controller::StateTransitionAction action, controller::DebugContext &debug)
+{
+    if (action == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu) {
+        debug.gameSession = nullptr;
+    }
 }
 
 controller::View Game::getView()
 {
     controller::View view;
     // TODO: Construct view based on game state
-    controller::Text text;
-    text.text = std::string("<< GAMEPLAY STATE PLACEHOLDER >>\n\n"
-                            "- left-mouse-btn -> Progression Store\n"
-                            "- enter          -> Game Over\n"
-                            "- esc            -> Pause Menu");
-    view.items.push_back(text);
     return view;
 }
 

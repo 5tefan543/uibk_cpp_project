@@ -7,12 +7,15 @@
 namespace game {
 
 struct GameDebugSession {
-    // stage / wave management
+    // Requests
     bool isStageWaveReloadRequested = false;
+    bool isPushStoreRequested = false;
+    bool isPlayerDestructionRequested = false;
 
     // ecs management
     Registry &registry;
     std::optional<Entity> selectedEntity;
+    bool isSystemUpdateActive = true;
 
     GameDebugSession(Registry &registry) : registry(registry) {}
 };

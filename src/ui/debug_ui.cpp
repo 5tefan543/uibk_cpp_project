@@ -25,6 +25,15 @@ void DebugUI::render(controller::DebugContext &debug, const controller::InputSta
     ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Once);
     ImGui::Begin("Debug", &debug.active, ImGuiWindowFlags_AlwaysAutoResize);
 
+    renderStats(fps, input, debug);
+    renderGameSettings(debug);
+    renderGameSession(debug);
+
+    ImGui::End();
+}
+
+void DebugUI::renderStats(float fps, const controller::InputState &input, controller::DebugContext &debug)
+{
     float smoothedFps = (prevFps > 0.0f) ? 0.99f * prevFps + 0.01f * fps : fps;
     prevFps = smoothedFps;
     float frameTimeMs = smoothedFps > 0.0f ? 1000.0f / smoothedFps : 0.0f;
@@ -35,7 +44,10 @@ void DebugUI::render(controller::DebugContext &debug, const controller::InputSta
         ImGui::Text("Mouse position: (%d, %d)", input.mouseX, input.mouseY);
         ImGui::TextUnformatted(debug.currentStateInfo.c_str());
     }
+}
 
+void DebugUI::renderGameSettings(controller::DebugContext &debug)
+{
     if (ImGui::CollapsingHeader("Game Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::SeparatorText("Stage / Wave");
         ImGui::InputInt("Stage", &debug.gameSettings.stage);
@@ -47,59 +59,82 @@ void DebugUI::render(controller::DebugContext &debug, const controller::InputSta
         ImGui::SeparatorText("Collision");
         ImGui::Checkbox("Show Hitboxes", &debug.gameSettings.showHitboxes);
     }
+}
 
+void DebugUI::renderGameSession(controller::DebugContext &debug)
+{
     if (debug.gameSession) {
         game::GameDebugSession &gameSession = *debug.gameSession;
 
-        if (ImGui::CollapsingHeader("ECS", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (ImGui::CollapsingHeader("Game Session", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-            ImGui::Text("Entity count: %zu", gameSession.registry.entities().size());
-
-            if (ImGui::BeginListBox("##entity_list")) {
-                for (const auto &entity : gameSession.registry.entities()) {
-                    const bool isSelected =
-                        gameSession.selectedEntity.has_value() && gameSession.selectedEntity.value() == entity;
-
-                    std::string entityLabel = "Entity " + std::to_string(entity);
-
-                    if (ImGui::Selectable(entityLabel.c_str(), isSelected)) {
-                        gameSession.selectedEntity = entity;
-                    }
-
-                    if (isSelected) {
-                        ImGui::SetItemDefaultFocus();
-                    }
-                }
-
-                ImGui::EndListBox();
+            if (ImGui::Button("Open Store")) {
+                debug.gameSession->isPushStoreRequested = true;
             }
 
-            if (gameSession.selectedEntity.has_value()) {
-                game::Entity entity = gameSession.selectedEntity.value();
-
-                if (gameSession.registry.isEntityAlive(entity)) {
-                    ImGui::Text("Selected entity: %u", entity);
-
-                    if (gameSession.registry.hasComponent<game::Position>(entity)) {
-                        renderComponent(gameSession.registry.getComponent<game::Position>(entity));
-                    }
-                    if (gameSession.registry.hasComponent<game::Velocity>(entity)) {
-                        renderComponent(gameSession.registry.getComponent<game::Velocity>(entity));
-                    }
-                    if (gameSession.registry.hasComponent<game::PlayerTag>(entity)) {
-                        renderComponent(gameSession.registry.getComponent<game::PlayerTag>(entity));
-                    }
-
-                } else {
-                    gameSession.selectedEntity.reset();
-                }
-            } else {
-                ImGui::Text("No entity selected");
+            if (ImGui::Button("Destroy Player")) {
+                debug.gameSession->isPlayerDestructionRequested = true;
             }
+
+            std::string updateSystemsLabel =
+                gameSession.isSystemUpdateActive ? "Pause Simulation" : "Resume Simulation";
+            if (ImGui::Button(updateSystemsLabel.c_str())) {
+                debug.gameSession->isSystemUpdateActive = !debug.gameSession->isSystemUpdateActive;
+            }
+
+            renderEcsManagement(gameSession);
         }
     }
+}
 
-    ImGui::End();
+void DebugUI::renderEcsManagement(game::GameDebugSession &gameSession)
+{
+    if (ImGui::CollapsingHeader("ECS", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+        ImGui::Text("Entity count: %zu", gameSession.registry.entities().size());
+
+        if (ImGui::BeginListBox("##entity_list")) {
+            for (const auto &entity : gameSession.registry.entities()) {
+                const bool isSelected =
+                    gameSession.selectedEntity.has_value() && gameSession.selectedEntity.value() == entity;
+
+                std::string entityLabel = "Entity " + std::to_string(entity);
+
+                if (ImGui::Selectable(entityLabel.c_str(), isSelected)) {
+                    gameSession.selectedEntity = entity;
+                }
+
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+
+            ImGui::EndListBox();
+        }
+
+        if (gameSession.selectedEntity.has_value()) {
+            game::Entity entity = gameSession.selectedEntity.value();
+
+            if (gameSession.registry.isEntityAlive(entity)) {
+                ImGui::Text("Selected entity: %u", entity);
+
+                if (gameSession.registry.hasComponent<game::Position>(entity)) {
+                    renderComponent(gameSession.registry.getComponent<game::Position>(entity));
+                }
+                if (gameSession.registry.hasComponent<game::Velocity>(entity)) {
+                    renderComponent(gameSession.registry.getComponent<game::Velocity>(entity));
+                }
+                if (gameSession.registry.hasComponent<game::PlayerTag>(entity)) {
+                    renderComponent(gameSession.registry.getComponent<game::PlayerTag>(entity));
+                }
+
+            } else {
+                gameSession.selectedEntity.reset();
+            }
+        } else {
+            ImGui::Text("No entity selected");
+        }
+    }
 }
 
 void DebugUI::renderComponent(game::PlayerTag &c)

@@ -12,6 +12,10 @@ class DebugUI {
   private:
     float prevFps = 0.0f;
 
+    void renderStats(float fps, const controller::InputState &input, controller::DebugContext &debug);
+    void renderGameSettings(controller::DebugContext &debug);
+    void renderGameSession(controller::DebugContext &debug);
+    void renderEcsManagement(game::GameDebugSession &gameSession);
     void renderComponent(game::PlayerTag &c);
     void renderComponent(game::Position &c);
     void renderComponent(game::Velocity &c);
