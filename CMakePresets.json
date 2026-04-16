@@ -18,6 +18,15 @@
             }
         },
         {
+            "name": "clang_tidy",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_CXX_CLANG_TIDY": "clang-tidy"
+            }
+        },
+        {
             "name": "release",
             "inherits": "base",
             "cacheVariables": {
@@ -40,6 +49,10 @@
         {
             "name": "debug",
             "configurePreset": "debug"
+        },
+        {
+            "name": "clang_tidy",
+            "configurePreset": "clang_tidy"
         },
         {
             "name": "release",

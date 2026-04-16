@@ -1,0 +1,9 @@
+Checks: '-*,readability-identifier-naming'
+WarningsAsErrors: 'readability-identifier-naming'
+HeaderFilterRegex: '.*'
+
+CheckOptions:
+  - key: readability-identifier-naming.MemberCase
+    value: lower_case
+  - key: readability-identifier-naming.MemberSuffix
+    value: _
