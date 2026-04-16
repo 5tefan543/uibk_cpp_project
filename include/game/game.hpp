@@ -20,7 +20,7 @@ class Game {
     InputSystem inputSystem;
     MovementSystem movementSystem;
     AnimationSystem animationSystem;
-    CameraSystem cameraSystem;
+    // CameraSystem cameraSystem;
 
     void initPlayer();
     void processDebugSession(controller::DebugContext &debug);

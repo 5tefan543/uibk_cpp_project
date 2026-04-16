@@ -81,7 +81,7 @@ void Game::updateSystems(const controller::InputState &input, controller::DebugC
     inputSystem.update(registry, input);
     movementSystem.update(registry, dt);
     animationSystem.update(registry, dt);
-    cameraSystem.update(registry);
+    // cameraSystem.update(registry);
 }
 
 bool Game::isGameOver()
