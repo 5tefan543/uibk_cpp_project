@@ -1,5 +1,6 @@
 #pragma once
 
+#include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "controller/view/view.hpp"
@@ -14,19 +15,25 @@ namespace game {
 class Game {
   private:
     Registry registry;
+    GameDebugSession debugSession{registry};
+
     InputSystem inputSystem;
     MovementSystem movementSystem;
     AnimationSystem animationSystem;
     CameraSystem cameraSystem;
 
     void initPlayer();
+    void processDebugSession(controller::DebugContext &debug);
+    void updateSystems(const controller::InputState &input, controller::DebugContext &debug, float dt);
+    bool isGameOver();
 
   public:
     Game();
     Game(const Game &) = delete;
     ~Game();
 
-    controller::StateTransitionAction update(const controller::InputState &input, float dt);
+    GameDebugSession &getDebugSession();
+    bool update(const controller::InputState &input, controller::DebugContext &debug, float dt);
     controller::View getView();
 };
 

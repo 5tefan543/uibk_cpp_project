@@ -17,11 +17,6 @@ Game::Game()
     initPlayer();
 }
 
-Game::~Game()
-{
-    std::cout << "Game destructed" << std::endl;
-}
-
 void Game::initPlayer()
 {
     Entity player = registry.createEntity();
@@ -36,21 +31,62 @@ void Game::initPlayer()
     registry.addComponent<Camera>(mapEntity, {});
 }
 
-controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
+Game::~Game()
 {
+    std::cout << "Game destructed" << std::endl;
+}
+
+GameDebugSession &Game::getDebugSession()
+{
+    return debugSession;
+}
+
+bool Game::update(const controller::InputState &input, controller::DebugContext &debug, float dt)
+{
+    processDebugSession(debug);
+    updateSystems(input, debug, dt);
+    return isGameOver();
+}
+
+void Game::processDebugSession(controller::DebugContext &debug)
+{
+    if (!debug.active) {
+        return;
+    }
+
+    // Handle stage/wave reload request
+    if (debugSession.isStageWaveReloadRequested) {
+        debugSession.isStageWaveReloadRequested = false;
+        std::cout << "Reloading stage " << debug.gameSettings.stage << ", wave " << debug.gameSettings.wave
+                  << std::endl;
+        // TODO: Implement actual stage/wave reloading logic
+    }
+
+    // Handle player destruction request
+    if (debugSession.isPlayerDestructionRequested) {
+        debugSession.isPlayerDestructionRequested = false;
+        std::cout << "Destroying player entity!" << std::endl;
+        for (Entity player : registry.view<PlayerTag>()) {
+            registry.destroyEntity(player);
+        }
+    }
+}
+
+void Game::updateSystems(const controller::InputState &input, controller::DebugContext &debug, float dt)
+{
+    if (debug.active && !debugSession.isSystemUpdateActive) {
+        return;
+    }
+
     inputSystem.update(registry, input);
     movementSystem.update(registry, dt);
     animationSystem.update(registry, dt);
     cameraSystem.update(registry);
+}
 
-    if (input.cancelPressed) {
-        return controller::StateTransitionAction::PushPauseMenu;
-    } else if (input.mouseLeftPressed) {
-        return controller::StateTransitionAction::PushProgressionStore;
-    } else if (input.confirmPressed) {
-        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
-    }
-    return controller::StateTransitionAction::None;
+bool Game::isGameOver()
+{
+    return registry.view<PlayerTag>().empty();
 }
 
 controller::View Game::getView()
