@@ -185,7 +185,7 @@ StateTransitionAction GameplayState::update(const InputState &input, DebugContex
         return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
     }
 
-    if (debug.active && debug.gameSession && debug.gameSession->isStoreOpenRequested) {
+    if (debug.active && debug.gameSession->isStoreOpenRequested) {
         debug.gameSession->isStoreOpenRequested = false;
         return controller::StateTransitionAction::PushProgressionStore;
     }
