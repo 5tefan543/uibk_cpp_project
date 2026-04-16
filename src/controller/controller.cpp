@@ -34,7 +34,7 @@ BaseState &Controller::getCurrentState()
     return stateManager.getCurrent();
 }
 
-DebugState &Controller::getDebugState()
+DebugContext &Controller::getDebugContext()
 {
     return debug;
 }

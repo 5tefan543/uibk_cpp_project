@@ -26,7 +26,7 @@ void Game::initPlayer()
     registry.addComponent<Velocity>(player, {0.0f, 0.0f});
 }
 
-controller::StateTransitionAction Game::update(const controller::InputState &input, controller::DebugState &debug,
+controller::StateTransitionAction Game::update(const controller::InputState &input, controller::DebugContext &debug,
                                                float dt)
 {
     inputSystem.update(registry, input);
@@ -56,31 +56,31 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
         initPlayer();
     }
 
-    handleDebugState(debug, action);
+    handleDebugContext(debug, action);
 
     return action;
 }
 
-void Game::handleDebugState(controller::DebugState &debug, controller::StateTransitionAction &action)
+void Game::handleDebugContext(controller::DebugContext &debug, controller::StateTransitionAction &action)
 {
-    if (debug.active) {
 
-        // reset debug info on game over
-        if (action == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu) {
-            debug.game.registry = nullptr;
-            debug.game.selectedEntity.reset();
-            return;
-        }
+    debug.gameSession = &debugSession; // TODO: set outside or inside active check???
 
-        // ecs management
-        debug.game.registry = &registry;
+    if (action == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu) {
+        debug.gameSession = nullptr;
+        return;
+    }
 
-        // Handle stage/wave reload request
-        if (debug.game.isStageWaveReloadRequested) {
-            debug.game.isStageWaveReloadRequested = false;
-            std::cout << "Reloading stage " << debug.game.stage << ", wave " << debug.game.wave << std::endl;
-            // TODO: Implement actual stage/wave reloading logic
-        }
+    if (!debug.active) {
+        return;
+    }
+
+    // Handle stage/wave reload request
+    if (debug.gameSession->isStageWaveReloadRequested) {
+        debug.gameSession->isStageWaveReloadRequested = false;
+        std::cout << "Reloading stage " << debug.gameSettings.stage << ", wave " << debug.gameSettings.wave
+                  << std::endl;
+        // TODO: Implement actual stage/wave reloading logic
     }
 }
 

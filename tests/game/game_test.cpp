@@ -20,7 +20,7 @@ TEST_CASE("Game update returns PushPauseMenu on cancelPressed")
 
     controller::InputState input;
     input.cancelPressed = true;
-    controller::DebugState debug;
+    controller::DebugContext debug;
 
     // ACT & ASSERT
     REQUIRE(game.update(input, debug, dummyDeltaTime) == controller::StateTransitionAction::PushPauseMenu);
@@ -33,7 +33,7 @@ TEST_CASE("Game update returns PushProgressionStore on mouseLeftPressed")
 
     controller::InputState input;
     input.mouseLeftPressed = true;
-    controller::DebugState debug;
+    controller::DebugContext debug;
 
     // ACT & ASSERT
     REQUIRE(game.update(input, debug, dummyDeltaTime) == controller::StateTransitionAction::PushProgressionStore);
@@ -46,7 +46,7 @@ TEST_CASE("Game update returns ReplaceCurrentWithGameOverMenu on confirmPressed"
 
     controller::InputState input;
     input.confirmPressed = true;
-    controller::DebugState debug;
+    controller::DebugContext debug;
 
     // ACT & ASSERT
     REQUIRE(game.update(input, debug, dummyDeltaTime)
@@ -66,95 +66,85 @@ TEST_CASE("Game getView returns at least one text item")
     REQUIRE(std::holds_alternative<controller::Text>(view.items[0]));
 }
 
-TEST_CASE("Game update sets GameDebugState registry when debug is active")
+TEST_CASE("Game update sets GameDebugSession when action is not game over")
 {
     // ARRANGE
     game::Game game;
     controller::InputState input;
-    controller::DebugState debug;
-    debug.active = true;
+    controller::DebugContext debug;
 
     // PRECONDITION
-    REQUIRE(debug.game.registry == nullptr);
+    REQUIRE(debug.gameSession == nullptr);
 
     // ACT
     controller::StateTransitionAction action = game.update(input, debug, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(action == controller::StateTransitionAction::None);
-    REQUIRE(debug.game.registry != nullptr);
+    REQUIRE(debug.gameSession != nullptr);
 }
 
-TEST_CASE("Game update does not set GameDebugState registry when debug is inactive")
-{
-    // ARRANGE
-    game::Game game;
-    controller::InputState input;
-    controller::DebugState debug;
-    debug.active = false;
-
-    // ACT
-    controller::StateTransitionAction action = game.update(input, debug, dummyDeltaTime);
-
-    // ASSERT
-    REQUIRE(action == controller::StateTransitionAction::None);
-    REQUIRE(debug.game.registry == nullptr);
-}
-
-TEST_CASE("Game update resets GameDebugState registry and selected entity on game over when debug is active")
+TEST_CASE("Game update resets GameDebugSession on game over")
 {
     // ARRANGE
     game::Game game;
     controller::InputState input;
     input.confirmPressed = true;
 
-    controller::DebugState debug;
-    debug.active = true;
-    debug.game.selectedEntity = game::Entity{42};
+    controller::DebugContext debug;
 
     // ACT
     controller::StateTransitionAction action = game.update(input, debug, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(action == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu);
-    REQUIRE(debug.game.registry == nullptr);
-    REQUIRE_FALSE(debug.game.selectedEntity.has_value());
+    REQUIRE(debug.gameSession == nullptr);
 }
 
-TEST_CASE("Game update resets GameDebugState stage wave reload request when debug is active")
+TEST_CASE("Game update resets GameDebugSession stage/wave reload request when debug is active")
 {
     // ARRANGE
     game::Game game;
     controller::InputState input;
-    controller::DebugState debug;
+    controller::DebugContext debug;
     debug.active = true;
-    debug.game.isStageWaveReloadRequested = true;
-    debug.game.stage = 2;
-    debug.game.wave = 3;
+    debug.gameSettings.stage = 2;
+    debug.gameSettings.wave = 3;
+
+    // update needs to be executed once such that gameSession is set
+    game.update(input, debug, dummyDeltaTime);
+    REQUIRE(debug.gameSession != nullptr);
+
+    // now request the stage/wave reload
+    debug.gameSession->isStageWaveReloadRequested = true;
 
     // ACT
     controller::StateTransitionAction action = game.update(input, debug, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(action == controller::StateTransitionAction::None);
-    REQUIRE(debug.game.registry != nullptr);
-    REQUIRE_FALSE(debug.game.isStageWaveReloadRequested);
+    REQUIRE_FALSE(debug.gameSession->isStageWaveReloadRequested);
 }
 
-TEST_CASE("Game update keeps GameDebugState stage wave reload request unchanged when debug is inactive")
+TEST_CASE("Game update keeps GameDebugSession stage/wave reload request unchanged when debug is inactive")
 {
     // ARRANGE
     game::Game game;
     controller::InputState input;
-    controller::DebugState debug;
+    controller::DebugContext debug;
     debug.active = false;
-    debug.game.isStageWaveReloadRequested = true;
+
+    // update needs to be executed once such that gameSession is set
+    game.update(input, debug, dummyDeltaTime);
+    REQUIRE(debug.gameSession != nullptr);
+
+    // now request the stage/wave reload
+    debug.gameSession->isStageWaveReloadRequested = true;
 
     // ACT
     controller::StateTransitionAction action = game.update(input, debug, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(action == controller::StateTransitionAction::None);
-    REQUIRE(debug.game.registry == nullptr);
-    REQUIRE(debug.game.isStageWaveReloadRequested);
+    REQUIRE(debug.gameSession->isStageWaveReloadRequested);
 }

@@ -6,18 +6,15 @@
 
 namespace game {
 
-struct GameDebugState {
+struct GameDebugSession {
     // stage / wave management
-    int stage = 0;
-    int wave = 0;
     bool isStageWaveReloadRequested = false;
 
     // ecs management
-    Registry *registry = nullptr;
+    Registry &registry;
     std::optional<Entity> selectedEntity;
 
-    // collision
-    bool showHitboxes = false;
+    GameDebugSession(Registry &registry) : registry(registry) {}
 };
 
 } // namespace game

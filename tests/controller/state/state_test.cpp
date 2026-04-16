@@ -38,7 +38,7 @@ TEST_CASE("MenuState::createMenu of type GameOverMenu constructs game over menu 
     // check that if the button is confirmed, it triggers the expected action
     InputState input;
     input.confirmPressed = true;
-    DebugState debug;
+    DebugContext debug;
     REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithMainMenu);
 }
 
@@ -69,7 +69,7 @@ TEST_CASE("Main menu update returns correct actions")
         // ARRANGE
         InputState input;
         input.confirmPressed = true;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT & ASSERT
         REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithGameplay);
@@ -81,7 +81,7 @@ TEST_CASE("Main menu update returns correct actions")
         state->selectedButtonIndex = 1;
         InputState input;
         input.confirmPressed = true;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT & ASSERT
         REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::ReplaceAllStatesWithExit);
@@ -92,7 +92,7 @@ TEST_CASE("Main menu update returns correct actions")
         // ARRANGE
         InputState input;
         input.downPressed = true;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT
         StateTransitionAction action = state->update(input, debug, dummyDeltaTime);
@@ -113,7 +113,7 @@ TEST_CASE("Main menu update returns correct actions")
     {
         // ARRANGE
         InputState input;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT & ASSERT
         REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::None);
@@ -130,7 +130,7 @@ TEST_CASE("Pause menu update returns correct actions")
         state->selectedButtonIndex = 0;
         InputState input;
         input.confirmPressed = true;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT & ASSERT
         REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::Pop);
@@ -142,7 +142,7 @@ TEST_CASE("Pause menu update returns correct actions")
         state->selectedButtonIndex = 1;
         InputState input;
         input.leftPressed = true;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT
         StateTransitionAction action = state->update(input, debug, dummyDeltaTime);
@@ -158,7 +158,7 @@ TEST_CASE("Pause menu update returns correct actions")
         state->selectedButtonIndex = 0;
         InputState input;
         input.rightPressed = true;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT
         StateTransitionAction action = state->update(input, debug, dummyDeltaTime);
@@ -174,7 +174,7 @@ TEST_CASE("Pause menu update returns correct actions")
         state->selectedButtonIndex = 1;
         InputState input;
         input.confirmPressed = true;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT & ASSERT
         REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::None);
@@ -184,7 +184,7 @@ TEST_CASE("Pause menu update returns correct actions")
     {
         // ARRANGE
         InputState input;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT & ASSERT
         REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::None);
@@ -201,7 +201,7 @@ TEST_CASE("Game over menu update returns correct actions")
         state->selectedButtonIndex = 0;
         InputState input;
         input.confirmPressed = true;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT & ASSERT
         REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithMainMenu);
@@ -213,7 +213,7 @@ TEST_CASE("Game over menu update returns correct actions")
         state->selectedButtonIndex = 1;
         InputState input;
         input.confirmPressed = true;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT & ASSERT
         REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::ReplaceAllStatesWithExit);
@@ -223,7 +223,7 @@ TEST_CASE("Game over menu update returns correct actions")
     {
         // ARRANGE
         InputState input;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT & ASSERT
         REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::None);
@@ -235,7 +235,7 @@ TEST_CASE("Gameplay state update returns correct actions")
     // ARRANGE
     std::unique_ptr<GameplayState> state = GameplayState::createGameplay();
     InputState input;
-    DebugState debug;
+    DebugContext debug;
 
     // ACT & ASSERT
     REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::None);
@@ -250,7 +250,7 @@ TEST_CASE("ProgressionStoreState update returns correct actions")
         // ARRANGE
         InputState input;
         input.confirmPressed = true;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT & ASSERT
         REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::Pop);
@@ -260,7 +260,7 @@ TEST_CASE("ProgressionStoreState update returns correct actions")
     {
         // ARRANGE
         InputState input;
-        DebugState debug;
+        DebugContext debug;
 
         // ACT & ASSERT
         REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::None);
@@ -430,7 +430,7 @@ TEST_CASE("ExitState::update returns ReplaceAllStatesWithExit")
     std::unique_ptr<ExitState> state = ExitState::createExitState();
 
     InputState input;
-    DebugState debug;
+    DebugContext debug;
 
     StateTransitionAction action = state->update(input, debug, dummyDeltaTime);
 

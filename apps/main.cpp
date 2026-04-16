@@ -33,7 +33,7 @@ int main()
             break;
         }
         controller::View view = currentState.getView();
-        controller::DebugState &debug = controller.getDebugState();
+        controller::DebugContext &debug = controller.getDebugContext();
 
         ui.render(view, debug);
     }

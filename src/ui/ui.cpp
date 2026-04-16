@@ -46,7 +46,7 @@ controller::InputState UI::pollInput()
     return inputState;
 }
 
-void UI::render(const controller::View &view, controller::DebugState &debug)
+void UI::render(const controller::View &view, controller::DebugContext &debug)
 {
     // 1. Start ImGui frame
     sf::Time deltaTime = imguiClock.restart();

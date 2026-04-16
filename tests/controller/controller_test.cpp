@@ -52,7 +52,7 @@ TEST_CASE("Controller toggles debug mode on")
     controller.update(input, dummyDeltaTime);
 
     // Assert
-    REQUIRE(controller.getDebugState().active == true);
+    REQUIRE(controller.getDebugContext().active == true);
 }
 
 TEST_CASE("Controller toggles debug mode off when toggle is pressed twice")
@@ -67,5 +67,5 @@ TEST_CASE("Controller toggles debug mode off when toggle is pressed twice")
     controller.update(input, dummyDeltaTime);
 
     // Assert
-    REQUIRE(controller.getDebugState().active == false);
+    REQUIRE(controller.getDebugContext().active == false);
 }

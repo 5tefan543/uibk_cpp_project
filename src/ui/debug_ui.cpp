@@ -15,7 +15,7 @@ DebugUI::~DebugUI()
     std::cout << "DebugUI destructed" << std::endl;
 }
 
-void DebugUI::render(controller::DebugState &debug, const controller::InputState &input, float fps)
+void DebugUI::render(controller::DebugContext &debug, const controller::InputState &input, float fps)
 {
     if (!debug.active) {
         return;
@@ -38,65 +38,64 @@ void DebugUI::render(controller::DebugState &debug, const controller::InputState
 
     if (ImGui::CollapsingHeader("Game Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::SeparatorText("Stage / Wave");
-        ImGui::InputInt("Stage", &debug.game.stage);
-        ImGui::InputInt("Wave", &debug.game.wave);
-        if (ImGui::Button("Reload Stage/Wave")) {
-            debug.game.isStageWaveReloadRequested = true;
+        ImGui::InputInt("Stage", &debug.gameSettings.stage);
+        ImGui::InputInt("Wave", &debug.gameSettings.wave);
+        if (ImGui::Button("Reload Stage/Wave") && debug.gameSession) {
+            debug.gameSession->isStageWaveReloadRequested = true;
         }
 
         ImGui::SeparatorText("Collision");
-        ImGui::Checkbox("Show Hitboxes", &debug.game.showHitboxes);
+        ImGui::Checkbox("Show Hitboxes", &debug.gameSettings.showHitboxes);
     }
 
-    game::Registry *registry = debug.game.registry;
-    std::optional<game::Entity> &selectedEntity = debug.game.selectedEntity;
+    if (debug.gameSession) {
+        game::GameDebugSession &gameSession = *debug.gameSession;
 
-    if (ImGui::CollapsingHeader("ECS", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (ImGui::CollapsingHeader("ECS", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-        const std::size_t entityCount = (registry) ? registry->entities().size() : 0;
-        ImGui::Text("Entity count: %zu", entityCount);
+            ImGui::Text("Entity count: %zu", gameSession.registry.entities().size());
 
-        if (ImGui::BeginListBox("##entity_list")) {
-            if (registry) {
-                for (const auto &entity : registry->entities()) {
-                    const bool isSelected = selectedEntity.has_value() && selectedEntity.value() == entity;
+            if (ImGui::BeginListBox("##entity_list")) {
+                for (const auto &entity : gameSession.registry.entities()) {
+                    const bool isSelected =
+                        gameSession.selectedEntity.has_value() && gameSession.selectedEntity.value() == entity;
 
                     std::string entityLabel = "Entity " + std::to_string(entity);
 
                     if (ImGui::Selectable(entityLabel.c_str(), isSelected)) {
-                        selectedEntity = entity;
+                        gameSession.selectedEntity = entity;
                     }
 
                     if (isSelected) {
                         ImGui::SetItemDefaultFocus();
                     }
                 }
+
+                ImGui::EndListBox();
             }
 
-            ImGui::EndListBox();
-        }
+            if (gameSession.selectedEntity.has_value()) {
+                game::Entity entity = gameSession.selectedEntity.value();
 
-        if (selectedEntity.has_value()) {
-            game::Entity entity = selectedEntity.value();
+                if (gameSession.registry.isEntityAlive(entity)) {
+                    ImGui::Text("Selected entity: %u", entity);
 
-            if (registry && registry->isEntityAlive(entity)) {
-                ImGui::Text("Selected entity: %u", entity);
+                    if (gameSession.registry.hasComponent<game::Position>(entity)) {
+                        renderComponent(gameSession.registry.getComponent<game::Position>(entity));
+                    }
+                    if (gameSession.registry.hasComponent<game::Velocity>(entity)) {
+                        renderComponent(gameSession.registry.getComponent<game::Velocity>(entity));
+                    }
+                    if (gameSession.registry.hasComponent<game::PlayerTag>(entity)) {
+                        renderComponent(gameSession.registry.getComponent<game::PlayerTag>(entity));
+                    }
 
-                if (registry->hasComponent<game::Position>(entity)) {
-                    renderComponent(registry->getComponent<game::Position>(entity));
+                } else {
+                    gameSession.selectedEntity.reset();
                 }
-                if (registry->hasComponent<game::Velocity>(entity)) {
-                    renderComponent(registry->getComponent<game::Velocity>(entity));
-                }
-                if (registry->hasComponent<game::PlayerTag>(entity)) {
-                    renderComponent(registry->getComponent<game::PlayerTag>(entity));
-                }
-
             } else {
-                selectedEntity.reset();
+                ImGui::Text("No entity selected");
             }
-        } else {
-            ImGui::Text("No entity selected");
         }
     }
 

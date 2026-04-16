@@ -1,6 +1,6 @@
 #pragma once
 
-#include "debug/debug_state.hpp"
+#include "debug/debug_context.hpp"
 #include "game/game.hpp"
 #include "input/input_state.hpp"
 #include "state/state_manager.hpp"
@@ -10,14 +10,14 @@ namespace controller {
 class Controller {
   private:
     StateManager stateManager;
-    DebugState debug;
+    DebugContext debug;
 
   public:
     Controller();
     ~Controller();
     void update(const InputState &input, float dt);
     BaseState &getCurrentState();
-    DebugState &getDebugState();
+    DebugContext &getDebugContext();
 };
 
 } // namespace controller

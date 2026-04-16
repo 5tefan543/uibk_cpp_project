@@ -10,7 +10,7 @@ std::unique_ptr<MenuState> MenuState::createMenu(MenuType menuType)
     return menu;
 }
 
-StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]] DebugState &debug,
+StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]] DebugContext &debug,
                                         [[maybe_unused]] float dt)
 {
     switch (type) {
@@ -170,7 +170,7 @@ std::unique_ptr<GameplayState> GameplayState::createGameplay()
     return gameplay;
 }
 
-StateTransitionAction GameplayState::update(const InputState &input, DebugState &debug, float dt)
+StateTransitionAction GameplayState::update(const InputState &input, DebugContext &debug, float dt)
 {
     return game.update(input, debug, dt);
 }
@@ -191,7 +191,7 @@ std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
     return store;
 }
 
-StateTransitionAction ProgressionStoreState::update(const InputState &input, [[maybe_unused]] DebugState &debug,
+StateTransitionAction ProgressionStoreState::update(const InputState &input, [[maybe_unused]] DebugContext &debug,
                                                     [[maybe_unused]] float dt)
 {
     if (input.confirmPressed) {
@@ -218,7 +218,7 @@ std::unique_ptr<ExitState> ExitState::createExitState()
     return exitState;
 }
 
-StateTransitionAction ExitState::update([[maybe_unused]] const InputState &input, [[maybe_unused]] DebugState &debug,
+StateTransitionAction ExitState::update([[maybe_unused]] const InputState &input, [[maybe_unused]] DebugContext &debug,
                                         [[maybe_unused]] float dt)
 {
     return StateTransitionAction::ReplaceAllStatesWithExit;
