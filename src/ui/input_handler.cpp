@@ -1,6 +1,8 @@
 #include "ui/input_handler.hpp"
 #include "controller/input/input_state.hpp"
 #include <SFML/Graphics.hpp>
+#include <imgui-SFML.h>
+#include <imgui.h>
 #include <iostream>
 
 namespace ui {
@@ -17,36 +19,48 @@ InputHandler::~InputHandler()
 
 controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
 {
-    controller::InputState state{};
+    controller::InputState input{};
+    ImGuiIO &imGuiIO = ImGui::GetIO();
 
     while (const std::optional event = window.pollEvent()) {
+        ImGui::SFML::ProcessEvent(window, *event);
+
         if (event->is<sf::Event::Closed>()) {
             window.close();
         }
 
         if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+
+            if (keyPressed->code == sf::Keyboard::Key::F1) {
+                input.toggleDebugPressed = true;
+            }
+
+            if (imGuiIO.WantCaptureKeyboard) {
+                continue; // Skip processing game input if ImGui wants keyboard input
+            }
+
             switch (keyPressed->code) {
             case sf::Keyboard::Key::Enter:
-                state.confirmPressed = true;
+                input.confirmPressed = true;
                 break;
             case sf::Keyboard::Key::Escape:
-                state.cancelPressed = true;
+                input.cancelPressed = true;
                 break;
             case sf::Keyboard::Key::Up:
             case sf::Keyboard::Key::W:
-                state.upPressed = true;
+                input.upPressed = true;
                 break;
             case sf::Keyboard::Key::Down:
             case sf::Keyboard::Key::S:
-                state.downPressed = true;
+                input.downPressed = true;
                 break;
             case sf::Keyboard::Key::Left:
             case sf::Keyboard::Key::A:
-                state.leftPressed = true;
+                input.leftPressed = true;
                 break;
             case sf::Keyboard::Key::Right:
             case sf::Keyboard::Key::D:
-                state.rightPressed = true;
+                input.rightPressed = true;
                 break;
             default:
                 break;
@@ -54,15 +68,20 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
         }
 
         if (const auto *mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>()) {
+
+            if (imGuiIO.WantCaptureMouse) {
+                continue; // Skip processing game input if ImGui wants mouse input
+            }
+
             switch (mouseButtonPressed->button) {
             case sf::Mouse::Button::Left:
-                state.mouseLeftPressed = true;
+                input.mouseLeftPressed = true;
                 break;
             case sf::Mouse::Button::Right:
-                state.mouseRightPressed = true;
+                input.mouseRightPressed = true;
                 break;
             case sf::Mouse::Button::Middle:
-                state.mouseMiddlePressed = true;
+                input.mouseMiddlePressed = true;
                 break;
             default:
                 break;
@@ -70,26 +89,30 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
         }
     }
 
-    state.upHeld =
-        sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W);
+    if (!imGuiIO.WantCaptureKeyboard) {
+        input.upHeld =
+            sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W);
 
-    state.downHeld =
-        sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S);
+        input.downHeld =
+            sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S);
 
-    state.leftHeld =
-        sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A);
+        input.leftHeld =
+            sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A);
 
-    state.rightHeld =
-        sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
+        input.rightHeld =
+            sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
+    }
 
-    state.mouseLeftHeld = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
-    state.mouseRightHeld = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
-    state.mouseMiddleHeld = sf::Mouse::isButtonPressed(sf::Mouse::Button::Middle);
+    if (!imGuiIO.WantCaptureMouse) {
+        input.mouseLeftHeld = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+        input.mouseRightHeld = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
+        input.mouseMiddleHeld = sf::Mouse::isButtonPressed(sf::Mouse::Button::Middle);
+    }
 
-    state.mouseX = sf::Mouse::getPosition(window).x;
-    state.mouseY = sf::Mouse::getPosition(window).y;
+    input.mouseX = sf::Mouse::getPosition(window).x;
+    input.mouseY = sf::Mouse::getPosition(window).y;
 
-    return state;
+    return input;
 }
 
 } // namespace ui

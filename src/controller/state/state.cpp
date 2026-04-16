@@ -10,7 +10,8 @@ std::unique_ptr<MenuState> MenuState::createMenu(MenuType menuType)
     return menu;
 }
 
-StateTransitionAction MenuState::update(const InputState &input, float dt)
+StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]] DebugContext &debug,
+                                        [[maybe_unused]] float dt)
 {
     switch (type) {
     case MenuType::MainMenu:
@@ -158,6 +159,8 @@ std::string MenuState::toString() const
         return "PauseMenu";
     case MenuType::GameOverMenu:
         return "GameOverMenu";
+    default:
+        return "Unknown MenuType";
     }
 }
 
@@ -167,9 +170,27 @@ std::unique_ptr<GameplayState> GameplayState::createGameplay()
     return gameplay;
 }
 
-StateTransitionAction GameplayState::update(const InputState &input, float dt)
+StateTransitionAction GameplayState::update(const InputState &input, DebugContext &debug, float dt)
 {
-    return game.update(input, dt);
+    debug.gameSession = &game.getDebugSession();
+
+    if (input.cancelPressed) {
+        return controller::StateTransitionAction::PushPauseMenu;
+    }
+
+    bool isGameOver = game.update(input, debug, dt);
+
+    if (isGameOver) {
+        debug.gameSession = nullptr;
+        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
+    }
+
+    if (debug.active && debug.gameSession->isStoreOpenRequested) {
+        debug.gameSession->isStoreOpenRequested = false;
+        return controller::StateTransitionAction::PushProgressionStore;
+    }
+
+    return controller::StateTransitionAction::None;
 }
 
 View GameplayState::getView()
@@ -188,7 +209,8 @@ std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
     return store;
 }
 
-StateTransitionAction ProgressionStoreState::update(const InputState &input, float dt)
+StateTransitionAction ProgressionStoreState::update(const InputState &input, [[maybe_unused]] DebugContext &debug,
+                                                    [[maybe_unused]] float dt)
 {
     if (input.confirmPressed) {
         return StateTransitionAction::Pop;
@@ -214,7 +236,8 @@ std::unique_ptr<ExitState> ExitState::createExitState()
     return exitState;
 }
 
-StateTransitionAction ExitState::update(const InputState &input, float dt)
+StateTransitionAction ExitState::update([[maybe_unused]] const InputState &input, [[maybe_unused]] DebugContext &debug,
+                                        [[maybe_unused]] float dt)
 {
     return StateTransitionAction::ReplaceAllStatesWithExit;
 }
@@ -232,4 +255,3 @@ std::string ExitState::toString() const
 }
 
 } // namespace controller
-// namespace controller

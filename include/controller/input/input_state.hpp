@@ -26,6 +26,8 @@ struct InputState {
 
     bool confirmPressed = false;
     bool cancelPressed = false;
+
+    bool toggleDebugPressed = false;
 };
 
 } // namespace controller

@@ -19,6 +19,7 @@ class StateManager {
     void clear();
     void replaceCurrent(std::unique_ptr<BaseState> state);
     void applyAction(StateTransitionAction action);
+    std::string getDebugInfo() const;
     void printDebugInfo() const;
 };
 
