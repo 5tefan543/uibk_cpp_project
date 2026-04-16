@@ -160,7 +160,7 @@ std::string MenuState::toString() const
     case MenuType::GameOverMenu:
         return "GameOverMenu";
     default:
-        return "Unknown MenuState";
+        return "Unknown MenuType";
     }
 }
 

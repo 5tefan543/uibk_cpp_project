@@ -286,6 +286,12 @@ TEST_CASE("MenuState::toString returns expected string")
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::GameOverMenu);
         REQUIRE(state->toString() == "GameOverMenu");
     }
+
+    SECTION("unknown menu type returns Unknown MenuState")
+    {
+        std::unique_ptr<MenuState> state = MenuState::createMenu(static_cast<MenuType>(-1));
+        REQUIRE(state->toString() == "Unknown MenuType");
+    }
 }
 
 TEST_CASE("GameplayState::toString returns expected string")
