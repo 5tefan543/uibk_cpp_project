@@ -54,7 +54,7 @@ void DebugUI::render(controller::DebugState &debug, const controller::InputState
     if (ImGui::CollapsingHeader("ECS", ImGuiTreeNodeFlags_DefaultOpen)) {
 
         const std::size_t entityCount = (registry) ? registry->entities().size() : 0;
-        ImGui::Text("Entity count: %d", entityCount);
+        ImGui::Text("Entity count: %zu", entityCount);
 
         if (ImGui::BeginListBox("##entity_list")) {
             if (registry) {

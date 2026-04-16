@@ -19,9 +19,10 @@ TEST_CASE("Game update returns PushPauseMenu on cancelPressed")
 
     controller::InputState input;
     input.cancelPressed = true;
+    controller::DebugState debug;
 
     // ACT & ASSERT
-    REQUIRE(game.update(input, dummyDeltaTime) == controller::StateTransitionAction::PushPauseMenu);
+    REQUIRE(game.update(input, debug, dummyDeltaTime) == controller::StateTransitionAction::PushPauseMenu);
 }
 
 TEST_CASE("Game update returns PushProgressionStore on mouseLeftPressed")
@@ -31,9 +32,10 @@ TEST_CASE("Game update returns PushProgressionStore on mouseLeftPressed")
 
     controller::InputState input;
     input.mouseLeftPressed = true;
+    controller::DebugState debug;
 
     // ACT & ASSERT
-    REQUIRE(game.update(input, dummyDeltaTime) == controller::StateTransitionAction::PushProgressionStore);
+    REQUIRE(game.update(input, debug, dummyDeltaTime) == controller::StateTransitionAction::PushProgressionStore);
 }
 
 TEST_CASE("Game update returns ReplaceCurrentWithGameOverMenu on confirmPressed")
@@ -43,9 +45,11 @@ TEST_CASE("Game update returns ReplaceCurrentWithGameOverMenu on confirmPressed"
 
     controller::InputState input;
     input.confirmPressed = true;
+    controller::DebugState debug;
 
     // ACT & ASSERT
-    REQUIRE(game.update(input, dummyDeltaTime) == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu);
+    REQUIRE(game.update(input, debug, dummyDeltaTime)
+            == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu);
 }
 
 TEST_CASE("Game getView returns at least one text item")
