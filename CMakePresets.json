@@ -18,15 +18,6 @@
             }
         },
         {
-            "name": "clang_tidy",
-            "inherits": "base",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_CXX_CLANG_TIDY": "clang-tidy"
-            }
-        },
-        {
             "name": "release",
             "inherits": "base",
             "cacheVariables": {
@@ -43,6 +34,15 @@
                 "CMAKE_EXE_LINKER_FLAGS": "--coverage",
                 "CMAKE_SHARED_LINKER_FLAGS": "--coverage"
             }
+        },
+        {
+            "name": "clang_tidy",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_CXX_CLANG_TIDY": "clang-tidy"
+            }
         }
     ],
     "buildPresets": [
@@ -51,16 +51,16 @@
             "configurePreset": "debug"
         },
         {
-            "name": "clang_tidy",
-            "configurePreset": "clang_tidy"
-        },
-        {
             "name": "release",
             "configurePreset": "release"
         },
         {
             "name": "coverage",
             "configurePreset": "coverage"
+        },
+        {
+            "name": "clang_tidy",
+            "configurePreset": "clang_tidy"
         }
     ],
     "testPresets": [
