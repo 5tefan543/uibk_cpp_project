@@ -124,7 +124,7 @@ controller::View Game::getView()
         std::string directionStr = (gameSprite.direction == Direction::Left) ? "left" : "right";
         int frameNum = gameSprite.currentFrame + 1; // Frames are 1-indexed in filenames
         std::string imagePath =
-            gameSprite.baseTexturePath + "character_" + directionStr + "_" + std::to_string(frameNum) + ".bmp";
+            gameSprite.baseTexturePath + "character_" + directionStr + "_" + std::to_string(frameNum) + ".png";
 
         controller::Sprite viewSprite;
         viewSprite.x = position.x;
