@@ -12,13 +12,13 @@ namespace ui {
 
 class UI {
   private:
-    sf::RenderWindow window;
-    InputHandler inputHandler;
-    Renderer renderer;
-    sf::Clock imguiClock;
-    DebugUI debugUI;
-    controller::InputState inputState;
-    float fps = 0.0f;
+    sf::RenderWindow window_;
+    InputHandler inputHandler_;
+    Renderer renderer_;
+    sf::Clock imguiClock_;
+    DebugUI debugUI_;
+    controller::InputState inputState_;
+    float fps_ = 0.0f;
 
     void initSfmlWindow();
     void initImGuiSfml(sf::RenderWindow &window);

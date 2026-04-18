@@ -9,7 +9,7 @@ namespace ui {
 
 class Renderer {
   private:
-    std::vector<sf::Font> fonts;
+    std::vector<sf::Font> fonts_;
 
   public:
     Renderer();

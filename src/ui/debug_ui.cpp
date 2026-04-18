@@ -34,8 +34,8 @@ void DebugUI::render(controller::DebugContext &debug, const controller::InputSta
 
 void DebugUI::renderStats(float fps, const controller::InputState &input, controller::DebugContext &debug)
 {
-    float smoothedFps = (prevFps > 0.0f) ? 0.99f * prevFps + 0.01f * fps : fps;
-    prevFps = smoothedFps;
+    float smoothedFps = (prevFps_ > 0.0f) ? 0.99f * prevFps_ + 0.01f * fps : fps;
+    prevFps_ = smoothedFps;
     float frameTimeMs = smoothedFps > 0.0f ? 1000.0f / smoothedFps : 0.0f;
 
     if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_DefaultOpen)) {

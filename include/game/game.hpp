@@ -12,11 +12,11 @@ namespace game {
 
 class Game {
   private:
-    Registry registry;
-    GameDebugSession debugSession{registry};
+    Registry registry_;
+    GameDebugSession debugSession_{registry_};
 
-    InputSystem inputSystem;
-    MovementSystem movementSystem;
+    InputSystem inputSystem_;
+    MovementSystem movementSystem_;
 
     void initPlayer();
     void processDebugSession(controller::DebugContext &debug);

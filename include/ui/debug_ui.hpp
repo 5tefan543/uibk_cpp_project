@@ -10,7 +10,7 @@ namespace ui {
 
 class DebugUI {
   private:
-    float prevFps = 0.0f;
+    float prevFps_ = 0.0f;
 
     void renderStats(float fps, const controller::InputState &input, controller::DebugContext &debug);
     void renderGameSettings(controller::DebugContext &debug);

@@ -19,9 +19,9 @@ class IStorage {
 template <typename T>
 class ComponentStorage : public IStorage {
   private:
-    std::vector<Entity> entities;
-    std::vector<T> components;
-    std::unordered_map<Entity, std::size_t> entityToIndex;
+    std::vector<Entity> entities_;
+    std::vector<T> components_;
+    std::unordered_map<Entity, std::size_t> entityToIndex_;
 
   public:
     T &addComponent(Entity entity, T component)
@@ -30,55 +30,55 @@ class ComponentStorage : public IStorage {
             throw std::runtime_error("Component already exists on entity");
         }
 
-        const std::size_t index = components.size();
-        entities.push_back(entity);
-        components.push_back(component);
-        entityToIndex[entity] = index;
+        const std::size_t index = components_.size();
+        entities_.push_back(entity);
+        components_.push_back(component);
+        entityToIndex_[entity] = index;
 
-        return components.back();
+        return components_.back();
     }
 
     void removeComponent(Entity entity) override
     {
-        auto it = entityToIndex.find(entity);
-        if (it == entityToIndex.end()) {
+        auto it = entityToIndex_.find(entity);
+        if (it == entityToIndex_.end()) {
             return;
         }
 
         const std::size_t index = it->second;
-        const std::size_t lastIndex = components.size() - 1;
+        const std::size_t lastIndex = components_.size() - 1;
 
         if (index != lastIndex) {
-            entities[index] = entities[lastIndex];
-            components[index] = std::move(components[lastIndex]);
-            entityToIndex[entities[index]] = index;
+            entities_[index] = entities_[lastIndex];
+            components_[index] = std::move(components_[lastIndex]);
+            entityToIndex_[entities_[index]] = index;
         }
 
-        entities.pop_back();
-        components.pop_back();
-        entityToIndex.erase(it);
+        entities_.pop_back();
+        components_.pop_back();
+        entityToIndex_.erase(it);
     }
 
-    bool hasComponent(Entity entity) const { return entityToIndex.contains(entity); }
+    bool hasComponent(Entity entity) const { return entityToIndex_.contains(entity); }
 
     T &getComponent(Entity entity)
     {
-        auto it = entityToIndex.find(entity);
-        if (it == entityToIndex.end()) {
+        auto it = entityToIndex_.find(entity);
+        if (it == entityToIndex_.end()) {
             throw std::runtime_error("Component not found on entity");
         }
 
-        return components[it->second];
+        return components_[it->second];
     }
 
     const T &getComponent(Entity entity) const
     {
-        auto it = entityToIndex.find(entity);
-        if (it == entityToIndex.end()) {
+        auto it = entityToIndex_.find(entity);
+        if (it == entityToIndex_.end()) {
             throw std::runtime_error("Component not found on entity");
         }
 
-        return components[it->second];
+        return components_[it->second];
     }
 };
 

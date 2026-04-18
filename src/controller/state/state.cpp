@@ -119,9 +119,9 @@ View MenuState::getView()
     }
     case MenuType::GameOverMenu:
 
-        Text TextGameOver;
-        TextGameOver.text = std::string("Game Over!");
-        TextGameOver.centerOffsetY = -100;
+        Text textGameOver;
+        textGameOver.text = std::string("Game Over!");
+        textGameOver.centerOffsetY = -100;
 
         Text textMainMenu;
         textMainMenu.text = std::string("Main Menu");
@@ -140,7 +140,7 @@ View MenuState::getView()
         quitButton.isSelected = (selectedButtonIndex == 1);
 
         std::unique_ptr<Card> gameOverCard = std::make_unique<Card>();
-        gameOverCard->items.push_back(TextGameOver);
+        gameOverCard->items.push_back(textGameOver);
         gameOverCard->items.push_back(mainMenuButton);
         gameOverCard->items.push_back(quitButton);
 
