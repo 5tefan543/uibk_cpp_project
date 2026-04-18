@@ -4,9 +4,8 @@ Checks: '-*,readability-identifier-naming'
 # Treat all warnings from the enabled check as errors -> Fails the build if any naming violation is found.
 WarningsAsErrors: 'readability-identifier-naming'
 
-# Apply checks to ALL headers (including your own headers in include/ and src/).
 # Without this, violations inside headers might not be reported during builds.
-HeaderFilterRegex: '.*'
+HeaderFilterRegex: './include/.*|./src/.*|./tests/.*'
 
 CheckOptions:
 

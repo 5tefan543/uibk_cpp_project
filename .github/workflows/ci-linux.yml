@@ -105,7 +105,6 @@ jobs:
 
     steps:
       - *checkout
-
       - *setup-dependencies
 
       - name: Install clang-tidy
@@ -114,10 +113,12 @@ jobs:
       - *setup-vcpkg
 
       - name: Configure
-        run: cmake --preset clang_tidy
+        run: cmake --preset debug
 
-      - &build
-        name: Build
-        run: cmake --build --preset clang_tidy
+      - name: Build
+        run: cmake --build --preset debug
+
+      - name: Run clang-tidy checks
+        run: run-clang-tidy -p build/debug
       
       
