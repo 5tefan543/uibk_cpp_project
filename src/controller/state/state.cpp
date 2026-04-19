@@ -3,64 +3,95 @@
 
 namespace controller {
 
+const View &BaseState::getView()
+{
+    return view_;
+}
+
+MenuState::MenuState(MenuType type) : type(type)
+{
+    initView();
+}
+
 std::unique_ptr<MenuState> MenuState::createMenu(MenuType menuType)
 {
-    auto menu = std::make_unique<MenuState>();
-    menu->type = menuType;
+    auto menu = std::unique_ptr<MenuState>(new MenuState(menuType));
     return menu;
 }
 
 StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]] DebugContext &debug,
                                         [[maybe_unused]] float dt)
 {
+    StateTransitionAction stateTransAct = StateTransitionAction::None;
+    const size_t prevButtonSelected = selectedButtonID_;
+
     switch (type) {
     case MenuType::MainMenu:
         if (input.downPressed || input.upPressed) {
-            selectedButtonIndex ^= 1;
+            selectedButtonID_ ^= 1;
         }
         if (input.confirmPressed) {
-            switch (selectedButtonIndex) {
+            switch (selectedButtonID_) {
             case 0:
-                return StateTransitionAction::ReplaceCurrentWithGameplay;
+                stateTransAct = StateTransitionAction::ReplaceCurrentWithGameplay;
                 break;
             case 1:
-                return StateTransitionAction::ReplaceAllStatesWithExit;
+                stateTransAct = StateTransitionAction::ReplaceAllStatesWithExit;
+                break;
             }
         }
         break;
 
     case MenuType::PauseMenu:
-        if (input.confirmPressed && selectedButtonIndex == 0) {
-            return StateTransitionAction::Pop;
+        if (input.confirmPressed && selectedButtonID_ == 0) {
+            stateTransAct = StateTransitionAction::Pop;
         }
         if (input.leftPressed) {
-            selectedButtonIndex = 0;
+            selectedButtonID_ = 0;
         } else if (input.rightPressed) {
-            selectedButtonIndex = 1;
+            selectedButtonID_ = 1;
         }
         break;
 
     case MenuType::GameOverMenu:
         // TODO delete old Game State
         if (input.leftPressed || input.rightPressed) {
-            selectedButtonIndex ^= 1;
+            selectedButtonID_ ^= 1;
         }
         if (input.confirmPressed) {
-            switch (selectedButtonIndex) {
+            switch (selectedButtonID_) {
             case 0:
-                return StateTransitionAction::ReplaceCurrentWithMainMenu;
+                stateTransAct = StateTransitionAction::ReplaceCurrentWithMainMenu;
+                break;
             case 1:
-                return StateTransitionAction::ReplaceAllStatesWithExit;
+                stateTransAct = StateTransitionAction::ReplaceAllStatesWithExit;
+                break;
             }
         }
         break;
     }
-    return StateTransitionAction::None;
+    // if (prevSelectedButton != selectedButtonID_) {
+    //     for (ViewItem &vi : view_.items) {
+    //         if (std::unique_ptr<Card> *c = std::get_if<std::unique_ptr<Card>>(&vi)) {
+    //             for (ViewItem &viCard : c->get()->items) {
+    //                 if (Button *b = std::get_if<Button>(&viCard)) {
+    //                     if (b->selectionID == prevSelectedButton) {
+    //                         b->isSelected = false;
+    //                     } else if (b->selectionID == selectedButtonID_) {
+    //                         b->isSelected = true;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    buttons_[prevButtonSelected]->isSelected = false;
+    buttons_[selectedButtonID_]->isSelected = true;
+    return stateTransAct;
 }
 
-View MenuState::getView()
+void MenuState::initView()
 {
-    View view;
     switch (type) {
     case MenuType::MainMenu: {
         std::unique_ptr<Card> mainMenuCard = std::make_unique<Card>();
@@ -74,47 +105,49 @@ View MenuState::getView()
 
         Text text;
         text.text = std::string("Start Game");
-        Button startGameButton;
-        startGameButton.width = 300.0f;
-        startGameButton.text = text;
-        startGameButton.isSelected = (selectedButtonIndex == 0);
+
+        auto startGameButton = std::make_shared<Button>();
+        startGameButton->width = 300.0f;
+        startGameButton->text = text;
+        buttons_.emplace_back(startGameButton); // Button ID/Index 0
 
         Text textQuit;
         textQuit.text = std::string("Quit");
-        Button quitButton;
-        quitButton.text = textQuit;
-        quitButton.width = 300.0f;
-        quitButton.centerOffsetY = 100;
-        quitButton.isSelected = (selectedButtonIndex == 1);
+
+        auto quitButton = std::make_shared<Button>();
+        quitButton->text = textQuit;
+        quitButton->width = 300.0f;
+        quitButton->centerOffsetY = 100;
+        buttons_.emplace_back(quitButton); // Button ID/Index 1
 
         mainMenuCard->items.push_back(title);
         mainMenuCard->items.push_back(startGameButton);
         mainMenuCard->items.push_back(quitButton);
-        view.items.push_back(std::move(mainMenuCard));
+        view_.items.push_back(std::move(mainMenuCard));
         break;
     }
     case MenuType::PauseMenu: {
         Text textResume;
         textResume.text = std::string("Resume");
 
-        Button resumeButton;
-        resumeButton.text = textResume;
-        resumeButton.centerOffsetX = -100;
-        resumeButton.isSelected = (selectedButtonIndex == 0);
+        auto resumeButton = std::make_shared<Button>();
+        resumeButton->text = textResume;
+        resumeButton->centerOffsetX = -100;
+        buttons_.emplace_back(resumeButton); // Button ID/Index 0
 
         Text textQuit;
         textQuit.text = std::string("Quit");
 
-        Button quitButton;
-        quitButton.text = textQuit;
-        quitButton.centerOffsetX = 100;
-        quitButton.isSelected = (selectedButtonIndex == 1);
+        auto quitButton = std::make_shared<Button>();
+        quitButton->text = textQuit;
+        quitButton->centerOffsetX = 100;
+        buttons_.emplace_back(quitButton); // Button ID/Index 1
 
         std::unique_ptr<Card> pauseCard = std::make_unique<Card>();
         pauseCard->items.push_back(resumeButton);
         pauseCard->items.push_back(quitButton);
 
-        view.items.push_back(std::move(pauseCard));
+        view_.items.push_back(std::move(pauseCard));
         break;
     }
     case MenuType::GameOverMenu:
@@ -126,28 +159,27 @@ View MenuState::getView()
         Text textMainMenu;
         textMainMenu.text = std::string("Main Menu");
 
-        Button mainMenuButton;
-        mainMenuButton.text = textMainMenu;
-        mainMenuButton.centerOffsetX = -100;
-        mainMenuButton.isSelected = (selectedButtonIndex == 0);
+        auto mainMenuButton = std::make_shared<Button>();
+        mainMenuButton->text = textMainMenu;
+        mainMenuButton->centerOffsetX = -100;
+        buttons_.emplace_back(mainMenuButton); // Button ID/Index 0
 
         Text textQuit;
         textQuit.text = std::string("Quit");
 
-        Button quitButton;
-        quitButton.text = textQuit;
-        quitButton.centerOffsetX = 100;
-        quitButton.isSelected = (selectedButtonIndex == 1);
+        auto quitButton = std::make_shared<Button>();
+        quitButton->text = textQuit;
+        quitButton->centerOffsetX = 100;
+        buttons_.emplace_back(quitButton); // Button ID/Index 1
 
         std::unique_ptr<Card> gameOverCard = std::make_unique<Card>();
         gameOverCard->items.push_back(textGameOver);
         gameOverCard->items.push_back(mainMenuButton);
         gameOverCard->items.push_back(quitButton);
 
-        view.items.push_back(std::move(gameOverCard));
+        view_.items.push_back(std::move(gameOverCard));
         break;
     }
-    return view;
 }
 
 std::string MenuState::toString() const
@@ -193,11 +225,6 @@ StateTransitionAction GameplayState::update(const InputState &input, DebugContex
     return controller::StateTransitionAction::None;
 }
 
-View GameplayState::getView()
-{
-    return game.getView();
-}
-
 std::string GameplayState::toString() const
 {
     return "Gameplay";
@@ -218,13 +245,6 @@ StateTransitionAction ProgressionStoreState::update(const InputState &input, [[m
     return StateTransitionAction::None;
 }
 
-View ProgressionStoreState::getView()
-{
-    View view;
-    // TODO: Construct view based on progression store state
-    return view;
-}
-
 std::string ProgressionStoreState::toString() const
 {
     return "ProgressionStore";
@@ -240,13 +260,6 @@ StateTransitionAction ExitState::update([[maybe_unused]] const InputState &input
                                         [[maybe_unused]] float dt)
 {
     return StateTransitionAction::ReplaceAllStatesWithExit;
-}
-
-View ExitState::getView()
-{
-    View view;
-    // Implement view for exit state,
-    return view;
 }
 
 std::string ExitState::toString() const

@@ -196,7 +196,7 @@ TEST_CASE("Game getView returns an empty view")
     game::Game game;
 
     // ACT
-    controller::View view = game.getView();
+    const controller::View &view = game.getView();
 
     // ASSERT
     REQUIRE(view.items.empty());

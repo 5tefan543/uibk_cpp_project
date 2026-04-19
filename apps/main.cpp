@@ -32,7 +32,7 @@ int main()
         if (typeid(currentState) == typeid(controller::ExitState)) {
             break;
         }
-        controller::View view = currentState.getView();
+        const controller::View &view = currentState.getView();
         controller::DebugContext &debug = controller.getDebugContext();
 
         ui.render(view, debug);
