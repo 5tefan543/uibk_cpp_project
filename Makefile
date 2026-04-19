@@ -1,4 +1,4 @@
-.PHONY: all debug release test run clean run_release test_release
+.PHONY: all debug release test run clean run_release test_release run_clang_tidy run_clang_tidy_fix
 
 all: debug
 
@@ -23,6 +23,12 @@ run_release: release
 
 test_release: release
 	ctest --preset release --output-on-failure
+
+run_clang_tidy: debug
+	run-clang-tidy -p build/debug
+
+run_clang_tidy_fix: debug
+	run-clang-tidy -p build/debug -fix
 
 clean:
 	rm -rf build

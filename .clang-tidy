@@ -1,0 +1,90 @@
+# Enable the identifier naming check -> "-*" disables all checks
+Checks: '-*,readability-identifier-naming'
+
+# Treat all warnings from the enabled check as errors -> Fails the build if any naming violation is found.
+WarningsAsErrors: 'readability-identifier-naming'
+
+# Without this, violations inside headers might not be reported during builds.
+HeaderFilterRegex: './include/.*|./src/.*|./tests/.*'
+
+CheckOptions:
+
+  # =========================
+  # Type Naming
+  # =========================
+
+  # Enforce naming for class types.
+  # Example: class MenuState { ... }
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+
+  # Enforce naming for struct types.
+  # Example: struct Text { ... }
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+
+
+  # =========================
+  # General Variables & Functions
+  # =========================
+
+  # Enforce naming for local variables (inside functions).
+  # Example: int selectedIndex = 0;
+  - key: readability-identifier-naming.VariableCase
+    value: camelBack
+
+  # Enforce naming for function names.
+  # Example: void updateGameState();
+  - key: readability-identifier-naming.FunctionCase
+    value: camelBack
+
+  # Enforce naming for function parameters.
+  # Example: void foo(int selectedIndex);
+  - key: readability-identifier-naming.ParameterCase
+    value: camelBack
+
+
+  # =========================
+  # Member Variables
+  # =========================
+
+  # Enforce naming for ALL member variables (class + struct, all visibilities).
+  # Example: int selectedButtonIndex;
+  - key: readability-identifier-naming.MemberCase
+    value: camelBack
+
+  # Enforce trailing "_" ONLY for private class members.
+  # This helps distinguish internal state from public data.
+  # Example: int selectedButtonIndex_;
+  - key: readability-identifier-naming.PrivateMemberSuffix
+    value: _
+
+
+  # =========================
+  # Enums
+  # =========================
+
+  # Enforce naming for enum types.
+  # Example: enum class MenuType { ... }
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+
+  # Enforce naming for enum values.
+  # Example: MenuType::MainMenu, MenuType::PauseMenu
+  - key: readability-identifier-naming.EnumConstantCase
+    value: CamelCase
+
+
+  # =========================
+  # Constants
+  # =========================
+
+  # Enforce naming for constexpr variables.
+  # Example: constexpr int maxLives = 3;
+  - key: readability-identifier-naming.ConstexprVariableCase
+    value: camelBack
+
+  # Enforce naming for const/global/static constants.
+  # Example: const int maxPlayers = 4;
+  - key: readability-identifier-naming.ConstantCase
+    value: camelBack

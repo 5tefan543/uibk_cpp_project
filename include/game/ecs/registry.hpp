@@ -15,21 +15,21 @@ namespace game {
 
 class Registry {
   private:
-    Entity nextEntity = 0;
-    std::vector<Entity> aliveEntities;
-    std::vector<Entity> freeEntities;
-    std::unordered_map<std::type_index, std::unique_ptr<IStorage>> storages;
+    Entity nextEntity_ = 0;
+    std::vector<Entity> aliveEntities_;
+    std::vector<Entity> freeEntities_;
+    std::unordered_map<std::type_index, std::unique_ptr<IStorage>> storages_;
 
     template <typename T>
     ComponentStorage<T> &getOrCreateStorage()
     {
         const std::type_index key(typeid(T));
-        auto it = storages.find(key);
+        auto it = storages_.find(key);
 
-        if (it == storages.end()) {
+        if (it == storages_.end()) {
             auto wrapper = std::make_unique<ComponentStorage<T>>();
             auto *rawPtr = wrapper.get();
-            storages[key] = std::move(wrapper);
+            storages_[key] = std::move(wrapper);
             return *rawPtr;
         }
 
@@ -40,9 +40,9 @@ class Registry {
     const ComponentStorage<T> *tryGetStorage() const
     {
         const std::type_index key(typeid(T));
-        auto it = storages.find(key);
+        auto it = storages_.find(key);
 
-        if (it == storages.end()) {
+        if (it == storages_.end()) {
             return nullptr;
         }
 
@@ -54,38 +54,38 @@ class Registry {
     {
         Entity entity;
 
-        if (!freeEntities.empty()) {
-            entity = freeEntities.back();
-            freeEntities.pop_back();
+        if (!freeEntities_.empty()) {
+            entity = freeEntities_.back();
+            freeEntities_.pop_back();
         } else {
-            entity = nextEntity++;
+            entity = nextEntity_++;
         }
 
-        aliveEntities.push_back(entity);
+        aliveEntities_.push_back(entity);
         return entity;
     }
 
     void destroyEntity(Entity entity)
     {
-        auto it = std::find(aliveEntities.begin(), aliveEntities.end(), entity);
-        if (it == aliveEntities.end()) {
+        auto it = std::find(aliveEntities_.begin(), aliveEntities_.end(), entity);
+        if (it == aliveEntities_.end()) {
             return;
         }
 
-        aliveEntities.erase(it);
-        freeEntities.push_back(entity);
+        aliveEntities_.erase(it);
+        freeEntities_.push_back(entity);
 
-        for (auto &[type, storage] : storages) {
+        for (auto &[type, storage] : storages_) {
             storage->removeComponent(entity);
         }
     }
 
     bool isEntityAlive(Entity entity) const
     {
-        return std::find(aliveEntities.begin(), aliveEntities.end(), entity) != aliveEntities.end();
+        return std::find(aliveEntities_.begin(), aliveEntities_.end(), entity) != aliveEntities_.end();
     }
 
-    const std::vector<Entity> &entities() const { return aliveEntities; }
+    const std::vector<Entity> &entities() const { return aliveEntities_; }
 
     template <typename T>
     T &addComponent(Entity entity, T component)
@@ -136,7 +136,7 @@ class Registry {
     {
         std::vector<Entity> matchingEntities;
 
-        for (Entity entity : aliveEntities) {
+        for (Entity entity : aliveEntities_) {
             if ((hasComponent<Components>(entity) && ...)) {
                 matchingEntities.push_back(entity);
             }

@@ -7,7 +7,7 @@ namespace controller {
 
 void StateManager::push(std::unique_ptr<BaseState> state)
 {
-    states.push_back(std::move(state));
+    states_.push_back(std::move(state));
     printDebugInfo();
 }
 
@@ -16,7 +16,7 @@ void StateManager::pop()
     if (isEmpty()) {
         throw std::runtime_error("StateManager is Empty");
     }
-    states.pop_back();
+    states_.pop_back();
     printDebugInfo();
 }
 
@@ -25,17 +25,17 @@ BaseState &StateManager::getCurrent()
     if (isEmpty()) {
         throw std::runtime_error("StateManager is Empty");
     }
-    return *states.back();
+    return *states_.back();
 }
 
 bool StateManager::isEmpty() const
 {
-    return states.empty();
+    return states_.empty();
 }
 
 void StateManager::clear()
 {
-    states.clear();
+    states_.clear();
     printDebugInfo();
 }
 
@@ -44,7 +44,7 @@ void StateManager::replaceCurrent(std::unique_ptr<BaseState> state)
     if (isEmpty()) {
         throw std::runtime_error("StateManager is Empty");
     }
-    states.back() = std::move(state);
+    states_.back() = std::move(state);
     printDebugInfo();
 }
 
@@ -82,10 +82,10 @@ void StateManager::applyAction(StateTransitionAction action)
 std::string StateManager::getDebugInfo() const
 {
     std::string debugInfo = "States: [";
-    for (auto it = states.begin(); it != states.end(); ++it) {
+    for (auto it = states_.begin(); it != states_.end(); ++it) {
         debugInfo += (*it)->toString();
 
-        if (std::next(it) != states.end()) {
+        if (std::next(it) != states_.end()) {
             debugInfo += " -> ";
         }
     }
