@@ -12,7 +12,6 @@ TEST_CASE("MenuState::createMenu of type MainMenu constructs main menu with expe
     // ASSERT
     REQUIRE(state != nullptr);
     REQUIRE(state->type == MenuType::MainMenu);
-    // REQUIRE(state->selectedButtonID_ == 0);
 }
 
 TEST_CASE("MenuState::createMenu of type PauseMenu constructs cancelPressed menu with expected properties")
@@ -23,7 +22,6 @@ TEST_CASE("MenuState::createMenu of type PauseMenu constructs cancelPressed menu
     // ASSERT
     REQUIRE(state != nullptr);
     REQUIRE(state->type == MenuType::PauseMenu);
-    // REQUIRE(state->selectedButtonID_ == 0);
 }
 
 TEST_CASE("MenuState::createMenu of type GameOverMenu constructs game over menu with expected properties")
@@ -34,7 +32,6 @@ TEST_CASE("MenuState::createMenu of type GameOverMenu constructs game over menu 
     // ASSERT
     REQUIRE(state != nullptr);
     REQUIRE(state->type == MenuType::GameOverMenu);
-    // REQUIRE(state->selectedButtonID_ == 0);
     // check that if the button is confirmed, it triggers the expected action
     InputState input;
     input.confirmPressed = true;
@@ -99,14 +96,12 @@ TEST_CASE("Main menu update returns correct actions")
 
         // ASSERT
         REQUIRE(action == StateTransitionAction::None);
-        // REQUIRE(state->selectedButtonID_ == 1);
 
         // ACT again to toggle back
         action = state->update(input, debug, dummyDeltaTime);
 
         // ASSERT
         REQUIRE(action == StateTransitionAction::None);
-        // REQUIRE(state->selectedButtonID_ == 0);
     }
 
     SECTION("no relevant input returns None")
@@ -149,7 +144,6 @@ TEST_CASE("Pause menu update returns correct actions")
 
         // ASSERT
         REQUIRE(action == StateTransitionAction::None);
-        // REQUIRE(state->selectedButtonID_ == 0);
     }
 
     SECTION("right selects second button")
@@ -165,7 +159,6 @@ TEST_CASE("Pause menu update returns correct actions")
 
         // ASSERT
         REQUIRE(action == StateTransitionAction::None);
-        // REQUIRE(state->selectedButtonID_ == 1);
     }
 
     SECTION("confirmPressed on second button does not pop")
