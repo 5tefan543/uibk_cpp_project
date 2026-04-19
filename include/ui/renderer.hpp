@@ -13,11 +13,11 @@ namespace ui {
 class Renderer {
   private:
     std::vector<sf::Font> fonts_;
-    std::map<std::string, sf::Texture> textureCache;
-    float cameraX = 0.0f;
-    float cameraY = 0.0f;
-    float mapWidth = 1920.0f;
-    float mapHeight = 1080.0f;
+    std::map<std::string, sf::Texture> textureCache_;
+    float cameraX_ = 0.0f;
+    float cameraY_ = 0.0f;
+    float mapWidth_ = 1920.0f;
+    float mapHeight_ = 1080.0f;
 
   public:
     Renderer();

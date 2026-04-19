@@ -18,11 +18,12 @@ class Game {
     GameDebugSession debugSession_{registry_};
 
     AnimationSystem animationSystem_;
-    // CameraSystem cameraSystem_;
+    CameraSystem cameraSystem_;
     InputSystem inputSystem_;
     MovementSystem movementSystem_;
 
     void initPlayer();
+    void initEnemies();
     void processDebugSession(controller::DebugContext &debug);
     void updateSystems(const controller::InputState &input, controller::DebugContext &debug, float dt);
     bool isGameOver();

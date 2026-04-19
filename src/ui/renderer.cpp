@@ -36,10 +36,10 @@ sf::Text Renderer::toSfText(const controller::Text text)
 void Renderer::renderItems(sf::RenderWindow &window, const controller::View &view)
 {
     // Store camera data
-    cameraX = view.cameraX;
-    cameraY = view.cameraY;
-    mapWidth = view.mapWidth;
-    mapHeight = view.mapHeight;
+    cameraX_ = view.cameraX;
+    cameraY_ = view.cameraY;
+    mapWidth_ = view.mapWidth;
+    mapHeight_ = view.mapHeight;
 
     for (const controller::ViewItem &item : view.items) {
         std::visit([this, &window](const auto &item) { renderItem(window, item); }, item);
@@ -113,16 +113,16 @@ void Renderer::renderItem(sf::RenderWindow &window, const controller::Text &text
 void Renderer::renderItem(sf::RenderWindow &window, const controller::Sprite &sprite)
 {
     // Load or get texture from cache
-    if (textureCache.find(sprite.imagePath) == textureCache.end()) {
+    if (textureCache_.find(sprite.imagePath) == textureCache_.end()) {
         sf::Texture texture;
         if (!texture.loadFromFile(sprite.imagePath)) {
             std::cerr << "Failed to load texture: " << sprite.imagePath << std::endl;
             return;
         }
-        textureCache[sprite.imagePath] = texture;
+        textureCache_[sprite.imagePath] = texture;
     }
 
-    sf::Sprite sfSprite(textureCache[sprite.imagePath]);
+    sf::Sprite sfSprite(textureCache_[sprite.imagePath]);
 
     // Calculate position with camera offset and scaling
     float x = sprite.x;
@@ -131,8 +131,8 @@ void Renderer::renderItem(sf::RenderWindow &window, const controller::Sprite &sp
 
     // Apply camera offset only if not a map
     if (!sprite.isMap) {
-        x -= cameraX;
-        y -= cameraY;
+        x -= cameraX_;
+        y -= cameraY_;
     }
 
     // Apply scaling

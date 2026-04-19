@@ -31,8 +31,8 @@ void CameraSystem::update(Registry &registry)
     camera.y = playerCenterY - camera.viewportHeight / 2.0f;
 
     // Clamp camera to map boundaries
-    camera.x = std::max(0.0f, std::min(camera.x, map.width - camera.viewportWidth));
-    camera.y = std::max(0.0f, std::min(camera.y, map.height - camera.viewportHeight));
+    // camera.x = std::max(0.0f, std::min(camera.x, map.width));
+    // camera.y = std::max(0.0f, std::min(camera.y, map.height));
 }
 
 } // namespace game

@@ -1,5 +1,6 @@
 #include "game/game.hpp"
 #include "game/ecs/components/camera.hpp"
+#include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/map.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
@@ -8,6 +9,7 @@
 #include <controller/view/sprite.hpp>
 #include <controller/view/text.hpp>
 #include <iostream>
+#include <random>
 
 namespace game {
 
@@ -15,6 +17,7 @@ Game::Game()
 {
     std::cout << "Game constructed" << std::endl;
     initPlayer();
+    initEnemies();
 }
 
 void Game::initPlayer()
@@ -29,6 +32,27 @@ void Game::initPlayer()
     Entity mapEntity = registry_.createEntity();
     registry_.addComponent<Map>(mapEntity, {});
     registry_.addComponent<Camera>(mapEntity, {});
+}
+
+void Game::initEnemies()
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> posDist(200.0f, 800.0f);
+    std::uniform_real_distribution<> velDist(0.0f, 0.0f);
+
+    // Spawn 3 enemies at different positions
+    for (int i = 0; i < 3; ++i) {
+        Entity enemy = registry_.createEntity();
+        registry_.addComponent<EnemyTag>(enemy, {});
+        registry_.addComponent<Position>(enemy, {static_cast<float>(posDist(gen)), static_cast<float>(posDist(gen))});
+        registry_.addComponent<Velocity>(enemy, {static_cast<float>(velDist(gen)), static_cast<float>(velDist(gen))});
+
+        // Set sprite with enemy texture
+        Sprite sprite;
+        sprite.baseTexturePath = "assets/characters/enemy_1_";
+        registry_.addComponent<Sprite>(enemy, sprite);
+    }
 }
 
 Game::~Game()
@@ -81,7 +105,7 @@ void Game::updateSystems(const controller::InputState &input, controller::DebugC
     inputSystem_.update(registry_, input);
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, dt);
-    // cameraSystem_.update(registry_);
+    cameraSystem_.update(registry_);
 }
 
 bool Game::isGameOver()
@@ -105,13 +129,12 @@ controller::View Game::getView()
 
         // Add map sprite
         controller::Sprite mapSprite;
-        mapSprite.x = map.x;
-        mapSprite.y = map.y;
+        mapSprite.x = map.x - camera.x;
+        mapSprite.y = map.y - camera.y;
         mapSprite.imagePath = map.texturePath;
         mapSprite.width = map.width;
         mapSprite.height = map.height;
         mapSprite.scale = 2.0f; // Map scaled by 2x
-        mapSprite.isMap = true; // Mark as map so renderer doesn't apply camera offset
         view.items.push_back(mapSprite);
     }
 
@@ -123,8 +146,16 @@ controller::View Game::getView()
         // Build texture path based on direction and frame
         std::string directionStr = (gameSprite.direction == Direction::Left) ? "left" : "right";
         int frameNum = gameSprite.currentFrame + 1; // Frames are 1-indexed in filenames
-        std::string imagePath =
-            gameSprite.baseTexturePath + "character_" + directionStr + "_" + std::to_string(frameNum) + ".png";
+
+        std::string imagePath;
+        if (gameSprite.baseTexturePath.find("enemy") != std::string::npos) {
+            // Enemy sprite path doesn't need "character_" prefix
+            imagePath = gameSprite.baseTexturePath + directionStr + "_" + std::to_string(frameNum) + ".png";
+        } else {
+            // Player sprite path needs "character_" prefix
+            imagePath =
+                gameSprite.baseTexturePath + "character_" + directionStr + "_" + std::to_string(frameNum) + ".png";
+        }
 
         controller::Sprite viewSprite;
         viewSprite.x = position.x;

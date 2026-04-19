@@ -26,7 +26,7 @@ void AnimationSystem::update(Registry &registry, float dt)
                 sprite.currentFrame = (sprite.currentFrame + 1) % sprite.totalFrames;
             }
         } else {
-            // Reset frame timer when idle
+            // Add Idle Anmimation
             sprite.frameTimer = 0.0f;
         }
     }
