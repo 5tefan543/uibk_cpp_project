@@ -6,7 +6,7 @@ namespace controller {
 Controller::Controller()
 {
     std::cout << "Controller constructed" << std::endl;
-    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
+    stateManager_.push(MenuState::createMenu(MenuType::MainMenu));
 }
 
 Controller::~Controller()
@@ -17,26 +17,26 @@ Controller::~Controller()
 void Controller::update(const InputState &input, float dt)
 {
     if (input.toggleDebugPressed) {
-        debug.active = !debug.active;
+        debug_.active = !debug_.active;
     }
 
-    BaseState &currentState = stateManager.getCurrent();
-    StateTransitionAction action = currentState.update(input, debug, dt);
-    stateManager.applyAction(action);
+    BaseState &currentState = stateManager_.getCurrent();
+    StateTransitionAction action = currentState.update(input, debug_, dt);
+    stateManager_.applyAction(action);
 
-    if (debug.active) {
-        debug.currentStateInfo = stateManager.getDebugInfo();
+    if (debug_.active) {
+        debug_.currentStateInfo = stateManager_.getDebugInfo();
     }
 }
 
 BaseState &Controller::getCurrentState()
 {
-    return stateManager.getCurrent();
+    return stateManager_.getCurrent();
 }
 
 DebugContext &Controller::getDebugContext()
 {
-    return debug;
+    return debug_;
 }
 
 } // namespace controller

@@ -14,13 +14,13 @@ namespace game {
 
 class Game {
   private:
-    Registry registry;
-    GameDebugSession debugSession{registry};
+    Registry registry_;
+    GameDebugSession debugSession_{registry_};
 
-    InputSystem inputSystem;
-    MovementSystem movementSystem;
-    AnimationSystem animationSystem;
-    // CameraSystem cameraSystem;
+    AnimationSystem animationSystem_;
+    // CameraSystem cameraSystem_;
+    InputSystem inputSystem_;
+    MovementSystem movementSystem_;
 
     void initPlayer();
     void processDebugSession(controller::DebugContext &debug);

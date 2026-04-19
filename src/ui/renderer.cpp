@@ -7,7 +7,7 @@ namespace ui {
 Renderer::Renderer()
 {
     // Load all fonts from disk once upon instantiation
-    fonts = std::vector<sf::Font>({sf::Font("assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf")});
+    fonts_ = std::vector<sf::Font>({sf::Font("assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf")});
     std::cout << "Renderer constructed" << std::endl;
 }
 
@@ -23,7 +23,7 @@ sf::Color Renderer::toSfColor(const controller::Color &color)
 
 const sf::Font &Renderer::toSfFont(const controller::Font font)
 {
-    return fonts.at(font);
+    return fonts_.at(font);
 }
 
 sf::Text Renderer::toSfText(const controller::Text text)

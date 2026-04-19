@@ -9,7 +9,7 @@ namespace controller {
 
 class StateManager {
   private:
-    std::vector<std::unique_ptr<BaseState>> states;
+    std::vector<std::unique_ptr<BaseState>> states_;
 
   public:
     void push(std::unique_ptr<BaseState> state);

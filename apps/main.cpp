@@ -5,29 +5,29 @@
 #include <csignal>
 #include <cstdlib>
 
-std::atomic<bool> shutdown_requested(false);
+std::atomic<bool> shutdownRequested(false);
 
-void signal_handler(int signal)
+void signalHandler(int signal)
 {
     if (signal == SIGTERM || signal == SIGINT) {
-        shutdown_requested = true;
+        shutdownRequested = true;
     }
 }
 
 int main()
 {
-    std::signal(SIGTERM, signal_handler);
-    std::signal(SIGINT, signal_handler);
+    std::signal(SIGTERM, signalHandler);
+    std::signal(SIGINT, signalHandler);
 
     controller::Controller controller;
     ui::UI ui;
 
-    const float fixed_dt = 1.0f / 60.0f; // Fixed time step for updates
+    const float fixedDt = 1.0f / 60.0f; // Fixed time step for updates
 
-    while (ui.isOpen() && !shutdown_requested) {
+    while (ui.isOpen() && !shutdownRequested) {
         controller::InputState input = ui.pollInput();
 
-        controller.update(input, fixed_dt);
+        controller.update(input, fixedDt);
         controller::BaseState &currentState = controller.getCurrentState();
         if (typeid(currentState) == typeid(controller::ExitState)) {
             break;

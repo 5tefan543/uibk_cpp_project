@@ -12,7 +12,7 @@ namespace ui {
 
 class Renderer {
   private:
-    std::vector<sf::Font> fonts;
+    std::vector<sf::Font> fonts_;
     std::map<std::string, sf::Texture> textureCache;
     float cameraX = 0.0f;
     float cameraY = 0.0f;

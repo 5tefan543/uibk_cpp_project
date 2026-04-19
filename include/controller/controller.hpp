@@ -9,8 +9,8 @@ namespace controller {
 
 class Controller {
   private:
-    StateManager stateManager;
-    DebugContext debug;
+    StateManager stateManager_;
+    DebugContext debug_;
 
   public:
     Controller();

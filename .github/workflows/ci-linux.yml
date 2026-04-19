@@ -98,3 +98,27 @@ jobs:
         with:
           style: file
           sources: "*.cpp,*.hpp,*.h,*.c"
+
+  clang-tidy-check:
+    name: Clang-Tidy Check on Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      - *checkout
+      - *setup-dependencies
+
+      - name: Install clang-tidy
+        run: sudo apt-get install -y clang-tidy
+
+      - *setup-vcpkg
+
+      - name: Configure
+        run: cmake --preset debug
+
+      - name: Build
+        run: cmake --build --preset debug
+
+      - name: Run clang-tidy checks
+        run: run-clang-tidy -p build/debug
+      
+      
