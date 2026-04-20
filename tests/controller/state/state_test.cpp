@@ -75,7 +75,6 @@ TEST_CASE("Main menu update returns correct actions")
     SECTION("confirm exits game when quit button is selected")
     {
         // ARRANGE
-        // state->selectedButtonID_ = 1;
         InputState input;
         input.confirmPressed = true;
         DebugContext debug;
@@ -122,7 +121,6 @@ TEST_CASE("Pause menu update returns correct actions")
     SECTION("confirmPressed triggers Pop when first button is selected")
     {
         // ARRANGE
-        // state->selectedButtonID_ = 0;
         InputState input;
         input.confirmPressed = true;
         DebugContext debug;
@@ -134,7 +132,6 @@ TEST_CASE("Pause menu update returns correct actions")
     SECTION("left selects first button")
     {
         // ARRANGE
-        // state->selectedButtonID_ = 1;
         InputState input;
         input.leftPressed = true;
         DebugContext debug;
@@ -149,7 +146,6 @@ TEST_CASE("Pause menu update returns correct actions")
     SECTION("right selects second button")
     {
         // ARRANGE
-        // state->selectedButtonID_ = 0;
         InputState input;
         input.rightPressed = true;
         DebugContext debug;
@@ -164,7 +160,6 @@ TEST_CASE("Pause menu update returns correct actions")
     SECTION("confirmPressed on second button does not pop")
     {
         // ARRANGE
-        // state->selectedButtonID_ = 1;
         InputState input;
         input.confirmPressed = true;
         DebugContext debug;
@@ -191,7 +186,6 @@ TEST_CASE("Game over menu update returns correct actions")
     SECTION("confirmPressed triggers ReplaceCurrentWithMainMenu")
     {
         // ARRANGE
-        // state->selectedButtonID_ = 0;
         InputState input;
         input.confirmPressed = true;
         DebugContext debug;
@@ -203,7 +197,6 @@ TEST_CASE("Game over menu update returns correct actions")
     SECTION("confirm exits game when quit button is selected")
     {
         // ARRANGE
-        // state->selectedButtonID_ = 1;
         InputState input;
         input.confirmPressed = true;
         DebugContext debug;
@@ -398,7 +391,6 @@ TEST_CASE("MenuState::getView returns expected view")
     SECTION("cancelPressed menu returns expected view")
     {
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::PauseMenu);
-        // state->selectedButtonID_ = 0;
 
         const View &view = state->getView();
 
@@ -423,7 +415,6 @@ TEST_CASE("MenuState::getView returns expected view")
     SECTION("cancelPressed menu marks quit button as selected when selectedButtonIndex is 1")
     {
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::PauseMenu);
-        // state->selectedButtonID_ = 1;
 
         const View &view = state->getView();
 
@@ -443,7 +434,6 @@ TEST_CASE("MenuState::getView returns expected view")
     SECTION("game over menu returns expected view")
     {
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::GameOverMenu);
-        // state->selectedButtonID_ = 0;
 
         const View &view = state->getView();
         REQUIRE(view.items.size() == 1);
