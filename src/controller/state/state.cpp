@@ -180,6 +180,7 @@ void MenuState::initView()
         view_.items.push_back(std::move(gameOverCard));
         break;
     }
+    buttons_[selectedButtonID_]->isSelected = true;
 }
 
 std::string MenuState::toString() const
@@ -192,7 +193,7 @@ std::string MenuState::toString() const
     case MenuType::GameOverMenu:
         return "GameOverMenu";
     default:
-        return "Unknown MenuType";
+        std::unreachable();
     }
 }
 
