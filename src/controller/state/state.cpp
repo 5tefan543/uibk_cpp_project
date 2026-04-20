@@ -70,21 +70,6 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
         }
         break;
     }
-    // if (prevSelectedButton != selectedButtonID_) {
-    //     for (ViewItem &vi : view_.items) {
-    //         if (std::unique_ptr<Card> *c = std::get_if<std::unique_ptr<Card>>(&vi)) {
-    //             for (ViewItem &viCard : c->get()->items) {
-    //                 if (Button *b = std::get_if<Button>(&viCard)) {
-    //                     if (b->selectionID == prevSelectedButton) {
-    //                         b->isSelected = false;
-    //                     } else if (b->selectionID == selectedButtonID_) {
-    //                         b->isSelected = true;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
     buttons_[prevButtonSelected]->isSelected = false;
     buttons_[selectedButtonID_]->isSelected = true;
     return stateTransAct;
