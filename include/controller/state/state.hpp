@@ -43,9 +43,9 @@ class MenuState : public BaseState {
 };
 
 class GameplayState : public BaseState {
-  public:
-    game::Game game;
+    game::Game game_ = game::Game(view_);
 
+  public:
     static std::unique_ptr<GameplayState> createGameplay();
 
     StateTransitionAction update(const InputState &input, DebugContext &debug, float dt) override;

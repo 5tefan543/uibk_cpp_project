@@ -12,6 +12,7 @@ namespace game {
 
 class Game {
   private:
+    controller::View &view_;
     Registry registry_;
     GameDebugSession debugSession_{registry_};
 
@@ -24,13 +25,13 @@ class Game {
     bool isGameOver();
 
   public:
-    Game();
+    Game(controller::View &view);
     Game(const Game &) = delete;
     ~Game();
 
     GameDebugSession &getDebugSession();
     bool update(const controller::InputState &input, controller::DebugContext &debug, float dt);
-    controller::View getView();
+    const controller::View &getView();
 };
 
 } // namespace game

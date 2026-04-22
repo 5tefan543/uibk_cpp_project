@@ -7,7 +7,7 @@
 
 namespace game {
 
-Game::Game()
+Game::Game(controller::View &view) : view_(view)
 {
     std::cout << "Game constructed" << std::endl;
     initPlayer();
@@ -77,11 +77,9 @@ bool Game::isGameOver()
     return registry_.view<PlayerTag>().empty();
 }
 
-controller::View Game::getView()
+const controller::View &Game::getView()
 {
-    controller::View view;
-    // TODO: Construct view based on game state
-    return view;
+    return view_;
 }
 
 } // namespace game

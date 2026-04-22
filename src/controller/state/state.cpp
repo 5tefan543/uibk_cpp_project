@@ -189,13 +189,13 @@ std::unique_ptr<GameplayState> GameplayState::createGameplay()
 
 StateTransitionAction GameplayState::update(const InputState &input, DebugContext &debug, float dt)
 {
-    debug.gameSession = &game.getDebugSession();
+    debug.gameSession = &game_.getDebugSession();
 
     if (input.cancelPressed) {
         return controller::StateTransitionAction::PushPauseMenu;
     }
 
-    bool isGameOver = game.update(input, debug, dt);
+    bool isGameOver = game_.update(input, debug, dt);
 
     if (isGameOver) {
         debug.gameSession = nullptr;
