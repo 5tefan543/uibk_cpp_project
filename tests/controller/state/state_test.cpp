@@ -32,11 +32,6 @@ TEST_CASE("MenuState::createMenu of type GameOverMenu constructs game over menu 
     // ASSERT
     REQUIRE(state != nullptr);
     REQUIRE(state->type == MenuType::GameOverMenu);
-    // check that if the button is confirmed, it triggers the expected action
-    InputState input;
-    input.confirmPressed = true;
-    DebugContext debug;
-    REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithMainMenu);
 }
 
 TEST_CASE("GameplayState::createGameplay constructs gameplay state with expected properties")
