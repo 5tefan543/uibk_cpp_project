@@ -4,36 +4,6 @@
 
 using namespace controller;
 
-enum INPUT { UP, DOWN, CONFIRM, NONE, LEFT, RIGHT };
-StateTransitionAction applyInput(std::unique_ptr<MenuState> &state, const INPUT in)
-{
-    // ARRANGE
-    InputState input;
-    switch (in) {
-    case UP:
-        input.upPressed = true;
-        break;
-    case DOWN:
-        input.downPressed = true;
-        break;
-    case CONFIRM:
-        input.confirmPressed = true;
-        break;
-    case NONE:
-        break;
-    case LEFT:
-        input.leftPressed = true;
-        break;
-    case RIGHT:
-        input.rightPressed = true;
-        break;
-    }
-    DebugContext debug;
-
-    // ACT
-    return state->update(input, debug, dummyDeltaTime);
-};
-
 TEST_CASE("MenuState::createMenu of type MainMenu constructs main menu with expected properties")
 {
     // ACT
