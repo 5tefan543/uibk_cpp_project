@@ -15,8 +15,7 @@ MenuState::MenuState(MenuType type) : type(type)
 
 std::unique_ptr<MenuState> MenuState::createMenu(MenuType menuType)
 {
-    auto menu = std::unique_ptr<MenuState>(new MenuState(menuType));
-    return menu;
+    return std::unique_ptr<MenuState>(new MenuState(menuType));
 }
 
 StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]] DebugContext &debug,
