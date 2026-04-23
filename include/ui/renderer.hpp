@@ -28,7 +28,7 @@ class Renderer {
     sf::Text toSfText(const controller::Text text);
 
     void renderView(sf::RenderWindow &window, const controller::View &view);
-    void renderItem(sf::RenderWindow &window, const std::vector<controller::ViewItem> &items);
+    void renderItems(sf::RenderWindow &window, const std::vector<controller::ViewItem> &items);
     void renderItem(sf::RenderWindow &window, const std::unique_ptr<controller::Card> &card);
     void renderItem(sf::RenderWindow &window, const controller::Button &button);
     void renderItem(sf::RenderWindow &window, const controller::Text &text);

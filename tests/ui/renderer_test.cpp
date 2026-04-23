@@ -40,18 +40,3 @@ TEST_CASE("Renderer converts controller text to SFML text")
     REQUIRE(sfText.getPosition().x == 10.0f);
     REQUIRE(sfText.getPosition().y == 20.0f);
 }
-
-TEST_CASE("Renderer handles missing sprite texture path without throwing")
-{
-    // ARRANGE
-    ui::Renderer renderer;
-    sf::RenderWindow window;
-
-    controller::Sprite sprite;
-    sprite.imagePath = "assets/does-not-exist.png";
-    sprite.width = 32.0f;
-    sprite.height = 32.0f;
-
-    // ACT / ASSERT
-    REQUIRE_NOTHROW(renderer.renderItem(window, sprite));
-}

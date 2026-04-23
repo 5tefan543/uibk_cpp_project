@@ -18,9 +18,9 @@ void CameraSystem::update(Registry &registry)
         return;
     }
 
-    const Position &playerPos = registry.getComponent<Position>(players[0]);
-    Camera &camera = registry.getComponent<Camera>(cameras[0]);
-    const Map &map = registry.getComponent<Map>(cameras[0]);
+    const Position &playerPos = registry.getComponent<Position>(players.front());
+    Camera &camera = registry.getComponent<Camera>(cameras.front());
+    const Map &map = registry.getComponent<Map>(cameras.front());
 
     // Center camera on player (considering character is scaled by 4, so 128x128 pixels)
     float playerCenterX = playerPos.x + 64.0f; // 32 * 4 / 2

@@ -22,6 +22,9 @@ class Game {
     InputSystem inputSystem_;
     MovementSystem movementSystem_;
 
+    void init();
+    void initWave();
+    void initStage();
     void initPlayer();
     void initEnemies();
     void processDebugSession(controller::DebugContext &debug);

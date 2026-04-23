@@ -16,8 +16,22 @@ namespace game {
 Game::Game()
 {
     std::cout << "Game constructed" << std::endl;
+    initStage();
     initPlayer();
     initEnemies();
+}
+
+void Game::initStage()
+{
+    // Initialize map and camera
+    Entity mapEntity = registry_.createEntity();
+    registry_.addComponent<Map>(mapEntity, {});
+    registry_.addComponent<Camera>(mapEntity, {});
+}
+
+void Game::initWave()
+{
+    // Logic to initialize a new wave of enemies can go here
 }
 
 void Game::initPlayer()
@@ -120,8 +134,8 @@ controller::View Game::getView()
     // Get camera data
     auto cameraEntities = registry_.view<Camera, Map>();
     if (!cameraEntities.empty()) {
-        const Camera &camera = registry_.getComponent<Camera>(cameraEntities[0]);
-        const Map &map = registry_.getComponent<Map>(cameraEntities[0]);
+        const Camera &camera = registry_.getComponent<Camera>(cameraEntities.front());
+        const Map &map = registry_.getComponent<Map>(cameraEntities.front());
         view.cameraX = camera.x;
         view.cameraY = camera.y;
         view.mapWidth = map.width;
