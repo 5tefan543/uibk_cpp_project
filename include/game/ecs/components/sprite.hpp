@@ -4,7 +4,7 @@
 
 namespace game {
 
-enum class Direction { Left, Right, Up, Down};
+enum class Direction { Left, Right, Up, Down };
 
 // Sprite component that tracks animation state and direction
 struct Sprite {
