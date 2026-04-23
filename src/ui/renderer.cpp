@@ -33,7 +33,7 @@ sf::Text Renderer::toSfText(const controller::Text text)
     return t;
 }
 
-void Renderer::renderItems(sf::RenderWindow &window, const controller::View &view)
+void Renderer::renderView(sf::RenderWindow &window, const controller::View &view)
 {
     // Store camera data
     cameraX_ = view.cameraX;

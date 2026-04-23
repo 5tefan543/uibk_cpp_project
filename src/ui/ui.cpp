@@ -55,7 +55,7 @@ void UI::render(const controller::View &view, controller::DebugContext &debug)
 
     // 2. Normal rendering
     window_.clear(renderer_.toSfColor(view.backgroundColor));
-    renderer_.renderItems(window_, view);
+    renderer_.renderView(window_, view);
 
     // 3. Render debug UI on top
     debugUI_.render(debug, inputState_, fps_);
