@@ -480,7 +480,7 @@ TEST_CASE("GameplayState::getView returns expected view")
 
     View view = state->getView();
 
-    REQUIRE(view.items.empty());
+    REQUIRE(!view.items.empty());
 }
 
 TEST_CASE("ProgressionStoreState::getView returns expected view")
