@@ -29,7 +29,7 @@ const sf::Font &Renderer::toSfFont(const controller::Font font)
 sf::Text Renderer::toSfText(const controller::Text text)
 {
     sf::Text t(toSfFont(text.font), text.text, text.size);
-    t.setPosition(sf::Vector2f(text.centerOffsetX, text.centerOffsetX));
+    t.setPosition(sf::Vector2f(text.centerOffsetX, text.centerOffsetY));
     return t;
 }
 
