@@ -13,7 +13,7 @@ MenuState::MenuState(MenuType type) : type(type)
     initView();
 }
 
-std::unique_ptr<MenuState> MenuState::createMenu(MenuType menuType)
+std::unique_ptr<MenuState> MenuState::createMenu(const MenuType menuType)
 {
     return std::unique_ptr<MenuState>(new MenuState(menuType));
 }
