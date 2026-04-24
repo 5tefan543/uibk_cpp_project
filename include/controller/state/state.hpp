@@ -29,7 +29,9 @@ enum class MenuType { MainMenu, PauseMenu, GameOverMenu };
 
 class MenuState : public BaseState {
     std::size_t selectedButtonID_ = 0;
-    std::vector<std::shared_ptr<Button>> buttons_; // Shares Button with view_.items
+    std::vector<Button> buttons_;
+    std::vector<Card> cards_;
+    std::vector<Text> texts_;
 
     MenuState(MenuType type);
     void initView();

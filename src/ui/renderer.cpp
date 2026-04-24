@@ -36,51 +36,58 @@ sf::Text Renderer::toSfText(const controller::Text text)
 void Renderer::renderItems(sf::RenderWindow &window, const std::vector<controller::ViewItem> &items)
 {
     for (const controller::ViewItem &item : items) {
+        printf("visist\n");
         std::visit([this, &window](const auto &item) { renderItem(window, item); }, item);
     }
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const std::unique_ptr<controller::Card> &card)
+void Renderer::renderItem(sf::RenderWindow &window, const controller::Card &card)
 {
+    printf("DEBUG render card\n");
     // Render card first
     sf::RectangleShape rect;
-    rect.setSize({card->width, card->height});
-    rect.setFillColor(toSfColor(card->backgroundColor));
+    rect.setSize({card.width, card.height});
+    rect.setFillColor(toSfColor(card.backgroundColor));
 
-    auto centerX = window.getSize().x / 2.0f + card->centerOffsetX - card->width / 2.0f;
-    auto centerY = window.getSize().y / 2.0f + card->centerOffsetY - card->height / 2.0f;
+    auto centerX = window.getSize().x / 2.0f + card.centerOffsetX - card.width / 2.0f;
+    auto centerY = window.getSize().y / 2.0f + card.centerOffsetY - card.height / 2.0f;
     rect.setPosition({centerX, centerY});
 
     window.draw(rect);
 
     // Render items on the card
-    renderItems(window, card->items);
+    renderItems(window, card.items);
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const std::shared_ptr<controller::Button> &button)
+void Renderer::renderItem(sf::RenderWindow &window, const controller::Button &button)
 {
+    printf("DEBUG render button\n");
     sf::RectangleShape rect;
-    rect.setSize({button->width, button->height});
-    rect.setFillColor(toSfColor(button->backgroundColor));
+    rect.setSize({button.width, button.height});
+    rect.setFillColor(toSfColor(button.backgroundColor));
 
-    if (button->isSelected) {
-        rect.setFillColor(toSfColor(button->selectedColor));
+    if (button.isSelected) {
+        rect.setFillColor(toSfColor(button.selectedColor));
     }
 
-    auto centerX = window.getSize().x / 2.0f + button->centerOffsetX - button->width / 2.0f;
-    auto centerY = window.getSize().y / 2.0f + button->centerOffsetY - button->height / 2.0f;
+    auto centerX = window.getSize().x / 2.0f + button.centerOffsetX - button.width / 2.0f;
+    auto centerY = window.getSize().y / 2.0f + button.centerOffsetY - button.height / 2.0f;
     rect.setPosition({centerX, centerY});
 
     window.draw(rect);
-
-    sf::Text text = toSfText(button->text);
+    printf("DEBUG render button CHECK\n");
+    printf("text -> %s\n", button.text.text.c_str());
+    sf::Text text = toSfText(button.text);
+    printf("DEBUG render button CHECK2\n");
     // Calc button text position based on button's position
-    text.setPosition(sf::Vector2f(centerX + button->text.centerOffsetX, centerY + button->text.centerOffsetY));
+    text.setPosition(sf::Vector2f(centerX + button.text.centerOffsetX, centerY + button.text.centerOffsetY));
     window.draw(text);
 }
 
 void Renderer::renderItem(sf::RenderWindow &window, const controller::Text &text)
 {
+    printf("DEBUG render text\n");
+    printf("text -> %s\n", text.text.c_str());
     sf::Text t = toSfText(text);
 
     auto x = window.getSize().x / 2.0f + text.centerOffsetX;
