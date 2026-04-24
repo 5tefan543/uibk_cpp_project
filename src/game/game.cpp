@@ -77,11 +77,9 @@ bool Game::isGameOver()
     return registry_.view<PlayerTag>().empty();
 }
 
-controller::View Game::getView()
+void Game::updateView(controller::View &view)
 {
-    controller::View view;
     // TODO: Construct view based on game state
-    return view;
 }
 
 } // namespace game

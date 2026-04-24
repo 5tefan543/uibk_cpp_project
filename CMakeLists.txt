@@ -97,6 +97,7 @@ add_executable(roguelike_test_runner
   tests/game/ecs/registry_test.cpp
   tests/game/ecs/systems/input_system_test.cpp
   tests/game/ecs/systems/movement_system_test.cpp
+  tests/shared/util.cpp
 )
 
 roguelike_cxx_flags(roguelike_test_runner)
