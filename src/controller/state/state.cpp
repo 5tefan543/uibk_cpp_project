@@ -215,6 +215,12 @@ std::string GameplayState::toString() const
     return "Gameplay";
 }
 
+const View &GameplayState::getView()
+{
+    game.updateView(view_);
+    return view_;
+}
+
 std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
 {
     auto store = std::make_unique<ProgressionStoreState>();

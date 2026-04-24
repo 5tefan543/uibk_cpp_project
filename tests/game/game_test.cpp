@@ -194,9 +194,10 @@ TEST_CASE("Game getView returns an empty view")
 {
     // ARRANGE
     game::Game game;
+    controller::View view;
 
     // ACT
-    const controller::View &view = game.getView();
+    game.updateView(view);
 
     // ASSERT
     REQUIRE(view.items.empty());

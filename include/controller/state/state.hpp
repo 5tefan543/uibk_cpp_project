@@ -50,6 +50,7 @@ class GameplayState : public BaseState {
 
     StateTransitionAction update(const InputState &input, DebugContext &debug, float dt) override;
     std::string toString() const override;
+    const View &getView() override;
 };
 
 class ProgressionStoreState : public BaseState {
