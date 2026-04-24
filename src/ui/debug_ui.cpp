@@ -1,5 +1,4 @@
 #include "ui/debug_ui.hpp"
-#include <game/ecs/components/enemy_tag.hpp>
 #include <imgui.h>
 #include <iostream>
 #include <vector>

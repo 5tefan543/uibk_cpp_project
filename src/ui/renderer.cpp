@@ -41,9 +41,7 @@ void Renderer::renderView(sf::RenderWindow &window, const controller::View &view
     mapWidth_ = view.mapWidth;
     mapHeight_ = view.mapHeight;
 
-    for (const controller::ViewItem &item : view.items) {
-        std::visit([this, &window](const auto &item) { renderItem(window, item); }, item);
-    }
+    renderItems(window, view.items);
 }
 
 void Renderer::renderItems(sf::RenderWindow &window, const std::vector<controller::ViewItem> &items)
@@ -66,6 +64,7 @@ void Renderer::renderItem(sf::RenderWindow &window, const std::unique_ptr<contro
 
     window.draw(rect);
 
+    // Render items on the card
     renderItems(window, card->items);
 }
 
@@ -109,6 +108,7 @@ void Renderer::renderItem(sf::RenderWindow &window, const controller::Text &text
 
 void Renderer::renderItem(sf::RenderWindow &window, const controller::Sprite &sprite)
 {
+    // Load or get texture from cache
     if (textureCache_.find(sprite.imagePath) == textureCache_.end()) {
         sf::Texture texture;
         if (!texture.loadFromFile(sprite.imagePath)) {
@@ -120,10 +120,12 @@ void Renderer::renderItem(sf::RenderWindow &window, const controller::Sprite &sp
 
     sf::Sprite sfSprite(textureCache_[sprite.imagePath]);
 
+    // Calculate position with camera offset and scaling
     float x = sprite.x;
     float y = sprite.y;
     float scale = sprite.scale;
 
+    // Apply camera offset only if not a map
     if (!sprite.isMap) {
         x -= cameraX_;
         y -= cameraY_;

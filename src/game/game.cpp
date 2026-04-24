@@ -41,11 +41,6 @@ void Game::initPlayer()
     registry_.addComponent<Position>(player, {100.0f, 100.0f});
     registry_.addComponent<Velocity>(player, {0.0f, 0.0f});
     registry_.addComponent<Sprite>(player, {});
-
-    // Initialize map and camera
-    Entity mapEntity = registry_.createEntity();
-    registry_.addComponent<Map>(mapEntity, {});
-    registry_.addComponent<Camera>(mapEntity, {});
 }
 
 void Game::initEnemies()
