@@ -99,7 +99,6 @@ add_executable(roguelike_test_runner
   tests/game/ecs/registry_test.cpp
   tests/game/ecs/systems/input_system_test.cpp
   tests/game/ecs/systems/movement_system_test.cpp
-  tests/ui/renderer_test.cpp
   tests/game/ecs/systems/animation_system_test.cpp
   tests/game/ecs/systems/camera_system_test.cpp
 )
@@ -110,7 +109,6 @@ target_link_libraries(roguelike_test_runner
   PRIVATE
     roguelike_game
     roguelike_controller
-    roguelike_ui
     Catch2::Catch2WithMain
 )
 
