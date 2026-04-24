@@ -1,4 +1,5 @@
 #include "ui/debug_ui.hpp"
+#include <game/ecs/components/enemy_tag.hpp>
 #include <imgui.h>
 #include <iostream>
 #include <vector>
@@ -127,6 +128,15 @@ void DebugUI::renderEcsManagement(game::GameDebugSession &gameSession)
                 if (gameSession.registry.hasComponent<game::PlayerTag>(entity)) {
                     renderComponent(gameSession.registry.getComponent<game::PlayerTag>(entity));
                 }
+                if (gameSession.registry.hasComponent<game::Sprite>(entity)) {
+                    renderComponent(gameSession.registry.getComponent<game::Sprite>(entity));
+                }
+                if (gameSession.registry.hasComponent<game::Map>(entity)) {
+                    renderComponent(gameSession.registry.getComponent<game::Map>(entity));
+                }
+                if (gameSession.registry.hasComponent<game::Camera>(entity)) {
+                    renderComponent(gameSession.registry.getComponent<game::Camera>(entity));
+                }
 
             } else {
                 gameSession.selectedEntity.reset();
@@ -157,4 +167,30 @@ void DebugUI::renderComponent(game::Velocity &c)
     ImGui::InputFloat("dy", &c.dy);
 }
 
+void DebugUI::renderComponent(game::Sprite &c)
+{
+    ImGui::SeparatorText("Sprite");
+    ImGui::InputInt("currentFrame", &c.currentFrame);
+    ImGui::InputInt("totalFrames", &c.totalFrames);
+    ImGui::InputFloat("frameDuration", &c.frameDuration);
+    ImGui::InputFloat("frameTimer", &c.frameTimer);
+}
+
+void DebugUI::renderComponent(game::Map &c)
+{
+    ImGui::SeparatorText("Map");
+    ImGui::InputFloat("width", &c.width);
+    ImGui::InputFloat("height", &c.height);
+    ImGui::InputFloat("x", &c.x);
+    ImGui::InputFloat("y", &c.y);
+}
+
+void DebugUI::renderComponent(game::Camera &c)
+{
+    ImGui::SeparatorText("Camera");
+    ImGui::InputFloat("x", &c.x);
+    ImGui::InputFloat("y", &c.y);
+    ImGui::InputFloat("viewportHeight", &c.viewportHeight);
+    ImGui::InputFloat("viewportWidth", &c.viewportWidth);
+}
 } // namespace ui
