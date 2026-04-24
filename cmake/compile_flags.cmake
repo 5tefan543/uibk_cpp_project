@@ -2,8 +2,8 @@
 # collisions.
 function(roguelike_cxx_flags target)
   # Instead of setting a specific standard directly, we use the *compile
-  # features* to require (at least) C++17 standard.
-  target_compile_features(${target} PRIVATE cxx_std_20)
+  # features* to require (at least) C++23 standard.
+  target_compile_features(${target} PRIVATE cxx_std_23)
 
   # Furthermore, we turn off compiler extensions.
   set_target_properties(${target} PROPERTIES CXX_EXTENSIONS OFF)
