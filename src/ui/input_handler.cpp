@@ -112,6 +112,10 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
     input.mouseX = sf::Mouse::getPosition(window).x;
     input.mouseY = sf::Mouse::getPosition(window).y;
 
+    auto windowXY = window.getSize();
+    input.windowWidth = windowXY.x;
+    input.windowHeight = windowXY.y;
+
     return input;
 }
 

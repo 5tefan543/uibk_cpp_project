@@ -136,8 +136,6 @@ void Game::updateView(controller::View &view)
         const Map &map = registry_.getComponent<Map>(cameraEntities.front());
         view.cameraX = camera.x;
         view.cameraY = camera.y;
-        view.mapWidth = map.width;
-        view.mapHeight = map.height;
 
         // Add map sprite
         controller::Sprite mapSprite;

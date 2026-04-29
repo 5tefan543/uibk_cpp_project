@@ -69,6 +69,20 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
         }
         break;
     }
+
+    float mXC = input.mouseX - (input.windowWidth / 2.0);
+    float mYC = input.mouseY - (input.windowHeight / 2.0);
+
+    // Note: this allows only for one button to be selected at a time (which is the intended functionality for now).
+    for (size_t i = 0; i < buttons_.size(); i++) {
+        if (std::abs(buttons_[i].centerOffsetX - mXC) <= (buttons_[i].width / 2.0)) {
+            if (std::abs(buttons_[i].centerOffsetY - mYC) <= (buttons_[i].height / 2.0)) {
+                selectedButtonID_ = i;
+                break;
+            }
+        }
+    }
+
     buttons_[prevButtonSelected].isSelected = false;
     buttons_[selectedButtonID_].isSelected = true;
 

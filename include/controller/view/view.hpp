@@ -11,7 +11,5 @@ struct View {
     std::vector<ViewItem> items;
     float cameraX = 0.0f; // Camera position for viewport culling
     float cameraY = 0.0f;
-    float mapWidth = 1920.0f;
-    float mapHeight = 1080.0f;
 };
 } // namespace controller

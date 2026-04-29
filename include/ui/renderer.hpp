@@ -16,8 +16,6 @@ class Renderer {
     std::map<std::string, sf::Texture> textureCache_;
     float cameraX_ = 0.0f;
     float cameraY_ = 0.0f;
-    float mapWidth_ = 1920.0f;
-    float mapHeight_ = 1080.0f;
 
   public:
     Renderer();

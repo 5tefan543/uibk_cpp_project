@@ -38,8 +38,6 @@ void Renderer::renderView(sf::RenderWindow &window, const controller::View &view
     // Store camera data
     cameraX_ = view.cameraX;
     cameraY_ = view.cameraY;
-    mapWidth_ = view.mapWidth;
-    mapHeight_ = view.mapHeight;
 
     renderItems(window, view.items);
 }
