@@ -22,15 +22,15 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
                                         [[maybe_unused]] float dt)
 {
     StateTransitionAction stateTransAct = StateTransitionAction::None;
-    const size_t prevButtonSelected = selectedButtonID_;
+    const size_t prevBtnSelcted = selectBttnID_;
 
     switch (type) {
     case MenuType::MainMenu:
         if (input.downPressed || input.upPressed) {
-            selectedButtonID_ ^= 1;
+            selectBttnID_ ^= 1;
         }
         if (input.confirmPressed) {
-            switch (selectedButtonID_) {
+            switch (selectBttnID_) {
             case 0:
                 stateTransAct = StateTransitionAction::ReplaceCurrentWithGameplay;
                 break;
@@ -42,23 +42,23 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
         break;
 
     case MenuType::PauseMenu:
-        if (input.confirmPressed && selectedButtonID_ == 0) {
+        if (input.confirmPressed && selectBttnID_ == 0) {
             stateTransAct = StateTransitionAction::Pop;
         }
         if (input.leftPressed) {
-            selectedButtonID_ = 0;
+            selectBttnID_ = 0;
         } else if (input.rightPressed) {
-            selectedButtonID_ = 1;
+            selectBttnID_ = 1;
         }
         break;
 
     case MenuType::GameOverMenu:
         // TODO delete old Game State
         if (input.leftPressed || input.rightPressed) {
-            selectedButtonID_ ^= 1;
+            selectBttnID_ ^= 1;
         }
         if (input.confirmPressed) {
-            switch (selectedButtonID_) {
+            switch (selectBttnID_) {
             case 0:
                 stateTransAct = StateTransitionAction::ReplaceCurrentWithMainMenu;
                 break;
@@ -70,21 +70,27 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
         break;
     }
 
-    float mXC = input.mouseX - (input.windowWidth / 2.0);
-    float mYC = input.mouseY - (input.windowHeight / 2.0);
-
-    // Note: this allows only for one button to be selected at a time (which is the intended functionality for now).
-    for (size_t i = 0; i < buttons_.size(); i++) {
-        if (std::abs(buttons_[i].centerOffsetX - mXC) <= (buttons_[i].width / 2.0)) {
-            if (std::abs(buttons_[i].centerOffsetY - mYC) <= (buttons_[i].height / 2.0)) {
-                selectedButtonID_ = i;
-                break;
+    // Give Keyboard selection priority if mouse did not move since last update (otherwise buttons will never stay
+    // selected).
+    if (input.mouseX != lastMouseX_ || input.mouseY != lastMouseY_) {
+        lastMouseX_ = input.mouseX;
+        lastMouseY_ = input.mouseY;
+        float mXC = input.mouseX - (input.windowWidth / 2.0);
+        float mYC = input.mouseY - (input.windowHeight / 2.0);
+        // Note: this allows only for one button to be selected at a time (which is the intended functionality for
+        // now).
+        for (size_t i = 0; i < buttons_.size(); i++) {
+            if (std::abs(buttons_[i].centerOffsetX - mXC) <= (buttons_[i].width / 2.0)) {
+                if (std::abs(buttons_[i].centerOffsetY - mYC) <= (buttons_[i].height / 2.0)) {
+                    selectBttnID_ = i;
+                    break;
+                }
             }
         }
     }
 
-    buttons_[prevButtonSelected].isSelected = false;
-    buttons_[selectedButtonID_].isSelected = true;
+    buttons_[prevBtnSelcted].isSelected = false;
+    buttons_[selectBttnID_].isSelected = true;
 
     return stateTransAct;
 }
@@ -157,7 +163,7 @@ void MenuState::initView()
         view_.items.push_back(gameOverCard);
         break;
     }
-    buttons_[selectedButtonID_].isSelected = true;
+    buttons_[selectBttnID_].isSelected = true;
 }
 
 std::string MenuState::toString() const

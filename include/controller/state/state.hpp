@@ -28,7 +28,9 @@ class BaseState {
 enum class MenuType { MainMenu, PauseMenu, GameOverMenu };
 
 class MenuState : public BaseState {
-    std::size_t selectedButtonID_ = 0;
+    float lastMouseX_; // TODO: do we want a 2D vector type? -> lastMouseXY_ = {float x, float y}
+    float lastMouseY_;
+    std::size_t selectBttnID_ = 0;
     std::deque<Button> buttons_;
     std::deque<Card> cards_;
     std::deque<Text> texts_;
