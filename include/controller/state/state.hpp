@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <deque>
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
@@ -29,7 +29,9 @@ enum class MenuType { MainMenu, PauseMenu, GameOverMenu };
 
 class MenuState : public BaseState {
     std::size_t selectedButtonID_ = 0;
-    std::vector<std::shared_ptr<Button>> buttons_; // Shares Button with view_.items
+    std::deque<Button> buttons_;
+    std::deque<Card> cards_;
+    std::deque<Text> texts_;
 
     MenuState(MenuType type);
     void initView();
