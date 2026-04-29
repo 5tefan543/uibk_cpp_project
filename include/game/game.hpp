@@ -5,6 +5,8 @@
 #include "controller/state/state_transition_action.hpp"
 #include "controller/view/view.hpp"
 #include "game/ecs/registry.hpp"
+#include "game/ecs/systems/animation_system.hpp"
+#include "game/ecs/systems/camera_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
 
@@ -15,10 +17,16 @@ class Game {
     Registry registry_;
     GameDebugSession debugSession_{registry_};
 
+    AnimationSystem animationSystem_;
+    CameraSystem cameraSystem_;
     InputSystem inputSystem_;
     MovementSystem movementSystem_;
 
+    void init();
+    void initWave();
+    void initStage();
     void initPlayer();
+    void initEnemies();
     void processDebugSession(controller::DebugContext &debug);
     void updateSystems(const controller::InputState &input, controller::DebugContext &debug, float dt);
     bool isGameOver();

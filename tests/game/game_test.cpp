@@ -190,7 +190,7 @@ TEST_CASE("Game update still runs system updates when debug is inactive even if 
     REQUIRE(positionAfter.y == positionBeforeY);
 }
 
-TEST_CASE("Game getView returns an empty view")
+TEST_CASE("Game getView returns correct view")
 {
     // ARRANGE
     game::Game game;
@@ -200,5 +200,9 @@ TEST_CASE("Game getView returns an empty view")
     game.updateView(view);
 
     // ASSERT
-    REQUIRE(view.items.empty());
+    REQUIRE(!view.items.empty());
+    REQUIRE(view.mapWidth > 0);
+    REQUIRE(view.mapHeight > 0);
+    REQUIRE(view.cameraX == 0.0f);
+    REQUIRE(view.cameraY == 0.0f);
 }

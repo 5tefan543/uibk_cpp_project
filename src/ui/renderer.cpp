@@ -29,8 +29,19 @@ const sf::Font &Renderer::toSfFont(const controller::Font font)
 sf::Text Renderer::toSfText(const controller::Text text)
 {
     sf::Text t(toSfFont(text.font), text.text, text.size);
-    t.setPosition(sf::Vector2f(text.centerOffsetX, text.centerOffsetX));
+    t.setPosition(sf::Vector2f(text.centerOffsetX, text.centerOffsetY));
     return t;
+}
+
+void Renderer::renderView(sf::RenderWindow &window, const controller::View &view)
+{
+    // Store camera data
+    cameraX_ = view.cameraX;
+    cameraY_ = view.cameraY;
+    mapWidth_ = view.mapWidth;
+    mapHeight_ = view.mapHeight;
+
+    renderItems(window, view.items);
 }
 
 void Renderer::renderItems(sf::RenderWindow &window, const std::vector<controller::ViewItem> &items)
@@ -93,6 +104,45 @@ void Renderer::renderItem(sf::RenderWindow &window, const controller::Text &text
     t.setOrigin(pos);
 
     window.draw(t);
+}
+
+void Renderer::renderItem(sf::RenderWindow &window, const controller::Sprite &sprite)
+{
+    // Load or get texture from cache
+    if (textureCache_.find(sprite.imagePath) == textureCache_.end()) {
+        sf::Texture texture;
+        if (!texture.loadFromFile(sprite.imagePath)) {
+            std::cerr << "Failed to load texture: " << sprite.imagePath << std::endl;
+            return;
+        }
+        textureCache_[sprite.imagePath] = texture;
+    }
+
+    sf::Sprite sfSprite(textureCache_[sprite.imagePath]);
+
+    // Calculate position with camera offset and scaling
+    float x = sprite.x;
+    float y = sprite.y;
+    float scale = sprite.scale;
+
+    // Apply camera offset only if not a map
+    if (!sprite.isMap) {
+        x -= cameraX_;
+        y -= cameraY_;
+    }
+
+    // Apply scaling
+    x *= scale;
+    y *= scale;
+
+    sfSprite.setPosition(sf::Vector2f(x, y));
+
+    float scaledWidth = sprite.width * scale / sfSprite.getLocalBounds().size.x;
+    float scaledHeight = sprite.height * scale / sfSprite.getLocalBounds().size.y;
+
+    sfSprite.setScale(sf::Vector2f(scaledWidth, scaledHeight));
+
+    window.draw(sfSprite);
 }
 
 } // namespace ui

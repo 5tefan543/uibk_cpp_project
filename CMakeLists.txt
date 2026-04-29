@@ -28,6 +28,8 @@ add_library(roguelike_game
   src/game/game.cpp
   src/game/systems/input_system.cpp
   src/game/systems/movement_system.cpp
+  src/game/systems/animation_system.cpp
+  src/game/systems/camera_system.cpp
 )
 
 roguelike_cxx_flags(roguelike_game)
@@ -98,6 +100,8 @@ add_custom_command(TARGET roguelike_app POST_BUILD
 #   tests/game/ecs/systems/input_system_test.cpp
 #   tests/game/ecs/systems/movement_system_test.cpp
 #   tests/shared/util.cpp
+#   tests/game/ecs/systems/animation_system_test.cpp
+#   tests/game/ecs/systems/camera_system_test.cpp
 # )
 
 # roguelike_cxx_flags(roguelike_test_runner)
