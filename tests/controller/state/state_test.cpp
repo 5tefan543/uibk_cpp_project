@@ -80,6 +80,40 @@ TEST_CASE("Main menu update returns correct actions")
     }
 }
 
+TEST_CASE("Main menu mouse input returns correct actions")
+{
+    std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
+
+    SECTION("mouse move over quit selects quit without triggering action")
+    {
+        REQUIRE(applyMouseMove(state, 0.0f, 100.0f) == StateTransitionAction::None);
+
+        const View &view = state->getView();
+        const Card &card = ViewItemAccessor::as<const Card>(view.items[0]);
+
+        const Button &startButton = ViewItemAccessor::as<const Button>(card.items[1]);
+        const Button &quitButton = ViewItemAccessor::as<const Button>(card.items[2]);
+
+        REQUIRE(startButton.isSelected == false);
+        REQUIRE(quitButton.isSelected == true);
+    }
+
+    SECTION("mouse click on start game starts gameplay")
+    {
+        REQUIRE(applyMouseClick(state, 0.0f, 0.0f) == StateTransitionAction::ReplaceCurrentWithGameplay);
+    }
+
+    SECTION("mouse click on quit exits game")
+    {
+        REQUIRE(applyMouseClick(state, 0.0f, 100.0f) == StateTransitionAction::ReplaceAllStatesWithExit);
+    }
+
+    SECTION("mouse click outside buttons returns None")
+    {
+        REQUIRE(applyMouseClick(state, 700.0f, 400.0f) == StateTransitionAction::None);
+    }
+}
+
 TEST_CASE("Pause menu update returns correct actions")
 {
     auto state = MenuState::createMenu(MenuType::PauseMenu);
@@ -108,6 +142,40 @@ TEST_CASE("Pause menu update returns correct actions")
     }
 }
 
+TEST_CASE("Pause menu mouse input returns correct actions")
+{
+    std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::PauseMenu);
+
+    SECTION("mouse move over quit selects quit without triggering action")
+    {
+        REQUIRE(applyMouseMove(state, 100.0f, 0.0f) == StateTransitionAction::None);
+
+        const View &view = state->getView();
+        const Card &card = ViewItemAccessor::as<const Card>(view.items[0]);
+
+        const Button &resumeButton = ViewItemAccessor::as<const Button>(card.items[1]);
+        const Button &quitButton = ViewItemAccessor::as<const Button>(card.items[2]);
+
+        REQUIRE(resumeButton.isSelected == false);
+        REQUIRE(quitButton.isSelected == true);
+    }
+
+    SECTION("mouse click on resume pops pause menu")
+    {
+        REQUIRE(applyMouseClick(state, -100.0f, 0.0f) == StateTransitionAction::Pop);
+    }
+
+    SECTION("mouse click on quit exits game")
+    {
+        REQUIRE(applyMouseClick(state, 100.0f, 0.0f) == StateTransitionAction::ReplaceAllStatesWithExit);
+    }
+
+    SECTION("mouse click outside buttons returns None")
+    {
+        REQUIRE(applyMouseClick(state, 700.0f, 400.0f) == StateTransitionAction::None);
+    }
+}
+
 TEST_CASE("Game over menu update returns correct actions")
 {
     auto state = MenuState::createMenu(MenuType::GameOverMenu);
@@ -133,6 +201,35 @@ TEST_CASE("Game over menu update returns correct actions")
     SECTION("irrelevant input returns None")
     {
         REQUIRE(applyInput(state, NONE) == StateTransitionAction::None);
+    }
+}
+
+TEST_CASE("Game over menu mouse input returns correct actions")
+{
+    std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::GameOverMenu);
+
+    SECTION("mouse move over quit selects quit without triggering action")
+    {
+        REQUIRE(applyMouseMove(state, 100.0f, 0.0f) == StateTransitionAction::None);
+
+        const View &view = state->getView();
+        const Card &card = ViewItemAccessor::as<const Card>(view.items[0]);
+
+        const Button &mainMenuButton = ViewItemAccessor::as<const Button>(card.items[1]);
+        const Button &quitButton = ViewItemAccessor::as<const Button>(card.items[2]);
+
+        REQUIRE(mainMenuButton.isSelected == false);
+        REQUIRE(quitButton.isSelected == true);
+    }
+
+    SECTION("mouse click on main menu returns to main menu")
+    {
+        REQUIRE(applyMouseClick(state, -100.0f, 0.0f) == StateTransitionAction::ReplaceCurrentWithMainMenu);
+    }
+
+    SECTION("mouse click on quit exits game")
+    {
+        REQUIRE(applyMouseClick(state, 100.0f, 0.0f) == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 }
 
