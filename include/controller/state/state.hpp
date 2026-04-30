@@ -10,6 +10,7 @@
 #include "controller/state/state_transition_action.hpp"
 #include "controller/view/view.hpp"
 #include "game/game.hpp"
+#include <optional>
 
 namespace controller {
 
@@ -28,15 +29,14 @@ class BaseState {
 enum class MenuType { MainMenu, PauseMenu, GameOverMenu };
 
 class MenuState : public BaseState {
-    float lastMouseX_; // TODO: do we want a 2D vector type? -> lastMouseXY_ = {float x, float y}
-    float lastMouseY_;
-    std::size_t selectBttnID_ = 0;
     std::deque<Button> buttons_;
     std::deque<Card> cards_;
     std::deque<Text> texts_;
+    std::size_t selectedButtonId_ = 0;
 
     MenuState(MenuType type);
     void initView();
+    std::optional<std::size_t> getHoveredButtonId(const InputState &input) const;
 
   public:
     const MenuType type;

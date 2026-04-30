@@ -1,5 +1,6 @@
 #include "controller/state/state.hpp"
 #include "controller/view/text.hpp"
+#include <iostream>
 
 namespace controller {
 
@@ -21,78 +22,101 @@ std::unique_ptr<MenuState> MenuState::createMenu(const MenuType menuType)
 StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]] DebugContext &debug,
                                         [[maybe_unused]] float dt)
 {
-    StateTransitionAction stateTransAct = StateTransitionAction::None;
-    const size_t prevBtnSelcted = selectBttnID_;
+    StateTransitionAction stateTransitionAction = StateTransitionAction::None;
+    const size_t prevSelectedButtonId = selectedButtonId_;
+
+    // Only update selected button based on mouse input if mouse was moved or
+    // mouse left button was pressed to avoid interfering with keyboard selection
+    bool isMouseSelectionActive = input.mouseMoved || input.mouseLeftPressed;
+
+    const std::optional<std::size_t> hoveredButtonId = getHoveredButtonId(input);
+    if (isMouseSelectionActive && hoveredButtonId.has_value()) {
+        selectedButtonId_ = hoveredButtonId.value();
+    }
+
+    const bool isButtonHovered = hoveredButtonId.has_value();
+    const bool buttonPressed = input.confirmPressed || (input.mouseLeftPressed && isButtonHovered);
 
     switch (type) {
     case MenuType::MainMenu:
         if (input.downPressed || input.upPressed) {
-            selectBttnID_ ^= 1;
+            selectedButtonId_ ^= 1;
         }
-        if (input.confirmPressed) {
-            switch (selectBttnID_) {
+
+        if (buttonPressed) {
+            switch (selectedButtonId_) {
             case 0:
-                stateTransAct = StateTransitionAction::ReplaceCurrentWithGameplay;
+                stateTransitionAction = StateTransitionAction::ReplaceCurrentWithGameplay;
                 break;
             case 1:
-                stateTransAct = StateTransitionAction::ReplaceAllStatesWithExit;
+                stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
                 break;
             }
         }
         break;
 
     case MenuType::PauseMenu:
-        if (input.confirmPressed && selectBttnID_ == 0) {
-            stateTransAct = StateTransitionAction::Pop;
+        if (input.leftPressed || input.rightPressed) {
+            selectedButtonId_ ^= 1;
         }
-        if (input.leftPressed) {
-            selectBttnID_ = 0;
-        } else if (input.rightPressed) {
-            selectBttnID_ = 1;
+
+        if (buttonPressed) {
+            switch (selectedButtonId_) {
+            case 0:
+                stateTransitionAction = StateTransitionAction::Pop;
+                break;
+            case 1:
+                stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
+                break;
+            }
         }
         break;
 
     case MenuType::GameOverMenu:
-        // TODO delete old Game State
         if (input.leftPressed || input.rightPressed) {
-            selectBttnID_ ^= 1;
+            selectedButtonId_ ^= 1;
         }
-        if (input.confirmPressed) {
-            switch (selectBttnID_) {
+
+        if (buttonPressed) {
+            switch (selectedButtonId_) {
             case 0:
-                stateTransAct = StateTransitionAction::ReplaceCurrentWithMainMenu;
+                stateTransitionAction = StateTransitionAction::ReplaceCurrentWithMainMenu;
                 break;
             case 1:
-                stateTransAct = StateTransitionAction::ReplaceAllStatesWithExit;
+                stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
                 break;
             }
         }
         break;
     }
 
-    // Give Keyboard selection priority if mouse did not move since last update (otherwise buttons will never stay
-    // selected).
-    if (input.mouseX != lastMouseX_ || input.mouseY != lastMouseY_) {
-        lastMouseX_ = input.mouseX;
-        lastMouseY_ = input.mouseY;
-        float mXC = input.mouseX - (input.windowWidth / 2.0);
-        float mYC = input.mouseY - (input.windowHeight / 2.0);
-        // Note: this allows only for one button to be selected at a time (which is the intended functionality for
-        // now).
-        for (size_t i = 0; i < buttons_.size(); i++) {
-            if (std::abs(buttons_[i].centerOffsetX - mXC) <= (buttons_[i].width / 2.0)) {
-                if (std::abs(buttons_[i].centerOffsetY - mYC) <= (buttons_[i].height / 2.0)) {
-                    selectBttnID_ = i;
-                    break;
-                }
-            }
+    buttons_[prevSelectedButtonId].isSelected = false;
+    buttons_[selectedButtonId_].isSelected = true;
+
+    return stateTransitionAction;
+}
+
+std::optional<std::size_t> MenuState::getHoveredButtonId(const InputState &input) const
+{
+    // Mouse position conversion is needed since button positions are relative to the center of the screen,
+    // but mouse position is relative to the top left corner
+    // TODO: refactor to avoid this conversion by using a consistent coordinate system for both buttons and mouse
+    // position
+    const float mouseXRelativeToCenter = input.mouseX - input.windowWidth / 2.0f;
+    const float mouseYRelativeToCenter = input.mouseY - input.windowHeight / 2.0f;
+
+    for (std::size_t idx = 0; idx < buttons_.size(); idx++) {
+        const Button &button = buttons_[idx];
+
+        const bool insideX = std::abs(button.centerOffsetX - mouseXRelativeToCenter) <= button.width / 2.0f;
+        const bool insideY = std::abs(button.centerOffsetY - mouseYRelativeToCenter) <= button.height / 2.0f;
+
+        if (insideX && insideY) {
+            return idx;
         }
     }
 
-    buttons_[prevBtnSelcted].isSelected = false;
-    buttons_[selectBttnID_].isSelected = true;
-
-    return stateTransAct;
+    return std::nullopt;
 }
 
 void MenuState::initView()
@@ -108,54 +132,58 @@ void MenuState::initView()
         title.text = std::string("Main Menu");
         title.centerOffsetY = -(mainMenuCard.height / 2 - 10);
 
-        Button &startGameButton = buttons_.emplace_back(Button()); // Button ID/Index 0
+        Button &startGameButton = buttons_.emplace_back(Button());
         startGameButton.width = 300.0f;
         startGameButton.text.text = std::string("Start Game");
 
-        Button &quitButton = buttons_.emplace_back(Button()); // Button ID/Index 1
+        Button &quitButton = buttons_.emplace_back(Button());
         quitButton.text.text = std::string("Quit");
         quitButton.width = 300.0f;
         quitButton.centerOffsetY = 100;
 
-        mainMenuCard.items.push_back(std::cref(title));
-        for (Button &i : buttons_) {
-            mainMenuCard.items.push_back(std::cref(i));
-        }
-
-        view_.items.push_back(std::cref(mainMenuCard));
+        mainMenuCard.items.push_back(title);
+        mainMenuCard.items.push_back(startGameButton);
+        mainMenuCard.items.push_back(quitButton);
+        view_.items.push_back(mainMenuCard);
         break;
     }
     case MenuType::PauseMenu: {
-        Button &resumeButton = buttons_.emplace_back(Button()); // Button ID/Index 0
+        Card &pauseCard = cards_.emplace_back(Card());
+
+        Text &title = texts_.emplace_back(Text());
+        title.text = std::string("Paused");
+        title.centerOffsetY = -100;
+
+        Button &resumeButton = buttons_.emplace_back(Button());
         resumeButton.text.text = std::string("Resume");
         resumeButton.centerOffsetX = -100;
 
-        Button &quitButton = buttons_.emplace_back(Button()); // Button ID/Index 1
+        Button &quitButton = buttons_.emplace_back(Button());
         quitButton.text.text = std::string("Quit");
         quitButton.centerOffsetX = 100;
 
-        Card &pauseCard = cards_.emplace_back(Card());
+        pauseCard.items.push_back(title);
         pauseCard.items.push_back(resumeButton);
         pauseCard.items.push_back(quitButton);
-
         view_.items.push_back(pauseCard);
         break;
     }
     case MenuType::GameOverMenu:
 
+        Card &gameOverCard = cards_.emplace_back(Card());
+
         Text &textGameOver = texts_.emplace_back(Text());
         textGameOver.text = std::string("Game Over!");
         textGameOver.centerOffsetY = -100;
 
-        Button &mainMenuButton = buttons_.emplace_back(Button()); // Button ID/Index 0
+        Button &mainMenuButton = buttons_.emplace_back(Button());
         mainMenuButton.text.text = std::string("Main Menu");
         mainMenuButton.centerOffsetX = -100;
 
-        Button &quitButton = buttons_.emplace_back(Button()); // Button ID/Index 1
+        Button &quitButton = buttons_.emplace_back(Button());
         quitButton.text.text = std::string("Quit");
         quitButton.centerOffsetX = 100;
 
-        Card &gameOverCard = cards_.emplace_back(Card());
         gameOverCard.items.push_back(textGameOver);
         gameOverCard.items.push_back(mainMenuButton);
         gameOverCard.items.push_back(quitButton);
@@ -163,7 +191,8 @@ void MenuState::initView()
         view_.items.push_back(gameOverCard);
         break;
     }
-    buttons_[selectBttnID_].isSelected = true;
+
+    buttons_[selectedButtonId_].isSelected = true;
 }
 
 std::string MenuState::toString() const
@@ -182,8 +211,7 @@ std::string MenuState::toString() const
 
 std::unique_ptr<GameplayState> GameplayState::createGameplay()
 {
-    auto gameplay = std::make_unique<GameplayState>();
-    return gameplay;
+    return std::make_unique<GameplayState>();
 }
 
 StateTransitionAction GameplayState::update(const InputState &input, DebugContext &debug, float dt)
@@ -222,8 +250,7 @@ const View &GameplayState::getView()
 
 std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
 {
-    auto store = std::make_unique<ProgressionStoreState>();
-    return store;
+    return std::make_unique<ProgressionStoreState>();
 }
 
 StateTransitionAction ProgressionStoreState::update(const InputState &input, [[maybe_unused]] DebugContext &debug,

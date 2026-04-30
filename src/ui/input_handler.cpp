@@ -87,6 +87,15 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
                 break;
             }
         }
+
+        if (event->is<sf::Event::MouseMoved>()) {
+
+            if (imGuiIO.WantCaptureMouse) {
+                continue; // Skip processing game input if ImGui wants mouse input
+            }
+
+            input.mouseMoved = true;
+        }
     }
 
     if (!imGuiIO.WantCaptureKeyboard) {
@@ -109,12 +118,13 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
         input.mouseMiddleHeld = sf::Mouse::isButtonPressed(sf::Mouse::Button::Middle);
     }
 
-    input.mouseX = sf::Mouse::getPosition(window).x;
-    input.mouseY = sf::Mouse::getPosition(window).y;
+    const sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+    input.mouseX = mousePosition.x;
+    input.mouseY = mousePosition.y;
 
-    auto windowXY = window.getSize();
-    input.windowWidth = windowXY.x;
-    input.windowHeight = windowXY.y;
+    const sf::Vector2u windowSize = window.getSize();
+    input.windowWidth = windowSize.x;
+    input.windowHeight = windowSize.y;
 
     return input;
 }
