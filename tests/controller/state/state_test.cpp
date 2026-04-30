@@ -54,90 +54,84 @@ TEST_CASE("ProgressionStoreState::createStore constructs store state with expect
 
 TEST_CASE("Main menu update returns correct actions")
 {
-    GIVEN("Main Menu in initial state")
+    auto state = MenuState::createMenu(MenuType::MainMenu);
+
+    SECTION("confirm on initial selection starts gameplay")
     {
-        std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
-        {
-            INFO("confirm pressed with initial button selection triggers ReplaceCurrentWithGameplay");
-            REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithGameplay);
-        }
-        {
-            INFO("down input returns no state transition action");
-            REQUIRE(applyInput(state, DOWN) == StateTransitionAction::None);
-        }
-        {
-            INFO("confirm exits game when quit button is selected (through previous down input)");
-            REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceAllStatesWithExit);
-        }
-        {
-            INFO("no relevant input returns None");
-            REQUIRE(applyInput(state, NONE) == StateTransitionAction::None);
-        }
-        {
-            INFO("up input returns no state transition action");
-            REQUIRE(applyInput(state, UP) == StateTransitionAction::None);
-        }
-        {
-            INFO("confirmPressed triggers ReplaceCurrentWithGameplay (through previous up input)");
-            REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithGameplay);
-        }
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithGameplay);
+    }
+
+    SECTION("down changes selection so confirm exits")
+    {
+        REQUIRE(applyInput(state, DOWN) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceAllStatesWithExit);
+    }
+
+    SECTION("up from quit selection returns to start game")
+    {
+        REQUIRE(applyInput(state, DOWN) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, UP) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithGameplay);
+    }
+
+    SECTION("irrelevant input returns None")
+    {
+        REQUIRE(applyInput(state, NONE) == StateTransitionAction::None);
     }
 }
 
 TEST_CASE("Pause menu update returns correct actions")
 {
-    std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::PauseMenu);
+    auto state = MenuState::createMenu(MenuType::PauseMenu);
+
+    SECTION("confirm on initial resume selection pops pause menu")
     {
-        INFO("confirmPressed triggers Pop when initial (resume) button is selected");
         REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::Pop);
     }
+
+    SECTION("right changes selection so confirm returns None")
     {
-        INFO("right input returns no state transition");
         REQUIRE(applyInput(state, RIGHT) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceAllStatesWithExit);
     }
+
+    SECTION("left from exit selection returns to resume")
     {
-        INFO("confirmPressed on second (exit) button (selected through previous input) does not pop");
-        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::None);
-    }
-    {
-        INFO("left input returns no state transition");
+        REQUIRE(applyInput(state, RIGHT) == StateTransitionAction::None);
         REQUIRE(applyInput(state, LEFT) == StateTransitionAction::None);
-    }
-    {
-        INFO("confirmPressed triggers Pop when left (resume) button is selected (through previous input)");
         REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::Pop);
     }
+
+    SECTION("irrelevant input returns None")
     {
-        INFO("no relevant input returns None");
         REQUIRE(applyInput(state, NONE) == StateTransitionAction::None);
     }
 }
 
 TEST_CASE("Game over menu update returns correct actions")
 {
-    std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::GameOverMenu);
+    auto state = MenuState::createMenu(MenuType::GameOverMenu);
+
+    SECTION("confirm on initial selection returns to main menu")
     {
-        INFO("confirmPressed triggers ReplaceCurrentWithMainMenu");
         REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithMainMenu);
     }
+
+    SECTION("right changes selection so confirm exits game")
     {
-        INFO("right input returns no state transition");
         REQUIRE(applyInput(state, RIGHT) == StateTransitionAction::None);
-    }
-    {
-        INFO("confirm exits game when quit button is selected (through previous input)");
         REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceAllStatesWithExit);
     }
+
+    SECTION("left from quit selection returns to main menu option")
     {
-        INFO("left input returns no state transition");
+        REQUIRE(applyInput(state, RIGHT) == StateTransitionAction::None);
         REQUIRE(applyInput(state, LEFT) == StateTransitionAction::None);
-    }
-    {
-        INFO("confirmPressed triggers ReplaceCurrentWithMainMenu");
         REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithMainMenu);
     }
+
+    SECTION("irrelevant input returns None")
     {
-        INFO("no relevant input returns None");
         REQUIRE(applyInput(state, NONE) == StateTransitionAction::None);
     }
 }
@@ -295,60 +289,44 @@ TEST_CASE("MenuState::getView returns expected view")
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
 
         const View &view = state->getView();
-
         REQUIRE(view.items.size() == 1);
-        auto &card = std::get<std::unique_ptr<Card>>(view.items[0]);
-        Text title = std::get<Text>(card->items[0]);
+
+        const Card &card = ViewItemAccessor::as<const Card>(view.items[0]);
+        REQUIRE(card.items.size() == 3);
+
+        const Text &title = ViewItemAccessor::as<const Text>(card.items[0]);
         REQUIRE(title.text == "Main Menu");
 
-        std::shared_ptr<Button> startButton = std::get<std::shared_ptr<Button>>(card->items[1]);
-        REQUIRE(startButton->text.text == "Start Game");
+        const Button &startButton = ViewItemAccessor::as<const Button>(card.items[1]);
+        REQUIRE(startButton.text.text == "Start Game");
 
-        std::shared_ptr<Button> quitButton = std::get<std::shared_ptr<Button>>(card->items[2]);
-        REQUIRE(quitButton->text.text == "Quit");
+        const Button &quitButton = ViewItemAccessor::as<const Button>(card.items[2]);
+        REQUIRE(quitButton.text.text == "Quit");
     }
 
-    SECTION("cancelPressed menu returns expected view")
+    SECTION("pause menu returns expected view")
     {
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::PauseMenu);
 
         const View &view = state->getView();
-
         REQUIRE(view.items.size() == 1);
 
-        auto &pauseCard = std::get<std::unique_ptr<Card>>(view.items[0]);
+        const Card &pauseCard = ViewItemAccessor::as<const Card>(view.items[0]);
+        REQUIRE(pauseCard.items.size() == 3);
 
-        REQUIRE(pauseCard->items.size() == 2);
+        const Text &title = ViewItemAccessor::as<const Text>(pauseCard.items[0]);
+        REQUIRE(title.text == "Paused");
 
-        std::shared_ptr<Button> resumeButton = std::get<std::shared_ptr<Button>>(pauseCard->items[0]);
-        std::shared_ptr<Button> quitButton = std::get<std::shared_ptr<Button>>(pauseCard->items[1]);
+        const Button &resumeButton = ViewItemAccessor::as<const Button>(pauseCard.items[1]);
+        const Button &quitButton = ViewItemAccessor::as<const Button>(pauseCard.items[2]);
 
-        REQUIRE(resumeButton->text.text == "Resume");
-        REQUIRE(resumeButton->centerOffsetX == -100);
-        REQUIRE(resumeButton->isSelected == true);
+        REQUIRE(resumeButton.text.text == "Resume");
+        REQUIRE(resumeButton.centerOffsetX == -100);
+        REQUIRE(resumeButton.isSelected == true);
 
-        REQUIRE(quitButton->text.text == "Quit");
-        REQUIRE(quitButton->centerOffsetX == 100);
-        REQUIRE(quitButton->isSelected == false);
-    }
-
-    SECTION("cancelPressed menu marks quit button as selected when selectedButtonIndex is 1")
-    {
-        std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::PauseMenu);
-
-        const View &view = state->getView();
-
-        REQUIRE(view.items.size() == 1);
-
-        auto &pauseCard = std::get<std::unique_ptr<Card>>(view.items[0]);
-
-        REQUIRE(pauseCard->items.size() == 2);
-
-        std::shared_ptr<Button> resumeButton = std::get<std::shared_ptr<Button>>(pauseCard->items[0]);
-        std::shared_ptr<Button> quitButton = std::get<std::shared_ptr<Button>>(pauseCard->items[1]);
-
-        REQUIRE(resumeButton->isSelected == true);
-        REQUIRE(quitButton->isSelected == false);
+        REQUIRE(quitButton.text.text == "Quit");
+        REQUIRE(quitButton.centerOffsetX == 100);
+        REQUIRE(quitButton.isSelected == false);
     }
 
     SECTION("game over menu returns expected view")
@@ -358,22 +336,22 @@ TEST_CASE("MenuState::getView returns expected view")
         const View &view = state->getView();
         REQUIRE(view.items.size() == 1);
 
-        auto &gameOverCard = std::get<std::unique_ptr<Card>>(view.items[0]);
-        REQUIRE(gameOverCard->items.size() == 3);
+        const Card &gameOverCard = ViewItemAccessor::as<const Card>(view.items[0]);
+        REQUIRE(gameOverCard.items.size() == 3);
 
-        Text gameOverText = std::get<Text>(gameOverCard->items[0]);
+        const Text &gameOverText = ViewItemAccessor::as<const Text>(gameOverCard.items[0]);
         REQUIRE(gameOverText.text == "Game Over!");
         REQUIRE(gameOverText.centerOffsetY == -100);
 
-        std::shared_ptr<Button> mainMenuButton = std::get<std::shared_ptr<Button>>(gameOverCard->items[1]);
-        REQUIRE(mainMenuButton->text.text == "Main Menu");
-        REQUIRE(mainMenuButton->centerOffsetX == -100);
-        REQUIRE(mainMenuButton->isSelected == true);
+        const Button &mainMenuButton = ViewItemAccessor::as<const Button>(gameOverCard.items[1]);
+        REQUIRE(mainMenuButton.text.text == "Main Menu");
+        REQUIRE(mainMenuButton.centerOffsetX == -100);
+        REQUIRE(mainMenuButton.isSelected == true);
 
-        std::shared_ptr<Button> quitButton = std::get<std::shared_ptr<Button>>(gameOverCard->items[2]);
-        REQUIRE(quitButton->text.text == "Quit");
-        REQUIRE(quitButton->centerOffsetX == 100);
-        REQUIRE(quitButton->isSelected == false);
+        const Button &quitButton = ViewItemAccessor::as<const Button>(gameOverCard.items[2]);
+        REQUIRE(quitButton.text.text == "Quit");
+        REQUIRE(quitButton.centerOffsetX == 100);
+        REQUIRE(quitButton.isSelected == false);
     }
 }
 

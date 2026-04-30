@@ -11,5 +11,8 @@ struct Card; // Card used in ViewItem, but Card itself includes ViewItem, so we 
 
 // Readonly assembly of items to render
 using ViewItem = std::variant<std::reference_wrapper<const Card>, std::reference_wrapper<const Button>,
-                              std::reference_wrapper<const Text>, Sprite>; // TODO: make Sprite reference_wrapped
+                              std::reference_wrapper<const Text>,
+                              Sprite // TODO: make Sprite reference_wrapped
+                              >;
+
 } // namespace controller

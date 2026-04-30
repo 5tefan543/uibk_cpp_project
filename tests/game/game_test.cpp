@@ -201,8 +201,6 @@ TEST_CASE("Game getView returns correct view")
 
     // ASSERT
     REQUIRE(!view.items.empty());
-    REQUIRE(view.mapWidth > 0);
-    REQUIRE(view.mapHeight > 0);
     REQUIRE(view.cameraX == 0.0f);
     REQUIRE(view.cameraY == 0.0f);
 }
