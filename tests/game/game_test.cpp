@@ -194,14 +194,13 @@ TEST_CASE("Game getView returns correct view")
 {
     // ARRANGE
     game::Game game;
+    controller::View view;
 
     // ACT
-    controller::View view = game.getView();
+    game.updateView(view);
 
     // ASSERT
     REQUIRE(!view.items.empty());
-    REQUIRE(view.mapWidth > 0);
-    REQUIRE(view.mapHeight > 0);
     REQUIRE(view.cameraX == 0.0f);
     REQUIRE(view.cameraY == 0.0f);
 }

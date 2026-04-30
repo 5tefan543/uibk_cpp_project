@@ -122,9 +122,12 @@ bool Game::isGameOver()
     return registry_.view<PlayerTag>().empty();
 }
 
-controller::View Game::getView()
+void Game::updateView(controller::View &view)
 {
-    controller::View view;
+    // Game should be able to decide how to update.
+    // Currently we simply clear everything and rebuilding the view from scratch.
+    // Future improvements might only make changes and add/remove where necessary.
+    view.items.clear();
 
     // Get camera data
     auto cameraEntities = registry_.view<Camera, Map>();
@@ -133,8 +136,6 @@ controller::View Game::getView()
         const Map &map = registry_.getComponent<Map>(cameraEntities.front());
         view.cameraX = camera.x;
         view.cameraY = camera.y;
-        view.mapWidth = map.width;
-        view.mapHeight = map.height;
 
         // Add map sprite
         controller::Sprite mapSprite;
@@ -175,7 +176,5 @@ controller::View Game::getView()
         viewSprite.scale = 4.0f; // Character scaled by 4x
         view.items.push_back(viewSprite);
     }
-
-    return view;
 }
 } // namespace game

@@ -53,12 +53,13 @@ CheckOptions:
   - key: readability-identifier-naming.MemberCase
     value: camelBack
 
-  # Enforce trailing "_" ONLY for private class members.
+  # Enforce trailing "_" ONLY for private and protected class members.
   # This helps distinguish internal state from public data.
   # Example: int selectedButtonIndex_;
   - key: readability-identifier-naming.PrivateMemberSuffix
     value: _
-
+  - key: readability-identifier-naming.ProtectedMemberSuffix
+    value: _
 
   # =========================
   # Enums

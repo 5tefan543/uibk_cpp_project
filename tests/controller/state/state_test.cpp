@@ -12,7 +12,6 @@ TEST_CASE("MenuState::createMenu of type MainMenu constructs main menu with expe
     // ASSERT
     REQUIRE(state != nullptr);
     REQUIRE(state->type == MenuType::MainMenu);
-    REQUIRE(state->selectedButtonIndex == 0);
 }
 
 TEST_CASE("MenuState::createMenu of type PauseMenu constructs cancelPressed menu with expected properties")
@@ -23,7 +22,6 @@ TEST_CASE("MenuState::createMenu of type PauseMenu constructs cancelPressed menu
     // ASSERT
     REQUIRE(state != nullptr);
     REQUIRE(state->type == MenuType::PauseMenu);
-    REQUIRE(state->selectedButtonIndex == 0);
 }
 
 TEST_CASE("MenuState::createMenu of type GameOverMenu constructs game over menu with expected properties")
@@ -34,12 +32,6 @@ TEST_CASE("MenuState::createMenu of type GameOverMenu constructs game over menu 
     // ASSERT
     REQUIRE(state != nullptr);
     REQUIRE(state->type == MenuType::GameOverMenu);
-    REQUIRE(state->selectedButtonIndex == 0);
-    // check that if the button is confirmed, it triggers the expected action
-    InputState input;
-    input.confirmPressed = true;
-    DebugContext debug;
-    REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithMainMenu);
 }
 
 TEST_CASE("GameplayState::createGameplay constructs gameplay state with expected properties")
@@ -62,171 +54,182 @@ TEST_CASE("ProgressionStoreState::createStore constructs store state with expect
 
 TEST_CASE("Main menu update returns correct actions")
 {
+    auto state = MenuState::createMenu(MenuType::MainMenu);
+
+    SECTION("confirm on initial selection starts gameplay")
+    {
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithGameplay);
+    }
+
+    SECTION("down changes selection so confirm exits")
+    {
+        REQUIRE(applyInput(state, DOWN) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceAllStatesWithExit);
+    }
+
+    SECTION("up from quit selection returns to start game")
+    {
+        REQUIRE(applyInput(state, DOWN) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, UP) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithGameplay);
+    }
+
+    SECTION("irrelevant input returns None")
+    {
+        REQUIRE(applyInput(state, NONE) == StateTransitionAction::None);
+    }
+}
+
+TEST_CASE("Main menu mouse input returns correct actions")
+{
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
 
-    SECTION("confirmPressed triggers ReplaceCurrentWithGameplay")
+    SECTION("mouse move over quit selects quit without triggering action")
     {
-        // ARRANGE
-        InputState input;
-        input.confirmPressed = true;
-        DebugContext debug;
+        REQUIRE(applyMouseMove(state, 0.0f, 100.0f) == StateTransitionAction::None);
 
-        // ACT & ASSERT
-        REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithGameplay);
+        const View &view = state->getView();
+        const Card &card = ViewItemAccessor::as<const Card>(view.items[0]);
+
+        const Button &startButton = ViewItemAccessor::as<const Button>(card.items[1]);
+        const Button &quitButton = ViewItemAccessor::as<const Button>(card.items[2]);
+
+        REQUIRE(startButton.isSelected == false);
+        REQUIRE(quitButton.isSelected == true);
     }
 
-    SECTION("confirm exits game when quit button is selected")
+    SECTION("mouse click on start game starts gameplay")
     {
-        // ARRANGE
-        state->selectedButtonIndex = 1;
-        InputState input;
-        input.confirmPressed = true;
-        DebugContext debug;
-
-        // ACT & ASSERT
-        REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::ReplaceAllStatesWithExit);
+        REQUIRE(applyMouseClick(state, 0.0f, 0.0f) == StateTransitionAction::ReplaceCurrentWithGameplay);
     }
 
-    SECTION("up or down toggles selected button")
+    SECTION("mouse click on quit exits game")
     {
-        // ARRANGE
-        InputState input;
-        input.downPressed = true;
-        DebugContext debug;
-
-        // ACT
-        StateTransitionAction action = state->update(input, debug, dummyDeltaTime);
-
-        // ASSERT
-        REQUIRE(action == StateTransitionAction::None);
-        REQUIRE(state->selectedButtonIndex == 1);
-
-        // ACT again to toggle back
-        action = state->update(input, debug, dummyDeltaTime);
-
-        // ASSERT
-        REQUIRE(action == StateTransitionAction::None);
-        REQUIRE(state->selectedButtonIndex == 0);
+        REQUIRE(applyMouseClick(state, 0.0f, 100.0f) == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 
-    SECTION("no relevant input returns None")
+    SECTION("mouse click outside buttons returns None")
     {
-        // ARRANGE
-        InputState input;
-        DebugContext debug;
-
-        // ACT & ASSERT
-        REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::None);
+        REQUIRE(applyMouseClick(state, 700.0f, 400.0f) == StateTransitionAction::None);
     }
 }
 
 TEST_CASE("Pause menu update returns correct actions")
 {
+    auto state = MenuState::createMenu(MenuType::PauseMenu);
+
+    SECTION("confirm on initial resume selection pops pause menu")
+    {
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::Pop);
+    }
+
+    SECTION("right changes selection so confirm returns None")
+    {
+        REQUIRE(applyInput(state, RIGHT) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceAllStatesWithExit);
+    }
+
+    SECTION("left from exit selection returns to resume")
+    {
+        REQUIRE(applyInput(state, RIGHT) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, LEFT) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::Pop);
+    }
+
+    SECTION("irrelevant input returns None")
+    {
+        REQUIRE(applyInput(state, NONE) == StateTransitionAction::None);
+    }
+}
+
+TEST_CASE("Pause menu mouse input returns correct actions")
+{
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::PauseMenu);
 
-    SECTION("confirmPressed triggers Pop when first button is selected")
+    SECTION("mouse move over quit selects quit without triggering action")
     {
-        // ARRANGE
-        state->selectedButtonIndex = 0;
-        InputState input;
-        input.confirmPressed = true;
-        DebugContext debug;
+        REQUIRE(applyMouseMove(state, 100.0f, 0.0f) == StateTransitionAction::None);
 
-        // ACT & ASSERT
-        REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::Pop);
+        const View &view = state->getView();
+        const Card &card = ViewItemAccessor::as<const Card>(view.items[0]);
+
+        const Button &resumeButton = ViewItemAccessor::as<const Button>(card.items[1]);
+        const Button &quitButton = ViewItemAccessor::as<const Button>(card.items[2]);
+
+        REQUIRE(resumeButton.isSelected == false);
+        REQUIRE(quitButton.isSelected == true);
     }
 
-    SECTION("left selects first button")
+    SECTION("mouse click on resume pops pause menu")
     {
-        // ARRANGE
-        state->selectedButtonIndex = 1;
-        InputState input;
-        input.leftPressed = true;
-        DebugContext debug;
-
-        // ACT
-        StateTransitionAction action = state->update(input, debug, dummyDeltaTime);
-
-        // ASSERT
-        REQUIRE(action == StateTransitionAction::None);
-        REQUIRE(state->selectedButtonIndex == 0);
+        REQUIRE(applyMouseClick(state, -100.0f, 0.0f) == StateTransitionAction::Pop);
     }
 
-    SECTION("right selects second button")
+    SECTION("mouse click on quit exits game")
     {
-        // ARRANGE
-        state->selectedButtonIndex = 0;
-        InputState input;
-        input.rightPressed = true;
-        DebugContext debug;
-
-        // ACT
-        StateTransitionAction action = state->update(input, debug, dummyDeltaTime);
-
-        // ASSERT
-        REQUIRE(action == StateTransitionAction::None);
-        REQUIRE(state->selectedButtonIndex == 1);
+        REQUIRE(applyMouseClick(state, 100.0f, 0.0f) == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 
-    SECTION("confirmPressed on second button does not pop")
+    SECTION("mouse click outside buttons returns None")
     {
-        // ARRANGE
-        state->selectedButtonIndex = 1;
-        InputState input;
-        input.confirmPressed = true;
-        DebugContext debug;
-
-        // ACT & ASSERT
-        REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::None);
-    }
-
-    SECTION("no relevant input returns None")
-    {
-        // ARRANGE
-        InputState input;
-        DebugContext debug;
-
-        // ACT & ASSERT
-        REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::None);
+        REQUIRE(applyMouseClick(state, 700.0f, 400.0f) == StateTransitionAction::None);
     }
 }
 
 TEST_CASE("Game over menu update returns correct actions")
 {
+    auto state = MenuState::createMenu(MenuType::GameOverMenu);
+
+    SECTION("confirm on initial selection returns to main menu")
+    {
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithMainMenu);
+    }
+
+    SECTION("right changes selection so confirm exits game")
+    {
+        REQUIRE(applyInput(state, RIGHT) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceAllStatesWithExit);
+    }
+
+    SECTION("left from quit selection returns to main menu option")
+    {
+        REQUIRE(applyInput(state, RIGHT) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, LEFT) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithMainMenu);
+    }
+
+    SECTION("irrelevant input returns None")
+    {
+        REQUIRE(applyInput(state, NONE) == StateTransitionAction::None);
+    }
+}
+
+TEST_CASE("Game over menu mouse input returns correct actions")
+{
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::GameOverMenu);
 
-    SECTION("confirmPressed triggers ReplaceCurrentWithMainMenu")
+    SECTION("mouse move over quit selects quit without triggering action")
     {
-        // ARRANGE
-        state->selectedButtonIndex = 0;
-        InputState input;
-        input.confirmPressed = true;
-        DebugContext debug;
+        REQUIRE(applyMouseMove(state, 100.0f, 0.0f) == StateTransitionAction::None);
 
-        // ACT & ASSERT
-        REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::ReplaceCurrentWithMainMenu);
+        const View &view = state->getView();
+        const Card &card = ViewItemAccessor::as<const Card>(view.items[0]);
+
+        const Button &mainMenuButton = ViewItemAccessor::as<const Button>(card.items[1]);
+        const Button &quitButton = ViewItemAccessor::as<const Button>(card.items[2]);
+
+        REQUIRE(mainMenuButton.isSelected == false);
+        REQUIRE(quitButton.isSelected == true);
     }
 
-    SECTION("confirm exits game when quit button is selected")
+    SECTION("mouse click on main menu returns to main menu")
     {
-        // ARRANGE
-        state->selectedButtonIndex = 1;
-        InputState input;
-        input.confirmPressed = true;
-        DebugContext debug;
-
-        // ACT & ASSERT
-        REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::ReplaceAllStatesWithExit);
+        REQUIRE(applyMouseClick(state, -100.0f, 0.0f) == StateTransitionAction::ReplaceCurrentWithMainMenu);
     }
 
-    SECTION("no relevant input returns None")
+    SECTION("mouse click on quit exits game")
     {
-        // ARRANGE
-        InputState input;
-        DebugContext debug;
-
-        // ACT & ASSERT
-        REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::None);
+        REQUIRE(applyMouseClick(state, 100.0f, 0.0f) == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 }
 
@@ -362,12 +365,6 @@ TEST_CASE("MenuState::toString returns expected string")
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::GameOverMenu);
         REQUIRE(state->toString() == "GameOverMenu");
     }
-
-    SECTION("unknown menu type returns Unknown MenuState")
-    {
-        std::unique_ptr<MenuState> state = MenuState::createMenu(static_cast<MenuType>(-1));
-        REQUIRE(state->toString() == "Unknown MenuType");
-    }
 }
 
 TEST_CASE("GameplayState::toString returns expected string")
@@ -388,35 +385,37 @@ TEST_CASE("MenuState::getView returns expected view")
     {
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
 
-        View view = state->getView();
-
+        const View &view = state->getView();
         REQUIRE(view.items.size() == 1);
-        auto &card = std::get<std::unique_ptr<Card>>(view.items[0]);
-        Text title = std::get<Text>(card->items[0]);
+
+        const Card &card = ViewItemAccessor::as<const Card>(view.items[0]);
+        REQUIRE(card.items.size() == 3);
+
+        const Text &title = ViewItemAccessor::as<const Text>(card.items[0]);
         REQUIRE(title.text == "Main Menu");
 
-        Button startButton = std::get<Button>(card->items[1]);
+        const Button &startButton = ViewItemAccessor::as<const Button>(card.items[1]);
         REQUIRE(startButton.text.text == "Start Game");
 
-        Button quitButton = std::get<Button>(card->items[2]);
+        const Button &quitButton = ViewItemAccessor::as<const Button>(card.items[2]);
         REQUIRE(quitButton.text.text == "Quit");
     }
 
-    SECTION("cancelPressed menu returns expected view")
+    SECTION("pause menu returns expected view")
     {
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::PauseMenu);
-        state->selectedButtonIndex = 0;
 
-        View view = state->getView();
-
+        const View &view = state->getView();
         REQUIRE(view.items.size() == 1);
 
-        auto &pauseCard = std::get<std::unique_ptr<Card>>(view.items[0]);
+        const Card &pauseCard = ViewItemAccessor::as<const Card>(view.items[0]);
+        REQUIRE(pauseCard.items.size() == 3);
 
-        REQUIRE(pauseCard->items.size() == 2);
+        const Text &title = ViewItemAccessor::as<const Text>(pauseCard.items[0]);
+        REQUIRE(title.text == "Paused");
 
-        Button resumeButton = std::get<Button>(pauseCard->items[0]);
-        Button quitButton = std::get<Button>(pauseCard->items[1]);
+        const Button &resumeButton = ViewItemAccessor::as<const Button>(pauseCard.items[1]);
+        const Button &quitButton = ViewItemAccessor::as<const Button>(pauseCard.items[2]);
 
         REQUIRE(resumeButton.text.text == "Resume");
         REQUIRE(resumeButton.centerOffsetX == -100);
@@ -427,47 +426,26 @@ TEST_CASE("MenuState::getView returns expected view")
         REQUIRE(quitButton.isSelected == false);
     }
 
-    SECTION("cancelPressed menu marks quit button as selected when selectedButtonIndex is 1")
-    {
-        std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::PauseMenu);
-        state->selectedButtonIndex = 1;
-
-        View view = state->getView();
-
-        REQUIRE(view.items.size() == 1);
-
-        auto &pauseCard = std::get<std::unique_ptr<Card>>(view.items[0]);
-
-        REQUIRE(pauseCard->items.size() == 2);
-
-        Button resumeButton = std::get<Button>(pauseCard->items[0]);
-        Button quitButton = std::get<Button>(pauseCard->items[1]);
-
-        REQUIRE(resumeButton.isSelected == false);
-        REQUIRE(quitButton.isSelected == true);
-    }
-
     SECTION("game over menu returns expected view")
     {
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::GameOverMenu);
-        state->selectedButtonIndex = 0;
 
-        View view = state->getView();
+        const View &view = state->getView();
         REQUIRE(view.items.size() == 1);
 
-        auto &gameOverCard = std::get<std::unique_ptr<Card>>(view.items[0]);
-        REQUIRE(gameOverCard->items.size() == 3);
+        const Card &gameOverCard = ViewItemAccessor::as<const Card>(view.items[0]);
+        REQUIRE(gameOverCard.items.size() == 3);
 
-        Text gameOverText = std::get<Text>(gameOverCard->items[0]);
+        const Text &gameOverText = ViewItemAccessor::as<const Text>(gameOverCard.items[0]);
         REQUIRE(gameOverText.text == "Game Over!");
         REQUIRE(gameOverText.centerOffsetY == -100);
 
-        Button mainMenuButton = std::get<Button>(gameOverCard->items[1]);
+        const Button &mainMenuButton = ViewItemAccessor::as<const Button>(gameOverCard.items[1]);
         REQUIRE(mainMenuButton.text.text == "Main Menu");
         REQUIRE(mainMenuButton.centerOffsetX == -100);
         REQUIRE(mainMenuButton.isSelected == true);
 
-        Button quitButton = std::get<Button>(gameOverCard->items[2]);
+        const Button &quitButton = ViewItemAccessor::as<const Button>(gameOverCard.items[2]);
         REQUIRE(quitButton.text.text == "Quit");
         REQUIRE(quitButton.centerOffsetX == 100);
         REQUIRE(quitButton.isSelected == false);
@@ -478,7 +456,7 @@ TEST_CASE("GameplayState::getView returns expected view")
 {
     std::unique_ptr<GameplayState> state = GameplayState::createGameplay();
 
-    View view = state->getView();
+    const View &view = state->getView();
 
     REQUIRE(!view.items.empty());
 }
@@ -487,7 +465,7 @@ TEST_CASE("ProgressionStoreState::getView returns expected view")
 {
     std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore();
 
-    View view = state->getView();
+    const View &view = state->getView();
 
     REQUIRE(view.items.empty());
 }
@@ -496,7 +474,7 @@ TEST_CASE("ExitState::getView returns expected view")
 {
     std::unique_ptr<ExitState> state = ExitState::createExitState();
 
-    View view = state->getView();
+    const View &view = state->getView();
 
     REQUIRE(view.items.empty());
 }

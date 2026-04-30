@@ -38,8 +38,6 @@ void Renderer::renderView(sf::RenderWindow &window, const controller::View &view
     // Store camera data
     cameraX_ = view.cameraX;
     cameraY_ = view.cameraY;
-    mapWidth_ = view.mapWidth;
-    mapHeight_ = view.mapHeight;
 
     renderItems(window, view.items);
 }
@@ -51,21 +49,21 @@ void Renderer::renderItems(sf::RenderWindow &window, const std::vector<controlle
     }
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const std::unique_ptr<controller::Card> &card)
+void Renderer::renderItem(sf::RenderWindow &window, const controller::Card &card)
 {
     // Render card first
     sf::RectangleShape rect;
-    rect.setSize({card->width, card->height});
-    rect.setFillColor(toSfColor(card->backgroundColor));
+    rect.setSize({card.width, card.height});
+    rect.setFillColor(toSfColor(card.backgroundColor));
 
-    auto centerX = window.getSize().x / 2.0f + card->centerOffsetX - card->width / 2.0f;
-    auto centerY = window.getSize().y / 2.0f + card->centerOffsetY - card->height / 2.0f;
+    auto centerX = window.getSize().x / 2.0f + card.centerOffsetX - card.width / 2.0f;
+    auto centerY = window.getSize().y / 2.0f + card.centerOffsetY - card.height / 2.0f;
     rect.setPosition({centerX, centerY});
 
     window.draw(rect);
 
     // Render items on the card
-    renderItems(window, card->items);
+    renderItems(window, card.items);
 }
 
 void Renderer::renderItem(sf::RenderWindow &window, const controller::Button &button)

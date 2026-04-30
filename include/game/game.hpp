@@ -38,7 +38,7 @@ class Game {
 
     GameDebugSession &getDebugSession();
     bool update(const controller::InputState &input, controller::DebugContext &debug, float dt);
-    controller::View getView();
+    void updateView(controller::View &view);
 };
 
 } // namespace game
