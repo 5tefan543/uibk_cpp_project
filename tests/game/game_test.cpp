@@ -204,3 +204,22 @@ TEST_CASE("Game getView returns correct view")
     REQUIRE(view.cameraX == 0.0f);
     REQUIRE(view.cameraY == 0.0f);
 }
+
+TEST_CASE("Game loadFromPersistedGame applies persisted values")
+{
+    game::Game game;
+
+    controller::PersistedGame persistedGame;
+    persistedGame.stage = 12;
+    persistedGame.wave = 5;
+    persistedGame.currency = 1234;
+    persistedGame.playerStats.speed = 333.0f;
+
+    game.loadFromPersistedGame(persistedGame);
+
+    const controller::PersistedGame snapshot = game.getPersistedGame();
+    REQUIRE(snapshot.stage == 12);
+    REQUIRE(snapshot.wave == 5);
+    REQUIRE(snapshot.currency == 1234);
+    REQUIRE(snapshot.playerStats.speed == 333.0f);
+}
