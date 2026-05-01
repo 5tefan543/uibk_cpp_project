@@ -1,0 +1,18 @@
+{
+    "window-config": {
+        "height": 1080,
+        "width": 1920,
+        "title": "Robotato"
+    },
+    "asset-config": {
+        "playerTexturePath": "assets/characters/player_1_",
+        "enemyTexturePath": "assets/characters/enemy_1_",
+        "mapTexturePath": "assets/map/map_1.png",
+        "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf"
+    },
+    "game-config": {
+        "initial-stage": 1,
+        "initial-wave": 1,
+        "initial-currency": 0
+    }
+}
