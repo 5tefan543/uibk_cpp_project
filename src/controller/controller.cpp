@@ -1,4 +1,5 @@
 #include "controller/controller.hpp"
+#include "controller/persistence/persistence_manager.hpp"
 #include <iostream>
 
 namespace controller {
@@ -6,6 +7,7 @@ namespace controller {
 Controller::Controller()
 {
     std::cout << "Controller constructed" << std::endl;
+    PersistenceManager persistenceManager;
     stateManager_.push(MenuState::createMenu(MenuType::MainMenu));
 }
 

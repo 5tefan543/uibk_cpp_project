@@ -50,6 +50,7 @@ target_include_directories(roguelike_controller PUBLIC include)
 target_link_libraries(roguelike_controller
   PUBLIC
     roguelike_game
+    glaze::glaze
 )
 
 # UI library
