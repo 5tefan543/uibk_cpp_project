@@ -23,6 +23,8 @@ find_package(SFML 3 REQUIRED COMPONENTS Graphics Audio)
 # ImGui-SFML wrapper
 find_package(ImGui-SFML CONFIG REQUIRED)
 
+find_package(glaze CONFIG REQUIRED)
+
 # Game library
 add_library(roguelike_game
   src/game/game.cpp
@@ -40,6 +42,7 @@ add_library(roguelike_controller
   src/controller/controller.cpp
   src/controller/state/state.cpp
   src/controller/state/state_manager.cpp
+  src/controller/persistence/persistence_manager.cpp
 )
 
 roguelike_cxx_flags(roguelike_controller)
@@ -92,6 +95,7 @@ enable_testing()
 add_executable(roguelike_test_runner
   tests/controller/controller_test.cpp
   tests/controller/input/input_state_test.cpp
+  tests/controller/persistence/persistence_manager_test.cpp
   tests/controller/state/state_test.cpp
   tests/controller/state/state_manager_test.cpp
   tests/game/game_test.cpp
