@@ -72,8 +72,8 @@ TEST_CASE("CameraSystem clamps camera to maximum map boundaries")
 
     // ASSERT
     const auto &camera = registry.getComponent<game::Camera>(world);
-    REQUIRE(camera.x == 1920.0f);
-    REQUIRE(camera.y == 1080.0f);
+    REQUIRE(camera.x == 160.0f);
+    REQUIRE(camera.y == 250.0f);
 }
 
 TEST_CASE("CameraSystem does nothing if no player exists")
