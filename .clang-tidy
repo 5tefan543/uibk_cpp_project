@@ -4,9 +4,12 @@ Checks: '-*,readability-identifier-naming'
 # Treat all warnings from the enabled check as errors -> Fails the build if any naming violation is found.
 WarningsAsErrors: 'readability-identifier-naming'
 
-# Restrict diagnostics to this repository's code only.
-# This avoids naming warnings from third-party headers (e.g. build/**/vcpkg_installed/**).
-HeaderFilterRegex: '^(/home/robert/Desktop/uibk_cpp_project/)?(include|src|tests)/.*$'
+# Restrict diagnostics to repository code only and never emit diagnostics for vcpkg headers.
+# Note: compiler parse errors from a TU that includes third-party headers can still fail the run.
+HeaderFilterRegex: '^(?!.*vcpkg_installed/).*(/|^)(include|src|tests|apps)/.*$'
+
+# Keep diagnostics out of system headers.
+SystemHeaders: false
 
 CheckOptions:
 
