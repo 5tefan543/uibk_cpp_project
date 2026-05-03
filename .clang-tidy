@@ -5,7 +5,7 @@ Checks: '-*,readability-identifier-naming'
 WarningsAsErrors: 'readability-identifier-naming'
 
 # Without this, violations inside headers might not be reported during builds.
-HeaderFilterRegex: './include/.*|./src/.*|./tests/.*'
+HeaderFilterRegex: './include/.*|./src/.*|./tests/.*|^(?!.*vcpkg_installed).*$'
 
 CheckOptions:
 
