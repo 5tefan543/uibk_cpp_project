@@ -6,10 +6,7 @@ WarningsAsErrors: 'readability-identifier-naming'
 
 # Restrict diagnostics to repository code only and never emit diagnostics for vcpkg headers.
 # Note: compiler parse errors from a TU that includes third-party headers can still fail the run.
-HeaderFilterRegex: '^(?!.*vcpkg_installed/).*(/|^)(include|src|tests|apps)/.*$'
-
-# Keep diagnostics out of system headers.
-SystemHeaders: false
+HeaderFilterRegex: './include/.*|./src/.*|./tests/.*'
 
 CheckOptions:
 
