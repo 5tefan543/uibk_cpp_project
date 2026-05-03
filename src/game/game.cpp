@@ -74,6 +74,35 @@ GameDebugSession &Game::getDebugSession()
     return debugSession_;
 }
 
+void Game::loadFromPersistedGame(const controller::PersistedGame &persistedGame)
+{
+    stage_ = persistedGame.stage;
+    wave_ = persistedGame.wave;
+    currency_ = persistedGame.currency;
+
+    auto players = registry_.view<PlayerTag>();
+    if (!players.empty()) {
+        PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
+        playerTag.moveSpeed = persistedGame.playerStats.speed;
+    }
+}
+
+controller::PersistedGame Game::getPersistedGame() const
+{
+    controller::PersistedGame persistedGame;
+    persistedGame.stage = stage_;
+    persistedGame.wave = wave_;
+    persistedGame.currency = currency_;
+
+    auto players = registry_.view<PlayerTag>();
+    if (!players.empty()) {
+        const PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
+        persistedGame.playerStats.speed = playerTag.moveSpeed;
+    }
+
+    return persistedGame;
+}
+
 bool Game::update(const controller::InputState &input, controller::DebugContext &debug, float dt)
 {
     processDebugSession(debug);

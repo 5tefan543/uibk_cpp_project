@@ -108,7 +108,7 @@ jobs:
       - *setup-dependencies
 
       - name: Install clang-tidy
-        run: sudo apt-get install -y clang-tidy
+        run: sudo apt-get install -y clang-tidy-20
 
       - *setup-vcpkg
 
@@ -119,6 +119,6 @@ jobs:
         run: cmake --build --preset debug
 
       - name: Run clang-tidy checks
-        run: run-clang-tidy -p build/debug
+        run: run-clang-tidy-20 -p build/debug -config-file .clang-tidy
       
       

@@ -1,4 +1,5 @@
 #include "controller/state/state.hpp"
+#include "controller/persistence/persistence_manager.hpp"
 #include "controller/view/text.hpp"
 #include <iostream>
 
@@ -39,8 +40,11 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
 
     switch (type) {
     case MenuType::MainMenu:
-        if (input.downPressed || input.upPressed) {
-            selectedButtonId_ ^= 1;
+        if (input.downPressed) {
+            selectedButtonId_ = (selectedButtonId_ + 1) % buttons_.size();
+        }
+        if (input.upPressed) {
+            selectedButtonId_ = (selectedButtonId_ + buttons_.size() - 1) % buttons_.size();
         }
 
         if (buttonPressed) {
@@ -49,6 +53,13 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
                 stateTransitionAction = StateTransitionAction::ReplaceCurrentWithGameplay;
                 break;
             case 1:
+                if (buttons_.size() == 3) {
+                    stateTransitionAction = StateTransitionAction::ReplaceCurrentWithLoadedGameplay;
+                } else {
+                    stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
+                }
+                break;
+            case 2:
                 stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
                 break;
             }
@@ -123,6 +134,9 @@ void MenuState::initView()
 {
     switch (type) {
     case MenuType::MainMenu: {
+        PersistenceManager persistenceManager;
+        const bool hasSavedGame = persistenceManager.hasSavedGame();
+
         Card &mainMenuCard = cards_.emplace_back(Card());
         mainMenuCard.backgroundColor = {50, 50, 50};
         mainMenuCard.width = 960;
@@ -136,13 +150,23 @@ void MenuState::initView()
         startGameButton.width = 300.0f;
         startGameButton.text.text = std::string("Start Game");
 
+        if (hasSavedGame) {
+            Button &loadGameButton = buttons_.emplace_back(Button());
+            loadGameButton.text.text = std::string("Load Game");
+            loadGameButton.width = 300.0f;
+            loadGameButton.centerOffsetY = 100;
+        }
+
         Button &quitButton = buttons_.emplace_back(Button());
         quitButton.text.text = std::string("Quit");
         quitButton.width = 300.0f;
-        quitButton.centerOffsetY = 100;
+        quitButton.centerOffsetY = hasSavedGame ? 200.0f : 100.0f;
 
         mainMenuCard.items.push_back(title);
         mainMenuCard.items.push_back(startGameButton);
+        if (hasSavedGame) {
+            mainMenuCard.items.push_back(buttons_[1]);
+        }
         mainMenuCard.items.push_back(quitButton);
         view_.items.push_back(mainMenuCard);
         break;
@@ -212,6 +236,26 @@ std::string MenuState::toString() const
 std::unique_ptr<GameplayState> GameplayState::createGameplay()
 {
     return std::make_unique<GameplayState>();
+}
+
+std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
+{
+    auto state = std::make_unique<GameplayState>();
+
+    PersistenceManager persistenceManager;
+    if (persistenceManager.hasSavedGame()) {
+        PersistedGame persistedGame;
+        persistenceManager.loadGame(persistedGame);
+        state->game.loadFromPersistedGame(persistedGame);
+        state->loadedFromSave_ = true;
+    }
+
+    return state;
+}
+
+bool GameplayState::didLoadFromSave() const
+{
+    return loadedFromSave_;
 }
 
 StateTransitionAction GameplayState::update(const InputState &input, DebugContext &debug, float dt)

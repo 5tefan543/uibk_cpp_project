@@ -4,7 +4,8 @@ Checks: '-*,readability-identifier-naming'
 # Treat all warnings from the enabled check as errors -> Fails the build if any naming violation is found.
 WarningsAsErrors: 'readability-identifier-naming'
 
-# Without this, violations inside headers might not be reported during builds.
+# Restrict diagnostics to repository code only and never emit diagnostics for vcpkg headers.
+# Note: compiler parse errors from a TU that includes third-party headers can still fail the run.
 HeaderFilterRegex: './include/.*|./src/.*|./tests/.*'
 
 CheckOptions:

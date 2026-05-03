@@ -1,8 +1,50 @@
+#include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state.hpp"
 #include "shared/util.hpp"
 #include <catch2/catch_test_macros.hpp>
+#include <chrono>
+#include <filesystem>
 
 using namespace controller;
+
+namespace {
+
+namespace fs = std::filesystem;
+
+class ScopedCurrentPath {
+  public:
+    explicit ScopedCurrentPath(const fs::path &newPath) : oldPath_(fs::current_path())
+    {
+        fs::create_directories(newPath);
+        fs::current_path(newPath);
+    }
+
+    ~ScopedCurrentPath() { fs::current_path(oldPath_); }
+
+  private:
+    fs::path oldPath_;
+};
+
+fs::path createTempTestDirectory()
+{
+    const auto uniquePart = std::chrono::steady_clock::now().time_since_epoch().count();
+    const fs::path dir = fs::temp_directory_path() / ("roguelike-state-test-" + std::to_string(uniquePart));
+    fs::create_directories(dir);
+    return dir;
+}
+
+void createSavedGameFile()
+{
+    PersistenceManager persistenceManager;
+    PersistedGame game;
+    game.stage = 3;
+    game.wave = 2;
+    game.currency = 150;
+    game.playerStats.speed = 444.0f;
+    persistenceManager.saveGame(game);
+}
+
+} // namespace
 
 TEST_CASE("MenuState::createMenu of type MainMenu constructs main menu with expected properties")
 {
@@ -54,6 +96,8 @@ TEST_CASE("ProgressionStoreState::createStore constructs store state with expect
 
 TEST_CASE("Main menu update returns correct actions")
 {
+    const auto testDir = createTempTestDirectory();
+    ScopedCurrentPath pathGuard(testDir);
     auto state = MenuState::createMenu(MenuType::MainMenu);
 
     SECTION("confirm on initial selection starts gameplay")
@@ -78,10 +122,15 @@ TEST_CASE("Main menu update returns correct actions")
     {
         REQUIRE(applyInput(state, NONE) == StateTransitionAction::None);
     }
+
+    std::error_code ec;
+    fs::remove_all(testDir, ec);
 }
 
 TEST_CASE("Main menu mouse input returns correct actions")
 {
+    const auto testDir = createTempTestDirectory();
+    ScopedCurrentPath pathGuard(testDir);
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
 
     SECTION("mouse move over quit selects quit without triggering action")
@@ -112,6 +161,51 @@ TEST_CASE("Main menu mouse input returns correct actions")
     {
         REQUIRE(applyMouseClick(state, 700.0f, 400.0f) == StateTransitionAction::None);
     }
+
+    std::error_code ec;
+    fs::remove_all(testDir, ec);
+}
+
+TEST_CASE("Main menu exposes load option and action when saved game exists")
+{
+    const auto testDir = createTempTestDirectory();
+    ScopedCurrentPath pathGuard(testDir);
+    createSavedGameFile();
+
+    std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
+
+    SECTION("down selects load game and confirm loads gameplay")
+    {
+        REQUIRE(applyInput(state, DOWN) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithLoadedGameplay);
+    }
+
+    SECTION("second down selects quit and confirm exits")
+    {
+        REQUIRE(applyInput(state, DOWN) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, DOWN) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceAllStatesWithExit);
+    }
+
+    SECTION("view contains load game button only when save exists")
+    {
+        const View &view = state->getView();
+        const Card &card = ViewItemAccessor::as<const Card>(view.items[0]);
+
+        REQUIRE(card.items.size() == 4);
+
+        const Button &startButton = ViewItemAccessor::as<const Button>(card.items[1]);
+        const Button &loadButton = ViewItemAccessor::as<const Button>(card.items[2]);
+        const Button &quitButton = ViewItemAccessor::as<const Button>(card.items[3]);
+
+        REQUIRE(startButton.text.text == "Start Game");
+        REQUIRE(loadButton.text.text == "Load Game");
+        REQUIRE(quitButton.text.text == "Quit");
+        REQUIRE(quitButton.centerOffsetY == 200.0f);
+    }
+
+    std::error_code ec;
+    fs::remove_all(testDir, ec);
 }
 
 TEST_CASE("Pause menu update returns correct actions")
@@ -383,6 +477,8 @@ TEST_CASE("MenuState::getView returns expected view")
 {
     SECTION("main menu returns expected view")
     {
+        const auto testDir = createTempTestDirectory();
+        ScopedCurrentPath pathGuard(testDir);
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
 
         const View &view = state->getView();
@@ -399,6 +495,39 @@ TEST_CASE("MenuState::getView returns expected view")
 
         const Button &quitButton = ViewItemAccessor::as<const Button>(card.items[2]);
         REQUIRE(quitButton.text.text == "Quit");
+
+        std::error_code ec;
+        fs::remove_all(testDir, ec);
+    }
+
+    SECTION("main menu with save returns expected view including load")
+    {
+        const auto testDir = createTempTestDirectory();
+        ScopedCurrentPath pathGuard(testDir);
+        createSavedGameFile();
+
+        std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
+
+        const View &view = state->getView();
+        REQUIRE(view.items.size() == 1);
+
+        const Card &card = ViewItemAccessor::as<const Card>(view.items[0]);
+        REQUIRE(card.items.size() == 4);
+
+        const Text &title = ViewItemAccessor::as<const Text>(card.items[0]);
+        REQUIRE(title.text == "Main Menu");
+
+        const Button &startButton = ViewItemAccessor::as<const Button>(card.items[1]);
+        REQUIRE(startButton.text.text == "Start Game");
+
+        const Button &loadButton = ViewItemAccessor::as<const Button>(card.items[2]);
+        REQUIRE(loadButton.text.text == "Load Game");
+
+        const Button &quitButton = ViewItemAccessor::as<const Button>(card.items[3]);
+        REQUIRE(quitButton.text.text == "Quit");
+
+        std::error_code ec;
+        fs::remove_all(testDir, ec);
     }
 
     SECTION("pause menu returns expected view")
