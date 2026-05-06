@@ -2,7 +2,6 @@
 
 #include "button.hpp"
 #include "sprite.hpp"
-#include <memory>
 #include <variant>
 
 namespace controller {

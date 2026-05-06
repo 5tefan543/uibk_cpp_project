@@ -2,7 +2,6 @@
 
 #include "controller/view/color.hpp"
 #include "controller/view/text.hpp"
-#include <string>
 
 namespace controller {
 
