@@ -253,7 +253,7 @@ std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
     return state;
 }
 
-bool GameplayState::didLoadFromSave() const
+bool GameplayState::isLoadedFromPersistedGame() const
 {
     return loadedFromSave_;
 }

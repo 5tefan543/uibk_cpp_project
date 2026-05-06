@@ -106,7 +106,7 @@ TEST_CASE("PersistenceManager stores leaderboard entries sorted by score")
         manager.storeLeaderboardEntry("Bob", 450);
         manager.storeLeaderboardEntry("Carol", 300);
 
-        const auto topTwo = manager.getLeaderboardEntries(2);
+        const auto topTwo = manager.getTopNLeaderboardEntries(2);
 
         REQUIRE(topTwo.size() == 2);
         REQUIRE(topTwo[0].first == "Bob");
@@ -171,8 +171,8 @@ TEST_CASE("PersistenceManager returns empty leaderboard for non-positive topN")
         PersistenceManager manager;
         manager.storeLeaderboardEntry("Alice", 100);
 
-        REQUIRE(manager.getLeaderboardEntries(0).empty());
-        REQUIRE(manager.getLeaderboardEntries(-4).empty());
+        REQUIRE(manager.getTopNLeaderboardEntries(0).empty());
+        REQUIRE(manager.getTopNLeaderboardEntries(-4).empty());
     }
 
     fs::remove_all(testDir);

@@ -1,4 +1,5 @@
 #include "controller/persistence/persistence_manager.hpp"
+#include "controller/persistence/leaderboard.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -11,14 +12,10 @@ namespace fs = std::filesystem;
 namespace {
 
 const fs::path configDir{"config"};
-const fs::path saveFilePath = configDir / "saved-game.json";
+const fs::path saveFilePath = configDir / "persisted-game.json";
 const fs::path leaderboardFilePath = configDir / "leaderboard.json";
 const fs::path configFilePath = configDir / "game-config.json";
 
-struct LeaderboardEntry {
-    std::string playerName;
-    int score = 0;
-};
 
 template <typename T>
 bool writeJsonToFile(const T &value, const fs::path &path)
@@ -160,7 +157,7 @@ void PersistenceManager::storeLeaderboardEntry(const std::string &playerName, in
     writeJsonToFile(entries, leaderboardFilePath);
 }
 
-std::vector<std::pair<std::string, int>> PersistenceManager::getLeaderboardEntries(int topN)
+std::vector<std::pair<std::string, int>> PersistenceManager::getTopNLeaderboardEntries(int topN)
 {
     if (topN <= 0) {
         return {};

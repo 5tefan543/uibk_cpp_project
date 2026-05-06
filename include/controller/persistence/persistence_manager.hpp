@@ -1,8 +1,8 @@
 #pragma once
-#include "controller/persistence/config_game.hpp"
-#include "controller/persistence/persisted_game.hpp"
-#include "controller/state/state_manager.hpp"
-#include "game/ecs/registry.hpp"
+#include "persisted_game.hpp"
+#include "config_game.hpp"
+#include <vector>
+#include <string>
 namespace controller {
 
 class PersistenceManager {
@@ -16,7 +16,7 @@ class PersistenceManager {
     void deleteSave();
 
     void storeLeaderboardEntry(const std::string &playerName, int score);
-    std::vector<std::pair<std::string, int>> getLeaderboardEntries(int topN);
+    std::vector<std::pair<std::string, int>> getTopNLeaderboardEntries(int topN);
 
     void saveConfig(const controller::GameConfig &config);
     controller::GameConfig loadConfig();

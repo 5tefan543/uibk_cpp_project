@@ -205,7 +205,7 @@ TEST_CASE("applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded 
 
     auto *gameplayState = dynamic_cast<GameplayState *>(&stateManager.getCurrent());
     REQUIRE(gameplayState != nullptr);
-    REQUIRE(gameplayState->didLoadFromSave());
+    REQUIRE(gameplayState->isLoadedFromPersistedGame());
 
     const PersistedGame loaded = gameplayState->game.getPersistedGame();
     REQUIRE(loaded.stage == 9);

@@ -54,7 +54,7 @@ class GameplayState : public BaseState {
 
     static std::unique_ptr<GameplayState> createGameplay();
     static std::unique_ptr<GameplayState> createLoadedGameplay();
-    bool didLoadFromSave() const;
+    bool isLoadedFromPersistedGame() const;
 
     StateTransitionAction update(const InputState &input, DebugContext &debug, float dt) override;
     std::string toString() const override;
