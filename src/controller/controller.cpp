@@ -1,4 +1,5 @@
 #include "controller/controller.hpp"
+#include "controller/persistence/persistence_manager.hpp"
 #include <iostream>
 
 namespace controller {
@@ -7,6 +8,9 @@ Controller::Controller()
 {
     std::cout << "Controller constructed" << std::endl;
     stateManager_.push(MenuState::createMenu(MenuType::MainMenu));
+
+    PersistenceManager persistenceManager;
+    gameConfig_ = persistenceManager.loadConfig();
 }
 
 Controller::~Controller()
@@ -37,6 +41,11 @@ BaseState &Controller::getCurrentState()
 DebugContext &Controller::getDebugContext()
 {
     return debug_;
+}
+
+GameConfig &Controller::getGameConfig()
+{
+    return gameConfig_;
 }
 
 } // namespace controller
