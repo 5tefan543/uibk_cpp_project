@@ -90,6 +90,12 @@ add_custom_command(TARGET roguelike_app POST_BUILD
             $<TARGET_FILE_DIR:roguelike_app>/assets
 )
 
+add_custom_command(TARGET roguelike_app POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/config
+            $<TARGET_FILE_DIR:roguelike_app>/config
+)
+
 # Tests
 enable_testing()
 
