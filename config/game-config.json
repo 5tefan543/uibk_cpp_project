@@ -1,19 +1,18 @@
 {
-    
     "game-config": {
         "initial-stage": 1,
         "initial-wave": 2,
         "initial-currency": 0,
         "asset-config": {
-        "playerTexturePath": "assets/characters/player_1_",
-        "enemyTexturePath": "assets/characters/enemy_1_",
-        "mapTexturePath": "assets/map/map_1.png",
-        "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf"
+            "playerTexturePath": "assets/characters/player_1_",
+            "enemyTexturePath": "assets/characters/enemy_1_",
+            "mapTexturePath": "assets/map/map_1.png",
+            "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf"
         },
         "window-config": {
-        "height": 1080,
-        "width": 1920,
-        "title": "Robotato"
+            "height": 1080,
+            "width": 1920,
+            "title": "Robotato"
         }
     }
 }
