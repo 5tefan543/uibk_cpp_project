@@ -1,8 +1,8 @@
 #pragma once
-#include "persisted_game.hpp"
 #include "config_game.hpp"
-#include <vector>
+#include "persisted_game.hpp"
 #include <string>
+#include <vector>
 namespace controller {
 
 class PersistenceManager {
