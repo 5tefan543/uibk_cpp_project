@@ -1,6 +1,5 @@
 #include "controller/state/state.hpp"
 #include "controller/view/text.hpp"
-#include <iostream>
 
 namespace controller {
 
@@ -56,10 +55,12 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
         break;
 
     case MenuType::PauseMenu:
-        if (input.leftPressed || input.rightPressed) {
+        if (input.downPressed || input.upPressed) {
             selectedButtonId_ ^= 1;
         }
-
+        if (input.cancelPressed) {
+            stateTransitionAction = StateTransitionAction::Pop;
+        }
         if (buttonPressed) {
             switch (selectedButtonId_) {
             case 0:
@@ -73,7 +74,7 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
         break;
 
     case MenuType::GameOverMenu:
-        if (input.leftPressed || input.rightPressed) {
+        if (input.downPressed || input.upPressed) {
             selectedButtonId_ ^= 1;
         }
 
@@ -98,18 +99,10 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
 
 std::optional<std::size_t> MenuState::getHoveredButtonId(const InputState &input) const
 {
-    // Mouse position conversion is needed since button positions are relative to the center of the screen,
-    // but mouse position is relative to the top left corner
-    // TODO: refactor to avoid this conversion by using a consistent coordinate system for both buttons and mouse
-    // position
-    const float mouseXRelativeToCenter = input.mouseX - input.windowWidth / 2.0f;
-    const float mouseYRelativeToCenter = input.mouseY - input.windowHeight / 2.0f;
-
     for (std::size_t idx = 0; idx < buttons_.size(); idx++) {
         const Button &button = buttons_[idx];
-
-        const bool insideX = std::abs(button.centerOffsetX - mouseXRelativeToCenter) <= button.width / 2.0f;
-        const bool insideY = std::abs(button.centerOffsetY - mouseYRelativeToCenter) <= button.height / 2.0f;
+        const bool insideX = std::max(0.0f, input.mouseGridX - button.gridX) <= button.width;
+        const bool insideY = std::max(0.0f, input.mouseGridY - button.gridY) <= button.height;
 
         if (insideX && insideY) {
             return idx;
@@ -121,74 +114,52 @@ std::optional<std::size_t> MenuState::getHoveredButtonId(const InputState &input
 
 void MenuState::initView()
 {
+    // Placeholder for textured background
+    Card &backgroundCard = cards_.emplace_back(Card());
+    backgroundCard.gridX = 0;
+    backgroundCard.gridY = 0;
+    backgroundCard.width = gridWidth;
+    backgroundCard.height = gridHeight;
+
+    Card &mainMenuCard = cards_.emplace_back(Card());
+    mainMenuCard.backgroundColor = {50, 50, 50};
+
+    Text &title = texts_.emplace_back(Text());
+    title.gridY = (mainMenuCard.gridY + mainMenuCard.height / 10);
+
+    Button &button1 = buttons_.emplace_back(Button());
+    setCenterizedY(button1, getCenterY(mainMenuCard) - button1.height);
+    button1.text.gridY = getCenterY(button1);
+
+    Button &button2 = buttons_.emplace_back(Button());
+    setCenterizedY(button2, getCenterY(mainMenuCard) + button2.height);
+    button2.text.gridY = getCenterY(button2);
+
+    mainMenuCard.items.push_back(title);
+    mainMenuCard.items.push_back(button1);
+    mainMenuCard.items.push_back(button2);
+    backgroundCard.items.push_back(mainMenuCard);
+    view_.items.push_back(backgroundCard);
+
     switch (type) {
     case MenuType::MainMenu: {
-        Card &mainMenuCard = cards_.emplace_back(Card());
-        mainMenuCard.backgroundColor = {50, 50, 50};
-        mainMenuCard.width = 960;
-        mainMenuCard.height = 540;
-
-        Text &title = texts_.emplace_back(Text());
         title.text = std::string("Main Menu");
-        title.centerOffsetY = -(mainMenuCard.height / 2 - 10);
+        button1.text.text = std::string("Start Game");
+        button2.text.text = std::string("Quit");
 
-        Button &startGameButton = buttons_.emplace_back(Button());
-        startGameButton.width = 300.0f;
-        startGameButton.text.text = std::string("Start Game");
-
-        Button &quitButton = buttons_.emplace_back(Button());
-        quitButton.text.text = std::string("Quit");
-        quitButton.width = 300.0f;
-        quitButton.centerOffsetY = 100;
-
-        mainMenuCard.items.push_back(title);
-        mainMenuCard.items.push_back(startGameButton);
-        mainMenuCard.items.push_back(quitButton);
-        view_.items.push_back(mainMenuCard);
         break;
     }
     case MenuType::PauseMenu: {
-        Card &pauseCard = cards_.emplace_back(Card());
-
-        Text &title = texts_.emplace_back(Text());
         title.text = std::string("Paused");
-        title.centerOffsetY = -100;
-
-        Button &resumeButton = buttons_.emplace_back(Button());
-        resumeButton.text.text = std::string("Resume");
-        resumeButton.centerOffsetX = -100;
-
-        Button &quitButton = buttons_.emplace_back(Button());
-        quitButton.text.text = std::string("Quit");
-        quitButton.centerOffsetX = 100;
-
-        pauseCard.items.push_back(title);
-        pauseCard.items.push_back(resumeButton);
-        pauseCard.items.push_back(quitButton);
-        view_.items.push_back(pauseCard);
+        button1.text.text = std::string("Resume");
+        button2.text.text = std::string("Quit");
         break;
     }
     case MenuType::GameOverMenu:
-
-        Card &gameOverCard = cards_.emplace_back(Card());
-
-        Text &textGameOver = texts_.emplace_back(Text());
-        textGameOver.text = std::string("Game Over!");
-        textGameOver.centerOffsetY = -100;
-
-        Button &mainMenuButton = buttons_.emplace_back(Button());
-        mainMenuButton.text.text = std::string("Main Menu");
-        mainMenuButton.centerOffsetX = -100;
-
-        Button &quitButton = buttons_.emplace_back(Button());
-        quitButton.text.text = std::string("Quit");
-        quitButton.centerOffsetX = 100;
-
-        gameOverCard.items.push_back(textGameOver);
-        gameOverCard.items.push_back(mainMenuButton);
-        gameOverCard.items.push_back(quitButton);
-
-        view_.items.push_back(gameOverCard);
+        title.text = std::string("Game Over!");
+        title.color = {255, 0, 0};
+        button1.text.text = std::string("Main Menu");
+        button2.text.text = std::string("Quit");
         break;
     }
 

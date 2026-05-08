@@ -8,10 +8,10 @@ namespace controller {
 
 struct Card {
     Color backgroundColor = {150, 150, 150};
-    float centerOffsetX = 0.0f;
-    float centerOffsetY = 0.0f;
-    float width = 400.0f;
-    float height = 300.0f;
+    float width = gridWidth / 2;
+    float height = gridHeight / 2;
+    float gridX = (gridWidth / 2) - (width / 2);
+    float gridY = (gridHeight / 2) - (height / 2);
     std::vector<ViewItem> items;
 };
 

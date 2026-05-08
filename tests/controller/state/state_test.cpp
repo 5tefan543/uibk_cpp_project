@@ -418,11 +418,11 @@ TEST_CASE("MenuState::getView returns expected view")
         const Button &quitButton = ViewItemAccessor::as<const Button>(pauseCard.items[2]);
 
         REQUIRE(resumeButton.text.text == "Resume");
-        REQUIRE(resumeButton.centerOffsetX == -100);
+        REQUIRE(getCenterY(resumeButton) == getCenterY(pauseCard) - resumeButton.height);
         REQUIRE(resumeButton.isSelected == true);
 
         REQUIRE(quitButton.text.text == "Quit");
-        REQUIRE(quitButton.centerOffsetX == 100);
+        REQUIRE(getCenterY(quitButton) == getCenterY(pauseCard) + quitButton.height);
         REQUIRE(quitButton.isSelected == false);
     }
 
@@ -438,16 +438,16 @@ TEST_CASE("MenuState::getView returns expected view")
 
         const Text &gameOverText = ViewItemAccessor::as<const Text>(gameOverCard.items[0]);
         REQUIRE(gameOverText.text == "Game Over!");
-        REQUIRE(gameOverText.centerOffsetY == -100);
+        REQUIRE(gameOverText.gridY == (gameOverCard.gridY + gameOverCard.height / 10));
 
         const Button &mainMenuButton = ViewItemAccessor::as<const Button>(gameOverCard.items[1]);
         REQUIRE(mainMenuButton.text.text == "Main Menu");
-        REQUIRE(mainMenuButton.centerOffsetX == -100);
+        REQUIRE(getCenterY(mainMenuButton) == getCenterY(gameOverCard) + mainMenuButton.height);
         REQUIRE(mainMenuButton.isSelected == true);
 
         const Button &quitButton = ViewItemAccessor::as<const Button>(gameOverCard.items[2]);
         REQUIRE(quitButton.text.text == "Quit");
-        REQUIRE(quitButton.centerOffsetX == 100);
+        REQUIRE(getCenterY(quitButton) == getCenterY(quitButton) + mainMenuButton.height);
         REQUIRE(quitButton.isSelected == false);
     }
 }

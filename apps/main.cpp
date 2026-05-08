@@ -35,7 +35,7 @@ int main()
         const controller::View &view = currentState.getView();
         controller::DebugContext &debug = controller.getDebugContext();
 
-        ui.render(view, debug);
+        ui.render(view, debug, input.windowResized);
     }
 
     return EXIT_SUCCESS;

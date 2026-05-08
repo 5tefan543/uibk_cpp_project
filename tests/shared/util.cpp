@@ -32,10 +32,8 @@ controller::StateTransitionAction applyInput(std::unique_ptr<controller::MenuSta
 controller::InputState createInputWithMouse(float centerOffsetX, float centerOffsetY)
 {
     controller::InputState input;
-    input.windowWidth = 1920;
-    input.windowHeight = 1080;
-    input.mouseX = input.windowWidth / 2.0f + centerOffsetX;
-    input.mouseY = input.windowHeight / 2.0f + centerOffsetY;
+    input.mouseGridX = (controller::gridWidth / 2) + centerOffsetX;
+    input.mouseGridY = (controller::gridHeight / 2) + centerOffsetY;
     return input;
 }
 

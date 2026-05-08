@@ -7,7 +7,7 @@
 
 namespace controller {
 struct View {
-    Color backgroundColor = {20, 20, 20};
+    Color backgroundColor = {0, 0, 0};
     std::vector<ViewItem> items;
     float cameraX = 0.0f; // Camera position for viewport culling
     float cameraY = 0.0f;
