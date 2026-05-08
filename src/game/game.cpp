@@ -83,8 +83,7 @@ bool Game::update(const controller::InputState &input, controller::DebugContext 
 
 void Game::processDebugSession(controller::DebugContext &debug)
 {
-    isDebugActive_ = debug.active;
-    if (!isDebugActive_) {
+    if (!debug.active) {
         return;
     }
 
@@ -108,7 +107,7 @@ void Game::processDebugSession(controller::DebugContext &debug)
 
 void Game::updateSystems(const controller::InputState &input, controller::DebugContext &debug, float dt)
 {
-    if (isDebugActive_ && !debugSession_.isSystemUpdateActive) {
+    if (debug.active && !debugSession_.isSystemUpdateActive) {
         return;
     }
 
@@ -116,6 +115,7 @@ void Game::updateSystems(const controller::InputState &input, controller::DebugC
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, dt);
     cameraSystem_.update(registry_);
+    debugSelectionSystem_.update(registry_, input, debug.active, debugSession_);
 }
 
 bool Game::isGameOver()
@@ -145,9 +145,8 @@ void Game::updateView(controller::View &view)
         mapSprite.imagePath = map.texturePath;
         mapSprite.width = map.width;
         mapSprite.height = map.height;
-        mapSprite.scale = 2.0f; // Map scaled by 2x
-        mapSprite.isSelected = (isDebugActive_ && debugSession_.selectedEntity.has_value()
-                                && debugSession_.selectedEntity.value() == cameraEntities.front());
+        mapSprite.scale = map.scale;
+        mapSprite.isSelected = map.isSelected;
         view.items.push_back(mapSprite);
     }
 
@@ -174,11 +173,10 @@ void Game::updateView(controller::View &view)
         viewSprite.x = position.x;
         viewSprite.y = position.y;
         viewSprite.imagePath = imagePath;
-        viewSprite.width = 32.0f;
-        viewSprite.height = 32.0f;
-        viewSprite.scale = 4.0f; // Character scaled by 4x
-        viewSprite.isSelected = (isDebugActive_ && debugSession_.selectedEntity.has_value()
-                                 && debugSession_.selectedEntity.value() == entity);
+        viewSprite.width = gameSprite.width;
+        viewSprite.height = gameSprite.height;
+        viewSprite.scale = gameSprite.scale;
+        viewSprite.isSelected = gameSprite.isSelected;
         view.items.push_back(viewSprite);
     }
 }

@@ -7,6 +7,7 @@
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
 #include "game/ecs/systems/camera_system.hpp"
+#include "game/ecs/systems/debug_selection_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
 
@@ -15,13 +16,13 @@ namespace game {
 class Game {
   private:
     Registry registry_;
-    bool isDebugActive_ = false;
     GameDebugSession debugSession_{registry_};
 
     AnimationSystem animationSystem_;
     CameraSystem cameraSystem_;
     InputSystem inputSystem_;
     MovementSystem movementSystem_;
+    DebugSelectionSystem debugSelectionSystem_;
 
     void init();
     void initWave();

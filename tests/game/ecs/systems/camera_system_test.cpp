@@ -19,7 +19,7 @@ TEST_CASE("CameraSystem centers camera on player")
 
     game::Entity world = registry.createEntity();
     registry.addComponent<game::Camera>(world, {0.0f, 0.0f, 960.0f, 540.0f});
-    registry.addComponent<game::Map>(world, {0.0f, 0.0f, 5000.0f, 3000.0f, "assets/maps/map.bmp"});
+    registry.addComponent<game::Map>(world, {0.0f, 0.0f, 5000.0f, 3000.0f, 2.0f, "assets/maps/map.bmp", false});
 
     // ACT
     system.update(registry);
@@ -42,7 +42,7 @@ TEST_CASE("CameraSystem clamps camera to minimum boundaries")
 
     game::Entity world = registry.createEntity();
     registry.addComponent<game::Camera>(world, {10.0f, 20.0f, 960.0f, 540.0f});
-    registry.addComponent<game::Map>(world, {0.0f, 0.0f, 1920.0f, 1080.0f, "assets/maps/map.bmp"});
+    registry.addComponent<game::Map>(world, {0.0f, 0.0f, 1920.0f, 1080.0f, 2.0f, "assets/maps/map.bmp", false});
 
     // ACT
     system.update(registry);
@@ -65,7 +65,7 @@ TEST_CASE("CameraSystem clamps camera to maximum map boundaries")
 
     game::Entity world = registry.createEntity();
     registry.addComponent<game::Camera>(world, {0.0f, 0.0f, 960.0f, 540.0f});
-    registry.addComponent<game::Map>(world, {0.0f, 0.0f, 1920.0f, 1080.0f, "assets/maps/map.bmp"});
+    registry.addComponent<game::Map>(world, {0.0f, 0.0f, 1920.0f, 1080.0f, 2.0f, "assets/maps/map.bmp", false});
 
     // ACT
     system.update(registry);
@@ -84,7 +84,7 @@ TEST_CASE("CameraSystem does nothing if no player exists")
 
     game::Entity world = registry.createEntity();
     registry.addComponent<game::Camera>(world, {11.0f, 22.0f, 960.0f, 540.0f});
-    registry.addComponent<game::Map>(world, {0.0f, 0.0f, 1920.0f, 1080.0f, "assets/maps/map.bmp"});
+    registry.addComponent<game::Map>(world, {0.0f, 0.0f, 1920.0f, 1080.0f, 2.0f, "assets/maps/map.bmp", false});
 
     // ACT
     system.update(registry);
