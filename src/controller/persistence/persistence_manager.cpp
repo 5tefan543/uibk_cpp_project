@@ -1,159 +1,46 @@
 #include "controller/persistence/persistence_manager.hpp"
-#include "controller/persistence/leaderboard.hpp"
-#include <algorithm>
+#include "controller/persistence/serializer.hpp"
 #include <filesystem>
-#include <fstream>
-#include <glaze/glaze.hpp>
 #include <iostream>
-#include <sstream>
 
 namespace fs = std::filesystem;
 
-namespace {
-
-const fs::path configDir{"config"};
-const fs::path saveFilePath = configDir / "persisted-game.json";
-const fs::path leaderboardFilePath = configDir / "leaderboard.json";
-const fs::path configFilePath = configDir / "game-config.json";
-
-template <typename T>
-bool writeJsonToFile(const T &value, const fs::path &path)
-{
-    std::string json;
-    if (const auto err = glz::write_json(value, json)) {
-        std::cerr << "Failed to serialize JSON for " << path << std::endl;
-        return false;
-    }
-
-    fs::create_directories(path.parent_path());
-
-    std::ofstream out(path);
-    if (!out) {
-        std::cerr << "Failed to open file for writing: " << path << std::endl;
-        return false;
-    }
-
-    out << json;
-    return true;
-}
-
-template <typename T>
-bool readJsonFromFile(T &value, const fs::path &path)
-{
-    std::ifstream in(path);
-    if (!in) {
-        return false;
-    }
-
-    std::stringstream buffer;
-    buffer << in.rdbuf();
-
-    if (const auto err = glz::read_json(value, buffer.str())) {
-        std::cerr << "Failed to deserialize JSON for " << path << std::endl;
-        return false;
-    }
-
-    return true;
-}
-
-std::vector<LeaderboardEntry> readLeaderboardEntriesFromDisk()
-{
-    std::vector<LeaderboardEntry> entries;
-    readJsonFromFile(entries, leaderboardFilePath);
-    std::ranges::sort(
-        entries, [](const LeaderboardEntry &left, const LeaderboardEntry &right) { return left.score > right.score; });
-    return entries;
-}
-
-} // namespace
-
-template <>
-struct glz::meta<controller::PlayerStats> {
-    using T = controller::PlayerStats;
-    static constexpr auto value =
-        object("maxHealth", &T::maxHealth, "attackPower", &T::attackPower, "attackSpeed", &T::attackSpeed, "defense",
-               &T::defense, "speed", &T::speed, "hasDash", &T::hasDash);
-};
-
-template <>
-struct glz::meta<controller::PersistedGame> {
-    using T = controller::PersistedGame;
-    static constexpr auto value =
-        object("stage", &T::stage, "wave", &T::wave, "currency", &T::currency, "playerStats", &T::playerStats);
-};
-
-template <>
-struct glz::meta<controller::WindowConfig> {
-    using T = controller::WindowConfig;
-    static constexpr auto value = object("width", &T::width, "height", &T::height, "title", &T::title);
-};
-
-template <>
-struct glz::meta<controller::AssetConfig> {
-    using T = controller::AssetConfig;
-    static constexpr auto value =
-        object("playerTexturePath", &T::playerTexturePath, "enemyTexturePath", &T::enemyTexturePath, "mapTexturePath",
-               &T::mapTexturePath, "fontPath", &T::fontPath);
-};
-
-template <>
-struct glz::meta<controller::GameConfig> {
-    using T = controller::GameConfig;
-    static constexpr auto value =
-        object("initialStage", &T::initialStage, "initialWave", &T::initialWave, "initialCurrency", &T::initialCurrency,
-               "windowConfig", &T::windowConfig, "assetConfig", &T::assetConfig);
-};
-
-template <>
-struct glz::meta<LeaderboardEntry> {
-    using T = LeaderboardEntry;
-    static constexpr auto value = object("playerName", &T::playerName, "score", &T::score);
-};
-
 namespace controller {
 
-PersistenceManager::PersistenceManager()
-{
-    std::cout << "PersistenceManager constructed" << std::endl;
-}
-
-PersistenceManager::~PersistenceManager()
-{
-    std::cout << "PersistenceManager destructed" << std::endl;
-}
+std::optional<GameConfig> PersistenceManager::configCache_ = std::nullopt;
 
 void PersistenceManager::saveGame(const PersistedGame &persistedGame)
 {
-    writeJsonToFile(persistedGame, saveFilePath);
+    Serializer::writeJsonToFile(persistedGame, Serializer::saveFilePath);
 }
 
 void PersistenceManager::loadGame(PersistedGame &persistedGame)
 {
-    readJsonFromFile(persistedGame, saveFilePath);
+    Serializer::readJsonFromFile(persistedGame, Serializer::saveFilePath);
 }
 
 bool PersistenceManager::hasSavedGame()
 {
-    return fs::exists(saveFilePath);
+    return fs::exists(Serializer::saveFilePath);
 }
 
 void PersistenceManager::deleteSave()
 {
     std::error_code ec;
-    fs::remove(saveFilePath, ec);
+    fs::remove(Serializer::saveFilePath, ec);
     if (ec) {
-        std::cerr << "Failed to delete save file: " << saveFilePath << std::endl;
+        std::cerr << "Failed to delete save file: " << Serializer::saveFilePath << std::endl;
     }
 }
 
 void PersistenceManager::storeLeaderboardEntry(const std::string &playerName, int score)
 {
-    auto entries = readLeaderboardEntriesFromDisk();
+    auto entries = Serializer::readLeaderboardEntriesFromDisk();
     entries.push_back({playerName, score});
     std::ranges::sort(
         entries, [](const LeaderboardEntry &left, const LeaderboardEntry &right) { return left.score > right.score; });
 
-    writeJsonToFile(entries, leaderboardFilePath);
+    Serializer::writeJsonToFile(entries, Serializer::leaderboardFilePath);
 }
 
 std::vector<std::pair<std::string, int>> PersistenceManager::getTopNLeaderboardEntries(int topN)
@@ -162,7 +49,7 @@ std::vector<std::pair<std::string, int>> PersistenceManager::getTopNLeaderboardE
         return {};
     }
 
-    const auto entries = readLeaderboardEntriesFromDisk();
+    const auto entries = Serializer::readLeaderboardEntriesFromDisk();
     std::vector<std::pair<std::string, int>> result;
     result.reserve(std::min(static_cast<int>(entries.size()), topN));
 
@@ -175,16 +62,23 @@ std::vector<std::pair<std::string, int>> PersistenceManager::getTopNLeaderboardE
 
 void PersistenceManager::saveConfig(const GameConfig &config)
 {
-    writeJsonToFile(config, configFilePath);
+    Serializer::writeJsonToFile(config, Serializer::configFilePath);
+    configCache_ = config;
 }
 
 GameConfig PersistenceManager::loadConfig()
 {
+    if (configCache_.has_value()) {
+        return *configCache_;
+    }
+
     GameConfig config;
 
-    if (!readJsonFromFile(config, configFilePath)) {
-        throw std::runtime_error("Failed to load game config from: " + configFilePath.string());
+    if (!Serializer::readJsonFromFile(config, Serializer::configFilePath)) {
+        throw std::runtime_error("Failed to load game config from: " + Serializer::configFilePath.string());
     }
+
+    configCache_ = config;
 
     return config;
 }

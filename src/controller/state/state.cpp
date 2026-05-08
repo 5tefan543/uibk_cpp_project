@@ -134,8 +134,7 @@ void MenuState::initView()
 {
     switch (type) {
     case MenuType::MainMenu: {
-        PersistenceManager persistenceManager;
-        const bool hasSavedGame = persistenceManager.hasSavedGame();
+        const bool hasSavedGame = PersistenceManager::hasSavedGame();
 
         Card &mainMenuCard = cards_.emplace_back(Card());
         mainMenuCard.backgroundColor = {50, 50, 50};
@@ -245,10 +244,9 @@ std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
 {
     auto state = std::make_unique<GameplayState>();
 
-    PersistenceManager persistenceManager;
-    if (persistenceManager.hasSavedGame()) {
+    if (PersistenceManager::hasSavedGame()) {
         PersistedGame persistedGame;
-        persistenceManager.loadGame(persistedGame);
+        PersistenceManager::loadGame(persistedGame);
         state->game.loadFromPersistedGame(persistedGame);
         state->loadedFromSave_ = true;
     }

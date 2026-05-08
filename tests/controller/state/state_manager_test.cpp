@@ -160,13 +160,12 @@ TEST_CASE("applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded 
 {
     test::ScopedTestDirectory testDir("roguelike-state-manager-test-");
 
-    PersistenceManager persistenceManager;
     PersistedGame game;
     game.stage = 9;
     game.wave = 4;
     game.currency = 777;
     game.playerStats.speed = 360.0f;
-    persistenceManager.saveGame(game);
+    PersistenceManager::saveGame(game);
 
     StateManager stateManager;
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));

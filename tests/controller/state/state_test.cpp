@@ -10,13 +10,12 @@ namespace {
 
 void createSavedGameFile()
 {
-    PersistenceManager persistenceManager;
     PersistedGame game;
     game.stage = 3;
     game.wave = 2;
     game.currency = 150;
     game.playerStats.speed = 444.0f;
-    persistenceManager.saveGame(game);
+    PersistenceManager::saveGame(game);
 }
 
 } // namespace

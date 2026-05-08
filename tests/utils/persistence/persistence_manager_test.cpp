@@ -16,10 +16,7 @@ TEST_CASE("PersistenceManager saves and loads game state")
     input.playerStats.attackPower = 42.0f;
     input.playerStats.hasDash = true;
 
-    {
-        PersistenceManager manager;
-        manager.saveGame(input);
-    }
+    PersistenceManager::saveGame(input);
 
     PersistedGame output;
     output.stage = 0;
@@ -28,10 +25,7 @@ TEST_CASE("PersistenceManager saves and loads game state")
     output.playerStats.attackPower = -1.0f;
     output.playerStats.hasDash = false;
 
-    {
-        PersistenceManager manager;
-        manager.loadGame(output);
-    }
+    PersistenceManager::loadGame(output);
 
     REQUIRE(output.stage == 4);
     REQUIRE(output.wave == 9);
@@ -44,28 +38,26 @@ TEST_CASE("PersistenceManager reports and deletes save file")
 {
     test::ScopedTestDirectory testDir("roguelike-persistence-test-");
 
-    PersistenceManager manager;
     PersistedGame game;
     game.stage = 2;
-    manager.saveGame(game);
+    PersistenceManager::saveGame(game);
 
-    REQUIRE(manager.hasSavedGame() == true);
+    REQUIRE(PersistenceManager::hasSavedGame() == true);
 
-    manager.deleteSave();
+    PersistenceManager::deleteSave();
 
-    REQUIRE(manager.hasSavedGame() == false);
+    REQUIRE(PersistenceManager::hasSavedGame() == false);
 }
 
 TEST_CASE("PersistenceManager stores leaderboard entries sorted by score")
 {
     test::ScopedTestDirectory testDir("roguelike-persistence-test-");
 
-    PersistenceManager manager;
-    manager.storeLeaderboardEntry("Alice", 120);
-    manager.storeLeaderboardEntry("Bob", 450);
-    manager.storeLeaderboardEntry("Carol", 300);
+    PersistenceManager::storeLeaderboardEntry("Alice", 120);
+    PersistenceManager::storeLeaderboardEntry("Bob", 450);
+    PersistenceManager::storeLeaderboardEntry("Carol", 300);
 
-    const auto topTwo = manager.getTopNLeaderboardEntries(2);
+    const auto topTwo = PersistenceManager::getTopNLeaderboardEntries(2);
 
     REQUIRE(topTwo.size() == 2);
     REQUIRE(topTwo[0].first == "Bob");
@@ -90,16 +82,10 @@ TEST_CASE("PersistenceManager saves and loads config")
     input.assetConfig.mapTexturePath = "assets/maps/test_map.png";
     input.assetConfig.fontPath = "assets/fonts/test_font.ttf";
 
-    {
-        PersistenceManager manager;
-        manager.saveConfig(input);
-    }
+    PersistenceManager::saveConfig(input);
 
     GameConfig output;
-    {
-        PersistenceManager manager;
-        output = manager.loadConfig();
-    }
+    output = PersistenceManager::loadConfig();
 
     REQUIRE(output.initialStage == 7);
     REQUIRE(output.initialWave == 3);
@@ -117,9 +103,8 @@ TEST_CASE("PersistenceManager returns empty leaderboard for non-positive topN")
 {
     test::ScopedTestDirectory testDir("roguelike-persistence-test-");
 
-    PersistenceManager manager;
-    manager.storeLeaderboardEntry("Alice", 100);
+    PersistenceManager::storeLeaderboardEntry("Alice", 100);
 
-    REQUIRE(manager.getTopNLeaderboardEntries(0).empty());
-    REQUIRE(manager.getTopNLeaderboardEntries(-4).empty());
+    REQUIRE(PersistenceManager::getTopNLeaderboardEntries(0).empty());
+    REQUIRE(PersistenceManager::getTopNLeaderboardEntries(-4).empty());
 }

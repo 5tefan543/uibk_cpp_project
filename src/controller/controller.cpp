@@ -9,8 +9,7 @@ Controller::Controller()
     std::cout << "Controller constructed" << std::endl;
     stateManager_.push(MenuState::createMenu(MenuType::MainMenu));
 
-    PersistenceManager persistenceManager;
-    gameConfig_ = persistenceManager.loadConfig();
+    gameConfig_ = PersistenceManager::loadConfig();
 }
 
 Controller::~Controller()

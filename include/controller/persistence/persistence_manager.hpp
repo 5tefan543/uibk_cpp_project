@@ -1,25 +1,29 @@
 #pragma once
 #include "config_game.hpp"
 #include "persisted_game.hpp"
+#include <optional>
 #include <string>
 #include <vector>
 namespace controller {
 
 class PersistenceManager {
   public:
-    PersistenceManager();
-    ~PersistenceManager();
+    PersistenceManager() = delete;
+    ~PersistenceManager() = delete;
 
-    void saveGame(const controller::PersistedGame &persistedGame);
-    void loadGame(controller::PersistedGame &persistedGame);
-    bool hasSavedGame();
-    void deleteSave();
+    static void saveGame(const controller::PersistedGame &persistedGame);
+    static void loadGame(controller::PersistedGame &persistedGame);
+    static bool hasSavedGame();
+    static void deleteSave();
 
-    void storeLeaderboardEntry(const std::string &playerName, int score);
-    std::vector<std::pair<std::string, int>> getTopNLeaderboardEntries(int topN);
+    static void storeLeaderboardEntry(const std::string &playerName, int score);
+    static std::vector<std::pair<std::string, int>> getTopNLeaderboardEntries(int topN);
 
-    void saveConfig(const controller::GameConfig &config);
-    controller::GameConfig loadConfig();
+    static void saveConfig(const controller::GameConfig &config);
+    static controller::GameConfig loadConfig();
+
+  private:
+    static std::optional<controller::GameConfig> configCache_;
 };
 
 } // namespace controller
