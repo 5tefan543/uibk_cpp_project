@@ -1,37 +1,12 @@
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state.hpp"
+#include "shared/test_filesystem.hpp"
 #include "shared/util.hpp"
 #include <catch2/catch_test_macros.hpp>
-#include <chrono>
-#include <filesystem>
 
 using namespace controller;
 
 namespace {
-
-namespace fs = std::filesystem;
-
-class ScopedCurrentPath {
-  public:
-    explicit ScopedCurrentPath(const fs::path &newPath) : oldPath_(fs::current_path())
-    {
-        fs::create_directories(newPath);
-        fs::current_path(newPath);
-    }
-
-    ~ScopedCurrentPath() { fs::current_path(oldPath_); }
-
-  private:
-    fs::path oldPath_;
-};
-
-fs::path createTempTestDirectory()
-{
-    const auto uniquePart = std::chrono::steady_clock::now().time_since_epoch().count();
-    const fs::path dir = fs::temp_directory_path() / ("roguelike-state-test-" + std::to_string(uniquePart));
-    fs::create_directories(dir);
-    return dir;
-}
 
 void createSavedGameFile()
 {
@@ -96,8 +71,7 @@ TEST_CASE("ProgressionStoreState::createStore constructs store state with expect
 
 TEST_CASE("Main menu update returns correct actions")
 {
-    const auto testDir = createTempTestDirectory();
-    ScopedCurrentPath pathGuard(testDir);
+    test::ScopedTestDirectory testDir("roguelike-state-test-");
     auto state = MenuState::createMenu(MenuType::MainMenu);
 
     SECTION("confirm on initial selection starts gameplay")
@@ -122,15 +96,11 @@ TEST_CASE("Main menu update returns correct actions")
     {
         REQUIRE(applyInput(state, NONE) == StateTransitionAction::None);
     }
-
-    std::error_code ec;
-    fs::remove_all(testDir, ec);
 }
 
 TEST_CASE("Main menu mouse input returns correct actions")
 {
-    const auto testDir = createTempTestDirectory();
-    ScopedCurrentPath pathGuard(testDir);
+    test::ScopedTestDirectory testDir("roguelike-state-test-");
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
 
     SECTION("mouse move over quit selects quit without triggering action")
@@ -161,15 +131,11 @@ TEST_CASE("Main menu mouse input returns correct actions")
     {
         REQUIRE(applyMouseClick(state, 700.0f, 400.0f) == StateTransitionAction::None);
     }
-
-    std::error_code ec;
-    fs::remove_all(testDir, ec);
 }
 
 TEST_CASE("Main menu exposes load option and action when saved game exists")
 {
-    const auto testDir = createTempTestDirectory();
-    ScopedCurrentPath pathGuard(testDir);
+    test::ScopedTestDirectory testDir("roguelike-state-test-");
     createSavedGameFile();
 
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
@@ -203,9 +169,6 @@ TEST_CASE("Main menu exposes load option and action when saved game exists")
         REQUIRE(quitButton.text.text == "Quit");
         REQUIRE(quitButton.centerOffsetY == 200.0f);
     }
-
-    std::error_code ec;
-    fs::remove_all(testDir, ec);
 }
 
 TEST_CASE("Pause menu update returns correct actions")
@@ -477,8 +440,7 @@ TEST_CASE("MenuState::getView returns expected view")
 {
     SECTION("main menu returns expected view")
     {
-        const auto testDir = createTempTestDirectory();
-        ScopedCurrentPath pathGuard(testDir);
+        test::ScopedTestDirectory testDir("roguelike-state-test-");
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
 
         const View &view = state->getView();
@@ -495,15 +457,11 @@ TEST_CASE("MenuState::getView returns expected view")
 
         const Button &quitButton = ViewItemAccessor::as<const Button>(card.items[2]);
         REQUIRE(quitButton.text.text == "Quit");
-
-        std::error_code ec;
-        fs::remove_all(testDir, ec);
     }
 
     SECTION("main menu with save returns expected view including load")
     {
-        const auto testDir = createTempTestDirectory();
-        ScopedCurrentPath pathGuard(testDir);
+        test::ScopedTestDirectory testDir("roguelike-state-test-");
         createSavedGameFile();
 
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
@@ -525,9 +483,6 @@ TEST_CASE("MenuState::getView returns expected view")
 
         const Button &quitButton = ViewItemAccessor::as<const Button>(card.items[3]);
         REQUIRE(quitButton.text.text == "Quit");
-
-        std::error_code ec;
-        fs::remove_all(testDir, ec);
     }
 
     SECTION("pause menu returns expected view")

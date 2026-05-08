@@ -1,38 +1,9 @@
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state_manager.hpp"
+#include "shared/test_filesystem.hpp"
 #include <catch2/catch_test_macros.hpp>
-#include <chrono>
-#include <filesystem>
 
 using namespace controller;
-
-namespace {
-
-namespace fs = std::filesystem;
-
-class ScopedCurrentPath {
-  public:
-    explicit ScopedCurrentPath(const fs::path &newPath) : oldPath_(fs::current_path())
-    {
-        fs::create_directories(newPath);
-        fs::current_path(newPath);
-    }
-
-    ~ScopedCurrentPath() { fs::current_path(oldPath_); }
-
-  private:
-    fs::path oldPath_;
-};
-
-fs::path createTempTestDirectory()
-{
-    const auto uniquePart = std::chrono::steady_clock::now().time_since_epoch().count();
-    const fs::path dir = fs::temp_directory_path() / ("roguelike-state-manager-test-" + std::to_string(uniquePart));
-    fs::create_directories(dir);
-    return dir;
-}
-
-} // namespace
 
 TEST_CASE("StateManager can be constructed")
 {
@@ -187,8 +158,7 @@ TEST_CASE("applyAction ReplaceCurrentWithGameplay replaces current state with ga
 
 TEST_CASE("applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded from save")
 {
-    const auto testDir = createTempTestDirectory();
-    ScopedCurrentPath pathGuard(testDir);
+    test::ScopedTestDirectory testDir("roguelike-state-manager-test-");
 
     PersistenceManager persistenceManager;
     PersistedGame game;
@@ -212,9 +182,6 @@ TEST_CASE("applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded 
     REQUIRE(loaded.wave == 4);
     REQUIRE(loaded.currency == 777);
     REQUIRE(loaded.playerStats.speed == 360.0f);
-
-    std::error_code ec;
-    fs::remove_all(testDir, ec);
 }
 
 TEST_CASE("applyAction PushPauseMenu pushes cancelPressed menu on top")
