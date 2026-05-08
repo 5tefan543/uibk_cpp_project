@@ -1,28 +1,104 @@
 #include "game/ecs/systems/debug_selection_system.hpp"
+#include "game/ecs/components/camera.hpp"
 #include "game/ecs/components/map.hpp"
+#include "game/ecs/components/position.hpp"
 #include "game/ecs/components/sprite.hpp"
 
 namespace game {
 
 void DebugSelectionSystem::update(Registry &registry, const controller::InputState &input, bool isDebugActive,
-                                  game::GameDebugSession &debugSession)
+                                  GameDebugSession &debugSession)
 {
     if (!isDebugActive) {
+        clearSelection(registry, debugSession);
         return;
     }
 
-    auto isEntitySelected = [&debugSession](Entity entity) {
+    if (input.mouseLeftPressed) {
+        debugSession.selectedEntity = getEntityAtMousePosition(registry, input);
+    }
+
+    updateSelection(registry, debugSession);
+}
+
+void DebugSelectionSystem::clearSelection(Registry &registry, GameDebugSession &debugSession)
+{
+    if (!debugSession.selectedEntity.has_value()) {
+        return;
+    }
+
+    Entity selectedEntity = debugSession.selectedEntity.value();
+
+    if (registry.hasComponent<Map>(selectedEntity)) {
+        registry.getComponent<Map>(selectedEntity).isSelected = false;
+    }
+
+    if (registry.hasComponent<Sprite>(selectedEntity)) {
+        registry.getComponent<Sprite>(selectedEntity).isSelected = false;
+    }
+}
+
+bool contains(float mouseX, float mouseY, float x, float y, float width, float height)
+{
+    return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+}
+
+std::optional<Entity> DebugSelectionSystem::getEntityAtMousePosition(Registry &registry,
+                                                                     const controller::InputState &input)
+{
+    const float mouseX = static_cast<float>(input.mouseX);
+    const float mouseY = static_cast<float>(input.mouseY);
+
+    auto cameras = registry.view<Camera>();
+
+    if (cameras.empty()) {
+        return std::nullopt;
+    }
+
+    const Camera &camera = registry.getComponent<Camera>(cameras.front());
+
+    for (auto entity : registry.view<Position, Sprite>()) {
+        const Position &position = registry.getComponent<Position>(entity);
+        const Sprite &sprite = registry.getComponent<Sprite>(entity);
+
+        const float x = (position.x - camera.x) * sprite.scale;
+        const float y = (position.y - camera.y) * sprite.scale;
+        const float width = sprite.width * sprite.scale;
+        const float height = sprite.height * sprite.scale;
+
+        if (contains(mouseX, mouseY, x, y, width, height)) {
+            return entity;
+        }
+    }
+
+    for (auto entity : registry.view<Map>()) {
+        const Map &map = registry.getComponent<Map>(entity);
+
+        const float x = map.x * map.scale;
+        const float y = map.y * map.scale;
+        const float width = map.width * map.scale;
+        const float height = map.height * map.scale;
+
+        if (contains(mouseX, mouseY, x, y, width, height)) {
+            return entity;
+        }
+    }
+
+    return std::nullopt;
+}
+
+void DebugSelectionSystem::updateSelection(Registry &registry, GameDebugSession &debugSession)
+{
+    auto isSelected = [&debugSession](Entity entity) {
         return debugSession.selectedEntity.has_value() && debugSession.selectedEntity.value() == entity;
     };
 
     for (auto entity : registry.view<Map>()) {
-        Map &map = registry.getComponent<Map>(entity);
-        map.isSelected = isEntitySelected(entity);
+        registry.getComponent<Map>(entity).isSelected = isSelected(entity);
     }
 
     for (auto entity : registry.view<Sprite>()) {
-        Sprite &sprite = registry.getComponent<Sprite>(entity);
-        sprite.isSelected = isEntitySelected(entity);
+        registry.getComponent<Sprite>(entity).isSelected = isSelected(entity);
     }
 }
 
