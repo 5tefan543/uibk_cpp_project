@@ -101,8 +101,8 @@ std::optional<std::size_t> MenuState::getHoveredButtonId(const InputState &input
 {
     for (std::size_t idx = 0; idx < buttons_.size(); idx++) {
         const Button &button = buttons_[idx];
-        const bool insideX = std::max(0.0f, input.mouseGridX - button.gridX) <= button.width;
-        const bool insideY = std::max(0.0f, input.mouseGridY - button.gridY) <= button.height;
+        const bool insideX = input.mouseGridX >= button.gridX && input.mouseGridX <= (button.gridX + button.width);
+        const bool insideY = input.mouseGridY >= button.gridY && input.mouseGridY <= (button.gridY + button.height);
 
         if (insideX && insideY) {
             return idx;
