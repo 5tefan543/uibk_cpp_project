@@ -83,7 +83,8 @@ bool Game::update(const controller::InputState &input, controller::DebugContext 
 
 void Game::processDebugSession(controller::DebugContext &debug)
 {
-    if (!debug.active) {
+    isDebugActive_ = debug.active;
+    if (!isDebugActive_) {
         return;
     }
 
@@ -107,7 +108,7 @@ void Game::processDebugSession(controller::DebugContext &debug)
 
 void Game::updateSystems(const controller::InputState &input, controller::DebugContext &debug, float dt)
 {
-    if (debug.active && !debugSession_.isSystemUpdateActive) {
+    if (isDebugActive_ && !debugSession_.isSystemUpdateActive) {
         return;
     }
 
@@ -145,6 +146,8 @@ void Game::updateView(controller::View &view)
         mapSprite.width = map.width;
         mapSprite.height = map.height;
         mapSprite.scale = 2.0f; // Map scaled by 2x
+        mapSprite.isSelected = (isDebugActive_ && debugSession_.selectedEntity.has_value()
+                                && debugSession_.selectedEntity.value() == cameraEntities.front());
         view.items.push_back(mapSprite);
     }
 
@@ -174,6 +177,8 @@ void Game::updateView(controller::View &view)
         viewSprite.width = 32.0f;
         viewSprite.height = 32.0f;
         viewSprite.scale = 4.0f; // Character scaled by 4x
+        viewSprite.isSelected = (isDebugActive_ && debugSession_.selectedEntity.has_value()
+                                 && debugSession_.selectedEntity.value() == entity);
         view.items.push_back(viewSprite);
     }
 }

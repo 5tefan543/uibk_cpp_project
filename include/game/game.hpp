@@ -15,6 +15,7 @@ namespace game {
 class Game {
   private:
     Registry registry_;
+    bool isDebugActive_ = false;
     GameDebugSession debugSession_{registry_};
 
     AnimationSystem animationSystem_;

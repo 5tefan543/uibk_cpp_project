@@ -12,6 +12,7 @@ struct Sprite {
     float height = 32.0f;
     float scale = 1.0f;
     bool isMap = false;
+    bool isSelected = false;
 };
 
 } // namespace controller
