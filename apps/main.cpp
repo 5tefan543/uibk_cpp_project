@@ -4,6 +4,8 @@
 #include <atomic>
 #include <csignal>
 #include <cstdlib>
+#include <exception>
+#include <iostream>
 
 std::atomic<bool> shutdownRequested(false);
 
@@ -16,27 +18,35 @@ void signalHandler(int signal)
 
 int main()
 {
-    std::signal(SIGTERM, signalHandler);
-    std::signal(SIGINT, signalHandler);
+    try {
+        std::signal(SIGTERM, signalHandler);
+        std::signal(SIGINT, signalHandler);
 
-    controller::Controller controller;
-    ui::UI ui;
+        controller::Controller controller;
+        ui::UI ui;
 
-    const float fixedDt = 1.0f / 60.0f; // Fixed time step for updates
+        const float fixedDt = 1.0f / 60.0f; // Fixed time step for updates
 
-    while (ui.isOpen() && !shutdownRequested) {
-        controller::InputState input = ui.pollInput();
+        while (ui.isOpen() && !shutdownRequested) {
+            controller::InputState input = ui.pollInput();
 
-        controller.update(input, fixedDt);
-        controller::BaseState &currentState = controller.getCurrentState();
-        if (typeid(currentState) == typeid(controller::ExitState)) {
-            break;
+            controller.update(input, fixedDt);
+
+            controller::BaseState &currentState = controller.getCurrentState();
+
+            if (typeid(currentState) == typeid(controller::ExitState)) {
+                break;
+            }
+
+            const controller::View &view = currentState.getView();
+            controller::DebugContext &debug = controller.getDebugContext();
+
+            ui.render(view, debug);
         }
-        const controller::View &view = currentState.getView();
-        controller::DebugContext &debug = controller.getDebugContext();
 
-        ui.render(view, debug);
+        return EXIT_SUCCESS;
+    } catch (const std::exception &e) {
+        std::cerr << "Fatal error: " << e.what() << std::endl;
+        return EXIT_FAILURE;
     }
-
-    return EXIT_SUCCESS;
 }

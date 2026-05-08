@@ -149,7 +149,8 @@ void MenuState::initView()
         Button &startGameButton = buttons_.emplace_back(Button());
         startGameButton.width = 300.0f;
         startGameButton.text.text = std::string("Start Game");
-        Button* loadGameButton = nullptr;
+
+        Button *loadGameButton = nullptr;
         if (hasSavedGame) {
             loadGameButton = &buttons_.emplace_back(Button());
             loadGameButton->text.text = std::string("Load Game");
@@ -164,9 +165,11 @@ void MenuState::initView()
 
         mainMenuCard.items.push_back(title);
         mainMenuCard.items.push_back(startGameButton);
+
         if (hasSavedGame && loadGameButton != nullptr) {
             mainMenuCard.items.push_back(*loadGameButton);
         }
+
         mainMenuCard.items.push_back(quitButton);
         view_.items.push_back(mainMenuCard);
         break;

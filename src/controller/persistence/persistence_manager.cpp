@@ -16,7 +16,6 @@ const fs::path saveFilePath = configDir / "persisted-game.json";
 const fs::path leaderboardFilePath = configDir / "leaderboard.json";
 const fs::path configFilePath = configDir / "game-config.json";
 
-
 template <typename T>
 bool writeJsonToFile(const T &value, const fs::path &path)
 {
@@ -182,7 +181,11 @@ void PersistenceManager::saveConfig(const GameConfig &config)
 GameConfig PersistenceManager::loadConfig()
 {
     GameConfig config;
-    readJsonFromFile(config, configFilePath);
+
+    if (!readJsonFromFile(config, configFilePath)) {
+        throw std::runtime_error("Failed to load game config from: " + configFilePath.string());
+    }
+
     return config;
 }
 
