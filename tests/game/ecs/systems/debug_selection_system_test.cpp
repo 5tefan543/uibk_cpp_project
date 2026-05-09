@@ -72,6 +72,34 @@ TEST_CASE("DebugSelectionSystem selects map under mouse when ctrl-clicked")
     REQUIRE(registry.getComponent<game::Map>(mapEntity).isSelected);
 }
 
+TEST_CASE("DebugSelectionSystem does not select map when no camera exists")
+{
+    game::Registry registry;
+    game::DebugSelectionSystem system;
+    game::GameDebugSession debugSession(registry);
+
+    game::Entity mapEntity = registry.createEntity();
+    game::Map mapComponent{
+        .x = 100.0f,
+        .y = 100.0f,
+        .width = 500.0f,
+        .height = 500.0f,
+        .scale = 2.0f,
+    };
+    registry.addComponent(mapEntity, mapComponent);
+
+    controller::InputState input{};
+    input.controlHeld = true;
+    input.mouseLeftPressed = true;
+    input.mouseX = mapComponent.x * mapComponent.scale;
+    input.mouseY = mapComponent.y * mapComponent.scale;
+
+    system.update(registry, input, true, debugSession);
+
+    REQUIRE_FALSE(debugSession.selectedEntity == mapEntity);
+    REQUIRE_FALSE(registry.getComponent<game::Map>(mapEntity).isSelected);
+}
+
 TEST_CASE("DebugSelectionSystem does not select entity when ctrl is not held")
 {
     game::Registry registry;
@@ -136,7 +164,7 @@ TEST_CASE("DebugSelectionSystem does not select entity when mouse is outside ent
     REQUIRE_FALSE(registry.getComponent<game::Sprite>(spriteEntity).isSelected);
 }
 
-TEST_CASE("DebugSelectionSystem clears selection when debug is disabled")
+TEST_CASE("DebugSelectionSystem clears sprite selection when debug is disabled")
 {
     game::Registry registry;
     game::DebugSelectionSystem system;
@@ -158,4 +186,34 @@ TEST_CASE("DebugSelectionSystem clears selection when debug is disabled")
     system.update(registry, input, false, debugSession);
 
     REQUIRE_FALSE(registry.getComponent<game::Sprite>(spriteEntity).isSelected);
+}
+
+TEST_CASE("DebugSelectionSystem clears map selection when debug is disabled")
+{
+    game::Registry registry;
+    game::DebugSelectionSystem system;
+    game::GameDebugSession debugSession(registry);
+
+    game::Entity camera = registry.createEntity();
+    game::Camera cameraComponent{.x = 0.0f, .y = 0.0f};
+    registry.addComponent(camera, cameraComponent);
+
+    game::Entity mapEntity = registry.createEntity();
+    game::Map mapComponent{
+        .x = 100.0f,
+        .y = 100.0f,
+        .width = 500.0f,
+        .height = 500.0f,
+        .scale = 2.0f,
+        .isSelected = true,
+    };
+    registry.addComponent(mapEntity, mapComponent);
+
+    debugSession.selectedEntity = mapEntity;
+
+    controller::InputState input{};
+
+    system.update(registry, input, false, debugSession);
+
+    REQUIRE_FALSE(registry.getComponent<game::Map>(mapEntity).isSelected);
 }
