@@ -60,7 +60,7 @@ controller::InputState UI::pollInput()
     return inputHandler_.pollInput(window_);
 }
 
-void UI::render(const controller::View &view, controller::DebugContext &debug, const bool windowResized)
+void UI::render(const controller::View &view, controller::DebugContext &debug)
 {
     // 1. Start ImGui frame
     sf::Time deltaTime = imguiClock_.restart();
@@ -69,7 +69,7 @@ void UI::render(const controller::View &view, controller::DebugContext &debug, c
 
     // 2. Normal rendering
     window_.clear(renderer_.toSfColor(view.backgroundColor));
-    renderer_.renderView(window_, view, windowResized);
+    renderer_.renderView(window_, view, inputState_.windowResized);
 
     // 3. Render debug UI on top
     debugUI_.render(debug, inputState_, fps_);

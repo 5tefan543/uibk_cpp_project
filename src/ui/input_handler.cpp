@@ -124,7 +124,6 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
     sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     input.mouseGridX = worldPos.x;
     input.mouseGridY = worldPos.y;
-
     return input;
 }
 
