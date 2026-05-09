@@ -14,7 +14,7 @@ void DebugSelectionSystem::update(Registry &registry, const controller::InputSta
         return;
     }
 
-    if (input.mouseLeftPressed) {
+    if (input.controlHeld && input.mouseLeftPressed) {
         debugSession.selectedEntity = getEntityAtMousePosition(registry, input);
     }
 

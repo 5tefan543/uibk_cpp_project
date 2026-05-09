@@ -110,6 +110,9 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
 
         input.rightHeld =
             sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
+
+        input.controlHeld = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)
+                            || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RControl);
     }
 
     if (!imGuiIO.WantCaptureMouse) {
