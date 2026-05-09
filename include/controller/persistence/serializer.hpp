@@ -92,7 +92,7 @@ class Serializer {
     template <typename T>
     static bool readJsonFromFile(T &value, const std::filesystem::path &path)
     {
-        std::ifstream in(path);
+        std::ifstream in(saveFilePath);
         if (!in) {
             return false;
         }

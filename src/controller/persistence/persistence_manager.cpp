@@ -14,18 +14,19 @@ bool PersistenceManager::saveGame(const PersistedGame &persistedGame)
     return Serializer::writeJsonToFile(persistedGame, Serializer::saveFilePath);
 }
 
-// TODO return game
-void PersistenceManager::loadGame(PersistedGame &persistedGame)
+PersistedGame PersistenceManager::loadGame()
 {
+    PersistedGame persistedGame;
     if (!Serializer::readJsonFromFile(persistedGame, Serializer::saveFilePath)) {
         throw std::runtime_error("Failed to load game from: " + Serializer::saveFilePath.string());
     }
+    return persistedGame;
 }
 
 bool PersistenceManager::hasSavedGame()
 {
-    // TODO exists&&valid
-    return fs::exists(Serializer::saveFilePath);
+    PersistedGame persistedGame;
+    return Serializer::readJsonFromFile(persistedGame, Serializer::saveFilePath);
 }
 
 void PersistenceManager::deleteSave()

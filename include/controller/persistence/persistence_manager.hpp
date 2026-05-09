@@ -12,7 +12,7 @@ class PersistenceManager {
     ~PersistenceManager() = delete;
 
     static bool saveGame(const PersistedGame &persistedGame);
-    static void loadGame(PersistedGame &persistedGame);
+    static PersistedGame loadGame();
     static bool hasSavedGame();
     static void deleteSave();
 
