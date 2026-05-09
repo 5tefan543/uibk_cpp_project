@@ -18,14 +18,7 @@ TEST_CASE("PersistenceManager saves and loads game state")
 
     PersistenceManager::saveGame(input);
 
-    PersistedGame output;
-    output.stage = 0;
-    output.wave = 0;
-    output.currency = -1;
-    output.playerStats.attackPower = -1.0f;
-    output.playerStats.hasDash = false;
-
-    PersistenceManager::loadGame(output);
+    auto output = PersistenceManager::loadGame();
 
     REQUIRE(output.stage == 4);
     REQUIRE(output.wave == 9);
@@ -53,17 +46,17 @@ TEST_CASE("PersistenceManager stores leaderboard entries sorted by score")
 {
     test::ScopedTestDirectory testDir("roguelike-persistence-test-");
 
-    PersistenceManager::storeLeaderboardEntry("Alice", 120);
-    PersistenceManager::storeLeaderboardEntry("Bob", 450);
-    PersistenceManager::storeLeaderboardEntry("Carol", 300);
+    PersistenceManager::storeLeaderboardEntry({"Alice", 120, 1});
+    PersistenceManager::storeLeaderboardEntry({"Bob", 450, 2});
+    PersistenceManager::storeLeaderboardEntry({"Carol", 300, 3});
 
     const auto topTwo = PersistenceManager::getTopNLeaderboardEntries(2);
 
     REQUIRE(topTwo.size() == 2);
-    REQUIRE(topTwo[0].first == "Bob");
-    REQUIRE(topTwo[0].second == 450);
-    REQUIRE(topTwo[1].first == "Carol");
-    REQUIRE(topTwo[1].second == 300);
+    REQUIRE(topTwo[0].playerName == "Bob");
+    REQUIRE(topTwo[0].score == 450);
+    REQUIRE(topTwo[1].playerName == "Carol");
+    REQUIRE(topTwo[1].score == 300);
 }
 
 TEST_CASE("PersistenceManager saves and loads config")
@@ -103,7 +96,7 @@ TEST_CASE("PersistenceManager returns empty leaderboard for non-positive topN")
 {
     test::ScopedTestDirectory testDir("roguelike-persistence-test-");
 
-    PersistenceManager::storeLeaderboardEntry("Alice", 100);
+    PersistenceManager::storeLeaderboardEntry({"Alice", 100, 1});
 
     REQUIRE(PersistenceManager::getTopNLeaderboardEntries(0).empty());
     REQUIRE(PersistenceManager::getTopNLeaderboardEntries(-4).empty());

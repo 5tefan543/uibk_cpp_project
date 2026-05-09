@@ -51,9 +51,9 @@ struct glz::meta<controller::GameConfig> {
 };
 
 template <>
-struct glz::meta<LeaderboardEntry> {
-    using T = LeaderboardEntry;
-    static constexpr auto value = object("playerName", &T::playerName, "score", &T::score);
+struct glz::meta<controller::LeaderboardEntry> {
+    using T = controller::LeaderboardEntry;
+    static constexpr auto value = object("playerName", &T::playerName, "score", &T::score, "wave", &T::wave);
 };
 
 namespace controller {
@@ -92,7 +92,7 @@ class Serializer {
     template <typename T>
     static bool readJsonFromFile(T &value, const std::filesystem::path &path)
     {
-        std::ifstream in(saveFilePath);
+        std::ifstream in(path);
         if (!in) {
             return false;
         }

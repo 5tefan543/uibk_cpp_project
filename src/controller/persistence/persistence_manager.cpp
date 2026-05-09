@@ -1,5 +1,6 @@
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/persistence/serializer.hpp"
+#include <algorithm>
 #include <filesystem>
 #include <iostream>
 
@@ -38,31 +39,25 @@ void PersistenceManager::deleteSave()
     }
 }
 
-bool PersistenceManager::storeLeaderboardEntry(const std::string &playerName, int score)
+bool PersistenceManager::storeLeaderboardEntry(const LeaderboardEntry entry)
 {
     auto entries = Serializer::readLeaderboardEntriesFromDisk();
-    entries.push_back({playerName, score});
+    entries.push_back(entry);
     std::ranges::sort(
         entries, [](const LeaderboardEntry &left, const LeaderboardEntry &right) { return left.score > right.score; });
 
     return Serializer::writeJsonToFile(entries, Serializer::leaderboardFilePath);
 }
 
-std::vector<std::pair<std::string, int>> PersistenceManager::getTopNLeaderboardEntries(int topN)
+std::vector<LeaderboardEntry> PersistenceManager::getTopNLeaderboardEntries(int topN)
 {
     if (topN <= 0) {
         return {};
     }
 
     const auto entries = Serializer::readLeaderboardEntriesFromDisk();
-    std::vector<std::pair<std::string, int>> result;
-    result.reserve(std::min(static_cast<int>(entries.size()), topN));
-
-    for (int i = 0; i < static_cast<int>(entries.size()) && i < topN; ++i) {
-        result.emplace_back(entries[i].playerName, entries[i].score);
-    }
-
-    return result;
+    const auto count = std::min(static_cast<std::size_t>(topN), entries.size());
+    return {entries.begin(), entries.begin() + count};
 }
 
 bool PersistenceManager::saveConfig(const GameConfig &config)

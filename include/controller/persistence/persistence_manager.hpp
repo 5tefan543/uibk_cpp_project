@@ -1,5 +1,6 @@
 #pragma once
 #include "config_game.hpp"
+#include "leaderboard.hpp"
 #include "persisted_game.hpp"
 #include <optional>
 #include <string>
@@ -16,8 +17,8 @@ class PersistenceManager {
     static bool hasSavedGame();
     static void deleteSave();
 
-    static bool storeLeaderboardEntry(const std::string &playerName, int score);
-    static std::vector<std::pair<std::string, int>> getTopNLeaderboardEntries(int topN);
+    static bool storeLeaderboardEntry(const LeaderboardEntry entry);
+    static std::vector<LeaderboardEntry> getTopNLeaderboardEntries(int topN);
 
     static bool saveConfig(const GameConfig &config);
     static GameConfig loadConfig();

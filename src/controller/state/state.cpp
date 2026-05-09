@@ -245,8 +245,7 @@ std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
     auto state = std::make_unique<GameplayState>();
 
     if (PersistenceManager::hasSavedGame()) {
-        PersistedGame persistedGame;
-        PersistenceManager::loadGame(persistedGame);
+        auto persistedGame = PersistenceManager::loadGame();
         state->game.loadFromPersistedGame(persistedGame);
         state->loadedFromSave_ = true;
     }
