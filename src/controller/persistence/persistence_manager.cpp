@@ -7,20 +7,24 @@ namespace fs = std::filesystem;
 
 namespace controller {
 
-std::optional<GameConfig> PersistenceManager::configCache_ = std::nullopt;
+static std::optional<GameConfig> configCache_ = std::nullopt;
 
-void PersistenceManager::saveGame(const PersistedGame &persistedGame)
+bool PersistenceManager::saveGame(const PersistedGame &persistedGame)
 {
-    Serializer::writeJsonToFile(persistedGame, Serializer::saveFilePath);
+    return Serializer::writeJsonToFile(persistedGame, Serializer::saveFilePath);
 }
 
+// TODO return game
 void PersistenceManager::loadGame(PersistedGame &persistedGame)
 {
-    Serializer::readJsonFromFile(persistedGame, Serializer::saveFilePath);
+    if (!Serializer::readJsonFromFile(persistedGame, Serializer::saveFilePath)) {
+        throw std::runtime_error("Failed to load game from: " + Serializer::saveFilePath.string());
+    }
 }
 
 bool PersistenceManager::hasSavedGame()
 {
+    // TODO exists&&valid
     return fs::exists(Serializer::saveFilePath);
 }
 
@@ -33,14 +37,14 @@ void PersistenceManager::deleteSave()
     }
 }
 
-void PersistenceManager::storeLeaderboardEntry(const std::string &playerName, int score)
+bool PersistenceManager::storeLeaderboardEntry(const std::string &playerName, int score)
 {
     auto entries = Serializer::readLeaderboardEntriesFromDisk();
     entries.push_back({playerName, score});
     std::ranges::sort(
         entries, [](const LeaderboardEntry &left, const LeaderboardEntry &right) { return left.score > right.score; });
 
-    Serializer::writeJsonToFile(entries, Serializer::leaderboardFilePath);
+    return Serializer::writeJsonToFile(entries, Serializer::leaderboardFilePath);
 }
 
 std::vector<std::pair<std::string, int>> PersistenceManager::getTopNLeaderboardEntries(int topN)
@@ -60,10 +64,13 @@ std::vector<std::pair<std::string, int>> PersistenceManager::getTopNLeaderboardE
     return result;
 }
 
-void PersistenceManager::saveConfig(const GameConfig &config)
+bool PersistenceManager::saveConfig(const GameConfig &config)
 {
-    Serializer::writeJsonToFile(config, Serializer::configFilePath);
-    configCache_ = config;
+    if (Serializer::writeJsonToFile(config, Serializer::configFilePath)) {
+        configCache_ = config;
+        return true;
+    }
+    return false;
 }
 
 GameConfig PersistenceManager::loadConfig()

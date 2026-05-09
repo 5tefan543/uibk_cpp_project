@@ -12,7 +12,6 @@ class Controller {
   private:
     StateManager stateManager_;
     DebugContext debug_;
-    GameConfig gameConfig_;
 
   public:
     Controller();
