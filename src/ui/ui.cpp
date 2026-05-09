@@ -57,7 +57,8 @@ bool UI::isOpen() const
 
 controller::InputState UI::pollInput()
 {
-    return inputHandler_.pollInput(window_);
+    inputState_ = inputHandler_.pollInput(window_);
+    return inputState_; // return implicit copy of internal inputState_
 }
 
 void UI::render(const controller::View &view, controller::DebugContext &debug)
@@ -66,7 +67,6 @@ void UI::render(const controller::View &view, controller::DebugContext &debug)
     sf::Time deltaTime = imguiClock_.restart();
     fps_ = 1.0f / deltaTime.asSeconds();
     ImGui::SFML::Update(window_, deltaTime);
-
     // 2. Normal rendering
     window_.clear(renderer_.toSfColor(view.backgroundColor));
     renderer_.renderView(window_, view, inputState_.windowResized);

@@ -34,7 +34,6 @@ int main()
         }
         const controller::View &view = currentState.getView();
         controller::DebugContext &debug = controller.getDebugContext();
-
         ui.render(view, debug);
     }
 
