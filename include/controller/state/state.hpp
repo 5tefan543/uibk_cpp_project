@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <deque>
 #include <memory>
 #include <string>
@@ -8,30 +7,30 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
 #include "controller/state/state_transition_action.hpp"
-#include "controller/view/view.hpp"
 #include "game/game.hpp"
+#include "view/view.hpp"
 #include <optional>
 
 namespace controller {
 
 class BaseState {
   protected:
-    View view_;
+    view::View view_;
 
   public:
     virtual ~BaseState() = default;
 
     virtual StateTransitionAction update(const InputState &input, DebugContext &debug, float dt) = 0;
-    virtual const View &getView();
+    virtual const view::View &getView();
     virtual std::string toString() const = 0;
 };
 
 enum class MenuType { MainMenu, PauseMenu, GameOverMenu };
 
 class MenuState : public BaseState {
-    std::deque<Button> buttons_;
-    std::deque<Card> cards_;
-    std::deque<Text> texts_;
+    std::deque<view::Button> buttons_;
+    std::deque<view::Card> cards_;
+    std::deque<view::Text> texts_;
     std::size_t selectedButtonId_ = 0;
 
     MenuState(MenuType type);
@@ -54,7 +53,7 @@ class GameplayState : public BaseState {
 
     StateTransitionAction update(const InputState &input, DebugContext &debug, float dt) override;
     std::string toString() const override;
-    const View &getView() override;
+    const view::View &getView() override;
 };
 
 class ProgressionStoreState : public BaseState {

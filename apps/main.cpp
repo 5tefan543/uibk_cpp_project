@@ -1,6 +1,6 @@
 #include "controller/controller.hpp"
-#include "controller/view/view.hpp"
 #include "ui/ui.hpp"
+#include "view/view.hpp"
 #include <atomic>
 #include <csignal>
 #include <cstdlib>
@@ -32,7 +32,7 @@ int main()
         if (typeid(currentState) == typeid(controller::ExitState)) {
             break;
         }
-        const controller::View &view = currentState.getView();
+        const view::View &view = currentState.getView();
         controller::DebugContext &debug = controller.getDebugContext();
         ui.render(view, debug);
     }

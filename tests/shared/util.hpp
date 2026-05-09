@@ -19,13 +19,13 @@ controller::StateTransitionAction applyMouseClick(std::unique_ptr<controller::Me
 class ViewItemAccessor {
   public:
     template <typename T>
-    static T &as(const controller::ViewItem &item)
+    static T &as(const view::ViewItem &item)
     {
         return std::get<std::reference_wrapper<T>>(item).get();
     }
 
     template <typename T>
-    static bool is(const controller::ViewItem &item)
+    static bool is(const view::ViewItem &item)
     {
         return std::holds_alternative<std::reference_wrapper<T>>(item);
     }

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "controller/view/color.hpp"
-#include "controller/view/font.hpp"
-#include "controller/view/grid.hpp"
+#include "color.hpp"
+#include "font.hpp"
+#include "grid.hpp"
 #include <string>
 
-namespace controller {
+namespace view {
 
 struct Text {
     std::string text;
@@ -19,4 +19,4 @@ struct Text {
     float originOffsetY = 0.0f;
 };
 
-} // namespace controller
+} // namespace view

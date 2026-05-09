@@ -4,7 +4,7 @@
 #include "sprite.hpp"
 #include <variant>
 
-namespace controller {
+namespace view {
 // Forward declarations to avoid circular dependencies
 struct Card; // Card used in ViewItem, but Card itself includes ViewItem, so we need a forward declaration here
 
@@ -14,7 +14,8 @@ using ViewItem = std::variant<std::reference_wrapper<const Card>, std::reference
                               Sprite // TODO: make Sprite reference_wrapped
                               >;
 
-// A viewItem containing: gridX, gridY, width, height (could add sprite but currently not necessary)
+// A viewItem containing: gridX, gridY, width, height (could add sprite but currently not
+// necessary)
 template <typename T>
 concept CenterableViewItem = requires(T t) { std::is_same_v<T, Button> || std::is_same_v<T, Card>; };
 
@@ -45,4 +46,4 @@ inline void setCenterizedY(T &t, float y)
     t.gridY = y - t.height / 2;
 }
 
-} // namespace controller
+} // namespace view

@@ -1,13 +1,11 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
-#include "controller/view/text.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/game.hpp"
 #include "shared/util.hpp"
 
 #include <catch2/catch_test_macros.hpp>
-#include <variant>
 
 TEST_CASE("Game can be constructed")
 {
@@ -194,7 +192,7 @@ TEST_CASE("Game getView returns correct view")
 {
     // ARRANGE
     game::Game game;
-    controller::View view;
+    view::View view;
 
     // ACT
     game.updateView(view);

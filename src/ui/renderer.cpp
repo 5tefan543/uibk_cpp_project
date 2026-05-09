@@ -1,5 +1,5 @@
 #include "ui/renderer.hpp"
-#include "controller/view/grid.hpp"
+#include "view/grid.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
@@ -17,56 +17,33 @@ Renderer::~Renderer()
     std::cout << "Renderer destructed" << std::endl;
 }
 
-sf::Color Renderer::toSfColor(const controller::Color &color)
+sf::Color Renderer::toSfColor(const view::Color &color)
 {
     return sf::Color(color.red, color.green, color.blue);
 }
 
-const sf::Font &Renderer::toSfFont(const controller::Font font)
+const sf::Font &Renderer::toSfFont(const view::Font font)
 {
     return fonts_.at(font);
 }
 
-void Renderer::renderView(sf::RenderWindow &window, const controller::View &view, const bool windowResized)
+void Renderer::renderView(sf::RenderWindow &window, const view::View &view)
 {
-    using controller::gridHeight;
-    using controller::gridWidth;
-
     // Store camera data
     cameraX_ = view.cameraX;
     cameraY_ = view.cameraY;
 
-    if (windowResized) {
-        auto winSize = window.getSize();
-
-        const float widthScaled = gridWidth * ((float)winSize.x / gridWidth);
-        const float heightScaled = gridHeight * ((float)winSize.y / gridHeight);
-
-        const float widthOffset = (gridWidth - winSize.x) / 2;
-        const float heightOffset = (gridHeight - winSize.y) / 2;
-
-        // Always based on original view parameters and not last ones (e.g. window.getView()) which would throw of all
-        // calculations
-        auto v = sf::View(sf::FloatRect({widthOffset, heightOffset}, {widthScaled, heightScaled}));
-
-        // large content < 0 > small content (zoom <~> camera distance)
-        v.zoom(std::max((float)gridWidth / winSize.x, (float)gridHeight / winSize.y));
-
-        // setView() has to be called upon every change (render-target makes a copy of the view) src: "Using a
-        // View" https://www.sfml-dev.org/tutorials/3.0/graphics/view/#defining-how-the-view-is-viewed
-        window.setView(v);
-    }
     renderItems(window, view.items);
 }
 
-void Renderer::renderItems(sf::RenderWindow &window, const std::vector<controller::ViewItem> &items)
+void Renderer::renderItems(sf::RenderWindow &window, const std::vector<view::ViewItem> &items)
 {
-    for (const controller::ViewItem &item : items) {
+    for (const view::ViewItem &item : items) {
         std::visit([this, &window](const auto &item) { renderItem(window, item); }, item);
     }
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const controller::Card &card)
+void Renderer::renderItem(sf::RenderWindow &window, const view::Card &card)
 {
     // Render card first
     sf::RectangleShape rect;
@@ -79,7 +56,7 @@ void Renderer::renderItem(sf::RenderWindow &window, const controller::Card &card
     renderItems(window, card.items);
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const controller::Button &button)
+void Renderer::renderItem(sf::RenderWindow &window, const view::Button &button)
 {
     sf::RectangleShape rect;
     rect.setSize({button.width, button.height});
@@ -90,7 +67,7 @@ void Renderer::renderItem(sf::RenderWindow &window, const controller::Button &bu
     renderItem(window, button.text);
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const controller::Text &text)
+void Renderer::renderItem(sf::RenderWindow &window, const view::Text &text)
 {
     sf::Text t(toSfFont(text.font), text.text, text.size);
     t.setPosition(sf::Vector2f(text.gridX, text.gridY));
@@ -104,7 +81,7 @@ void Renderer::renderItem(sf::RenderWindow &window, const controller::Text &text
     window.draw(t);
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const controller::Sprite &sprite)
+void Renderer::renderItem(sf::RenderWindow &window, const view::Sprite &sprite)
 {
     // Load or get texture from cache
     if (textureCache_.find(sprite.imagePath) == textureCache_.end()) {

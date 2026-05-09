@@ -1,9 +1,9 @@
 #include "controller/state/state.hpp"
-#include "controller/view/text.hpp"
+#include "view/text.hpp"
 
 namespace controller {
 
-const View &BaseState::getView()
+const view::View &BaseState::getView()
 {
     return view_;
 }
@@ -100,7 +100,7 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
 std::optional<std::size_t> MenuState::getHoveredButtonId(const InputState &input) const
 {
     for (std::size_t idx = 0; idx < buttons_.size(); idx++) {
-        const Button &button = buttons_[idx];
+        const view::Button &button = buttons_[idx];
         const bool insideX = input.mouseGridX >= button.gridX && input.mouseGridX <= (button.gridX + button.width);
         const bool insideY = input.mouseGridY >= button.gridY && input.mouseGridY <= (button.gridY + button.height);
 
@@ -115,23 +115,23 @@ std::optional<std::size_t> MenuState::getHoveredButtonId(const InputState &input
 void MenuState::initView()
 {
     // Placeholder for textured background
-    Card &backgroundCard = cards_.emplace_back(Card());
+    view::Card &backgroundCard = cards_.emplace_back(view::Card());
     backgroundCard.gridX = 0;
     backgroundCard.gridY = 0;
-    backgroundCard.width = gridWidth;
-    backgroundCard.height = gridHeight;
+    backgroundCard.width = view::gridWidth;
+    backgroundCard.height = view::gridHeight;
 
-    Card &mainMenuCard = cards_.emplace_back(Card());
+    view::Card &mainMenuCard = cards_.emplace_back(view::Card());
     mainMenuCard.backgroundColor = {50, 50, 50};
 
-    Text &title = texts_.emplace_back(Text());
+    view::Text &title = texts_.emplace_back(view::Text());
     title.gridY = (mainMenuCard.gridY + mainMenuCard.height / 10);
 
-    Button &button1 = buttons_.emplace_back(Button());
+    view::Button &button1 = buttons_.emplace_back(view::Button());
     setCenterizedY(button1, getCenterY(mainMenuCard) - button1.height);
     button1.text.gridY = getCenterY(button1);
 
-    Button &button2 = buttons_.emplace_back(Button());
+    view::Button &button2 = buttons_.emplace_back(view::Button());
     setCenterizedY(button2, getCenterY(mainMenuCard) + button2.height);
     button2.text.gridY = getCenterY(button2);
 
@@ -213,7 +213,7 @@ std::string GameplayState::toString() const
     return "Gameplay";
 }
 
-const View &GameplayState::getView()
+const view::View &GameplayState::getView()
 {
     game.updateView(view_);
     return view_;

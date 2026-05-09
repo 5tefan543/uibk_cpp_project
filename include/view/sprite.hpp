@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace controller {
+namespace view {
 
 struct Sprite {
     float x = 0.0f;
@@ -14,4 +14,4 @@ struct Sprite {
     bool isMap = false;
 };
 
-} // namespace controller
+} // namespace view

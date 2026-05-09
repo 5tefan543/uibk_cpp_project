@@ -30,7 +30,7 @@ struct InputState {
 
     bool toggleDebugPressed = false;
 
-    bool windowResized = true; // true such that first renderView() can calculate initial view scale/offset
+    bool windowResized = false;
 };
 
 } // namespace controller

@@ -4,7 +4,7 @@
 #include "view_item.hpp"
 #include <vector>
 
-namespace controller {
+namespace view {
 
 struct Card {
     Color backgroundColor = {150, 150, 150};
@@ -15,4 +15,4 @@ struct Card {
     std::vector<ViewItem> items;
 };
 
-} // namespace controller
+} // namespace view

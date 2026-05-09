@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace controller {
+namespace view {
 
 struct Color {
     std::uint8_t red = 0;
@@ -10,4 +10,4 @@ struct Color {
     std::uint8_t blue = 0;
 };
 
-} // namespace controller
+} // namespace view

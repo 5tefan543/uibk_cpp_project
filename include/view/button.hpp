@@ -1,10 +1,10 @@
 #pragma once
 
-#include "controller/view/color.hpp"
-#include "controller/view/grid.hpp"
-#include "controller/view/text.hpp"
+#include "color.hpp"
+#include "grid.hpp"
+#include "text.hpp"
 
-namespace controller {
+namespace view {
 
 struct Button {
     Text text;
@@ -17,4 +17,4 @@ struct Button {
     Color selectedColor = {0, 255, 0};
 };
 
-} // namespace controller
+} // namespace view
