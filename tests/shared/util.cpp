@@ -29,28 +29,28 @@ controller::StateTransitionAction applyInput(std::unique_ptr<controller::MenuSta
     return state->update(input, debug, dummyDeltaTime);
 }
 
-controller::InputState createInputWithMouse(float centerOffsetX, float centerOffsetY)
+controller::InputState createInputWithMouse(float gridX, float gridY)
 {
     controller::InputState input;
-    input.mouseGridX = (controller::gridWidth / 2) + centerOffsetX;
-    input.mouseGridY = (controller::gridHeight / 2) + centerOffsetY;
+    input.mouseGridX = gridX;
+    input.mouseGridY = gridY;
     return input;
 }
 
-controller::StateTransitionAction applyMouseMove(std::unique_ptr<controller::MenuState> &state, float centerOffsetX,
-                                                 float centerOffsetY)
+controller::StateTransitionAction applyMouseMove(std::unique_ptr<controller::MenuState> &state, float gridX,
+                                                 float gridY)
 {
-    controller::InputState input = createInputWithMouse(centerOffsetX, centerOffsetY);
+    controller::InputState input = createInputWithMouse(gridX, gridY);
     input.mouseMoved = true;
 
     controller::DebugContext debug;
     return state->update(input, debug, dummyDeltaTime);
 }
 
-controller::StateTransitionAction applyMouseClick(std::unique_ptr<controller::MenuState> &state, float centerOffsetX,
-                                                  float centerOffsetY)
+controller::StateTransitionAction applyMouseClick(std::unique_ptr<controller::MenuState> &state, float gridX,
+                                                  float gridY)
 {
-    controller::InputState input = createInputWithMouse(centerOffsetX, centerOffsetY);
+    controller::InputState input = createInputWithMouse(gridX, gridY);
     input.mouseLeftPressed = true;
 
     controller::DebugContext debug;
