@@ -8,7 +8,7 @@ namespace fs = std::filesystem;
 
 namespace controller {
 
-static std::optional<GameConfig> configCache_ = std::nullopt;
+static std::optional<GameConfig> configCache = std::nullopt;
 
 bool PersistenceManager::saveGame(const PersistedGame &persistedGame)
 {
@@ -63,7 +63,7 @@ std::vector<LeaderboardEntry> PersistenceManager::getTopNLeaderboardEntries(int 
 bool PersistenceManager::saveConfig(const GameConfig &config)
 {
     if (Serializer::writeJsonToFile(config, Serializer::configFilePath)) {
-        configCache_ = config;
+        configCache = config;
         return true;
     }
     return false;
@@ -71,8 +71,8 @@ bool PersistenceManager::saveConfig(const GameConfig &config)
 
 GameConfig PersistenceManager::loadConfig()
 {
-    if (configCache_.has_value()) {
-        return *configCache_;
+    if (configCache.has_value()) {
+        return *configCache;
     }
 
     GameConfig config;
@@ -81,7 +81,7 @@ GameConfig PersistenceManager::loadConfig()
         throw std::runtime_error("Failed to load game config from: " + Serializer::configFilePath.string());
     }
 
-    configCache_ = config;
+    configCache = config;
 
     return config;
 }
