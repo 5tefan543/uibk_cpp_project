@@ -4,6 +4,7 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
+#include <string>
 
 using namespace controller;
 
@@ -34,8 +35,15 @@ TEST_CASE("PersistenceManager throws when loading game without save")
     test::ScopedTestDirectory testDir("roguelike-persistence-test-");
 
     REQUIRE_FALSE(PersistenceManager::hasSavedGame());
-    REQUIRE_THROWS_WITH(PersistenceManager::loadGame(),
-                        Catch::Matchers::ContainsSubstring("config/persisted-game.json"));
+
+    try {
+        (void)PersistenceManager::loadGame();
+        FAIL("Expected PersistenceManager::loadGame() to throw std::runtime_error");
+    } catch (const std::runtime_error &error) {
+        const std::string message = error.what();
+        REQUIRE(message.find("Failed to load game from:") != std::string::npos);
+        REQUIRE(message.find("persisted-game.json") != std::string::npos);
+    }
 }
 
 TEST_CASE("PersistenceManager reports and deletes save file")
