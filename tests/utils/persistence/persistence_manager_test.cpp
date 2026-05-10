@@ -1,6 +1,8 @@
 #include "controller/persistence/persistence_manager.hpp"
+#include "controller/persistence/serializer.hpp"
 #include "shared/test_filesystem.hpp"
 #include <catch2/catch_approx.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 using namespace controller;
@@ -27,6 +29,14 @@ TEST_CASE("PersistenceManager saves and loads game state")
     REQUIRE(output.playerStats.hasDash == true);
 }
 
+TEST_CASE("PersistenceManager throws when loading game without save")
+{
+    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
+
+    REQUIRE_FALSE(PersistenceManager::hasSavedGame());
+    REQUIRE_THROWS_WITH(PersistenceManager::loadGame(), Catch::Matchers::ContainsSubstring("config/persisted-game.json"));
+}
+
 TEST_CASE("PersistenceManager reports and deletes save file")
 {
     test::ScopedTestDirectory testDir("roguelike-persistence-test-");
@@ -40,6 +50,14 @@ TEST_CASE("PersistenceManager reports and deletes save file")
     PersistenceManager::deleteSave();
 
     REQUIRE(PersistenceManager::hasSavedGame() == false);
+}
+
+TEST_CASE("PersistenceManager deleteSave is safe when no save exists")
+{
+    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
+
+    REQUIRE_NOTHROW(PersistenceManager::deleteSave());
+    REQUIRE_FALSE(PersistenceManager::hasSavedGame());
 }
 
 TEST_CASE("PersistenceManager stores leaderboard entries sorted by score")
@@ -90,6 +108,28 @@ TEST_CASE("PersistenceManager saves and loads config")
     REQUIRE(output.assetConfig.enemyTexturePath == "assets/enemies/test_enemy.png");
     REQUIRE(output.assetConfig.mapTexturePath == "assets/maps/test_map.png");
     REQUIRE(output.assetConfig.fontPath == "assets/fonts/test_font.ttf");
+}
+
+TEST_CASE("PersistenceManager loadConfig prefers cached config after save")
+{
+    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
+
+    GameConfig cachedConfig;
+    cachedConfig.initialStage = 11;
+    cachedConfig.initialWave = 6;
+    cachedConfig.initialCurrency = 555;
+
+    REQUIRE(PersistenceManager::saveConfig(cachedConfig));
+
+    GameConfig diskConfig = cachedConfig;
+    diskConfig.initialStage = 99;
+    REQUIRE(Serializer::writeJsonToFile(diskConfig, Serializer::configFilePath));
+
+    const auto output = PersistenceManager::loadConfig();
+
+    REQUIRE(output.initialStage == 11);
+    REQUIRE(output.initialWave == 6);
+    REQUIRE(output.initialCurrency == 555);
 }
 
 TEST_CASE("PersistenceManager returns empty leaderboard for non-positive topN")

@@ -103,6 +103,7 @@ add_executable(roguelike_test_runner
   tests/controller/controller_test.cpp
   tests/controller/input/input_state_test.cpp
   tests/utils/persistence/persistence_manager_test.cpp
+  tests/utils/persistence/serializer_test.cpp
   tests/controller/state/state_test.cpp
   tests/controller/state/state_manager_test.cpp
   tests/game/game_test.cpp
