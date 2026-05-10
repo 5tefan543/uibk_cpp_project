@@ -170,6 +170,9 @@ void DebugUI::renderComponent(game::Velocity &c)
 void DebugUI::renderComponent(game::Sprite &c)
 {
     ImGui::SeparatorText("Sprite");
+    ImGui::InputFloat("width", &c.width);
+    ImGui::InputFloat("height", &c.height);
+    ImGui::InputFloat("scale", &c.scale);
     ImGui::InputInt("currentFrame", &c.currentFrame);
     ImGui::InputInt("totalFrames", &c.totalFrames);
     ImGui::InputFloat("frameDuration", &c.frameDuration);
