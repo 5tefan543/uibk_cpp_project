@@ -92,6 +92,7 @@ void DebugUI::renderEcsManagement(game::GameDebugSession &gameSession)
     if (ImGui::CollapsingHeader("ECS", ImGuiTreeNodeFlags_DefaultOpen)) {
 
         ImGui::Text("Entity count: %zu", gameSession.registry.entities().size());
+        ImGui::Text("Select on screen: Ctrl + Left-Mouse-Btn");
 
         if (ImGui::BeginListBox("##entity_list")) {
             for (const auto &entity : gameSession.registry.entities()) {
