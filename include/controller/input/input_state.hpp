@@ -22,16 +22,15 @@ struct InputState {
     bool mouseMiddleHeld = false;
 
     bool mouseMoved = false;
-    int mouseX = 0;
-    int mouseY = 0;
-
-    float windowWidth = 1920.0f;
-    float windowHeight = 1080.0f;
+    float mouseGridX = 0.0;
+    float mouseGridY = 0.0;
 
     bool confirmPressed = false;
     bool cancelPressed = false;
 
     bool toggleDebugPressed = false;
+
+    bool windowResized = false;
 };
 
 } // namespace controller
