@@ -28,7 +28,7 @@ class UI {
     ~UI();
 
     bool isOpen() const;
-    controller::InputState pollInput();
+    const controller::InputState &pollInput();
     void render(const view::View &view, controller::DebugContext &debug);
 };
 

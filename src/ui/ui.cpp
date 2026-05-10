@@ -83,10 +83,10 @@ bool UI::isOpen() const
     return window_.isOpen();
 }
 
-controller::InputState UI::pollInput()
+const controller::InputState &UI::pollInput()
 {
     inputState_ = inputHandler_.pollInput(window_);
-    return inputState_; // return implicit copy of internal inputState_
+    return inputState_;
 }
 
 void UI::render(const view::View &view, controller::DebugContext &debug)
