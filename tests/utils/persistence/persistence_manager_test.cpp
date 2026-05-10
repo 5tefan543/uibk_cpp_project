@@ -2,8 +2,8 @@
 #include "controller/persistence/serializer.hpp"
 #include "shared/test_filesystem.hpp"
 #include <catch2/catch_approx.hpp>
-#include <catch2/matchers/catch_matchers_string.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 using namespace controller;
 
@@ -34,7 +34,8 @@ TEST_CASE("PersistenceManager throws when loading game without save")
     test::ScopedTestDirectory testDir("roguelike-persistence-test-");
 
     REQUIRE_FALSE(PersistenceManager::hasSavedGame());
-    REQUIRE_THROWS_WITH(PersistenceManager::loadGame(), Catch::Matchers::ContainsSubstring("config/persisted-game.json"));
+    REQUIRE_THROWS_WITH(PersistenceManager::loadGame(),
+                        Catch::Matchers::ContainsSubstring("config/persisted-game.json"));
 }
 
 TEST_CASE("PersistenceManager reports and deletes save file")
