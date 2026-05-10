@@ -41,7 +41,7 @@ void DebugUI::renderStats(float fps, const controller::InputState &input, contro
     if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::Text("FPS: %.0f", smoothedFps);
         ImGui::Text("Frame time: %.0f ms", frameTimeMs);
-        ImGui::Text("Mouse position: (%d, %d)", input.mouseX, input.mouseY);
+        ImGui::Text("Mouse position: (%f, %f)", input.mouseGridX, input.mouseGridY);
         ImGui::TextUnformatted(debug.currentStateInfo.c_str());
     }
 }
