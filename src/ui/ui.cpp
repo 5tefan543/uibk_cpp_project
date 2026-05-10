@@ -56,10 +56,13 @@ void UI::setSfmlView()
     const float widthOffset = (gridWidth - winSize.x) / 2;
     const float heightOffset = (gridHeight - winSize.y) / 2;
 
+    // 1. Pull in more (blank,unused) space into view around our grid to keep gridWidth/Height consistent (View's size).
+    // 2. Move view to align grid's and window's centers (View's position).
     // Always based on original view parameters and not last ones (e.g. window.getView()) which would throw of all
     // calculations
     auto v = sf::View(sf::FloatRect({widthOffset, heightOffset}, {widthScaled, heightScaled}));
 
+    // 3. Zoom in/out such that the smaller of width/height matches window's corresponding dimension.
     // large content < 0 > small content (zoom <~> camera distance)
     v.zoom(std::max((float)gridWidth / winSize.x, (float)gridHeight / winSize.y));
 
@@ -88,22 +91,25 @@ controller::InputState UI::pollInput()
 
 void UI::render(const view::View &view, controller::DebugContext &debug)
 {
+    // 1. On window resize: adjust sfml view to prevent visual squishing/stretching
     if (inputState_.windowResized) {
         setSfmlView();
     }
-    // 1. Start ImGui frame
+
+    // 2. Start ImGui frame
     sf::Time deltaTime = imguiClock_.restart();
     fps_ = 1.0f / deltaTime.asSeconds();
     ImGui::SFML::Update(window_, deltaTime);
-    // 2. Normal rendering
+
+    // 3. Normal rendering
     window_.clear(renderer_.toSfColor(view.backgroundColor));
     renderer_.renderView(window_, view);
 
-    // 3. Render debug UI on top
+    // 4. Render debug UI on top
     debugUI_.render(debug, inputState_, fps_);
     ImGui::SFML::Render(window_);
 
-    // 4. Display everything
+    // 5. Display everything
     window_.display();
 }
 
