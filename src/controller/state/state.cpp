@@ -160,7 +160,7 @@ void MenuState::initView()
 
         view::Button &quitButton = buttons_.emplace_back(view::Button());
         int quitButtonYOffset = hasSavedGame ? 2 : 1;
-        setCenterizedY(quitButton, getCenterY(mainMenuCard) +  quitButtonYOffset * quitButton.height);
+        setCenterizedY(quitButton, getCenterY(mainMenuCard) + quitButtonYOffset * quitButton.height);
         quitButton.text.gridY = getCenterY(quitButton);
         quitButton.text.text = std::string("Quit");
 

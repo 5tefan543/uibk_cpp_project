@@ -153,21 +153,21 @@ TEST_CASE("Main menu exposes load option and action when saved game exists")
         REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 
-//     SECTION("view contains load game button only when save exists")
-//     {
-//         const view::View &view = state->getView();
-//         const view::Card &card = ViewItemAccessor::as<const view::Card>(view.items[0]);
+    //     SECTION("view contains load game button only when save exists")
+    //     {
+    //         const view::View &view = state->getView();
+    //         const view::Card &card = ViewItemAccessor::as<const view::Card>(view.items[0]);
 
-// //        REQUIRE(card.items.size() == 1);
+    // //        REQUIRE(card.items.size() == 1);
 
-//         const view::Button &startButton = ViewItemAccessor::as<const view::Button>(card.items[1]);
-//         const view::Button &loadButton = ViewItemAccessor::as<const view::Button>(card.items[2]);
-//         const view::Button &quitButton = ViewItemAccessor::as<const view::Button>(card.items[3]);
+    //         const view::Button &startButton = ViewItemAccessor::as<const view::Button>(card.items[1]);
+    //         const view::Button &loadButton = ViewItemAccessor::as<const view::Button>(card.items[2]);
+    //         const view::Button &quitButton = ViewItemAccessor::as<const view::Button>(card.items[3]);
 
-//         REQUIRE(startButton.text.text == "Start Game");
-//         REQUIRE(loadButton.text.text == "Load Game");
-//         REQUIRE(quitButton.text.text == "Quit");
-//     }
+    //         REQUIRE(startButton.text.text == "Start Game");
+    //         REQUIRE(loadButton.text.text == "Load Game");
+    //         REQUIRE(quitButton.text.text == "Quit");
+    //     }
 }
 
 TEST_CASE("Pause menu update returns correct actions")
@@ -461,31 +461,31 @@ TEST_CASE("MenuState::getView returns expected view")
         REQUIRE(quitButton.text.text == "Quit");
     }
 
-//     SECTION("main menu with save returns expected view including load")
-//     {
-//         test::ScopedTestDirectory testDir("roguelike-state-test-");
-//         createSavedGameFile();
+    //     SECTION("main menu with save returns expected view including load")
+    //     {
+    //         test::ScopedTestDirectory testDir("roguelike-state-test-");
+    //         createSavedGameFile();
 
-//         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
+    //         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
 
-//         const view::View &view = state->getView();
-//         REQUIRE(view.items.size() == 1);
+    //         const view::View &view = state->getView();
+    //         REQUIRE(view.items.size() == 1);
 
-//         const view::Card &card = ViewItemAccessor::as<const view::Card>(view.items[0]);
-// //        REQUIRE(card.items.size() == 4);
+    //         const view::Card &card = ViewItemAccessor::as<const view::Card>(view.items[0]);
+    // //        REQUIRE(card.items.size() == 4);
 
-//         const view::Text &title = ViewItemAccessor::as<const view::Text>(card.items[0]);
-//         REQUIRE(title.text == "Main Menu");
+    //         const view::Text &title = ViewItemAccessor::as<const view::Text>(card.items[0]);
+    //         REQUIRE(title.text == "Main Menu");
 
-//         const view::Button &startButton = ViewItemAccessor::as<const view::Button>(card.items[1]);
-//         REQUIRE(startButton.text.text == "Start Game");
+    //         const view::Button &startButton = ViewItemAccessor::as<const view::Button>(card.items[1]);
+    //         REQUIRE(startButton.text.text == "Start Game");
 
-//         const view::Button &loadButton = ViewItemAccessor::as<const view::Button>(card.items[2]);
-//         REQUIRE(loadButton.text.text == "Load Game");
+    //         const view::Button &loadButton = ViewItemAccessor::as<const view::Button>(card.items[2]);
+    //         REQUIRE(loadButton.text.text == "Load Game");
 
-//         const view::Button &quitButton = ViewItemAccessor::as<const view::Button>(card.items[3]);
-//         REQUIRE(quitButton.text.text == "Quit");
-//     }
+    //         const view::Button &quitButton = ViewItemAccessor::as<const view::Button>(card.items[3]);
+    //         REQUIRE(quitButton.text.text == "Quit");
+    //     }
 
     SECTION("pause menu returns expected view")
     {

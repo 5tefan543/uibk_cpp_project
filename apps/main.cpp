@@ -27,18 +27,18 @@ int main()
 
         const float fixedDt = 1.0f / 60.0f; // Fixed time step for updates
 
-    while (ui.isOpen() && !shutdownRequested) {
-        const controller::InputState &input = ui.pollInput();
+        while (ui.isOpen() && !shutdownRequested) {
+            const controller::InputState &input = ui.pollInput();
 
-        controller.update(input, fixedDt);
-        controller::BaseState &currentState = controller.getCurrentState();
-        if (typeid(currentState) == typeid(controller::ExitState)) {
-            break;
+            controller.update(input, fixedDt);
+            controller::BaseState &currentState = controller.getCurrentState();
+            if (typeid(currentState) == typeid(controller::ExitState)) {
+                break;
+            }
+            const view::View &view = currentState.getView();
+            controller::DebugContext &debug = controller.getDebugContext();
+            ui.render(view, debug);
         }
-        const view::View &view = currentState.getView();
-        controller::DebugContext &debug = controller.getDebugContext();
-        ui.render(view, debug);
-    }
 
         return EXIT_SUCCESS;
     } catch (const std::exception &e) {
