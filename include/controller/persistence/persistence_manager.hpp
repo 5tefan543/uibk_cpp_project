@@ -18,6 +18,7 @@ class PersistenceManager {
     static void deleteSave();
 
     static bool storeLeaderboardEntry(const LeaderboardEntry entry);
+    static std::vector<LeaderboardEntry> getLeaderboardEntries();
     static std::vector<LeaderboardEntry> getTopNLeaderboardEntries(int topN);
 
     static bool saveConfig(const GameConfig &config);

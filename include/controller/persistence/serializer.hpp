@@ -73,11 +73,20 @@ class Serializer {
     {
         std::string json;
         if (const auto err = glz::write_json(value, json)) {
-            std::cerr << "Failed to serialize JSON for " << path << std::endl;
+            std::cerr << "Failed to serialize JSON for " << path << ": " << glz::format_error(err, json) << '\n';
             return false;
         }
 
-        std::filesystem::create_directories(path.parent_path());
+        const auto parentPath = path.parent_path();
+        if (!parentPath.empty()) {
+            std::error_code ec;
+            std::filesystem::create_directories(parentPath, ec);
+
+            if (ec) {
+                std::cerr << "Failed to create directories for " << path << ": " << ec.message() << '\n';
+                return false;
+            }
+        }
 
         std::ofstream out(path);
         if (!out) {
@@ -86,6 +95,11 @@ class Serializer {
         }
 
         out << json;
+
+        if (!out) {
+            std::cerr << "Failed to write JSON to file: " << path << '\n';
+            return false;
+        }
         return true;
     }
 
@@ -106,16 +120,6 @@ class Serializer {
         }
 
         return true;
-    }
-
-    static std::vector<LeaderboardEntry> readLeaderboardEntriesFromDisk()
-    {
-        std::vector<LeaderboardEntry> entries;
-        readJsonFromFile(entries, leaderboardFilePath);
-        std::ranges::sort(entries, [](const LeaderboardEntry &left, const LeaderboardEntry &right) {
-            return left.score > right.score;
-        });
-        return entries;
     }
 };
 

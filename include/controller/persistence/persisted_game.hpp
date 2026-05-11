@@ -2,8 +2,6 @@
 
 namespace controller {
 
-// only temporary struct
-// should be replaced by actual components and systems that manage them
 struct PlayerStats {
     float maxHealth;
     float attackPower;

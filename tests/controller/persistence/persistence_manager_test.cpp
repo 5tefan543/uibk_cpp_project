@@ -8,6 +8,20 @@
 
 using namespace controller;
 
+void createSavedGameFile()
+{
+    PersistedGame game;
+    game.stage = 3;
+    game.wave = 2;
+    game.currency = 150;
+    game.playerStats.speed = 444.0f;
+    game.playerStats.hasDash = false;
+    game.playerStats.attackPower = 55.0f;
+    game.playerStats.attackSpeed = 1.5f;
+    game.playerStats.defense = 20.0f;
+    PersistenceManager::saveGame(game);
+}
+
 TEST_CASE("PersistenceManager saves and loads game state")
 {
     test::ScopedTestDirectory testDir("roguelike-persistence-test-");
@@ -33,7 +47,7 @@ TEST_CASE("PersistenceManager saves and loads game state")
 TEST_CASE("PersistenceManager throws when loading game without save")
 {
     test::ScopedTestDirectory testDir("roguelike-persistence-test-");
-
+    PersistenceManager::deleteSave();
     REQUIRE_FALSE(PersistenceManager::hasSavedGame());
 
     try {

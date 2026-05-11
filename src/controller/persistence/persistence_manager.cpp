@@ -39,9 +39,18 @@ void PersistenceManager::deleteSave()
     }
 }
 
+std::vector<LeaderboardEntry> PersistenceManager::getLeaderboardEntries()
+{
+    std::vector<LeaderboardEntry> entries;
+    Serializer::readJsonFromFile(entries, Serializer::leaderboardFilePath);
+    std::ranges::sort(
+        entries, [](const LeaderboardEntry &left, const LeaderboardEntry &right) { return left.score > right.score; });
+    return entries;
+}
+
 bool PersistenceManager::storeLeaderboardEntry(const LeaderboardEntry entry)
 {
-    auto entries = Serializer::readLeaderboardEntriesFromDisk();
+    auto entries = getLeaderboardEntries();
     entries.push_back(entry);
     std::ranges::sort(
         entries, [](const LeaderboardEntry &left, const LeaderboardEntry &right) { return left.score > right.score; });
@@ -55,7 +64,7 @@ std::vector<LeaderboardEntry> PersistenceManager::getTopNLeaderboardEntries(int 
         return {};
     }
 
-    const auto entries = Serializer::readLeaderboardEntriesFromDisk();
+    const auto entries = getLeaderboardEntries();
     const auto count = std::min(static_cast<std::size_t>(topN), entries.size());
     return {entries.begin(), entries.begin() + count};
 }
