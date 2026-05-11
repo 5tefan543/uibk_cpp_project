@@ -4,6 +4,8 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
+#include <filesystem>
+#include <fstream>
 #include <string>
 
 using namespace controller;
@@ -98,6 +100,69 @@ TEST_CASE("PersistenceManager stores leaderboard entries sorted by score")
     REQUIRE(topTwo[0].score == 450);
     REQUIRE(topTwo[1].playerName == "Carol");
     REQUIRE(topTwo[1].score == 300);
+}
+
+TEST_CASE("PersistenceManager loadConfig reads from disk when cache is empty")
+{
+    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
+
+    GameConfig input;
+    input.initialStage = 13;
+    input.initialWave = 8;
+    input.initialCurrency = 456;
+    input.windowConfig.width = 1024;
+    input.windowConfig.height = 768;
+    input.windowConfig.title = "Disk Config";
+    input.assetConfig.playerTexturePath = "assets/player.png";
+    input.assetConfig.enemyTexturePath = "assets/enemy.png";
+    input.assetConfig.mapTexturePath = "assets/map.png";
+    input.assetConfig.fontPath = "assets/font.ttf";
+
+    REQUIRE(Serializer::writeJsonToFile(input, Serializer::configFilePath));
+
+    const auto output = PersistenceManager::loadConfig();
+
+    REQUIRE(output.initialStage == 13);
+    REQUIRE(output.initialWave == 8);
+    REQUIRE(output.initialCurrency == 456);
+    REQUIRE(output.windowConfig.width == 1024);
+    REQUIRE(output.windowConfig.height == 768);
+    REQUIRE(output.windowConfig.title == "Disk Config");
+    REQUIRE(output.assetConfig.playerTexturePath == "assets/player.png");
+    REQUIRE(output.assetConfig.enemyTexturePath == "assets/enemy.png");
+    REQUIRE(output.assetConfig.mapTexturePath == "assets/map.png");
+    REQUIRE(output.assetConfig.fontPath == "assets/font.ttf");
+}
+
+TEST_CASE("PersistenceManager loadConfig throws when config is missing and cache is empty")
+{
+    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
+
+    std::filesystem::remove(Serializer::configFilePath);
+
+    try {
+        (void)PersistenceManager::loadConfig();
+        FAIL("Expected PersistenceManager::loadConfig() to throw std::runtime_error");
+    } catch (const std::runtime_error &error) {
+        const std::string message = error.what();
+        REQUIRE(message.find("Failed to load game config from:") != std::string::npos);
+        REQUIRE(message.find("game-config.json") != std::string::npos);
+    }
+}
+
+TEST_CASE("PersistenceManager saveConfig returns false when config path parent cannot be created")
+{
+    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
+
+    {
+        std::ofstream configPathAsFile(Serializer::configDir);
+        REQUIRE(configPathAsFile.good());
+    }
+
+    GameConfig config;
+    config.initialStage = 1;
+
+    REQUIRE_FALSE(PersistenceManager::saveConfig(config));
 }
 
 TEST_CASE("PersistenceManager saves and loads config")

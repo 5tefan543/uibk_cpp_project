@@ -21,6 +21,35 @@ TEST_CASE("Serializer returns false when target file cannot be opened for writin
     REQUIRE_FALSE(Serializer::writeJsonToFile(game, Serializer::configDir / ""));
 }
 
+TEST_CASE("Serializer returns false when parent path exists as a file")
+{
+    test::ScopedTestDirectory testDir("roguelike-serializer-test-");
+
+    {
+        std::ofstream configPathAsFile(Serializer::configDir);
+        REQUIRE(configPathAsFile.good());
+    }
+
+    PersistedGame game;
+    game.stage = 1;
+
+    REQUIRE_FALSE(Serializer::writeJsonToFile(game, Serializer::configDir / "persisted-game.json"));
+}
+
+TEST_CASE("Serializer returns false when stream write fails")
+{
+    test::ScopedTestDirectory testDir("roguelike-serializer-test-");
+
+    if (!std::filesystem::exists("/dev/full")) {
+        SKIP("/dev/full is unavailable on this platform");
+    }
+
+    GameConfig config;
+    config.windowConfig.title = std::string(1 << 20, 'x');
+
+    REQUIRE_FALSE(Serializer::writeJsonToFile(config, "/dev/full"));
+}
+
 TEST_CASE("Serializer returns false when reading from missing file")
 {
     test::ScopedTestDirectory testDir("roguelike-serializer-test-");
