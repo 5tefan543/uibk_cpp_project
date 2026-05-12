@@ -6,10 +6,10 @@
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/sprite.hpp"
 #include "game/ecs/components/velocity.hpp"
-#include <controller/view/sprite.hpp>
-#include <controller/view/text.hpp>
 #include <iostream>
 #include <random>
+#include <view/sprite.hpp>
+#include <view/text.hpp>
 
 namespace game {
 
@@ -123,7 +123,7 @@ bool Game::isGameOver()
     return registry_.view<PlayerTag>().empty();
 }
 
-void Game::updateView(controller::View &view)
+void Game::updateView(view::View &view)
 {
     // Game should be able to decide how to update.
     // Currently we simply clear everything and rebuilding the view from scratch.
@@ -139,7 +139,7 @@ void Game::updateView(controller::View &view)
         view.cameraY = camera.y;
 
         // Add map sprite
-        controller::Sprite mapSprite;
+        view::Sprite mapSprite;
         mapSprite.x = map.x - camera.x;
         mapSprite.y = map.y - camera.y;
         mapSprite.imagePath = map.texturePath;
@@ -169,7 +169,7 @@ void Game::updateView(controller::View &view)
                 gameSprite.baseTexturePath + "character_" + directionStr + "_" + std::to_string(frameNum) + ".png";
         }
 
-        controller::Sprite viewSprite;
+        view::Sprite viewSprite;
         viewSprite.x = position.x;
         viewSprite.y = position.y;
         viewSprite.imagePath = imagePath;

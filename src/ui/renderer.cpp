@@ -1,4 +1,5 @@
 #include "ui/renderer.hpp"
+#include "view/grid.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
@@ -16,24 +17,17 @@ Renderer::~Renderer()
     std::cout << "Renderer destructed" << std::endl;
 }
 
-sf::Color Renderer::toSfColor(const controller::Color &color)
+sf::Color Renderer::toSfColor(const view::Color &color)
 {
     return sf::Color(color.red, color.green, color.blue);
 }
 
-const sf::Font &Renderer::toSfFont(const controller::Font font)
+const sf::Font &Renderer::toSfFont(const view::Font font)
 {
     return fonts_.at(font);
 }
 
-sf::Text Renderer::toSfText(const controller::Text text)
-{
-    sf::Text t(toSfFont(text.font), text.text, text.size);
-    t.setPosition(sf::Vector2f(text.centerOffsetX, text.centerOffsetY));
-    return t;
-}
-
-void Renderer::renderView(sf::RenderWindow &window, const controller::View &view)
+void Renderer::renderView(sf::RenderWindow &window, const view::View &view)
 {
     // Store camera data
     cameraX_ = view.cameraX;
@@ -42,59 +36,42 @@ void Renderer::renderView(sf::RenderWindow &window, const controller::View &view
     renderItems(window, view.items);
 }
 
-void Renderer::renderItems(sf::RenderWindow &window, const std::vector<controller::ViewItem> &items)
+void Renderer::renderItems(sf::RenderWindow &window, const std::vector<view::ViewItem> &items)
 {
-    for (const controller::ViewItem &item : items) {
+    for (const view::ViewItem &item : items) {
         std::visit([this, &window](const auto &item) { renderItem(window, item); }, item);
     }
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const controller::Card &card)
+void Renderer::renderItem(sf::RenderWindow &window, const view::Card &card)
 {
     // Render card first
     sf::RectangleShape rect;
     rect.setSize({card.width, card.height});
+    rect.setPosition({card.gridX, card.gridY});
     rect.setFillColor(toSfColor(card.backgroundColor));
-
-    auto centerX = window.getSize().x / 2.0f + card.centerOffsetX - card.width / 2.0f;
-    auto centerY = window.getSize().y / 2.0f + card.centerOffsetY - card.height / 2.0f;
-    rect.setPosition({centerX, centerY});
-
     window.draw(rect);
 
     // Render items on the card
     renderItems(window, card.items);
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const controller::Button &button)
+void Renderer::renderItem(sf::RenderWindow &window, const view::Button &button)
 {
     sf::RectangleShape rect;
     rect.setSize({button.width, button.height});
-    rect.setFillColor(toSfColor(button.backgroundColor));
-
-    if (button.isSelected) {
-        rect.setFillColor(toSfColor(button.selectedColor));
-    }
-
-    auto centerX = window.getSize().x / 2.0f + button.centerOffsetX - button.width / 2.0f;
-    auto centerY = window.getSize().y / 2.0f + button.centerOffsetY - button.height / 2.0f;
-    rect.setPosition({centerX, centerY});
-
+    rect.setPosition({button.gridX, button.gridY});
+    rect.setFillColor(button.isSelected ? toSfColor(button.selectedColor) : toSfColor(button.backgroundColor));
     window.draw(rect);
 
-    sf::Text text = toSfText(button.text);
-    // Calc button text position based on button's position
-    text.setPosition(sf::Vector2f(centerX + button.text.centerOffsetX, centerY + button.text.centerOffsetY));
-    window.draw(text);
+    renderItem(window, button.text);
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const controller::Text &text)
+void Renderer::renderItem(sf::RenderWindow &window, const view::Text &text)
 {
-    sf::Text t = toSfText(text);
-
-    auto x = window.getSize().x / 2.0f + text.centerOffsetX;
-    auto y = window.getSize().y / 2.0f + text.centerOffsetY;
-    t.setPosition(sf::Vector2f(x, y));
+    sf::Text t(toSfFont(text.font), text.text, text.size);
+    t.setPosition(sf::Vector2f(text.gridX, text.gridY));
+    t.setFillColor(toSfColor(text.color));
 
     sf::Vector2<float> pos = t.getLocalBounds().getCenter();
     pos.x += text.originOffsetX;
@@ -104,7 +81,7 @@ void Renderer::renderItem(sf::RenderWindow &window, const controller::Text &text
     window.draw(t);
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const controller::Sprite &sprite)
+void Renderer::renderItem(sf::RenderWindow &window, const view::Sprite &sprite)
 {
     // Load or get texture from cache
     if (textureCache_.find(sprite.imagePath) == textureCache_.end()) {

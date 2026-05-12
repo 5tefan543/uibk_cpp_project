@@ -96,6 +96,8 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
 
             input.mouseMoved = true;
         }
+
+        input.windowResized = event->is<sf::Event::Resized>();
     }
 
     if (!imGuiIO.WantCaptureKeyboard) {
@@ -121,14 +123,10 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
         input.mouseMiddleHeld = sf::Mouse::isButtonPressed(sf::Mouse::Button::Middle);
     }
 
-    const sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-    input.mouseX = mousePosition.x;
-    input.mouseY = mousePosition.y;
-
-    const sf::Vector2u windowSize = window.getSize();
-    input.windowWidth = windowSize.x;
-    input.windowHeight = windowSize.y;
-
+    // Convert mouse pixel coords to internal grid coords. Depends on view set in renderView()
+    sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+    input.mouseGridX = worldPos.x;
+    input.mouseGridY = worldPos.y;
     return input;
 }
 
