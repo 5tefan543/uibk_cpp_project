@@ -36,7 +36,7 @@ TEST_CASE("push multiple states and getCurrent returns top")
 
     // ACT
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
-    stateManager.push(GameplayState::createGameplay());
+    stateManager.push(GameplayState::createNewGameplay());
 
     // ASSERT
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
@@ -56,7 +56,7 @@ TEST_CASE("pop removes the top state")
     // ARRANGE
     StateManager stateManager;
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
-    stateManager.push(GameplayState::createGameplay());
+    stateManager.push(GameplayState::createNewGameplay());
 
     // ACT
     stateManager.pop();
@@ -109,7 +109,7 @@ TEST_CASE("replaceCurrent replaces the top state")
     stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
 
     // ACT
-    stateManager.replaceCurrent(GameplayState::createGameplay());
+    stateManager.replaceCurrent(GameplayState::createNewGameplay());
 
     // ASSERT
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
@@ -187,7 +187,7 @@ TEST_CASE("applyAction PushPauseMenu pushes cancelPressed menu on top")
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(GameplayState::createGameplay());
+    stateManager.push(GameplayState::createNewGameplay());
 
     // ACT
     stateManager.applyAction(StateTransitionAction::PushPauseMenu);
@@ -200,7 +200,7 @@ TEST_CASE("applyAction PushProgressionStore pushes progression store on top")
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(GameplayState::createGameplay());
+    stateManager.push(GameplayState::createNewGameplay());
 
     // ACT
     stateManager.applyAction(StateTransitionAction::PushProgressionStore);
@@ -213,7 +213,7 @@ TEST_CASE("applyAction ReplaceCurrentWithGameOverMenu replaces current state wit
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(GameplayState::createGameplay());
+    stateManager.push(GameplayState::createNewGameplay());
 
     // ACT
     stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithGameOverMenu);

@@ -254,7 +254,7 @@ std::string MenuState::toString() const
     }
 }
 
-std::unique_ptr<GameplayState> GameplayState::createGameplay()
+std::unique_ptr<GameplayState> GameplayState::createNewGameplay()
 {
     return std::make_unique<GameplayState>();
 }

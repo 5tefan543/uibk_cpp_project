@@ -54,10 +54,10 @@ TEST_CASE("MenuState::createMenu of type GameOverMenu constructs game over menu 
     REQUIRE(state->type == MenuType::GameOverMenu);
 }
 
-TEST_CASE("GameplayState::createGameplay constructs gameplay state with expected properties")
+TEST_CASE("GameplayState::createNewGameplay constructs gameplay state with expected properties")
 {
     // ACT
-    std::unique_ptr<GameplayState> state = GameplayState::createGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
 
     // ASSERT
     REQUIRE(state != nullptr);
@@ -282,7 +282,7 @@ TEST_CASE("Game over menu mouse input returns correct actions")
 TEST_CASE("Gameplay state update returns correct actions")
 {
     // ARRANGE
-    std::unique_ptr<GameplayState> state = GameplayState::createGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
     InputState input;
     DebugContext debug;
 
@@ -415,7 +415,7 @@ TEST_CASE("MenuState::toString returns expected string")
 
 TEST_CASE("GameplayState::toString returns expected string")
 {
-    std::unique_ptr<GameplayState> state = GameplayState::createGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
     REQUIRE(state->toString() == "Gameplay");
 }
 
@@ -531,7 +531,7 @@ TEST_CASE("MenuState::getView returns expected view")
 
 TEST_CASE("GameplayState::getView returns expected view")
 {
-    std::unique_ptr<GameplayState> state = GameplayState::createGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
 
     const view::View &view = state->getView();
 

@@ -51,7 +51,7 @@ class GameplayState : public BaseState {
   public:
     game::Game game;
 
-    static std::unique_ptr<GameplayState> createGameplay();
+    static std::unique_ptr<GameplayState> createNewGameplay();
     static std::unique_ptr<GameplayState> createLoadedGameplay();
     bool isLoadedFromPersistedGame() const;
 
