@@ -1,4 +1,6 @@
+#include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state_manager.hpp"
+#include "shared/test_filesystem.hpp"
 #include <catch2/catch_test_macros.hpp>
 
 using namespace controller;
@@ -34,7 +36,7 @@ TEST_CASE("push multiple states and getCurrent returns top")
 
     // ACT
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
-    stateManager.push(GameplayState::createGameplay());
+    stateManager.push(GameplayState::createNewGameplay());
 
     // ASSERT
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
@@ -54,7 +56,7 @@ TEST_CASE("pop removes the top state")
     // ARRANGE
     StateManager stateManager;
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
-    stateManager.push(GameplayState::createGameplay());
+    stateManager.push(GameplayState::createNewGameplay());
 
     // ACT
     stateManager.pop();
@@ -107,7 +109,7 @@ TEST_CASE("replaceCurrent replaces the top state")
     stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
 
     // ACT
-    stateManager.replaceCurrent(GameplayState::createGameplay());
+    stateManager.replaceCurrent(GameplayState::createNewGameplay());
 
     // ASSERT
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
@@ -154,11 +156,38 @@ TEST_CASE("applyAction ReplaceCurrentWithGameplay replaces current state with ga
     REQUIRE(stateManager.isEmpty());
 }
 
+TEST_CASE("applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded from save")
+{
+    test::ScopedTestDirectory testDir("roguelike-state-manager-test-");
+
+    PersistedGame game;
+    game.stage = 9;
+    game.wave = 4;
+    game.currency = 777;
+    game.playerStats.speed = 360.0f;
+    PersistenceManager::saveGame(game);
+
+    StateManager stateManager;
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
+
+    stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithLoadedGameplay);
+
+    auto *gameplayState = dynamic_cast<GameplayState *>(&stateManager.getCurrent());
+    REQUIRE(gameplayState != nullptr);
+    REQUIRE(gameplayState->isLoadedFromPersistedGame());
+
+    const PersistedGame loaded = gameplayState->game.getPersistedGame();
+    REQUIRE(loaded.stage == 9);
+    REQUIRE(loaded.wave == 4);
+    REQUIRE(loaded.currency == 777);
+    REQUIRE(loaded.playerStats.speed == 360.0f);
+}
+
 TEST_CASE("applyAction PushPauseMenu pushes cancelPressed menu on top")
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(GameplayState::createGameplay());
+    stateManager.push(GameplayState::createNewGameplay());
 
     // ACT
     stateManager.applyAction(StateTransitionAction::PushPauseMenu);
@@ -171,7 +200,7 @@ TEST_CASE("applyAction PushProgressionStore pushes progression store on top")
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(GameplayState::createGameplay());
+    stateManager.push(GameplayState::createNewGameplay());
 
     // ACT
     stateManager.applyAction(StateTransitionAction::PushProgressionStore);
@@ -184,7 +213,7 @@ TEST_CASE("applyAction ReplaceCurrentWithGameOverMenu replaces current state wit
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(GameplayState::createGameplay());
+    stateManager.push(GameplayState::createNewGameplay());
 
     // ACT
     stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithGameOverMenu);

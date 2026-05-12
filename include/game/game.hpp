@@ -2,6 +2,7 @@
 
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
+#include "controller/persistence/persisted_game.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
@@ -24,10 +25,15 @@ class Game {
     MovementSystem movementSystem_;
     DebugSelectionSystem debugSelectionSystem_;
 
+    int stage_ = 1;
+    int wave_ = 1;
+    int currency_ = 0;
+
     void init();
     void initWave();
     void initStage();
     void initPlayer();
+    void initPersistedPlayer(const controller::PersistedGame &persistedGame);
     void initEnemies();
     void processDebugSession(controller::DebugContext &debug);
     void updateSystems(const controller::InputState &input, controller::DebugContext &debug, float dt);
@@ -39,6 +45,8 @@ class Game {
     ~Game();
 
     GameDebugSession &getDebugSession();
+    void loadFromPersistedGame(const controller::PersistedGame &persistedGame);
+    controller::PersistedGame getPersistedGame() const;
     bool update(const controller::InputState &input, controller::DebugContext &debug, float dt);
     void updateView(view::View &view);
 };

@@ -25,10 +25,10 @@ test_release: release
 	ctest --preset release --output-on-failure
 
 run_clang_tidy: debug
-	run-clang-tidy -p build/debug
+	run-clang-tidy-20 -p build/debug -config-file .clang-tidy
 
 run_clang_tidy_fix: debug
-	run-clang-tidy -p build/debug -fix
+	run-clang-tidy-20 -p build/debug -config-file .clang-tidy -fix
 
 clean:
 	rm -rf build

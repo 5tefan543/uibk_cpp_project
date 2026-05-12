@@ -1,5 +1,7 @@
 #include "controller/state/state.hpp"
+#include "controller/persistence/persistence_manager.hpp"
 #include "view/text.hpp"
+#include <iostream>
 
 namespace controller {
 
@@ -38,8 +40,11 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
 
     switch (type) {
     case MenuType::MainMenu:
-        if (input.downPressed || input.upPressed) {
-            selectedButtonId_ ^= 1;
+        if (input.downPressed) {
+            selectedButtonId_ = (selectedButtonId_ + 1) % buttons_.size();
+        }
+        if (input.upPressed) {
+            selectedButtonId_ = (selectedButtonId_ + buttons_.size() - 1) % buttons_.size();
         }
 
         if (buttonPressed) {
@@ -48,6 +53,13 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
                 stateTransitionAction = StateTransitionAction::ReplaceCurrentWithGameplay;
                 break;
             case 1:
+                if (buttons_.size() == 3) {
+                    stateTransitionAction = StateTransitionAction::ReplaceCurrentWithLoadedGameplay;
+                } else {
+                    stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
+                }
+                break;
+            case 2:
                 stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
                 break;
             }
@@ -117,6 +129,8 @@ void MenuState::initView()
 
     switch (type) {
     case MenuType::MainMenu: {
+        const bool hasSavedGame = PersistenceManager::hasSavedGame();
+
         // Placeholder for textured background
         view::Card &backgroundCard = cards_.emplace_back(view::Card());
         backgroundCard.gridX = 0;
@@ -136,8 +150,17 @@ void MenuState::initView()
         startGameButton.text.gridY = getCenterY(startGameButton);
         startGameButton.text.text = std::string("Start Game");
 
+        if (hasSavedGame) {
+            view::Button &loadGameButton = buttons_.emplace_back(view::Button());
+            setCenterizedY(loadGameButton, getCenterY(mainMenuCard) + loadGameButton.height / 2);
+            loadGameButton.text.text = std::string("Load Game");
+            loadGameButton.text.gridY = getCenterY(loadGameButton);
+            mainMenuCard.items.push_back(loadGameButton);
+        }
+
         view::Button &quitButton = buttons_.emplace_back(view::Button());
-        setCenterizedY(quitButton, getCenterY(mainMenuCard) + quitButton.height);
+        int quitButtonYOffset = hasSavedGame ? 2 : 1;
+        setCenterizedY(quitButton, getCenterY(mainMenuCard) + quitButtonYOffset * quitButton.height);
         quitButton.text.gridY = getCenterY(quitButton);
         quitButton.text.text = std::string("Quit");
 
@@ -231,9 +254,27 @@ std::string MenuState::toString() const
     }
 }
 
-std::unique_ptr<GameplayState> GameplayState::createGameplay()
+std::unique_ptr<GameplayState> GameplayState::createNewGameplay()
 {
     return std::make_unique<GameplayState>();
+}
+
+std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
+{
+    auto state = std::make_unique<GameplayState>();
+
+    if (PersistenceManager::hasSavedGame()) {
+        auto persistedGame = PersistenceManager::loadGame();
+        state->game.loadFromPersistedGame(persistedGame);
+        state->loadedFromSave_ = true;
+    }
+
+    return state;
+}
+
+bool GameplayState::isLoadedFromPersistedGame() const
+{
+    return loadedFromSave_;
 }
 
 StateTransitionAction GameplayState::update(const InputState &input, DebugContext &debug, float dt)

@@ -5,6 +5,7 @@ namespace controller {
 enum class StateTransitionAction {
     None,
     ReplaceCurrentWithGameplay,
+    ReplaceCurrentWithLoadedGameplay,
     PushPauseMenu,
     PushProgressionStore,
     ReplaceCurrentWithGameOverMenu,

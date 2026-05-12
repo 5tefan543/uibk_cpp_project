@@ -1,8 +1,28 @@
+#include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state.hpp"
+#include "shared/test_filesystem.hpp"
 #include "shared/util.hpp"
 #include <catch2/catch_test_macros.hpp>
 
 using namespace controller;
+
+namespace {
+
+void createSavedGameFile()
+{
+    PersistedGame game;
+    game.stage = 3;
+    game.wave = 2;
+    game.currency = 150;
+    game.playerStats.speed = 444.0f;
+    game.playerStats.hasDash = false;
+    game.playerStats.attackPower = 55.0f;
+    game.playerStats.attackSpeed = 1.5f;
+    game.playerStats.defense = 20.0f;
+    PersistenceManager::saveGame(game);
+}
+
+} // namespace
 
 TEST_CASE("MenuState::createMenu of type MainMenu constructs main menu with expected properties")
 {
@@ -34,10 +54,10 @@ TEST_CASE("MenuState::createMenu of type GameOverMenu constructs game over menu 
     REQUIRE(state->type == MenuType::GameOverMenu);
 }
 
-TEST_CASE("GameplayState::createGameplay constructs gameplay state with expected properties")
+TEST_CASE("GameplayState::createNewGameplay constructs gameplay state with expected properties")
 {
     // ACT
-    std::unique_ptr<GameplayState> state = GameplayState::createGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
 
     // ASSERT
     REQUIRE(state != nullptr);
@@ -54,6 +74,7 @@ TEST_CASE("ProgressionStoreState::createStore constructs store state with expect
 
 TEST_CASE("Main menu update returns correct actions")
 {
+    test::ScopedTestDirectory testDir("roguelike-state-test-");
     auto state = MenuState::createMenu(MenuType::MainMenu);
 
     SECTION("confirm on initial selection starts gameplay")
@@ -82,6 +103,7 @@ TEST_CASE("Main menu update returns correct actions")
 
 TEST_CASE("Main menu mouse input returns correct actions")
 {
+    test::ScopedTestDirectory testDir("roguelike-state-test-");
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
     const view::View &view = state->getView();
     const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.items[0]);
@@ -112,6 +134,27 @@ TEST_CASE("Main menu mouse input returns correct actions")
     SECTION("mouse click outside buttons returns None")
     {
         REQUIRE(applyMouseClick(state, 700.0f, 400.0f) == StateTransitionAction::None);
+    }
+}
+
+TEST_CASE("Main menu exposes load option and action when saved game exists")
+{
+    test::ScopedTestDirectory testDir("roguelike-state-test-");
+    createSavedGameFile();
+
+    std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
+
+    SECTION("down selects load game and confirm loads gameplay")
+    {
+        REQUIRE(applyInput(state, DOWN) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithLoadedGameplay);
+    }
+
+    SECTION("second down selects quit and confirm exits")
+    {
+        REQUIRE(applyInput(state, DOWN) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, DOWN) == StateTransitionAction::None);
+        REQUIRE(applyInput(state, CONFIRM) == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 }
 
@@ -239,7 +282,7 @@ TEST_CASE("Game over menu mouse input returns correct actions")
 TEST_CASE("Gameplay state update returns correct actions")
 {
     // ARRANGE
-    std::unique_ptr<GameplayState> state = GameplayState::createGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
     InputState input;
     DebugContext debug;
 
@@ -372,7 +415,7 @@ TEST_CASE("MenuState::toString returns expected string")
 
 TEST_CASE("GameplayState::toString returns expected string")
 {
-    std::unique_ptr<GameplayState> state = GameplayState::createGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
     REQUIRE(state->toString() == "Gameplay");
 }
 
@@ -386,6 +429,7 @@ TEST_CASE("MenuState::getView returns expected view")
 {
     SECTION("main menu returns expected view")
     {
+        test::ScopedTestDirectory testDir("roguelike-state-test-");
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
 
         const view::View &view = state->getView();
@@ -402,6 +446,33 @@ TEST_CASE("MenuState::getView returns expected view")
         REQUIRE(startButton.text.text == "Start Game");
 
         const view::Button &quitButton = ViewItemAccessor::as<const view::Button>(card.items[2]);
+        REQUIRE(quitButton.text.text == "Quit");
+    }
+
+    SECTION("main menu with save returns expected view including load")
+    {
+        test::ScopedTestDirectory testDir("roguelike-state-test-");
+        createSavedGameFile();
+
+        std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
+
+        const view::View &view = state->getView();
+        REQUIRE(view.items.size() == 1);
+        const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.items[0]);
+
+        const view::Card &card = ViewItemAccessor::as<const view::Card>(backgroundCard.items[0]);
+        REQUIRE(card.items.size() == 4);
+
+        const view::Text &title = ViewItemAccessor::as<const view::Text>(card.items[1]);
+        REQUIRE(title.text == "Main Menu");
+
+        const view::Button &startButton = ViewItemAccessor::as<const view::Button>(card.items[2]);
+        REQUIRE(startButton.text.text == "Start Game");
+
+        const view::Button &loadButton = ViewItemAccessor::as<const view::Button>(card.items[0]);
+        REQUIRE(loadButton.text.text == "Load Game");
+
+        const view::Button &quitButton = ViewItemAccessor::as<const view::Button>(card.items[3]);
         REQUIRE(quitButton.text.text == "Quit");
     }
 
@@ -460,7 +531,7 @@ TEST_CASE("MenuState::getView returns expected view")
 
 TEST_CASE("GameplayState::getView returns expected view")
 {
-    std::unique_ptr<GameplayState> state = GameplayState::createGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
 
     const view::View &view = state->getView();
 
