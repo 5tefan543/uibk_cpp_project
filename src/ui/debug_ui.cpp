@@ -92,6 +92,7 @@ void DebugUI::renderEcsManagement(game::GameDebugSession &gameSession)
     if (ImGui::CollapsingHeader("ECS", ImGuiTreeNodeFlags_DefaultOpen)) {
 
         ImGui::Text("Entity count: %zu", gameSession.registry.entities().size());
+        ImGui::Text("Select on screen: Ctrl + Left-Mouse-Btn");
 
         if (ImGui::BeginListBox("##entity_list")) {
             for (const auto &entity : gameSession.registry.entities()) {
@@ -169,6 +170,9 @@ void DebugUI::renderComponent(game::Velocity &c)
 void DebugUI::renderComponent(game::Sprite &c)
 {
     ImGui::SeparatorText("Sprite");
+    ImGui::InputFloat("width", &c.width);
+    ImGui::InputFloat("height", &c.height);
+    ImGui::InputFloat("scale", &c.scale);
     ImGui::InputInt("currentFrame", &c.currentFrame);
     ImGui::InputInt("totalFrames", &c.totalFrames);
     ImGui::InputFloat("frameDuration", &c.frameDuration);

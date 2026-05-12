@@ -32,6 +32,7 @@ add_library(roguelike_game
   src/game/systems/movement_system.cpp
   src/game/systems/animation_system.cpp
   src/game/systems/camera_system.cpp
+  src/game/systems/debug_selection_system.cpp
 )
 
 roguelike_cxx_flags(roguelike_game)
@@ -114,6 +115,7 @@ add_executable(roguelike_test_runner
   tests/shared/util.cpp
   tests/game/ecs/systems/animation_system_test.cpp
   tests/game/ecs/systems/camera_system_test.cpp
+  tests/game/ecs/systems/debug_selection_system_test.cpp
 )
 
 roguelike_cxx_flags(roguelike_test_runner)
