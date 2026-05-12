@@ -27,6 +27,7 @@ struct InputState {
 
     bool confirmPressed = false;
     bool cancelPressed = false;
+    bool controlHeld = false;
 
     bool toggleDebugPressed = false;
 

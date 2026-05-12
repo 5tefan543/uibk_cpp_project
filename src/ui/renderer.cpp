@@ -118,6 +118,17 @@ void Renderer::renderItem(sf::RenderWindow &window, const view::Sprite &sprite)
     sfSprite.setScale(sf::Vector2f(scaledWidth, scaledHeight));
 
     window.draw(sfSprite);
+
+    if (sprite.isSelected) {
+        sf::RectangleShape selectionBox;
+        selectionBox.setPosition(sfSprite.getPosition());
+        selectionBox.setSize(sfSprite.getGlobalBounds().size);
+        selectionBox.setFillColor(sf::Color::Transparent);
+        selectionBox.setOutlineColor(sf::Color::Yellow);
+        selectionBox.setOutlineThickness(2.0f);
+
+        window.draw(selectionBox);
+    }
 }
 
 } // namespace ui

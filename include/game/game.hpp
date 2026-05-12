@@ -6,6 +6,7 @@
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
 #include "game/ecs/systems/camera_system.hpp"
+#include "game/ecs/systems/debug_selection_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
 #include "view/view.hpp"
@@ -21,6 +22,7 @@ class Game {
     CameraSystem cameraSystem_;
     InputSystem inputSystem_;
     MovementSystem movementSystem_;
+    DebugSelectionSystem debugSelectionSystem_;
 
     void init();
     void initWave();
