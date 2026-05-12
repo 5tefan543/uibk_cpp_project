@@ -4,7 +4,6 @@
 #include <memory>
 #include <string>
 
-#include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "game/game.hpp"
@@ -20,7 +19,7 @@ class BaseState {
   public:
     virtual ~BaseState() = default;
 
-    virtual StateTransitionAction update(const InputState &input, DebugContext &debug, float dt) = 0;
+    virtual StateTransitionAction update(const InputState &input, float dt) = 0;
     virtual const view::View &getView();
     virtual std::string toString() const = 0;
 };
@@ -41,7 +40,7 @@ class MenuState : public BaseState {
     const MenuType type;
     static std::unique_ptr<MenuState> createMenu(const MenuType menuType);
 
-    StateTransitionAction update(const InputState &input, DebugContext &debug, float dt) override;
+    StateTransitionAction update(const InputState &input, float dt) override;
     std::string toString() const override;
 };
 
@@ -51,7 +50,7 @@ class GameplayState : public BaseState {
 
     static std::unique_ptr<GameplayState> createGameplay();
 
-    StateTransitionAction update(const InputState &input, DebugContext &debug, float dt) override;
+    StateTransitionAction update(const InputState &input, float dt) override;
     std::string toString() const override;
     const view::View &getView() override;
 };
@@ -60,7 +59,7 @@ class ProgressionStoreState : public BaseState {
   public:
     static std::unique_ptr<ProgressionStoreState> createStore();
 
-    StateTransitionAction update(const InputState &input, DebugContext &debug, float dt) override;
+    StateTransitionAction update(const InputState &input, float dt) override;
     std::string toString() const override;
 };
 
@@ -68,7 +67,7 @@ class ExitState : public BaseState {
   public:
     static std::unique_ptr<ExitState> createExitState();
 
-    StateTransitionAction update(const InputState &input, DebugContext &debug, float dt) override;
+    StateTransitionAction update(const InputState &input, float dt) override;
     std::string toString() const override;
 };
 

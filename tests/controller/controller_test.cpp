@@ -1,4 +1,5 @@
 #include "controller/controller.hpp"
+#include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
 #include "shared/util.hpp"
 #include <catch2/catch_test_macros.hpp>
@@ -52,7 +53,7 @@ TEST_CASE("Controller toggles debug mode on")
     controller.update(input, dummyDeltaTime);
 
     // Assert
-    REQUIRE(controller.getDebugContext().active == true);
+    REQUIRE(DebugContext::get().active == true);
 }
 
 TEST_CASE("Controller toggles debug mode off when toggle is pressed twice")
@@ -67,5 +68,5 @@ TEST_CASE("Controller toggles debug mode off when toggle is pressed twice")
     controller.update(input, dummyDeltaTime);
 
     // Assert
-    REQUIRE(controller.getDebugContext().active == false);
+    REQUIRE(DebugContext::get().active == false);
 }

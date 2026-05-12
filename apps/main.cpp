@@ -33,8 +33,7 @@ int main()
             break;
         }
         const view::View &view = currentState.getView();
-        controller::DebugContext &debug = controller.getDebugContext();
-        ui.render(view, debug);
+        ui.render(view);
     }
 
     return EXIT_SUCCESS;

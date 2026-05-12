@@ -1,7 +1,7 @@
 #pragma once
 
-#include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
+#include "game/debug/game_debug_session.hpp"
 #include "game/ecs/registry.hpp"
 
 namespace game {

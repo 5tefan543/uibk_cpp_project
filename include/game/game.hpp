@@ -1,6 +1,5 @@
 #pragma once
 
-#include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "game/ecs/registry.hpp"
@@ -24,13 +23,12 @@ class Game {
     MovementSystem movementSystem_;
     DebugSelectionSystem debugSelectionSystem_;
 
-    void init();
     void initWave();
     void initStage();
     void initPlayer();
     void initEnemies();
-    void processDebugSession(controller::DebugContext &debug);
-    void updateSystems(const controller::InputState &input, controller::DebugContext &debug, float dt);
+    void processDebugSession();
+    void updateSystems(const controller::InputState &input, float dt);
     bool isGameOver();
 
   public:
@@ -39,7 +37,7 @@ class Game {
     ~Game();
 
     GameDebugSession &getDebugSession();
-    bool update(const controller::InputState &input, controller::DebugContext &debug, float dt);
+    bool update(const controller::InputState &input, float dt);
     void updateView(view::View &view);
 };
 

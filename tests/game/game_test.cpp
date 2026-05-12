@@ -17,10 +17,9 @@ TEST_CASE("Game update returns false while player is alive")
     // ARRANGE
     game::Game game;
     controller::InputState input;
-    controller::DebugContext debug;
 
     // ACT
-    bool isGameOver = game.update(input, debug, dummyDeltaTime);
+    bool isGameOver = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE_FALSE(isGameOver);
@@ -31,14 +30,14 @@ TEST_CASE("Game update returns true when no player exists anymore")
     // ARRANGE
     game::Game game;
     controller::InputState input;
-    controller::DebugContext debug;
+    controller::DebugContext &debug = controller::DebugContext::get();
     debug.active = true;
 
     game::GameDebugSession &session = game.getDebugSession();
     session.isPlayerDestructionRequested = true;
 
     // ACT
-    bool isGameOver = game.update(input, debug, dummyDeltaTime);
+    bool isGameOver = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(isGameOver);
@@ -49,14 +48,14 @@ TEST_CASE("Game update resets stage/wave reload request when debug is active")
     // ARRANGE
     game::Game game;
     controller::InputState input;
-    controller::DebugContext debug;
+    controller::DebugContext &debug = controller::DebugContext::get();
     debug.active = true;
 
     game::GameDebugSession &session = game.getDebugSession();
     session.isStageWaveReloadRequested = true;
 
     // ACT
-    bool isGameOver = game.update(input, debug, dummyDeltaTime);
+    bool isGameOver = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE_FALSE(isGameOver);
@@ -68,14 +67,14 @@ TEST_CASE("Game update keeps stage/wave reload request unchanged when debug is i
     // ARRANGE
     game::Game game;
     controller::InputState input;
-    controller::DebugContext debug;
+    controller::DebugContext &debug = controller::DebugContext::get();
     debug.active = false;
 
     game::GameDebugSession &session = game.getDebugSession();
     session.isStageWaveReloadRequested = true;
 
     // ACT
-    bool isGameOver = game.update(input, debug, dummyDeltaTime);
+    bool isGameOver = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE_FALSE(isGameOver);
@@ -87,14 +86,14 @@ TEST_CASE("Game update resets player destruction request when debug is active")
     // ARRANGE
     game::Game game;
     controller::InputState input;
-    controller::DebugContext debug;
+    controller::DebugContext &debug = controller::DebugContext::get();
     debug.active = true;
 
     game::GameDebugSession &session = game.getDebugSession();
     session.isPlayerDestructionRequested = true;
 
     // ACT
-    bool isGameOver = game.update(input, debug, dummyDeltaTime);
+    bool isGameOver = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(isGameOver);
@@ -106,14 +105,14 @@ TEST_CASE("Game update keeps player destruction request unchanged when debug is 
     // ARRANGE
     game::Game game;
     controller::InputState input;
-    controller::DebugContext debug;
+    controller::DebugContext &debug = controller::DebugContext::get();
     debug.active = false;
 
     game::GameDebugSession &session = game.getDebugSession();
     session.isPlayerDestructionRequested = true;
 
     // ACT
-    bool isGameOver = game.update(input, debug, dummyDeltaTime);
+    bool isGameOver = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE_FALSE(isGameOver);
@@ -125,7 +124,7 @@ TEST_CASE("Game update skips system updates when debug is active and system upda
     // ARRANGE
     game::Game game;
     controller::InputState input;
-    controller::DebugContext debug;
+    controller::DebugContext &debug = controller::DebugContext::get();
     debug.active = true;
 
     game::GameDebugSession &session = game.getDebugSession();
@@ -144,7 +143,7 @@ TEST_CASE("Game update skips system updates when debug is active and system upda
     input.rightHeld = true;
 
     // ACT
-    bool isGameOver = game.update(input, debug, dummyDeltaTime);
+    bool isGameOver = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE_FALSE(isGameOver);
@@ -159,7 +158,7 @@ TEST_CASE("Game update still runs system updates when debug is inactive even if 
     // ARRANGE
     game::Game game;
     controller::InputState input;
-    controller::DebugContext debug;
+    controller::DebugContext &debug = controller::DebugContext::get();
     debug.active = false;
 
     game::GameDebugSession &session = game.getDebugSession();
@@ -178,7 +177,7 @@ TEST_CASE("Game update still runs system updates when debug is inactive even if 
     input.rightHeld = true;
 
     // ACT
-    bool isGameOver = game.update(input, debug, dummyDeltaTime);
+    bool isGameOver = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE_FALSE(isGameOver);

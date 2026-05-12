@@ -30,7 +30,7 @@ class DebugUI {
     DebugUI();
     ~DebugUI();
 
-    void render(controller::DebugContext &debug, const controller::InputState &input, float fps);
+    void render(const controller::InputState &input, float fps);
 };
 
 } // namespace ui

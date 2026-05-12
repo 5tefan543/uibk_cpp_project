@@ -23,10 +23,9 @@ controller::StateTransitionAction applyInput(std::unique_ptr<controller::MenuSta
         input.rightPressed = true;
         break;
     }
-    controller::DebugContext debug;
 
     // ACT
-    return state->update(input, debug, dummyDeltaTime);
+    return state->update(input, dummyDeltaTime);
 }
 
 controller::InputState createInputWithMouse(float gridX, float gridY)
@@ -43,8 +42,7 @@ controller::StateTransitionAction applyMouseMove(std::unique_ptr<controller::Men
     controller::InputState input = createInputWithMouse(gridX, gridY);
     input.mouseMoved = true;
 
-    controller::DebugContext debug;
-    return state->update(input, debug, dummyDeltaTime);
+    return state->update(input, dummyDeltaTime);
 }
 
 controller::StateTransitionAction applyMouseClick(std::unique_ptr<controller::MenuState> &state, float gridX,
@@ -53,6 +51,5 @@ controller::StateTransitionAction applyMouseClick(std::unique_ptr<controller::Me
     controller::InputState input = createInputWithMouse(gridX, gridY);
     input.mouseLeftPressed = true;
 
-    controller::DebugContext debug;
-    return state->update(input, debug, dummyDeltaTime);
+    return state->update(input, dummyDeltaTime);
 }

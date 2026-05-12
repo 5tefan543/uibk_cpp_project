@@ -1,4 +1,5 @@
 #include "controller/state/state.hpp"
+#include "controller/debug/debug_context.hpp"
 #include "view/text.hpp"
 
 namespace controller {
@@ -18,8 +19,7 @@ std::unique_ptr<MenuState> MenuState::createMenu(const MenuType menuType)
     return std::unique_ptr<MenuState>(new MenuState(menuType));
 }
 
-StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]] DebugContext &debug,
-                                        [[maybe_unused]] float dt)
+StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]] float dt)
 {
     StateTransitionAction stateTransitionAction = StateTransitionAction::None;
     const size_t prevSelectedButtonId = selectedButtonId_;
@@ -236,15 +236,16 @@ std::unique_ptr<GameplayState> GameplayState::createGameplay()
     return std::make_unique<GameplayState>();
 }
 
-StateTransitionAction GameplayState::update(const InputState &input, DebugContext &debug, float dt)
+StateTransitionAction GameplayState::update(const InputState &input, float dt)
 {
+    DebugContext &debug = DebugContext::get();
     debug.gameSession = &game.getDebugSession();
 
     if (input.cancelPressed) {
         return controller::StateTransitionAction::PushPauseMenu;
     }
 
-    bool isGameOver = game.update(input, debug, dt);
+    bool isGameOver = game.update(input, dt);
 
     if (isGameOver) {
         debug.gameSession = nullptr;
@@ -275,8 +276,7 @@ std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
     return std::make_unique<ProgressionStoreState>();
 }
 
-StateTransitionAction ProgressionStoreState::update(const InputState &input, [[maybe_unused]] DebugContext &debug,
-                                                    [[maybe_unused]] float dt)
+StateTransitionAction ProgressionStoreState::update(const InputState &input, [[maybe_unused]] float dt)
 {
     if (input.confirmPressed) {
         return StateTransitionAction::Pop;
@@ -295,8 +295,7 @@ std::unique_ptr<ExitState> ExitState::createExitState()
     return exitState;
 }
 
-StateTransitionAction ExitState::update([[maybe_unused]] const InputState &input, [[maybe_unused]] DebugContext &debug,
-                                        [[maybe_unused]] float dt)
+StateTransitionAction ExitState::update([[maybe_unused]] const InputState &input, [[maybe_unused]] float dt)
 {
     return StateTransitionAction::ReplaceAllStatesWithExit;
 }

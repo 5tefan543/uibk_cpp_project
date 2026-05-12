@@ -1,3 +1,4 @@
+#include "controller/debug/debug_context.hpp"
 #include "controller/state/state.hpp"
 #include "shared/util.hpp"
 #include <catch2/catch_test_macros.hpp>
@@ -241,9 +242,9 @@ TEST_CASE("Gameplay state update returns correct actions")
     // ARRANGE
     std::unique_ptr<GameplayState> state = GameplayState::createGameplay();
     InputState input;
-    DebugContext debug;
+    DebugContext &debug = DebugContext::get();
 
-    auto updateOnce = [&]() { return state->update(input, debug, dummyDeltaTime); };
+    auto updateOnce = [&]() { return state->update(input, dummyDeltaTime); };
 
     auto initializeGameSession = [&]() {
         StateTransitionAction firstAction = updateOnce();
@@ -332,20 +333,18 @@ TEST_CASE("ProgressionStoreState update returns correct actions")
         // ARRANGE
         InputState input;
         input.confirmPressed = true;
-        DebugContext debug;
 
         // ACT & ASSERT
-        REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::Pop);
+        REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::Pop);
     }
 
     SECTION("no relevant input returns None")
     {
         // ARRANGE
         InputState input;
-        DebugContext debug;
 
         // ACT & ASSERT
-        REQUIRE(state->update(input, debug, dummyDeltaTime) == StateTransitionAction::None);
+        REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::None);
     }
 }
 
@@ -490,9 +489,8 @@ TEST_CASE("ExitState::update returns ReplaceAllStatesWithExit")
     std::unique_ptr<ExitState> state = ExitState::createExitState();
 
     InputState input;
-    DebugContext debug;
 
-    StateTransitionAction action = state->update(input, debug, dummyDeltaTime);
+    StateTransitionAction action = state->update(input, dummyDeltaTime);
 
     REQUIRE(action == StateTransitionAction::ReplaceAllStatesWithExit);
 }
