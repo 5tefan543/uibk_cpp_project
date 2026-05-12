@@ -31,8 +31,8 @@ TEST_CASE("DebugSelectionSystem selects sprite under mouse when ctrl-clicked")
     controller::InputState input{};
     input.controlHeld = true;
     input.mouseLeftPressed = true;
-    input.mouseX = (spritePosition.x - cameraComponent.x) * spriteComponent.scale;
-    input.mouseY = (spritePosition.y - cameraComponent.y) * spriteComponent.scale;
+    input.mouseGridX = (spritePosition.x - cameraComponent.x) * spriteComponent.scale;
+    input.mouseGridY = (spritePosition.y - cameraComponent.y) * spriteComponent.scale;
 
     system.update(registry, input, true, debugSession);
 
@@ -63,8 +63,8 @@ TEST_CASE("DebugSelectionSystem selects map under mouse when ctrl-clicked")
     controller::InputState input{};
     input.controlHeld = true;
     input.mouseLeftPressed = true;
-    input.mouseX = mapComponent.x * mapComponent.scale;
-    input.mouseY = mapComponent.y * mapComponent.scale;
+    input.mouseGridX = mapComponent.x * mapComponent.scale;
+    input.mouseGridY = mapComponent.y * mapComponent.scale;
 
     system.update(registry, input, true, debugSession);
 
@@ -91,8 +91,8 @@ TEST_CASE("DebugSelectionSystem does not select map when no camera exists")
     controller::InputState input{};
     input.controlHeld = true;
     input.mouseLeftPressed = true;
-    input.mouseX = mapComponent.x * mapComponent.scale;
-    input.mouseY = mapComponent.y * mapComponent.scale;
+    input.mouseGridX = mapComponent.x * mapComponent.scale;
+    input.mouseGridY = mapComponent.y * mapComponent.scale;
 
     system.update(registry, input, true, debugSession);
 
@@ -123,8 +123,8 @@ TEST_CASE("DebugSelectionSystem does not select entity when ctrl is not held")
     controller::InputState input{};
     input.controlHeld = false;
     input.mouseLeftPressed = true;
-    input.mouseX = (spritePosition.x - cameraComponent.x) * spriteComponent.scale;
-    input.mouseY = (spritePosition.y - cameraComponent.y) * spriteComponent.scale;
+    input.mouseGridX = (spritePosition.x - cameraComponent.x) * spriteComponent.scale;
+    input.mouseGridY = (spritePosition.y - cameraComponent.y) * spriteComponent.scale;
 
     system.update(registry, input, true, debugSession);
 
@@ -155,8 +155,8 @@ TEST_CASE("DebugSelectionSystem does not select entity when mouse is outside ent
     controller::InputState input{};
     input.controlHeld = true;
     input.mouseLeftPressed = true;
-    input.mouseX = 0;
-    input.mouseY = 0;
+    input.mouseGridX = 0;
+    input.mouseGridY = 0;
 
     system.update(registry, input, true, debugSession);
 

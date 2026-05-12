@@ -46,9 +46,6 @@ bool contains(float mouseX, float mouseY, float x, float y, float width, float h
 std::optional<Entity> DebugSelectionSystem::getEntityAtMousePosition(Registry &registry,
                                                                      const controller::InputState &input)
 {
-    const float mouseX = static_cast<float>(input.mouseX);
-    const float mouseY = static_cast<float>(input.mouseY);
-
     auto cameras = registry.view<Camera>();
 
     if (cameras.empty()) {
@@ -66,7 +63,7 @@ std::optional<Entity> DebugSelectionSystem::getEntityAtMousePosition(Registry &r
         const float width = sprite.width * sprite.scale;
         const float height = sprite.height * sprite.scale;
 
-        if (contains(mouseX, mouseY, x, y, width, height)) {
+        if (contains(input.mouseGridX, input.mouseGridY, x, y, width, height)) {
             return entity;
         }
     }
@@ -79,7 +76,7 @@ std::optional<Entity> DebugSelectionSystem::getEntityAtMousePosition(Registry &r
         const float width = map.width * map.scale;
         const float height = map.height * map.scale;
 
-        if (contains(mouseX, mouseY, x, y, width, height)) {
+        if (contains(input.mouseGridX, input.mouseGridY, x, y, width, height)) {
             return entity;
         }
     }
