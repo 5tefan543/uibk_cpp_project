@@ -34,8 +34,8 @@ void CameraSystem::update(Registry &registry)
     camera.x = std::max(-64.0f, std::min(camera.x, map.width));
     camera.y = std::max(-64.0f, std::min(camera.y, map.height));
 
-    camera.x = std::min(camera.x, 160.0f);
-    camera.y = std::min(camera.y, 250.0f);
+    camera.x = std::min(camera.x, 550.0f);
+    camera.y = std::min(camera.y, 350.0f);
 }
 
 } // namespace game
