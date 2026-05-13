@@ -2,10 +2,11 @@
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/ecs/registry.hpp"
+#include "shared/test_fixture.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("Registry creates entities")
+TEST_CASE_METHOD(TestFixture, "Registry creates entities")
 {
     // ARRANGE
     game::Registry registry;
@@ -19,7 +20,7 @@ TEST_CASE("Registry creates entities")
     REQUIRE(registry.entities().size() == 2);
 }
 
-TEST_CASE("Registry reuses destroyed entity ids")
+TEST_CASE_METHOD(TestFixture, "Registry reuses destroyed entity ids")
 {
     // ARRANGE
     game::Registry registry;
@@ -35,7 +36,7 @@ TEST_CASE("Registry reuses destroyed entity ids")
     REQUIRE(registry.entities().size() == 2);
 }
 
-TEST_CASE("Registry add/get/has component works")
+TEST_CASE_METHOD(TestFixture, "Registry add/get/has component works")
 {
     // ARRANGE
     game::Registry registry;
@@ -50,7 +51,7 @@ TEST_CASE("Registry add/get/has component works")
     REQUIRE(registry.getComponent<game::Position>(e).y == 7.0f);
 }
 
-TEST_CASE("Registry addComponent throws for non-existing entity")
+TEST_CASE_METHOD(TestFixture, "Registry addComponent throws for non-existing entity")
 {
     // ARRANGE
     game::Registry registry;
@@ -60,7 +61,7 @@ TEST_CASE("Registry addComponent throws for non-existing entity")
     REQUIRE_THROWS(registry.addComponent<game::Position>(nonExistingEntity, {1.0f, 2.0f}));
 }
 
-TEST_CASE("Registry removeComponent removes component")
+TEST_CASE_METHOD(TestFixture, "Registry removeComponent removes component")
 {
     // ARRANGE
     game::Registry registry;
@@ -74,7 +75,7 @@ TEST_CASE("Registry removeComponent removes component")
     REQUIRE_FALSE(registry.hasComponent<game::Position>(e));
 }
 
-TEST_CASE("Registry destroyEntity removes all components")
+TEST_CASE_METHOD(TestFixture, "Registry destroyEntity removes all components")
 {
     // ARRANGE
     game::Registry registry;
@@ -92,7 +93,7 @@ TEST_CASE("Registry destroyEntity removes all components")
     REQUIRE(registry.entities().empty());
 }
 
-TEST_CASE("Registry destroyEntity on non-existing entity does nothing")
+TEST_CASE_METHOD(TestFixture, "Registry destroyEntity on non-existing entity does nothing")
 {
     // ARRANGE
     game::Registry registry;
@@ -102,7 +103,7 @@ TEST_CASE("Registry destroyEntity on non-existing entity does nothing")
     REQUIRE_NOTHROW(registry.destroyEntity(nonExistingEntity));
 }
 
-TEST_CASE("Registry view returns only entities with all requested components")
+TEST_CASE_METHOD(TestFixture, "Registry view returns only entities with all requested components")
 {
     // ARRANGE
     game::Registry registry;

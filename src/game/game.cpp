@@ -1,5 +1,6 @@
 #include "game/game.hpp"
 #include "controller/debug/debug_context.hpp"
+#include "controller/persistence/persistence_manager.hpp"
 #include "game/ecs/components/camera.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/map.hpp"
@@ -18,6 +19,7 @@ Game::Game()
 {
     std::cout << "Game constructed" << std::endl;
     initStage();
+    initWave();
     initPlayer();
     initEnemies();
 }
@@ -32,6 +34,7 @@ void Game::initStage()
 
 void Game::initWave()
 {
+    std::cout << "Loading stage " << stage_ << ", wave " << wave_ << std::endl;
     // Logic to initialize a new wave of enemies can go here
 }
 
@@ -81,11 +84,20 @@ void Game::loadFromPersistedGame(const controller::PersistedGame &persistedGame)
     wave_ = persistedGame.wave;
     currency_ = persistedGame.currency;
 
+    // Update debug session with loaded stage/wave
+    debugSession_.stage = stage_;
+    debugSession_.wave = wave_;
+
     auto players = registry_.view<PlayerTag>();
     if (!players.empty()) {
         PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
         playerTag.moveSpeed = persistedGame.playerStats.speed;
     }
+
+    // currently when loading a game, we init the wave 2 times
+    // once in Game constructor and once here
+    // This is because the game is created already in GameplayState
+    initWave();
 }
 
 controller::PersistedGame Game::getPersistedGame() const
@@ -122,9 +134,9 @@ void Game::processDebugSession()
     // Handle stage/wave reload request
     if (debugSession_.isStageWaveReloadRequested) {
         debugSession_.isStageWaveReloadRequested = false;
-        std::cout << "Reloading stage " << debug.gameSettings.stage << ", wave " << debug.gameSettings.wave
-                  << std::endl;
-        // TODO: Implement actual stage/wave reloading logic
+        stage_ = debugSession_.stage;
+        wave_ = debugSession_.wave;
+        initWave();
     }
 
     // Handle player destruction request
@@ -134,6 +146,14 @@ void Game::processDebugSession()
         for (Entity player : registry_.view<PlayerTag>()) {
             registry_.destroyEntity(player);
         }
+    }
+
+    // Handle save game request
+    if (debugSession_.isSaveGameRequested) {
+        debugSession_.isSaveGameRequested = false;
+        std::cout << "Saving game!" << std::endl;
+        controller::PersistedGame persistedGame = getPersistedGame();
+        controller::PersistenceManager::saveGame(persistedGame);
     }
 }
 
@@ -215,5 +235,12 @@ void Game::updateView(view::View &view)
         viewSprite.isSelected = gameSprite.isSelected;
         view.items.push_back(viewSprite);
     }
+
+    stageWaveInfo_ = {
+        .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_),
+        .size = 24,
+        .gridY = 75.0f,
+    };
+    view.items.push_back(std::cref(stageWaveInfo_));
 }
 } // namespace game

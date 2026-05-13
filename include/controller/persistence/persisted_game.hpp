@@ -3,12 +3,12 @@
 namespace controller {
 
 struct PlayerStats {
-    float maxHealth;
-    float attackPower;
-    float attackSpeed;
-    float defense;
-    float speed;
-    bool hasDash;
+    float maxHealth = 0.0f;
+    float attackPower = 0.0f;
+    float attackSpeed = 0.0f;
+    float defense = 0.0f;
+    float speed = 0.0f;
+    bool hasDash = false;
 };
 
 struct PersistedGame {

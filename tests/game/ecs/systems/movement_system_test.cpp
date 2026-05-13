@@ -2,10 +2,11 @@
 #include "game/ecs/components/velocity.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/movement_system.hpp"
+#include "shared/test_fixture.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("MovementSystem updates position using velocity and dt")
+TEST_CASE_METHOD(TestFixture, "MovementSystem updates position using velocity and dt")
 {
     // ARRANGE
     game::Registry registry;
@@ -25,7 +26,7 @@ TEST_CASE("MovementSystem updates position using velocity and dt")
     REQUIRE(position.y == (20.0f - 6.0f * dt));
 }
 
-TEST_CASE("MovementSystem does not touch entity without Velocity")
+TEST_CASE_METHOD(TestFixture, "MovementSystem does not touch entity without Velocity")
 {
     // ARRANGE
     game::Registry registry;
@@ -44,7 +45,7 @@ TEST_CASE("MovementSystem does not touch entity without Velocity")
     REQUIRE(position.y == 20.0f);
 }
 
-TEST_CASE("MovementSystem does not touch entity without Position")
+TEST_CASE_METHOD(TestFixture, "MovementSystem does not touch entity without Position")
 {
     // ARRANGE
     game::Registry registry;
@@ -58,7 +59,7 @@ TEST_CASE("MovementSystem does not touch entity without Position")
     REQUIRE_NOTHROW(system.update(registry, dt));
 }
 
-TEST_CASE("MovementSystem updates multiple matching entities")
+TEST_CASE_METHOD(TestFixture, "MovementSystem updates multiple matching entities")
 {
     // ARRANGE
     game::Registry registry;

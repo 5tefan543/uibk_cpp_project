@@ -1,18 +1,20 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
+#include "controller/persistence/persistence_manager.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/game.hpp"
+#include "shared/test_fixture.hpp"
 #include "shared/util.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("Game can be constructed")
+TEST_CASE_METHOD(TestFixture, "Game can be constructed")
 {
     REQUIRE_NOTHROW(game::Game{});
 }
 
-TEST_CASE("Game update returns false while player is alive")
+TEST_CASE_METHOD(TestFixture, "Game update returns false while player is alive")
 {
     // ARRANGE
     game::Game game;
@@ -25,7 +27,7 @@ TEST_CASE("Game update returns false while player is alive")
     REQUIRE_FALSE(isGameOver);
 }
 
-TEST_CASE("Game update returns true when no player exists anymore")
+TEST_CASE_METHOD(TestFixture, "Game update returns true when no player exists anymore")
 {
     // ARRANGE
     game::Game game;
@@ -43,7 +45,7 @@ TEST_CASE("Game update returns true when no player exists anymore")
     REQUIRE(isGameOver);
 }
 
-TEST_CASE("Game update resets stage/wave reload request when debug is active")
+TEST_CASE_METHOD(TestFixture, "Game update resets stage/wave reload request when debug is active")
 {
     // ARRANGE
     game::Game game;
@@ -62,7 +64,7 @@ TEST_CASE("Game update resets stage/wave reload request when debug is active")
     REQUIRE_FALSE(session.isStageWaveReloadRequested);
 }
 
-TEST_CASE("Game update keeps stage/wave reload request unchanged when debug is inactive")
+TEST_CASE_METHOD(TestFixture, "Game update keeps stage/wave reload request unchanged when debug is inactive")
 {
     // ARRANGE
     game::Game game;
@@ -81,7 +83,7 @@ TEST_CASE("Game update keeps stage/wave reload request unchanged when debug is i
     REQUIRE(session.isStageWaveReloadRequested);
 }
 
-TEST_CASE("Game update resets player destruction request when debug is active")
+TEST_CASE_METHOD(TestFixture, "Game update resets player destruction request when debug is active")
 {
     // ARRANGE
     game::Game game;
@@ -100,7 +102,7 @@ TEST_CASE("Game update resets player destruction request when debug is active")
     REQUIRE_FALSE(session.isPlayerDestructionRequested);
 }
 
-TEST_CASE("Game update keeps player destruction request unchanged when debug is inactive")
+TEST_CASE_METHOD(TestFixture, "Game update keeps player destruction request unchanged when debug is inactive")
 {
     // ARRANGE
     game::Game game;
@@ -119,7 +121,51 @@ TEST_CASE("Game update keeps player destruction request unchanged when debug is 
     REQUIRE(session.isPlayerDestructionRequested);
 }
 
-TEST_CASE("Game update skips system updates when debug is active and system updates are disabled")
+TEST_CASE_METHOD(TestFixture, "Game update saves game on save request and resets request when debug is active")
+{
+    // ARRANGE
+    game::Game game;
+    controller::InputState input;
+    controller::DebugContext &debug = controller::DebugContext::get();
+    debug.active = true;
+
+    game::GameDebugSession &session = game.getDebugSession();
+    session.isSaveGameRequested = true;
+
+    REQUIRE_FALSE(controller::PersistenceManager::hasSavedGame());
+
+    // ACT
+    bool isGameOver = game.update(input, dummyDeltaTime);
+
+    // ASSERT
+    REQUIRE_FALSE(isGameOver);
+    REQUIRE_FALSE(session.isSaveGameRequested);
+    REQUIRE(controller::PersistenceManager::hasSavedGame());
+}
+
+TEST_CASE_METHOD(TestFixture, "Game update keeps save game request unchanged when debug is inactive")
+{
+    // ARRANGE
+    game::Game game;
+    controller::InputState input;
+    controller::DebugContext &debug = controller::DebugContext::get();
+    debug.active = false;
+
+    game::GameDebugSession &session = game.getDebugSession();
+    session.isSaveGameRequested = true;
+
+    REQUIRE_FALSE(controller::PersistenceManager::hasSavedGame());
+
+    // ACT
+    bool isGameOver = game.update(input, dummyDeltaTime);
+
+    // ASSERT
+    REQUIRE_FALSE(isGameOver);
+    REQUIRE(session.isSaveGameRequested);
+    REQUIRE_FALSE(controller::PersistenceManager::hasSavedGame());
+}
+
+TEST_CASE_METHOD(TestFixture, "Game update skips system updates when debug is active and system updates are disabled")
 {
     // ARRANGE
     game::Game game;
@@ -153,7 +199,8 @@ TEST_CASE("Game update skips system updates when debug is active and system upda
     REQUIRE(positionAfter.y == positionBeforeY);
 }
 
-TEST_CASE("Game update still runs system updates when debug is inactive even if system updates are disabled")
+TEST_CASE_METHOD(TestFixture,
+                 "Game update still runs system updates when debug is inactive even if system updates are disabled")
 {
     // ARRANGE
     game::Game game;
@@ -187,7 +234,7 @@ TEST_CASE("Game update still runs system updates when debug is inactive even if 
     REQUIRE(positionAfter.y == positionBeforeY);
 }
 
-TEST_CASE("Game getView returns correct view")
+TEST_CASE_METHOD(TestFixture, "Game getView returns correct view")
 {
     // ARRANGE
     game::Game game;
@@ -202,7 +249,7 @@ TEST_CASE("Game getView returns correct view")
     REQUIRE(view.cameraY == 0.0f);
 }
 
-TEST_CASE("Game loadFromPersistedGame applies persisted values")
+TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted values")
 {
     game::Game game;
 
