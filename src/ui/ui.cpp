@@ -89,7 +89,7 @@ const controller::InputState &UI::pollInput()
     return inputState_;
 }
 
-void UI::render(const view::View &view, controller::DebugContext &debug)
+void UI::render(const view::View &view)
 {
     // 1. On window resize: adjust sfml view to prevent visual squishing/stretching
     if (inputState_.windowResized) {
@@ -106,7 +106,7 @@ void UI::render(const view::View &view, controller::DebugContext &debug)
     renderer_.renderView(window_, view);
 
     // 4. Render debug UI on top
-    debugUI_.render(debug, inputState_, fps_);
+    debugUI_.render(inputState_, fps_);
     ImGui::SFML::Render(window_);
 
     // 5. Display everything

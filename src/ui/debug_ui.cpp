@@ -15,8 +15,9 @@ DebugUI::~DebugUI()
     std::cout << "DebugUI destructed" << std::endl;
 }
 
-void DebugUI::render(controller::DebugContext &debug, const controller::InputState &input, float fps)
+void DebugUI::render(const controller::InputState &input, float fps)
 {
+    controller::DebugContext &debug = controller::DebugContext::get();
     if (!debug.active) {
         return;
     }

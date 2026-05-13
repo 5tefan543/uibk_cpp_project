@@ -12,6 +12,12 @@ struct DebugContext {
     std::string currentStateInfo;
     GameDebugSettings gameSettings;
     game::GameDebugSession *gameSession = nullptr; // only available when Game exists
+
+    static DebugContext &get()
+    {
+        static DebugContext instance;
+        return instance;
+    }
 };
 
 } // namespace controller

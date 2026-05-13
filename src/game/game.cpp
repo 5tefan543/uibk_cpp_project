@@ -1,4 +1,5 @@
 #include "game/game.hpp"
+#include "controller/debug/debug_context.hpp"
 #include "game/ecs/components/camera.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/map.hpp"
@@ -103,15 +104,17 @@ controller::PersistedGame Game::getPersistedGame() const
     return persistedGame;
 }
 
-bool Game::update(const controller::InputState &input, controller::DebugContext &debug, float dt)
+bool Game::update(const controller::InputState &input, float dt)
 {
-    processDebugSession(debug);
-    updateSystems(input, debug, dt);
+    processDebugSession();
+    updateSystems(input, dt);
     return isGameOver();
 }
 
-void Game::processDebugSession(controller::DebugContext &debug)
+void Game::processDebugSession()
 {
+    controller::DebugContext &debug = controller::DebugContext::get();
+
     if (!debug.active) {
         return;
     }
@@ -134,8 +137,13 @@ void Game::processDebugSession(controller::DebugContext &debug)
     }
 }
 
-void Game::updateSystems(const controller::InputState &input, controller::DebugContext &debug, float dt)
+void Game::updateSystems(const controller::InputState &input, float dt)
 {
+    controller::DebugContext &debug = controller::DebugContext::get();
+
+    // Always update debug selection system
+    debugSelectionSystem_.update(registry_, input, debug.active, debugSession_);
+
     if (debug.active && !debugSession_.isSystemUpdateActive) {
         return;
     }
@@ -144,7 +152,6 @@ void Game::updateSystems(const controller::InputState &input, controller::DebugC
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, dt);
     cameraSystem_.update(registry_);
-    debugSelectionSystem_.update(registry_, input, debug.active, debugSession_);
 }
 
 bool Game::isGameOver()

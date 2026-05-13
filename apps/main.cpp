@@ -36,10 +36,8 @@ int main()
                 break;
             }
             const view::View &view = currentState.getView();
-            controller::DebugContext &debug = controller.getDebugContext();
-            ui.render(view, debug);
+            ui.render(view);
         }
-
         return EXIT_SUCCESS;
     } catch (const std::exception &e) {
         std::cerr << "Fatal error: " << e.what() << std::endl;

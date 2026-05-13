@@ -1,4 +1,5 @@
 #include "controller/controller.hpp"
+#include "controller/debug/debug_context.hpp"
 #include <iostream>
 
 namespace controller {
@@ -16,27 +17,24 @@ Controller::~Controller()
 
 void Controller::update(const InputState &input, float dt)
 {
+    DebugContext &debug = DebugContext::get();
+
     if (input.toggleDebugPressed) {
-        debug_.active = !debug_.active;
+        debug.active = !debug.active;
     }
 
     BaseState &currentState = stateManager_.getCurrent();
-    StateTransitionAction action = currentState.update(input, debug_, dt);
+    StateTransitionAction action = currentState.update(input, dt);
     stateManager_.applyAction(action);
 
-    if (debug_.active) {
-        debug_.currentStateInfo = stateManager_.getDebugInfo();
+    if (debug.active) {
+        debug.currentStateInfo = stateManager_.getDebugInfo();
     }
 }
 
 BaseState &Controller::getCurrentState()
 {
     return stateManager_.getCurrent();
-}
-
-DebugContext &Controller::getDebugContext()
-{
-    return debug_;
 }
 
 } // namespace controller

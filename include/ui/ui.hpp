@@ -29,7 +29,7 @@ class UI {
 
     bool isOpen() const;
     const controller::InputState &pollInput();
-    void render(const view::View &view, controller::DebugContext &debug);
+    void render(const view::View &view);
 };
 
 } // namespace ui
