@@ -11,6 +11,11 @@ struct GameDebugSession {
     bool isStageWaveReloadRequested = false;
     bool isStoreOpenRequested = false;
     bool isPlayerDestructionRequested = false;
+    bool isSaveGameRequested = false;
+
+    // stage / wave management
+    int stage = 1;
+    int wave = 1;
 
     // ecs management
     Registry &registry;

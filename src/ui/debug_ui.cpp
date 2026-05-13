@@ -1,4 +1,5 @@
 #include "ui/debug_ui.hpp"
+#include "controller/persistence/persistence_manager.hpp"
 #include <imgui.h>
 #include <iostream>
 #include <vector>
@@ -50,12 +51,6 @@ void DebugUI::renderStats(float fps, const controller::InputState &input, contro
 void DebugUI::renderGameSettings(controller::DebugContext &debug)
 {
     if (ImGui::CollapsingHeader("Game Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::SeparatorText("Stage / Wave");
-        ImGui::InputInt("Stage", &debug.gameSettings.stage);
-        ImGui::InputInt("Wave", &debug.gameSettings.wave);
-        if (ImGui::Button("Reload Stage/Wave") && debug.gameSession) {
-            debug.gameSession->isStageWaveReloadRequested = true;
-        }
 
         ImGui::SeparatorText("Collision");
         ImGui::Checkbox("Show Hitboxes", &debug.gameSettings.showHitboxes);
@@ -69,29 +64,63 @@ void DebugUI::renderGameSession(controller::DebugContext &debug)
 
         if (ImGui::CollapsingHeader("Game Session", ImGuiTreeNodeFlags_DefaultOpen)) {
 
+            ImGui::SeparatorText("Stage / Wave");
+            const bool didStageChange = ImGui::InputInt("Stage", &gameSession.stage);
+            const bool didWaveChange = ImGui::InputInt("Wave", &gameSession.wave);
+
+            // keep values >= 1
+            gameSession.stage = std::max(1, gameSession.stage);
+            gameSession.wave = std::max(1, gameSession.wave);
+
+            if (didStageChange) {
+                // move to first wave of the selected stage
+                gameSession.wave = (gameSession.stage - 1) * 5 + 1;
+            }
+
+            if (didWaveChange) {
+                // derive stage from wave
+                gameSession.stage = ((gameSession.wave - 1) / 5) + 1;
+            }
+
+            if (ImGui::Button("Reload Stage/Wave") && debug.gameSession) {
+                debug.gameSession->isStageWaveReloadRequested = true;
+            }
+
+            ImGui::SeparatorText("Persistence Management");
+            if (ImGui::Button("Save Game")) {
+                debug.gameSession->isSaveGameRequested = true;
+            }
+            if (controller::PersistenceManager::hasSavedGame()) {
+                if (ImGui::Button("Delete Saved Game")) {
+                    controller::PersistenceManager::deleteSave();
+                }
+            }
+
+            ImGui::SeparatorText("Progression Store");
             if (ImGui::Button("Open Store")) {
                 debug.gameSession->isStoreOpenRequested = true;
             }
 
-            if (ImGui::Button("Destroy Player")) {
-                debug.gameSession->isPlayerDestructionRequested = true;
-            }
-
-            std::string updateSystemsLabel =
-                gameSession.isSystemUpdateActive ? "Pause Simulation" : "Resume Simulation";
-            if (ImGui::Button(updateSystemsLabel.c_str())) {
-                debug.gameSession->isSystemUpdateActive = !debug.gameSession->isSystemUpdateActive;
-            }
-
-            renderEcsManagement(gameSession);
+            renderEcsManagement(debug, gameSession);
         }
     }
 }
 
-void DebugUI::renderEcsManagement(game::GameDebugSession &gameSession)
+void DebugUI::renderEcsManagement(controller::DebugContext &debug, game::GameDebugSession &gameSession)
 {
     if (ImGui::CollapsingHeader("ECS", ImGuiTreeNodeFlags_DefaultOpen)) {
 
+        ImGui::SeparatorText("Game Control");
+        if (ImGui::Button("Destroy Player")) {
+            debug.gameSession->isPlayerDestructionRequested = true;
+        }
+
+        std::string updateSystemsLabel = gameSession.isSystemUpdateActive ? "Pause Simulation" : "Resume Simulation";
+        if (ImGui::Button(updateSystemsLabel.c_str())) {
+            debug.gameSession->isSystemUpdateActive = !debug.gameSession->isSystemUpdateActive;
+        }
+
+        ImGui::SeparatorText("Entity Management");
         ImGui::Text("Entity count: %zu", gameSession.registry.entities().size());
         ImGui::Text("Select on screen: Ctrl + Left-Mouse-Btn");
 
