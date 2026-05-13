@@ -122,7 +122,55 @@ TEST_CASE_METHOD(TestFixture, "Game update keeps player destruction request unch
     REQUIRE(session.isPlayerDestructionRequested);
 }
 
-TEST_CASE("Game update skips system updates when debug is active and system updates are disabled")
+TEST_CASE_METHOD(TestFixture, "Game update saves game on save request and resets request when debug is active")
+{
+    test::ScopedTestDirectory testDir("roguelike-game-test-");
+
+    // ARRANGE
+    game::Game game;
+    controller::InputState input;
+    controller::DebugContext &debug = controller::DebugContext::get();
+    debug.active = true;
+
+    game::GameDebugSession &session = game.getDebugSession();
+    session.isSaveGameRequested = true;
+
+    REQUIRE_FALSE(controller::PersistenceManager::hasSavedGame());
+
+    // ACT
+    bool isGameOver = game.update(input, dummyDeltaTime);
+
+    // ASSERT
+    REQUIRE_FALSE(isGameOver);
+    REQUIRE_FALSE(session.isSaveGameRequested);
+    REQUIRE(controller::PersistenceManager::hasSavedGame());
+}
+
+TEST_CASE_METHOD(TestFixture, "Game update keeps save game request unchanged when debug is inactive")
+{
+    test::ScopedTestDirectory testDir("roguelike-game-test-");
+
+    // ARRANGE
+    game::Game game;
+    controller::InputState input;
+    controller::DebugContext &debug = controller::DebugContext::get();
+    debug.active = false;
+
+    game::GameDebugSession &session = game.getDebugSession();
+    session.isSaveGameRequested = true;
+
+    REQUIRE_FALSE(controller::PersistenceManager::hasSavedGame());
+
+    // ACT
+    bool isGameOver = game.update(input, dummyDeltaTime);
+
+    // ASSERT
+    REQUIRE_FALSE(isGameOver);
+    REQUIRE(session.isSaveGameRequested);
+    REQUIRE_FALSE(controller::PersistenceManager::hasSavedGame());
+}
+
+TEST_CASE_METHOD(TestFixture, "Game update skips system updates when debug is active and system updates are disabled")
 {
     // ARRANGE
     game::Game game;
