@@ -179,26 +179,40 @@ void DebugUI::renderEcsManagement(controller::DebugContext &debug, game::GameDeb
 
 void DebugUI::renderComponent(game::PlayerTag &c)
 {
+    ImGui::PushID("PlayerTagComponent");
+
     ImGui::SeparatorText("PlayerTag");
     ImGui::InputFloat("moveSpeed", &c.moveSpeed);
+
+    ImGui::PopID();
 }
 
 void DebugUI::renderComponent(game::Position &c)
 {
+    ImGui::PushID("PositionComponent");
+
     ImGui::SeparatorText("Position");
     ImGui::InputFloat("x", &c.x);
     ImGui::InputFloat("y", &c.y);
+
+    ImGui::PopID();
 }
 
 void DebugUI::renderComponent(game::Velocity &c)
 {
+    ImGui::PushID("VelocityComponent");
+
     ImGui::SeparatorText("Velocity");
     ImGui::InputFloat("dx", &c.dx);
     ImGui::InputFloat("dy", &c.dy);
+
+    ImGui::PopID();
 }
 
 void DebugUI::renderComponent(game::Sprite &c)
 {
+    ImGui::PushID("SpriteComponent");
+
     ImGui::SeparatorText("Sprite");
     ImGui::InputFloat("width", &c.width);
     ImGui::InputFloat("height", &c.height);
@@ -207,23 +221,33 @@ void DebugUI::renderComponent(game::Sprite &c)
     ImGui::InputInt("totalFrames", &c.totalFrames);
     ImGui::InputFloat("frameDuration", &c.frameDuration);
     ImGui::InputFloat("frameTimer", &c.frameTimer);
+
+    ImGui::PopID();
 }
 
 void DebugUI::renderComponent(game::Map &c)
 {
+    ImGui::PushID("MapComponent");
+
     ImGui::SeparatorText("Map");
     ImGui::InputFloat("width", &c.width);
     ImGui::InputFloat("height", &c.height);
     ImGui::InputFloat("x", &c.x);
     ImGui::InputFloat("y", &c.y);
+
+    ImGui::PopID();
 }
 
 void DebugUI::renderComponent(game::Camera &c)
 {
+    ImGui::PushID("CameraComponent");
+
     ImGui::SeparatorText("Camera");
     ImGui::InputFloat("x", &c.x);
     ImGui::InputFloat("y", &c.y);
     ImGui::InputFloat("viewportHeight", &c.viewportHeight);
     ImGui::InputFloat("viewportWidth", &c.viewportWidth);
+
+    ImGui::PopID();
 }
 } // namespace ui
