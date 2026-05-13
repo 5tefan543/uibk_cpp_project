@@ -1,5 +1,6 @@
 #include "game/game.hpp"
 #include "controller/debug/debug_context.hpp"
+#include "controller/persistence/persisted_game.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "game/ecs/components/camera.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
@@ -35,6 +36,9 @@ void Game::initStage()
 void Game::getNextWave()
 {
     // Logic to initialize a new wave of enemies can go here
+    auto gameSave = getPersistedGame();
+    if (controller::PersistenceManager::saveGame(gameSave)) {
+    }
     wave_++;
     std::cout << "Starting wave " << wave_ << " of stage " << stage_ << std::endl;
 }
@@ -83,7 +87,8 @@ void Game::loadFromPersistedGame(const controller::PersistedGame &persistedGame)
 {
     stage_ = persistedGame.stage;
     wave_ = persistedGame.wave;
-    score_ = persistedGame.currency;
+    score_ = persistedGame.score;
+    currency_ = persistedGame.currency;
 
     auto players = registry_.view<PlayerTag>();
     if (!players.empty()) {
@@ -97,7 +102,8 @@ controller::PersistedGame Game::getPersistedGame() const
     controller::PersistedGame persistedGame;
     persistedGame.stage = stage_;
     persistedGame.wave = wave_;
-    persistedGame.currency = score_;
+    persistedGame.score = score_;
+    persistedGame.currency = currency_;
 
     auto players = registry_.view<PlayerTag>();
     if (!players.empty()) {

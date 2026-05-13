@@ -1,4 +1,5 @@
 #include "ui/renderer.hpp"
+#include "controller/persistence/persistence_manager.hpp"
 #include "view/grid.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
@@ -8,7 +9,7 @@ namespace ui {
 Renderer::Renderer()
 {
     // Load all fonts from disk once upon instantiation
-    fonts_ = std::vector<sf::Font>({sf::Font("assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf")});
+    fonts_ = std::vector<sf::Font>({sf::Font(controller::PersistenceManager::loadConfig().assetConfig.fontPath)});
     std::cout << "Renderer constructed" << std::endl;
 }
 

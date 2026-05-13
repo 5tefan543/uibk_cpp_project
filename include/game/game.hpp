@@ -29,6 +29,7 @@ class Game {
     int stage_ = 1;
     int wave_ = 0;
     int score_ = 0;
+    int currency_ = 0;
 
     void initStage();
     void initPlayer();

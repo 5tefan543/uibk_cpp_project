@@ -14,6 +14,7 @@ struct PlayerStats {
 struct PersistedGame {
     int stage;
     int wave;
+    int score;
     int currency;
     PlayerStats playerStats;
 };

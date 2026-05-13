@@ -165,7 +165,11 @@ TEST_CASE("applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded 
     game.wave = 4;
     game.currency = 777;
     game.playerStats.speed = 360.0f;
-    PersistenceManager::saveGame(game);
+    game.playerStats.hasDash = true;
+    game.score = 12345;
+    game.playerStats.maxHealth = 500.0f;
+    auto isSaved = PersistenceManager::saveGame(game);
+    REQUIRE(isSaved);
 
     StateManager stateManager;
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));

@@ -263,11 +263,15 @@ std::unique_ptr<GameplayState> GameplayState::createNewGameplay()
 
 std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
 {
+    std::optional<PersistedGame> persistedGame = std::nullopt;
+    if (PersistenceManager::hasSavedGame()) {
+        persistedGame = PersistenceManager::loadGame();
+    }
+
     auto state = std::make_unique<GameplayState>();
     state->waveStartTime_ = std::chrono::steady_clock::now();
-    if (PersistenceManager::hasSavedGame()) {
-        auto persistedGame = PersistenceManager::loadGame();
-        state->game.loadFromPersistedGame(persistedGame);
+    if (persistedGame.has_value()) {
+        state->game.loadFromPersistedGame(*persistedGame);
         state->loadedFromSave_ = true;
     }
 

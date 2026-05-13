@@ -24,8 +24,8 @@ struct glz::meta<controller::PlayerStats> {
 template <>
 struct glz::meta<controller::PersistedGame> {
     using T = controller::PersistedGame;
-    static constexpr auto value =
-        object("stage", &T::stage, "wave", &T::wave, "currency", &T::currency, "playerStats", &T::playerStats);
+    static constexpr auto value = object("stage", &T::stage, "wave", &T::wave, "score", &T::score, "currency",
+                                         &T::currency, "playerStats", &T::playerStats);
 };
 
 template <>
@@ -116,7 +116,8 @@ class Serializer {
         buffer << in.rdbuf();
 
         if (const auto err = glz::read_json(value, buffer.str())) {
-            std::cerr << "Failed to deserialize JSON for " << path << std::endl;
+            std::cerr << "Failed to deserialize JSON for " << path << ": " << glz::format_error(err, buffer.str())
+                      << '\n';
             return false;
         }
 
