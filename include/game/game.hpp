@@ -1,6 +1,7 @@
 #pragma once
 
 #include "controller/input/input_state.hpp"
+#include "controller/persistence/config_game.hpp"
 #include "controller/persistence/persisted_game.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "game/ecs/registry.hpp"
@@ -17,6 +18,7 @@ class Game {
   private:
     Registry registry_;
     GameDebugSession debugSession_{registry_};
+    controller::GameConfig config_;
 
     AnimationSystem animationSystem_;
     CameraSystem cameraSystem_;

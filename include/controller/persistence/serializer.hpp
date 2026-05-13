@@ -47,7 +47,8 @@ struct glz::meta<controller::GameConfig> {
     using T = controller::GameConfig;
     static constexpr auto value =
         object("initialStage", &T::initialStage, "initialWave", &T::initialWave, "initialCurrency", &T::initialCurrency,
-               "windowConfig", &T::windowConfig, "assetConfig", &T::assetConfig);
+               "waveDurationSeconds", &T::waveDurationSeconds, "wavesPerStage", &T::wavesPerStage, "windowConfig",
+               &T::windowConfig, "assetConfig", &T::assetConfig);
 };
 
 template <>

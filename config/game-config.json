@@ -2,6 +2,8 @@
     "initialStage": 1,
     "initialWave": 1,
     "initialCurrency": 0,
+    "waveDurationSeconds": 10,
+    "wavesPerStage": 2,
     "windowConfig": {
         "width": 1920,
         "height": 1080,
