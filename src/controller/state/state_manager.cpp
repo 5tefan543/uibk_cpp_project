@@ -55,7 +55,10 @@ void StateManager::applyAction(StateTransitionAction action)
         // No state change
         break;
     case StateTransitionAction::ReplaceCurrentWithGameplay:
-        replaceCurrent(GameplayState::createGameplay());
+        replaceCurrent(GameplayState::createNewGameplay());
+        break;
+    case StateTransitionAction::ReplaceCurrentWithLoadedGameplay:
+        replaceCurrent(GameplayState::createLoadedGameplay());
         break;
     case StateTransitionAction::PushPauseMenu:
         push(MenuState::createMenu(MenuType::PauseMenu));

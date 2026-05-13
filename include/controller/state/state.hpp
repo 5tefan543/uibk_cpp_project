@@ -45,10 +45,14 @@ class MenuState : public BaseState {
 };
 
 class GameplayState : public BaseState {
+    bool loadedFromSave_ = false;
+
   public:
     game::Game game;
 
-    static std::unique_ptr<GameplayState> createGameplay();
+    static std::unique_ptr<GameplayState> createNewGameplay();
+    static std::unique_ptr<GameplayState> createLoadedGameplay();
+    bool isLoadedFromPersistedGame() const;
 
     StateTransitionAction update(const InputState &input, float dt) override;
     std::string toString() const override;
