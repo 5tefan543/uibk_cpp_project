@@ -4,7 +4,6 @@
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/game.hpp"
-#include "shared/test_filesystem.hpp"
 #include "shared/test_fixture.hpp"
 #include "shared/util.hpp"
 
@@ -124,8 +123,6 @@ TEST_CASE_METHOD(TestFixture, "Game update keeps player destruction request unch
 
 TEST_CASE_METHOD(TestFixture, "Game update saves game on save request and resets request when debug is active")
 {
-    test::ScopedTestDirectory testDir("roguelike-game-test-");
-
     // ARRANGE
     game::Game game;
     controller::InputState input;
@@ -148,8 +145,6 @@ TEST_CASE_METHOD(TestFixture, "Game update saves game on save request and resets
 
 TEST_CASE_METHOD(TestFixture, "Game update keeps save game request unchanged when debug is inactive")
 {
-    test::ScopedTestDirectory testDir("roguelike-game-test-");
-
     // ARRANGE
     game::Game game;
     controller::InputState input;

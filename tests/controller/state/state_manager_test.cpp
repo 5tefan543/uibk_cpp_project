@@ -1,6 +1,5 @@
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state_manager.hpp"
-#include "shared/test_filesystem.hpp"
 #include "shared/test_fixture.hpp"
 #include <catch2/catch_test_macros.hpp>
 
@@ -159,8 +158,6 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithGameplay replaces c
 
 TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded from save")
 {
-    test::ScopedTestDirectory testDir("roguelike-state-manager-test-");
-
     PersistedGame game;
     game.stage = 9;
     game.wave = 4;

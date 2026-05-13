@@ -1,5 +1,4 @@
 #include "controller/persistence/serializer.hpp"
-#include "shared/test_filesystem.hpp"
 #include "shared/test_fixture.hpp"
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
@@ -11,8 +10,6 @@ using namespace controller;
 
 TEST_CASE_METHOD(TestFixture, "Serializer returns false when target file cannot be opened for writing")
 {
-    test::ScopedTestDirectory testDir("roguelike-serializer-test-");
-
     std::filesystem::create_directories(Serializer::configDir);
 
     PersistedGame game;
@@ -24,8 +21,6 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when target file cannot 
 
 TEST_CASE_METHOD(TestFixture, "Serializer returns false when parent path exists as a file")
 {
-    test::ScopedTestDirectory testDir("roguelike-serializer-test-");
-
     {
         std::ofstream configPathAsFile(Serializer::configDir);
         REQUIRE(configPathAsFile.good());
@@ -39,8 +34,6 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when parent path exists 
 
 TEST_CASE_METHOD(TestFixture, "Serializer returns false when stream write fails")
 {
-    test::ScopedTestDirectory testDir("roguelike-serializer-test-");
-
     if (!std::filesystem::exists("/dev/full")) {
         SKIP("/dev/full is unavailable on this platform");
     }
@@ -53,8 +46,6 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when stream write fails"
 
 TEST_CASE_METHOD(TestFixture, "Serializer returns false when reading from missing file")
 {
-    test::ScopedTestDirectory testDir("roguelike-serializer-test-");
-
     PersistedGame game;
 
     REQUIRE_FALSE(Serializer::readJsonFromFile(game, Serializer::saveFilePath));
@@ -62,8 +53,6 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when reading from missin
 
 TEST_CASE_METHOD(TestFixture, "Serializer returns false when deserializing invalid JSON")
 {
-    test::ScopedTestDirectory testDir("roguelike-serializer-test-");
-
     std::filesystem::create_directories(Serializer::saveFilePath.parent_path());
     std::ofstream out(Serializer::saveFilePath);
     REQUIRE(out.good());
@@ -77,8 +66,6 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when deserializing inval
 
 TEST_CASE_METHOD(TestFixture, "Serializer writes and reads persisted game JSON")
 {
-    test::ScopedTestDirectory testDir("roguelike-serializer-test-");
-
     PersistedGame input;
     input.stage = 7;
     input.wave = 4;
@@ -109,8 +96,6 @@ TEST_CASE_METHOD(TestFixture, "Serializer writes and reads persisted game JSON")
 
 TEST_CASE_METHOD(TestFixture, "Serializer creates missing parent directories while writing")
 {
-    test::ScopedTestDirectory testDir("roguelike-serializer-test-");
-
     const auto nestedPath = Serializer::configDir / "nested" / "persisted-game.json";
     REQUIRE_FALSE(std::filesystem::exists(nestedPath.parent_path()));
 
@@ -124,8 +109,6 @@ TEST_CASE_METHOD(TestFixture, "Serializer creates missing parent directories whi
 
 TEST_CASE_METHOD(TestFixture, "Serializer overwrites existing JSON file")
 {
-    test::ScopedTestDirectory testDir("roguelike-serializer-test-");
-
     PersistedGame first{};
     first.stage = 1;
     first.wave = 1;
@@ -148,8 +131,6 @@ TEST_CASE_METHOD(TestFixture, "Serializer overwrites existing JSON file")
 
 TEST_CASE_METHOD(TestFixture, "Serializer writes and reads leaderboard entry vectors")
 {
-    test::ScopedTestDirectory testDir("roguelike-serializer-test-");
-
     const std::vector<LeaderboardEntry> input{{"Alice", 1200, 12}, {"Bob", 900, 10}};
 
     REQUIRE(Serializer::writeJsonToFile(input, Serializer::leaderboardFilePath));

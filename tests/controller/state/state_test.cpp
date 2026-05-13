@@ -1,7 +1,6 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state.hpp"
-#include "shared/test_filesystem.hpp"
 #include "shared/test_fixture.hpp"
 #include "shared/util.hpp"
 #include <catch2/catch_test_macros.hpp>
@@ -78,7 +77,6 @@ TEST_CASE_METHOD(TestFixture, "ProgressionStoreState::createStore constructs sto
 
 TEST_CASE_METHOD(TestFixture, "Main menu update returns correct actions")
 {
-    test::ScopedTestDirectory testDir("roguelike-state-test-");
     auto state = MenuState::createMenu(MenuType::MainMenu);
 
     SECTION("confirm on initial selection starts gameplay")
@@ -107,7 +105,6 @@ TEST_CASE_METHOD(TestFixture, "Main menu update returns correct actions")
 
 TEST_CASE_METHOD(TestFixture, "Main menu mouse input returns correct actions")
 {
-    test::ScopedTestDirectory testDir("roguelike-state-test-");
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
     const view::View &view = state->getView();
     const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.items[0]);
@@ -143,7 +140,6 @@ TEST_CASE_METHOD(TestFixture, "Main menu mouse input returns correct actions")
 
 TEST_CASE_METHOD(TestFixture, "Main menu exposes load option and action when saved game exists")
 {
-    test::ScopedTestDirectory testDir("roguelike-state-test-");
     createSavedGameFile();
 
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
@@ -431,7 +427,6 @@ TEST_CASE_METHOD(TestFixture, "MenuState::getView returns expected view")
 {
     SECTION("main menu returns expected view")
     {
-        test::ScopedTestDirectory testDir("roguelike-state-test-");
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
 
         const view::View &view = state->getView();
@@ -453,7 +448,6 @@ TEST_CASE_METHOD(TestFixture, "MenuState::getView returns expected view")
 
     SECTION("main menu with save returns expected view including load")
     {
-        test::ScopedTestDirectory testDir("roguelike-state-test-");
         createSavedGameFile();
 
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
