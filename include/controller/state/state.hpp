@@ -60,7 +60,17 @@ class GameplayState : public BaseState {
 };
 
 class ProgressionStoreState : public BaseState {
+    std::deque<view::Button> buttons_;
+    std::deque<view::Card> cards_;
+    std::deque<view::Text> texts_;
+    std::size_t selectedButtonId_ = 0;
+
+    void initView();
+    std::optional<std::size_t> getHoveredButtonId(const InputState &input) const;
+
   public:
+    ProgressionStoreState();
+
     static std::unique_ptr<ProgressionStoreState> createStore();
 
     StateTransitionAction update(const InputState &input, float dt) override;

@@ -317,12 +317,95 @@ std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
     return std::make_unique<ProgressionStoreState>();
 }
 
+std::optional<std::size_t> ProgressionStoreState::getHoveredButtonId(const InputState &input) const
+{
+    for (std::size_t idx = 0; idx < buttons_.size(); idx++) {
+        const view::Button &button = buttons_[idx];
+        const bool insideX = input.mouseGridX >= button.gridX && input.mouseGridX <= (button.gridX + button.width);
+        const bool insideY = input.mouseGridY >= button.gridY && input.mouseGridY <= (button.gridY + button.height);
+
+        if (insideX && insideY) {
+            return idx;
+        }
+    }
+
+    return std::nullopt;
+}
+
+void ProgressionStoreState::initView()
+{
+    view::Card &backgroundCard = cards_.emplace_back(view::Card());
+    backgroundCard.gridX = 0;
+    backgroundCard.gridY = 0;
+    backgroundCard.width = view::gridWidth;
+    backgroundCard.height = view::gridHeight;
+
+    view::Card &storeCard = cards_.emplace_back(view::Card());
+    storeCard.backgroundColor = {50, 50, 50};
+
+    view::Text &title = texts_.emplace_back(view::Text());
+    title.gridY = (storeCard.gridY + storeCard.height / 10);
+    title.text = std::string("Store Menu");
+
+    view::Button &startGameButton = buttons_.emplace_back(view::Button());
+    setCenterizedY(startGameButton, getCenterY(storeCard) - startGameButton.height);
+    startGameButton.text.gridY = getCenterY(startGameButton);
+    startGameButton.text.text = std::string("Continue Game");
+
+    view::Button &quitButton = buttons_.emplace_back(view::Button());
+    setCenterizedY(quitButton, getCenterY(storeCard) + quitButton.height);
+    quitButton.text.gridY = getCenterY(quitButton);
+    quitButton.text.text = std::string("Quit Game");
+
+    storeCard.items.push_back(title);
+    storeCard.items.push_back(startGameButton);
+    storeCard.items.push_back(quitButton);
+    backgroundCard.items.push_back(storeCard);
+    view_.items.push_back(backgroundCard);
+}
+
+ProgressionStoreState::ProgressionStoreState()
+{
+    initView();
+}
+
 StateTransitionAction ProgressionStoreState::update(const InputState &input, [[maybe_unused]] float dt)
 {
-    if (input.confirmPressed) {
-        return StateTransitionAction::Pop;
+    const size_t prevSelectedButtonId = selectedButtonId_;
+
+    StateTransitionAction stateTransitionAction = StateTransitionAction::None;
+    bool isMouseSelectionActive = input.mouseMoved || input.mouseLeftPressed;
+
+    const std::optional<std::size_t> hoveredButtonId = getHoveredButtonId(input);
+    if (isMouseSelectionActive && hoveredButtonId.has_value()) {
+        selectedButtonId_ = hoveredButtonId.value();
     }
-    return StateTransitionAction::None;
+
+    const bool isButtonHovered = hoveredButtonId.has_value();
+    const bool buttonPressed = input.confirmPressed || (input.mouseLeftPressed && isButtonHovered);
+
+    if (input.downPressed) {
+        selectedButtonId_ = (selectedButtonId_ + 1) % buttons_.size();
+    }
+    if (input.upPressed) {
+        selectedButtonId_ = (selectedButtonId_ + buttons_.size() - 1) % buttons_.size();
+    }
+
+    if (buttonPressed) {
+        switch (selectedButtonId_) {
+        case 0:
+            stateTransitionAction = StateTransitionAction::Pop;
+            break;
+        case 1:
+            stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
+            break;
+        }
+    }
+
+    buttons_[prevSelectedButtonId].isSelected = false;
+    buttons_[selectedButtonId_].isSelected = true;
+
+    return stateTransitionAction;
 }
 
 std::string ProgressionStoreState::toString() const
