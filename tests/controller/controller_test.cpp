@@ -1,12 +1,13 @@
 #include "controller/controller.hpp"
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
+#include "shared/test_fixture.hpp"
 #include "shared/util.hpp"
 #include <catch2/catch_test_macros.hpp>
 
 using namespace controller;
 
-TEST_CASE("Controller is constructed with main menu as current state")
+TEST_CASE_METHOD(TestFixture, "Controller is constructed with main menu as current state")
 {
     // ARRANGE & ACT
     Controller controller;
@@ -15,7 +16,7 @@ TEST_CASE("Controller is constructed with main menu as current state")
     REQUIRE(typeid(controller.getCurrentState()) == typeid(MenuState));
 }
 
-TEST_CASE("Controller update with no relevant input keeps main menu")
+TEST_CASE_METHOD(TestFixture, "Controller update with no relevant input keeps main menu")
 {
     // ARRANGE
     Controller controller;
@@ -28,7 +29,7 @@ TEST_CASE("Controller update with no relevant input keeps main menu")
     REQUIRE(typeid(controller.getCurrentState()) == typeid(MenuState));
 }
 
-TEST_CASE("Controller forwards state update result to state manager")
+TEST_CASE_METHOD(TestFixture, "Controller forwards state update result to state manager")
 {
     // ARRANGE
     Controller controller;
@@ -42,7 +43,7 @@ TEST_CASE("Controller forwards state update result to state manager")
     REQUIRE(typeid(controller.getCurrentState()) == typeid(GameplayState));
 }
 
-TEST_CASE("Controller toggles debug mode on")
+TEST_CASE_METHOD(TestFixture, "Controller toggles debug mode on")
 {
     // Arrange
     Controller controller;
@@ -56,7 +57,7 @@ TEST_CASE("Controller toggles debug mode on")
     REQUIRE(DebugContext::get().active == true);
 }
 
-TEST_CASE("Controller toggles debug mode off when toggle is pressed twice")
+TEST_CASE_METHOD(TestFixture, "Controller toggles debug mode off when toggle is pressed twice")
 {
     // Arrange
     Controller controller;

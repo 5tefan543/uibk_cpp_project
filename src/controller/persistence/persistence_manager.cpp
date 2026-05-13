@@ -95,4 +95,9 @@ GameConfig PersistenceManager::loadConfig()
     return config;
 }
 
+void PersistenceManager::resetConfig()
+{
+    configCache.reset();
+}
+
 } // namespace controller

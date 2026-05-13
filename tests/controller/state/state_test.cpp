@@ -2,6 +2,7 @@
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state.hpp"
 #include "shared/test_filesystem.hpp"
+#include "shared/test_fixture.hpp"
 #include "shared/util.hpp"
 #include <catch2/catch_test_macros.hpp>
 
@@ -25,7 +26,7 @@ void createSavedGameFile()
 
 } // namespace
 
-TEST_CASE("MenuState::createMenu of type MainMenu constructs main menu with expected properties")
+TEST_CASE_METHOD(TestFixture, "MenuState::createMenu of type MainMenu constructs main menu with expected properties")
 {
     // ACT
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
@@ -35,7 +36,8 @@ TEST_CASE("MenuState::createMenu of type MainMenu constructs main menu with expe
     REQUIRE(state->type == MenuType::MainMenu);
 }
 
-TEST_CASE("MenuState::createMenu of type PauseMenu constructs cancelPressed menu with expected properties")
+TEST_CASE_METHOD(TestFixture,
+                 "MenuState::createMenu of type PauseMenu constructs cancelPressed menu with expected properties")
 {
     // ACT
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::PauseMenu);
@@ -45,7 +47,8 @@ TEST_CASE("MenuState::createMenu of type PauseMenu constructs cancelPressed menu
     REQUIRE(state->type == MenuType::PauseMenu);
 }
 
-TEST_CASE("MenuState::createMenu of type GameOverMenu constructs game over menu with expected properties")
+TEST_CASE_METHOD(TestFixture,
+                 "MenuState::createMenu of type GameOverMenu constructs game over menu with expected properties")
 {
     // ACT
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::GameOverMenu);
@@ -55,7 +58,7 @@ TEST_CASE("MenuState::createMenu of type GameOverMenu constructs game over menu 
     REQUIRE(state->type == MenuType::GameOverMenu);
 }
 
-TEST_CASE("GameplayState::createNewGameplay constructs gameplay state with expected properties")
+TEST_CASE_METHOD(TestFixture, "GameplayState::createNewGameplay constructs gameplay state with expected properties")
 {
     // ACT
     std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
@@ -64,7 +67,7 @@ TEST_CASE("GameplayState::createNewGameplay constructs gameplay state with expec
     REQUIRE(state != nullptr);
 }
 
-TEST_CASE("ProgressionStoreState::createStore constructs store state with expected properties")
+TEST_CASE_METHOD(TestFixture, "ProgressionStoreState::createStore constructs store state with expected properties")
 {
     // ACT
     std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore();
@@ -73,7 +76,7 @@ TEST_CASE("ProgressionStoreState::createStore constructs store state with expect
     REQUIRE(state != nullptr);
 }
 
-TEST_CASE("Main menu update returns correct actions")
+TEST_CASE_METHOD(TestFixture, "Main menu update returns correct actions")
 {
     test::ScopedTestDirectory testDir("roguelike-state-test-");
     auto state = MenuState::createMenu(MenuType::MainMenu);
@@ -102,7 +105,7 @@ TEST_CASE("Main menu update returns correct actions")
     }
 }
 
-TEST_CASE("Main menu mouse input returns correct actions")
+TEST_CASE_METHOD(TestFixture, "Main menu mouse input returns correct actions")
 {
     test::ScopedTestDirectory testDir("roguelike-state-test-");
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
@@ -138,7 +141,7 @@ TEST_CASE("Main menu mouse input returns correct actions")
     }
 }
 
-TEST_CASE("Main menu exposes load option and action when saved game exists")
+TEST_CASE_METHOD(TestFixture, "Main menu exposes load option and action when saved game exists")
 {
     test::ScopedTestDirectory testDir("roguelike-state-test-");
     createSavedGameFile();
@@ -159,7 +162,7 @@ TEST_CASE("Main menu exposes load option and action when saved game exists")
     }
 }
 
-TEST_CASE("Pause menu update returns correct actions")
+TEST_CASE_METHOD(TestFixture, "Pause menu update returns correct actions")
 {
     auto state = MenuState::createMenu(MenuType::PauseMenu);
 
@@ -187,7 +190,7 @@ TEST_CASE("Pause menu update returns correct actions")
     }
 }
 
-TEST_CASE("Pause menu mouse input returns correct actions")
+TEST_CASE_METHOD(TestFixture, "Pause menu mouse input returns correct actions")
 {
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::PauseMenu);
     const view::View &view = state->getView();
@@ -222,7 +225,7 @@ TEST_CASE("Pause menu mouse input returns correct actions")
     }
 }
 
-TEST_CASE("Game over menu update returns correct actions")
+TEST_CASE_METHOD(TestFixture, "Game over menu update returns correct actions")
 {
     auto state = MenuState::createMenu(MenuType::GameOverMenu);
 
@@ -250,7 +253,7 @@ TEST_CASE("Game over menu update returns correct actions")
     }
 }
 
-TEST_CASE("Game over menu mouse input returns correct actions")
+TEST_CASE_METHOD(TestFixture, "Game over menu mouse input returns correct actions")
 {
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::GameOverMenu);
     const view::View &view = state->getView();
@@ -280,7 +283,7 @@ TEST_CASE("Game over menu mouse input returns correct actions")
     }
 }
 
-TEST_CASE("Gameplay state update returns correct actions")
+TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
 {
     // ARRANGE
     std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
@@ -367,7 +370,7 @@ TEST_CASE("Gameplay state update returns correct actions")
     }
 }
 
-TEST_CASE("ProgressionStoreState update returns correct actions")
+TEST_CASE_METHOD(TestFixture, "ProgressionStoreState update returns correct actions")
 {
     std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore();
 
@@ -391,7 +394,7 @@ TEST_CASE("ProgressionStoreState update returns correct actions")
     }
 }
 
-TEST_CASE("MenuState::toString returns expected string")
+TEST_CASE_METHOD(TestFixture, "MenuState::toString returns expected string")
 {
     SECTION("main menu returns MainMenu")
     {
@@ -412,19 +415,19 @@ TEST_CASE("MenuState::toString returns expected string")
     }
 }
 
-TEST_CASE("GameplayState::toString returns expected string")
+TEST_CASE_METHOD(TestFixture, "GameplayState::toString returns expected string")
 {
     std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
     REQUIRE(state->toString() == "Gameplay");
 }
 
-TEST_CASE("ProgressionStoreState::toString returns expected string")
+TEST_CASE_METHOD(TestFixture, "ProgressionStoreState::toString returns expected string")
 {
     std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore();
     REQUIRE(state->toString() == "ProgressionStore");
 }
 
-TEST_CASE("MenuState::getView returns expected view")
+TEST_CASE_METHOD(TestFixture, "MenuState::getView returns expected view")
 {
     SECTION("main menu returns expected view")
     {
@@ -528,7 +531,7 @@ TEST_CASE("MenuState::getView returns expected view")
     }
 }
 
-TEST_CASE("GameplayState::getView returns expected view")
+TEST_CASE_METHOD(TestFixture, "GameplayState::getView returns expected view")
 {
     std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
 
@@ -537,7 +540,7 @@ TEST_CASE("GameplayState::getView returns expected view")
     REQUIRE(!view.items.empty());
 }
 
-TEST_CASE("ProgressionStoreState::getView returns expected view")
+TEST_CASE_METHOD(TestFixture, "ProgressionStoreState::getView returns expected view")
 {
     std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore();
 
@@ -546,7 +549,7 @@ TEST_CASE("ProgressionStoreState::getView returns expected view")
     REQUIRE(view.items.empty());
 }
 
-TEST_CASE("ExitState::getView returns expected view")
+TEST_CASE_METHOD(TestFixture, "ExitState::getView returns expected view")
 {
     std::unique_ptr<ExitState> state = ExitState::createExitState();
 
@@ -555,7 +558,7 @@ TEST_CASE("ExitState::getView returns expected view")
     REQUIRE(view.items.empty());
 }
 
-TEST_CASE("ExitState::update returns ReplaceAllStatesWithExit")
+TEST_CASE_METHOD(TestFixture, "ExitState::update returns ReplaceAllStatesWithExit")
 {
     std::unique_ptr<ExitState> state = ExitState::createExitState();
 

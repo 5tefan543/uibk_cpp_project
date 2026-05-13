@@ -1,10 +1,11 @@
 #include "game/ecs/component_storage.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/entity.hpp"
+#include "shared/test_fixture.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("ComponentStorage adds and returns a component")
+TEST_CASE_METHOD(TestFixture, "ComponentStorage adds and returns a component")
 {
     // ARRANGE
     game::Entity entity = 1;
@@ -19,7 +20,7 @@ TEST_CASE("ComponentStorage adds and returns a component")
     REQUIRE(storage.getComponent(entity).y == 20.0f);
 }
 
-TEST_CASE("ComponentStorage throws when adding duplicate component")
+TEST_CASE_METHOD(TestFixture, "ComponentStorage throws when adding duplicate component")
 {
     // ARRANGE
     game::Entity entity = 1;
@@ -32,7 +33,7 @@ TEST_CASE("ComponentStorage throws when adding duplicate component")
     REQUIRE_THROWS(storage.addComponent(entity, {30.0f, 40.0f}));
 }
 
-TEST_CASE("ComponentStorage removeComponent removes existing component")
+TEST_CASE_METHOD(TestFixture, "ComponentStorage removeComponent removes existing component")
 {
     // ARRANGE
     game::Entity entity = 1;
@@ -47,7 +48,7 @@ TEST_CASE("ComponentStorage removeComponent removes existing component")
     REQUIRE_THROWS(storage.getComponent(entity));
 }
 
-TEST_CASE("ComponentStorage removeComponent on missing entity does nothing")
+TEST_CASE_METHOD(TestFixture, "ComponentStorage removeComponent on missing entity does nothing")
 {
     // ARRANGE
     game::Entity nonExistingEntity = 42;
@@ -57,7 +58,7 @@ TEST_CASE("ComponentStorage removeComponent on missing entity does nothing")
     REQUIRE_NOTHROW(storage.removeComponent(nonExistingEntity));
 }
 
-TEST_CASE("ComponentStorage keeps remaining components accessible after compacting")
+TEST_CASE_METHOD(TestFixture, "ComponentStorage keeps remaining components accessible after compacting")
 {
     // ARRANGE
     game::Entity entity1 = 1;

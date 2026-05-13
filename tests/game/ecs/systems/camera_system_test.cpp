@@ -4,10 +4,11 @@
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/camera_system.hpp"
+#include "shared/test_fixture.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("CameraSystem centers camera on player")
+TEST_CASE_METHOD(TestFixture, "CameraSystem centers camera on player")
 {
     // ARRANGE
     game::Registry registry;
@@ -30,7 +31,7 @@ TEST_CASE("CameraSystem centers camera on player")
     REQUIRE(camera.y == (300.0f + 64.0f - 540.0f / 2.0f));
 }
 
-TEST_CASE("CameraSystem clamps camera to minimum boundaries")
+TEST_CASE_METHOD(TestFixture, "CameraSystem clamps camera to minimum boundaries")
 {
     // ARRANGE
     game::Registry registry;
@@ -53,7 +54,7 @@ TEST_CASE("CameraSystem clamps camera to minimum boundaries")
     REQUIRE(camera.y == -64.0f);
 }
 
-TEST_CASE("CameraSystem clamps camera to maximum map boundaries")
+TEST_CASE_METHOD(TestFixture, "CameraSystem clamps camera to maximum map boundaries")
 {
     // ARRANGE
     game::Registry registry;
@@ -76,7 +77,7 @@ TEST_CASE("CameraSystem clamps camera to maximum map boundaries")
     REQUIRE(camera.y == 350.0f);
 }
 
-TEST_CASE("CameraSystem does nothing if no player exists")
+TEST_CASE_METHOD(TestFixture, "CameraSystem does nothing if no player exists")
 {
     // ARRANGE
     game::Registry registry;

@@ -5,10 +5,11 @@
 #include "game/ecs/components/sprite.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/debug_selection_system.hpp"
+#include "shared/test_fixture.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("DebugSelectionSystem selects sprite under mouse when ctrl-clicked")
+TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects sprite under mouse when ctrl-clicked")
 {
     game::Registry registry;
     game::DebugSelectionSystem system;
@@ -40,7 +41,7 @@ TEST_CASE("DebugSelectionSystem selects sprite under mouse when ctrl-clicked")
     REQUIRE(registry.getComponent<game::Sprite>(spriteEntity).isSelected);
 }
 
-TEST_CASE("DebugSelectionSystem selects map under mouse when ctrl-clicked")
+TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects map under mouse when ctrl-clicked")
 {
     game::Registry registry;
     game::DebugSelectionSystem system;
@@ -72,7 +73,7 @@ TEST_CASE("DebugSelectionSystem selects map under mouse when ctrl-clicked")
     REQUIRE(registry.getComponent<game::Map>(mapEntity).isSelected);
 }
 
-TEST_CASE("DebugSelectionSystem does not select map when no camera exists")
+TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select map when no camera exists")
 {
     game::Registry registry;
     game::DebugSelectionSystem system;
@@ -100,7 +101,7 @@ TEST_CASE("DebugSelectionSystem does not select map when no camera exists")
     REQUIRE_FALSE(registry.getComponent<game::Map>(mapEntity).isSelected);
 }
 
-TEST_CASE("DebugSelectionSystem does not select entity when ctrl is not held")
+TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select entity when ctrl is not held")
 {
     game::Registry registry;
     game::DebugSelectionSystem system;
@@ -132,7 +133,7 @@ TEST_CASE("DebugSelectionSystem does not select entity when ctrl is not held")
     REQUIRE_FALSE(registry.getComponent<game::Sprite>(spriteEntity).isSelected);
 }
 
-TEST_CASE("DebugSelectionSystem does not select entity when mouse is outside entity")
+TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select entity when mouse is outside entity")
 {
     game::Registry registry;
     game::DebugSelectionSystem system;
@@ -164,7 +165,7 @@ TEST_CASE("DebugSelectionSystem does not select entity when mouse is outside ent
     REQUIRE_FALSE(registry.getComponent<game::Sprite>(spriteEntity).isSelected);
 }
 
-TEST_CASE("DebugSelectionSystem clears sprite selection when debug is disabled")
+TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem clears sprite selection when debug is disabled")
 {
     game::Registry registry;
     game::DebugSelectionSystem system;
@@ -188,7 +189,7 @@ TEST_CASE("DebugSelectionSystem clears sprite selection when debug is disabled")
     REQUIRE_FALSE(registry.getComponent<game::Sprite>(spriteEntity).isSelected);
 }
 
-TEST_CASE("DebugSelectionSystem clears map selection when debug is disabled")
+TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem clears map selection when debug is disabled")
 {
     game::Registry registry;
     game::DebugSelectionSystem system;
