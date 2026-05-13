@@ -1,5 +1,6 @@
 #include "game/game.hpp"
 #include "controller/debug/debug_context.hpp"
+#include "controller/persistence/persistence_manager.hpp"
 #include "game/ecs/components/camera.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/map.hpp"
@@ -17,6 +18,7 @@ namespace game {
 Game::Game()
 {
     std::cout << "Game constructed" << std::endl;
+    getNextWave();
     initStage();
     initPlayer();
     initEnemies();
@@ -30,9 +32,11 @@ void Game::initStage()
     registry_.addComponent<Camera>(mapEntity, {});
 }
 
-void Game::initWave()
+void Game::getNextWave()
 {
     // Logic to initialize a new wave of enemies can go here
+    wave_++;
+    std::cout << "Starting wave " << wave_ << " of stage " << stage_ << std::endl;
 }
 
 void Game::initPlayer()
@@ -79,7 +83,7 @@ void Game::loadFromPersistedGame(const controller::PersistedGame &persistedGame)
 {
     stage_ = persistedGame.stage;
     wave_ = persistedGame.wave;
-    currency_ = persistedGame.currency;
+    score_ = persistedGame.currency;
 
     auto players = registry_.view<PlayerTag>();
     if (!players.empty()) {
@@ -93,7 +97,7 @@ controller::PersistedGame Game::getPersistedGame() const
     controller::PersistedGame persistedGame;
     persistedGame.stage = stage_;
     persistedGame.wave = wave_;
-    persistedGame.currency = currency_;
+    persistedGame.currency = score_;
 
     auto players = registry_.view<PlayerTag>();
     if (!players.empty()) {
@@ -157,6 +161,32 @@ void Game::updateSystems(const controller::InputState &input, float dt)
 bool Game::isGameOver()
 {
     return registry_.view<PlayerTag>().empty();
+}
+
+bool Game::isWaveDefeated()
+{
+    return registry_.view<EnemyTag>().empty();
+}
+
+void Game::addScore(int score)
+{
+    score_ += score;
+}
+
+int Game::getScore()
+{
+    return score_;
+}
+
+int Game::getWaveCount()
+{
+    return wave_;
+}
+
+void Game::getNextStage()
+{
+    stage_++;
+    wave_++;
 }
 
 void Game::updateView(view::View &view)

@@ -27,10 +27,9 @@ class Game {
     DebugSelectionSystem debugSelectionSystem_;
 
     int stage_ = 1;
-    int wave_ = 1;
-    int currency_ = 0;
+    int wave_ = 0;
+    int score_ = 0;
 
-    void initWave();
     void initStage();
     void initPlayer();
     void initPersistedPlayer(const controller::PersistedGame &persistedGame);
@@ -49,6 +48,12 @@ class Game {
     controller::PersistedGame getPersistedGame() const;
     bool update(const controller::InputState &input, float dt);
     void updateView(view::View &view);
+    void getNextWave();
+    bool isWaveDefeated();
+    void addScore(int score);
+    int getScore();
+    void getNextStage();
+    int getWaveCount();
 };
 
 } // namespace game

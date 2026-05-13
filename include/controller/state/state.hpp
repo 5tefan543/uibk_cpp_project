@@ -1,14 +1,15 @@
 #pragma once
 
+#include <chrono>
 #include <deque>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "controller/input/input_state.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "game/game.hpp"
 #include "view/view.hpp"
-#include <optional>
 
 namespace controller {
 
@@ -46,6 +47,7 @@ class MenuState : public BaseState {
 
 class GameplayState : public BaseState {
     bool loadedFromSave_ = false;
+    std::chrono::time_point<std::chrono::steady_clock> waveStartTime_;
 
   public:
     game::Game game;
