@@ -362,6 +362,8 @@ void ProgressionStoreState::initView()
     storeCard.items.push_back(quitButton);
     backgroundCard.items.push_back(storeCard);
     view_.items.push_back(backgroundCard);
+
+    buttons_[selectedButtonId_].isSelected = true;
 }
 
 ProgressionStoreState::ProgressionStoreState()

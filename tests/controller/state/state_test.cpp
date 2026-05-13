@@ -542,8 +542,25 @@ TEST_CASE("ProgressionStoreState::getView returns expected view")
     std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore();
 
     const view::View &view = state->getView();
+    REQUIRE(view.items.size() == 1);
 
-    REQUIRE(view.items.empty());
+    const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.items[0]);
+    const view::Card &storeCard = ViewItemAccessor::as<const view::Card>(backgroundCard.items[0]);
+    REQUIRE(storeCard.items.size() == 3);
+
+    const view::Text &storeText = ViewItemAccessor::as<const view::Text>(storeCard.items[0]);
+    REQUIRE(storeText.text == "Store Menu");
+    REQUIRE(storeText.gridY == (storeCard.gridY + storeCard.height / 10));
+
+    const view::Button &continueGame = ViewItemAccessor::as<const view::Button>(storeCard.items[1]);
+    REQUIRE(continueGame.text.text == "Continue Game");
+    REQUIRE(getCenterY(continueGame) == getCenterY(storeCard) - continueGame.height);
+    REQUIRE(continueGame.isSelected == true);
+
+    const view::Button &quitButton = ViewItemAccessor::as<const view::Button>(storeCard.items[2]);
+    REQUIRE(quitButton.text.text == "Quit Game");
+    REQUIRE(getCenterY(quitButton) == getCenterY(storeCard) + continueGame.height);
+    REQUIRE(quitButton.isSelected == false);
 }
 
 TEST_CASE("ExitState::getView returns expected view")
