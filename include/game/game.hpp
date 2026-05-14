@@ -21,7 +21,7 @@ class Game {
   private:
     Registry registry_;
     GameDebugSession debugSession_{registry_};
-    controller::DebugContext &debug = controller::DebugContext::get();
+    controller::DebugContext &debug_ = controller::DebugContext::get();
     controller::GameConfig config_;
     std::chrono::steady_clock::time_point waveStartTime_;
     std::chrono::seconds currentWaveDuration_;

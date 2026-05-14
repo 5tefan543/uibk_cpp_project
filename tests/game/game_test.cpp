@@ -39,7 +39,7 @@ TEST_CASE_METHOD(TestFixture, "Game update returns StateTransactionAction GameOv
     session.isPlayerDestructionRequested = true;
 
     // ACT
-     auto currentState = game.update(input, dummyDeltaTime);
+    auto currentState = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(currentState == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu);
@@ -57,7 +57,7 @@ TEST_CASE_METHOD(TestFixture, "Game update resets stage/wave reload request when
     session.isStageWaveReloadRequested = true;
 
     // ACT
-     auto currentState = game.update(input, dummyDeltaTime);
+    auto currentState = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(currentState == controller::StateTransitionAction::None);
@@ -76,7 +76,7 @@ TEST_CASE_METHOD(TestFixture, "Game update keeps stage/wave reload request uncha
     session.isStageWaveReloadRequested = true;
 
     // ACT
-     auto currentState = game.update(input, dummyDeltaTime);
+    auto currentState = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(currentState == controller::StateTransitionAction::None);
@@ -95,7 +95,7 @@ TEST_CASE_METHOD(TestFixture, "Game update resets player destruction request whe
     session.isPlayerDestructionRequested = true;
 
     // ACT
-     auto currentState = game.update(input, dummyDeltaTime);
+    auto currentState = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(currentState == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu);
@@ -114,7 +114,7 @@ TEST_CASE_METHOD(TestFixture, "Game update keeps player destruction request unch
     session.isPlayerDestructionRequested = true;
 
     // ACT
-     auto currentState = game.update(input, dummyDeltaTime);
+    auto currentState = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(currentState == controller::StateTransitionAction::None);
@@ -135,7 +135,7 @@ TEST_CASE_METHOD(TestFixture, "Game update saves game on save request and resets
     REQUIRE_FALSE(controller::PersistenceManager::hasSavedGame());
 
     // ACT
-     auto currentState = game.update(input, dummyDeltaTime);
+    auto currentState = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(currentState == controller::StateTransitionAction::None);
@@ -157,7 +157,7 @@ TEST_CASE_METHOD(TestFixture, "Game update keeps save game request unchanged whe
     REQUIRE_FALSE(controller::PersistenceManager::hasSavedGame());
 
     // ACT
-     auto currentState = game.update(input, dummyDeltaTime);
+    auto currentState = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(currentState == controller::StateTransitionAction::None);
@@ -189,7 +189,7 @@ TEST_CASE_METHOD(TestFixture, "Game update skips system updates when debug is ac
     input.rightHeld = true;
 
     // ACT
-     auto currentState = game.update(input, dummyDeltaTime);
+    auto currentState = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(currentState == controller::StateTransitionAction::None);

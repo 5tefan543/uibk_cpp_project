@@ -124,7 +124,8 @@ controller::PersistedGame Game::getPersistedGame() const
     return persistedGame;
 }
 
-bool Game::isWaveTimeFinished(){
+bool Game::isWaveTimeFinished()
+{
     return currentWaveDuration_.count() >= waveDurationSeconds_;
 }
 
@@ -152,17 +153,16 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
             return controller::StateTransitionAction::PushProgressionStore;
         }
         getNextWave();
-        
     }
 
     if (isGameOver()) {
         controller::PersistenceManager::deleteSave();
-        debug.gameSession = nullptr;
+        debug_.gameSession = nullptr;
         return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
     }
 
-    if (debug.active && debug.gameSession->isStoreOpenRequested) {
-        debug.gameSession->isStoreOpenRequested = false;
+    if (debug_.active && debug_.gameSession->isStoreOpenRequested) {
+        debug_.gameSession->isStoreOpenRequested = false;
         return controller::StateTransitionAction::PushProgressionStore;
     }
 
@@ -236,7 +236,6 @@ void Game::addScore(int score)
     currency_ += score;
 }
 
-
 void Game::getNextStage()
 {
     stage_++;
@@ -301,7 +300,9 @@ void Game::updateView(view::View &view)
     }
 
     stageWaveInfo_ = {
-        .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_) + " Time remaining: " + std::to_string(waveDurationSeconds_ - currentWaveDuration_.count()) + " score: " + std::to_string(score_) + " currency: " + std::to_string(currency_), 
+        .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_)
+                + " Time remaining: " + std::to_string(waveDurationSeconds_ - currentWaveDuration_.count())
+                + " score: " + std::to_string(score_) + " currency: " + std::to_string(currency_),
         .size = 24,
         .gridY = 75.0f,
     };
