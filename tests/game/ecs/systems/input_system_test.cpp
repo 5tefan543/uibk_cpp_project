@@ -3,10 +3,11 @@
 #include "game/ecs/components/velocity.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/input_system.hpp"
+#include "shared/test_fixture.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("InputSystem sets player velocity from input")
+TEST_CASE_METHOD(TestFixture, "InputSystem sets player velocity from input")
 {
     // ARRANGE
     game::Registry registry;
@@ -29,7 +30,7 @@ TEST_CASE("InputSystem sets player velocity from input")
     REQUIRE(velocity.dy == -200.0f);
 }
 
-TEST_CASE("InputSystem resets old velocity before applying new input")
+TEST_CASE_METHOD(TestFixture, "InputSystem resets old velocity before applying new input")
 {
     // ARRANGE
     game::Registry registry;
@@ -50,7 +51,7 @@ TEST_CASE("InputSystem resets old velocity before applying new input")
     REQUIRE(velocity.dy == 0.0f);
 }
 
-TEST_CASE("InputSystem does not update entity without PlayerTag")
+TEST_CASE_METHOD(TestFixture, "InputSystem does not update entity without PlayerTag")
 {
     // ARRANGE
     game::Registry registry;
@@ -72,7 +73,7 @@ TEST_CASE("InputSystem does not update entity without PlayerTag")
     REQUIRE(velocity.dy == 6.0f);
 }
 
-TEST_CASE("InputSystem opposing directions cancel each other")
+TEST_CASE_METHOD(TestFixture, "InputSystem opposing directions cancel each other")
 {
     // ARRANGE
     game::Registry registry;

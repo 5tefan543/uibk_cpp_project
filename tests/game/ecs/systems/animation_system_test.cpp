@@ -2,10 +2,11 @@
 #include "game/ecs/components/velocity.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
+#include "shared/test_fixture.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("AnimationSystem sets sprite direction from horizontal velocity")
+TEST_CASE_METHOD(TestFixture, "AnimationSystem sets sprite direction from horizontal velocity")
 {
     // ARRANGE
     game::Registry registry;
@@ -23,7 +24,7 @@ TEST_CASE("AnimationSystem sets sprite direction from horizontal velocity")
     REQUIRE(sprite.direction == game::Direction::Left);
 }
 
-TEST_CASE("AnimationSystem advances frame when moving and timer reaches frame duration")
+TEST_CASE_METHOD(TestFixture, "AnimationSystem advances frame when moving and timer reaches frame duration")
 {
     // ARRANGE
     game::Registry registry;
@@ -43,7 +44,7 @@ TEST_CASE("AnimationSystem advances frame when moving and timer reaches frame du
     REQUIRE(sprite.direction == game::Direction::Right);
 }
 
-TEST_CASE("AnimationSystem keeps frame when moving but timer is below frame duration")
+TEST_CASE_METHOD(TestFixture, "AnimationSystem keeps frame when moving but timer is below frame duration")
 {
     // ARRANGE
     game::Registry registry;
@@ -62,7 +63,7 @@ TEST_CASE("AnimationSystem keeps frame when moving but timer is below frame dura
     REQUIRE(sprite.frameTimer == 0.25f);
 }
 
-TEST_CASE("AnimationSystem resets frame timer when idle")
+TEST_CASE_METHOD(TestFixture, "AnimationSystem resets frame timer when idle")
 {
     // ARRANGE
     game::Registry registry;

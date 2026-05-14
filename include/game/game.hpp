@@ -31,6 +31,20 @@ class Game {
     int score_ = 0;
     int currency_ = 0;
 
+    // We need to store view::Text as a member because ViewItem stores a reference to it,
+    // so we must ensure that the referenced object lives long enough.
+    //
+    // Is this approach ok?
+    // Or would it make more sense to only store certain elements like view::Card and
+    // view::Button as reference_wrapped, while keeping view::Text as a value type in ViewItem?
+    //
+    // At the moment view::Sprite is NOT reference_wrapped, so ViewItem already contains
+    // a mix of reference_wrapped and value types.
+    //
+    // If we changed view::Sprite to also be reference_wrapped, we would need to store
+    // all sprites in a deque inside Game.
+    view::Text stageWaveInfo_;
+
     void initStage();
     void initPlayer();
     void initPersistedPlayer(const controller::PersistedGame &persistedGame);

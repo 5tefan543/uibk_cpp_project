@@ -1,22 +1,22 @@
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state_manager.hpp"
-#include "shared/test_filesystem.hpp"
+#include "shared/test_fixture.hpp"
 #include <catch2/catch_test_macros.hpp>
 
 using namespace controller;
 
-TEST_CASE("StateManager can be constructed")
+TEST_CASE_METHOD(TestFixture, "StateManager can be constructed")
 {
     REQUIRE_NOTHROW(StateManager());
 }
 
-TEST_CASE("StateManager is empty initially")
+TEST_CASE_METHOD(TestFixture, "StateManager is empty initially")
 {
     StateManager stateManager;
     REQUIRE(stateManager.isEmpty());
 }
 
-TEST_CASE("push adds a state and getCurrent returns it")
+TEST_CASE_METHOD(TestFixture, "push adds a state and getCurrent returns it")
 {
     // ARRANGE
     StateManager stateManager;
@@ -29,7 +29,7 @@ TEST_CASE("push adds a state and getCurrent returns it")
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(MenuState));
 }
 
-TEST_CASE("push multiple states and getCurrent returns top")
+TEST_CASE_METHOD(TestFixture, "push multiple states and getCurrent returns top")
 {
     // ARRANGE
     StateManager stateManager;
@@ -42,7 +42,7 @@ TEST_CASE("push multiple states and getCurrent returns top")
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
 }
 
-TEST_CASE("getCurrent on empty state manager throws")
+TEST_CASE_METHOD(TestFixture, "getCurrent on empty state manager throws")
 {
     // ARRANGE
     StateManager stateManager;
@@ -51,7 +51,7 @@ TEST_CASE("getCurrent on empty state manager throws")
     REQUIRE_THROWS(stateManager.getCurrent());
 }
 
-TEST_CASE("pop removes the top state")
+TEST_CASE_METHOD(TestFixture, "pop removes the top state")
 {
     // ARRANGE
     StateManager stateManager;
@@ -65,7 +65,7 @@ TEST_CASE("pop removes the top state")
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(MenuState));
 }
 
-TEST_CASE("pop on single element results in empty state manager")
+TEST_CASE_METHOD(TestFixture, "pop on single element results in empty state manager")
 {
     // ARRANGE
     StateManager stateManager;
@@ -78,7 +78,7 @@ TEST_CASE("pop on single element results in empty state manager")
     REQUIRE(stateManager.isEmpty());
 }
 
-TEST_CASE("pop on empty state manager throws")
+TEST_CASE_METHOD(TestFixture, "pop on empty state manager throws")
 {
     // ARRANGE
     StateManager stateManager;
@@ -87,7 +87,7 @@ TEST_CASE("pop on empty state manager throws")
     REQUIRE_THROWS(stateManager.pop());
 }
 
-TEST_CASE("clear removes all states")
+TEST_CASE_METHOD(TestFixture, "clear removes all states")
 {
     // ARRANGE
     StateManager stateManager;
@@ -101,7 +101,7 @@ TEST_CASE("clear removes all states")
     REQUIRE(stateManager.isEmpty());
 }
 
-TEST_CASE("replaceCurrent replaces the top state")
+TEST_CASE_METHOD(TestFixture, "replaceCurrent replaces the top state")
 {
     // ARRANGE
     StateManager stateManager;
@@ -119,7 +119,7 @@ TEST_CASE("replaceCurrent replaces the top state")
     REQUIRE(stateManager.isEmpty());
 }
 
-TEST_CASE("replaceCurrent on empty state manager throws")
+TEST_CASE_METHOD(TestFixture, "replaceCurrent on empty state manager throws")
 {
     // ARRANGE
     StateManager stateManager;
@@ -128,7 +128,7 @@ TEST_CASE("replaceCurrent on empty state manager throws")
     REQUIRE_THROWS(stateManager.replaceCurrent(MenuState::createMenu(MenuType::MainMenu)));
 }
 
-TEST_CASE("applyAction None does not change current state")
+TEST_CASE_METHOD(TestFixture, "applyAction None does not change current state")
 {
     // ARRANGE
     StateManager stateManager;
@@ -141,7 +141,7 @@ TEST_CASE("applyAction None does not change current state")
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(MenuState));
 }
 
-TEST_CASE("applyAction ReplaceCurrentWithGameplay replaces current state with gameplay")
+TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithGameplay replaces current state with gameplay")
 {
     // ARRANGE
     StateManager stateManager;
@@ -156,10 +156,8 @@ TEST_CASE("applyAction ReplaceCurrentWithGameplay replaces current state with ga
     REQUIRE(stateManager.isEmpty());
 }
 
-TEST_CASE("applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded from save")
+TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded from save")
 {
-    test::ScopedTestDirectory testDir("roguelike-state-manager-test-");
-
     PersistedGame game;
     game.stage = 9;
     game.wave = 4;
@@ -187,7 +185,7 @@ TEST_CASE("applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded 
     REQUIRE(loaded.playerStats.speed == 360.0f);
 }
 
-TEST_CASE("applyAction PushPauseMenu pushes cancelPressed menu on top")
+TEST_CASE_METHOD(TestFixture, "applyAction PushPauseMenu pushes cancelPressed menu on top")
 {
     // ARRANGE
     StateManager stateManager;
@@ -200,7 +198,7 @@ TEST_CASE("applyAction PushPauseMenu pushes cancelPressed menu on top")
     REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::PauseMenu);
 }
 
-TEST_CASE("applyAction PushProgressionStore pushes progression store on top")
+TEST_CASE_METHOD(TestFixture, "applyAction PushProgressionStore pushes progression store on top")
 {
     // ARRANGE
     StateManager stateManager;
@@ -213,7 +211,7 @@ TEST_CASE("applyAction PushProgressionStore pushes progression store on top")
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(ProgressionStoreState));
 }
 
-TEST_CASE("applyAction ReplaceCurrentWithGameOverMenu replaces current state with game over menu")
+TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithGameOverMenu replaces current state with game over menu")
 {
     // ARRANGE
     StateManager stateManager;
@@ -226,7 +224,7 @@ TEST_CASE("applyAction ReplaceCurrentWithGameOverMenu replaces current state wit
     REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::GameOverMenu);
 }
 
-TEST_CASE("applyAction Pop removes the top state")
+TEST_CASE_METHOD(TestFixture, "applyAction Pop removes the top state")
 {
     // ARRANGE
     StateManager stateManager;
@@ -240,7 +238,7 @@ TEST_CASE("applyAction Pop removes the top state")
     REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::MainMenu);
 }
 
-TEST_CASE("applyAction ReplaceCurrentWithMainMenu replaces current state with main menu")
+TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithMainMenu replaces current state with main menu")
 {
     // ARRANGE
     StateManager stateManager;
@@ -253,7 +251,7 @@ TEST_CASE("applyAction ReplaceCurrentWithMainMenu replaces current state with ma
     REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::MainMenu);
 }
 
-TEST_CASE("applyAction ReplaceCurrentWithExitState clears all states and adds exit state")
+TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithExitState clears all states and adds exit state")
 {
     // ARRANGE
     StateManager stateManager;

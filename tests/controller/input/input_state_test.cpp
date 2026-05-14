@@ -1,7 +1,8 @@
 #include "controller/input/input_state.hpp"
+#include "shared/test_fixture.hpp"
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("InputState has neutral default values")
+TEST_CASE_METHOD(TestFixture, "InputState has neutral default values")
 {
     controller::InputState state;
 

@@ -1,6 +1,6 @@
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/persistence/serializer.hpp"
-#include "shared/test_filesystem.hpp"
+#include "shared/test_fixture.hpp"
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
@@ -24,10 +24,8 @@ void createSavedGameFile()
     PersistenceManager::saveGame(game);
 }
 
-TEST_CASE("PersistenceManager saves and loads game state")
+TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads game state")
 {
-    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
-
     PersistedGame input;
     input.stage = 4;
     input.wave = 9;
@@ -46,9 +44,8 @@ TEST_CASE("PersistenceManager saves and loads game state")
     REQUIRE(output.playerStats.hasDash == true);
 }
 
-TEST_CASE("PersistenceManager throws when loading game without save")
+TEST_CASE_METHOD(TestFixture, "PersistenceManager throws when loading game without save")
 {
-    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
     PersistenceManager::deleteSave();
     REQUIRE_FALSE(PersistenceManager::hasSavedGame());
 
@@ -62,10 +59,8 @@ TEST_CASE("PersistenceManager throws when loading game without save")
     }
 }
 
-TEST_CASE("PersistenceManager reports and deletes save file")
+TEST_CASE_METHOD(TestFixture, "PersistenceManager reports and deletes save file")
 {
-    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
-
     PersistedGame game;
     game.stage = 2;
     PersistenceManager::saveGame(game);
@@ -77,18 +72,14 @@ TEST_CASE("PersistenceManager reports and deletes save file")
     REQUIRE(PersistenceManager::hasSavedGame() == false);
 }
 
-TEST_CASE("PersistenceManager deleteSave is safe when no save exists")
+TEST_CASE_METHOD(TestFixture, "PersistenceManager deleteSave is safe when no save exists")
 {
-    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
-
     REQUIRE_NOTHROW(PersistenceManager::deleteSave());
     REQUIRE_FALSE(PersistenceManager::hasSavedGame());
 }
 
-TEST_CASE("PersistenceManager stores leaderboard entries sorted by score")
+TEST_CASE_METHOD(TestFixture, "PersistenceManager stores leaderboard entries sorted by score")
 {
-    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
-
     PersistenceManager::storeLeaderboardEntry({"Alice", 120, 1});
     PersistenceManager::storeLeaderboardEntry({"Bob", 450, 2});
     PersistenceManager::storeLeaderboardEntry({"Carol", 300, 3});
@@ -102,10 +93,8 @@ TEST_CASE("PersistenceManager stores leaderboard entries sorted by score")
     REQUIRE(topTwo[1].score == 300);
 }
 
-TEST_CASE("PersistenceManager loadConfig reads from disk when cache is empty")
+TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk when cache is empty")
 {
-    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
-
     GameConfig input;
     input.initialStage = 13;
     input.initialWave = 8;
@@ -134,10 +123,8 @@ TEST_CASE("PersistenceManager loadConfig reads from disk when cache is empty")
     REQUIRE(output.assetConfig.fontPath == "assets/font.ttf");
 }
 
-TEST_CASE("PersistenceManager loadConfig throws when config is missing and cache is empty")
+TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig throws when config is missing and cache is empty")
 {
-    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
-
     std::filesystem::remove(Serializer::configFilePath);
 
     try {
@@ -150,10 +137,8 @@ TEST_CASE("PersistenceManager loadConfig throws when config is missing and cache
     }
 }
 
-TEST_CASE("PersistenceManager saveConfig returns false when config path parent cannot be created")
+TEST_CASE_METHOD(TestFixture, "PersistenceManager saveConfig returns false when config path parent cannot be created")
 {
-    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
-
     {
         std::ofstream configPathAsFile(Serializer::configDir);
         REQUIRE(configPathAsFile.good());
@@ -165,10 +150,8 @@ TEST_CASE("PersistenceManager saveConfig returns false when config path parent c
     REQUIRE_FALSE(PersistenceManager::saveConfig(config));
 }
 
-TEST_CASE("PersistenceManager saves and loads config")
+TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads config")
 {
-    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
-
     GameConfig input;
     input.initialStage = 7;
     input.initialWave = 3;
@@ -198,10 +181,8 @@ TEST_CASE("PersistenceManager saves and loads config")
     REQUIRE(output.assetConfig.fontPath == "assets/fonts/test_font.ttf");
 }
 
-TEST_CASE("PersistenceManager loadConfig prefers cached config after save")
+TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig prefers cached config after save")
 {
-    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
-
     GameConfig cachedConfig;
     cachedConfig.initialStage = 11;
     cachedConfig.initialWave = 6;
@@ -220,10 +201,8 @@ TEST_CASE("PersistenceManager loadConfig prefers cached config after save")
     REQUIRE(output.initialCurrency == 555);
 }
 
-TEST_CASE("PersistenceManager returns empty leaderboard for non-positive topN")
+TEST_CASE_METHOD(TestFixture, "PersistenceManager returns empty leaderboard for non-positive topN")
 {
-    test::ScopedTestDirectory testDir("roguelike-persistence-test-");
-
     PersistenceManager::storeLeaderboardEntry({"Alice", 100, 1});
 
     REQUIRE(PersistenceManager::getTopNLeaderboardEntries(0).empty());

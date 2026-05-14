@@ -23,6 +23,7 @@ class PersistenceManager {
 
     static bool saveConfig(const GameConfig &config);
     static GameConfig loadConfig();
+    static void resetConfig();
 };
 
 } // namespace controller

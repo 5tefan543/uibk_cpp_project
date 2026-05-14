@@ -35,9 +35,12 @@ void Game::initStage()
 
 void Game::getNextWave()
 {
+    std::cout << "Loading stage " << stage_ << ", wave " << wave_ << std::endl;
     // Logic to initialize a new wave of enemies can go here
     auto gameSave = getPersistedGame();
-    if (controller::PersistenceManager::saveGame(gameSave)) {
+    if (!controller::PersistenceManager::saveGame(gameSave)) {
+
+        // TODO error via gui not console
     }
     wave_++;
     std::cout << "Starting wave " << wave_ << " of stage " << stage_ << std::endl;
@@ -90,6 +93,10 @@ void Game::loadFromPersistedGame(const controller::PersistedGame &persistedGame)
     score_ = persistedGame.score;
     currency_ = persistedGame.currency;
 
+    // Update debug session with loaded stage/wave
+    debugSession_.stage = stage_;
+    debugSession_.wave = wave_;
+
     auto players = registry_.view<PlayerTag>();
     if (!players.empty()) {
         PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
@@ -118,7 +125,14 @@ bool Game::update(const controller::InputState &input, float dt)
 {
     processDebugSession();
     updateSystems(input, dt);
-    return isGameOver();
+
+    // update clock
+
+    if (isGameOver()) {
+        controller::PersistenceManager::deleteSave();
+        return true;
+    }
+    return false;
 }
 
 void Game::processDebugSession()
@@ -132,9 +146,9 @@ void Game::processDebugSession()
     // Handle stage/wave reload request
     if (debugSession_.isStageWaveReloadRequested) {
         debugSession_.isStageWaveReloadRequested = false;
-        std::cout << "Reloading stage " << debug.gameSettings.stage << ", wave " << debug.gameSettings.wave
-                  << std::endl;
-        // TODO: Implement actual stage/wave reloading logic
+        stage_ = debugSession_.stage;
+        wave_ = debugSession_.wave - 1;
+        getNextWave();
     }
 
     // Handle player destruction request
@@ -144,6 +158,14 @@ void Game::processDebugSession()
         for (Entity player : registry_.view<PlayerTag>()) {
             registry_.destroyEntity(player);
         }
+    }
+
+    // Handle save game request
+    if (debugSession_.isSaveGameRequested) {
+        debugSession_.isSaveGameRequested = false;
+        std::cout << "Saving game!" << std::endl;
+        controller::PersistedGame persistedGame = getPersistedGame();
+        controller::PersistenceManager::saveGame(persistedGame);
     }
 }
 
@@ -177,6 +199,7 @@ bool Game::isWaveDefeated()
 void Game::addScore(int score)
 {
     score_ += score;
+    currency_ += score;
 }
 
 int Game::getScore()
@@ -192,7 +215,7 @@ int Game::getWaveCount()
 void Game::getNextStage()
 {
     stage_++;
-    wave_++;
+    getNextWave();
 }
 
 void Game::updateView(view::View &view)
@@ -251,5 +274,12 @@ void Game::updateView(view::View &view)
         viewSprite.isSelected = gameSprite.isSelected;
         view.items.push_back(viewSprite);
     }
+
+    stageWaveInfo_ = {
+        .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_),
+        .size = 24,
+        .gridY = 75.0f,
+    };
+    view.items.push_back(std::cref(stageWaveInfo_));
 }
 } // namespace game
