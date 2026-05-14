@@ -128,6 +128,35 @@ TEST_CASE_METHOD(TestFixture, "Game update returns PushProgressionStore when a s
     REQUIRE(currentState == controller::StateTransitionAction::PushProgressionStore);
 }
 
+TEST_CASE_METHOD(TestFixture,
+                 "Game update advances to next wave and returns None when defeated wave is not stage boundary")
+{
+    // ARRANGE
+    game::Game game;
+    controller::InputState input;
+    controller::DebugContext &debug = controller::DebugContext::get();
+    debug.active = true;
+
+    game::GameDebugSession &session = game.getDebugSession();
+    session.stage = 1;
+    session.wave = 4;
+    session.isStageWaveReloadRequested = true;
+
+    for (game::Entity enemy : session.registry.view<game::EnemyTag>()) {
+        session.registry.destroyEntity(enemy);
+    }
+
+    // ACT
+    const auto currentState = game.update(input, dummyDeltaTime);
+
+    // ASSERT
+    REQUIRE(currentState == controller::StateTransitionAction::None);
+
+    const controller::PersistedGame persisted = game.getPersistedGame();
+    REQUIRE(persisted.stage == 1);
+    REQUIRE(persisted.wave == 5);
+}
+
 TEST_CASE_METHOD(TestFixture, "Game update keeps player destruction request unchanged when debug is inactive")
 {
     // ARRANGE

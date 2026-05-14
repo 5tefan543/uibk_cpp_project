@@ -335,6 +335,26 @@ TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
         REQUIRE(debug.gameSession != nullptr);
     }
 
+    SECTION("game over in debug mode deletes save and transitions to game over menu")
+    {
+        // ARRANGE
+        debug.active = true;
+        initializeGameSession();
+        REQUIRE(PersistenceManager::hasSavedGame());
+
+        // First update destroys the player entity.
+        debug.gameSession->isPlayerDestructionRequested = true;
+        REQUIRE(updateOnce() == StateTransitionAction::None);
+
+        // ACT
+        StateTransitionAction action = updateOnce();
+
+        // ASSERT
+        REQUIRE(action == StateTransitionAction::ReplaceCurrentWithGameOverMenu);
+        REQUIRE(debug.gameSession == nullptr);
+        REQUIRE_FALSE(PersistenceManager::hasSavedGame());
+    }
+
     SECTION("store open request returns PushProgressionStore when debug is active")
     {
         // ARRANGE
@@ -387,6 +407,36 @@ TEST_CASE_METHOD(TestFixture, "ProgressionStoreState update returns correct acti
 
         // ACT & ASSERT
         REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::None);
+    }
+
+    SECTION("down selects quit and confirm exits")
+    {
+        REQUIRE(state->update(InputState{.downPressed = true}, dummyDeltaTime) == StateTransitionAction::None);
+        REQUIRE(state->update(InputState{.confirmPressed = true}, dummyDeltaTime)
+                == StateTransitionAction::ReplaceAllStatesWithExit);
+    }
+
+    SECTION("up from initial selection wraps to quit and confirm exits")
+    {
+        REQUIRE(state->update(InputState{.upPressed = true}, dummyDeltaTime) == StateTransitionAction::None);
+        REQUIRE(state->update(InputState{.confirmPressed = true}, dummyDeltaTime)
+                == StateTransitionAction::ReplaceAllStatesWithExit);
+    }
+
+    SECTION("mouse click on quit exits")
+    {
+        const view::View &view = state->getView();
+        const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.items[0]);
+        const view::Card &card = ViewItemAccessor::as<const view::Card>(backgroundCard.items[0]);
+        const view::Button &quitButton = ViewItemAccessor::as<const view::Button>(card.items[2]);
+
+        InputState input;
+        input.mouseMoved = true;
+        input.mouseLeftPressed = true;
+        input.mouseGridX = getCenterX(quitButton);
+        input.mouseGridY = getCenterY(quitButton);
+
+        REQUIRE(state->update(input, dummyDeltaTime) == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 }
 
