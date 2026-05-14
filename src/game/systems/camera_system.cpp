@@ -3,6 +3,8 @@
 #include "game/ecs/components/map.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
+#include "game/ecs/components/sprite.hpp"
+#include "view/grid.hpp"
 
 #include <algorithm>
 
@@ -11,31 +13,36 @@ namespace game {
 void CameraSystem::update(Registry &registry)
 {
     // Find player and camera
-    auto players = registry.view<Position, PlayerTag>();
+    auto players = registry.view<Position, PlayerTag, Sprite>();
     auto cameras = registry.view<Camera, Map>();
 
     if (players.empty() || cameras.empty()) {
         return;
     }
 
-    const Position &playerPos = registry.getComponent<Position>(players.front());
-    Camera &camera = registry.getComponent<Camera>(cameras.front());
-    const Map &map = registry.getComponent<Map>(cameras.front());
+    const Entity playerEntity = players.front();
+    const Entity cameraEntity = cameras.front();
 
-    // Center camera on player (considering character is scaled by 4, so 128x128 pixels)
-    float playerCenterX = playerPos.x + 64.0f; // 32 * 4 / 2
-    float playerCenterY = playerPos.y + 64.0f;
+    const Position &playerPosition = registry.getComponent<Position>(playerEntity);
+    const Sprite &playerSprite = registry.getComponent<Sprite>(playerEntity);
 
-    // Set camera to center on player
-    camera.x = playerCenterX - camera.viewportWidth / 2.0f;
-    camera.y = playerCenterY - camera.viewportHeight / 2.0f;
+    Camera &camera = registry.getComponent<Camera>(cameraEntity);
+    const Map &map = registry.getComponent<Map>(cameraEntity);
 
-    // Clamp camera to map boundaries
-    camera.x = std::max(-64.0f, std::min(camera.x, map.width));
-    camera.y = std::max(-64.0f, std::min(camera.y, map.height));
+    const float playerCenterX = playerPosition.x + playerSprite.width / 2.0f;
+    const float playerCenterY = playerPosition.y + playerSprite.height / 2.0f;
 
-    camera.x = std::min(camera.x, 550.0f);
-    camera.y = std::min(camera.y, 350.0f);
+    const float desiredCameraX = playerCenterX - view::gridWidth / 2.0f;
+    const float desiredCameraY = playerCenterY - view::gridHeight / 2.0f;
+
+    const float minCameraX = map.x - camera.margin;
+    const float minCameraY = map.y - camera.margin;
+
+    const float maxCameraX = map.x + map.width - view::gridWidth + camera.margin;
+    const float maxCameraY = map.y + map.height - view::gridHeight + camera.margin;
+
+    camera.x = std::clamp(desiredCameraX, minCameraX, maxCameraX);
+    camera.y = std::clamp(desiredCameraY, minCameraY, maxCameraY);
 }
 
 } // namespace game

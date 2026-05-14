@@ -52,7 +52,7 @@ void Game::initEnemies()
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> posDist(200.0f, 800.0f);
-    std::uniform_real_distribution<> velDist(0.0f, 0.0f);
+    std::uniform_real_distribution<> velDist(0.0f, 10.0f);
 
     // Spawn 3 enemies at different positions
     for (int i = 0; i < 3; ++i) {
@@ -196,12 +196,11 @@ void Game::updateView(view::View &view)
 
         // Add map sprite
         view::Sprite mapSprite;
-        mapSprite.x = map.x - camera.x;
-        mapSprite.y = map.y - camera.y;
+        mapSprite.x = map.x;
+        mapSprite.y = map.y;
         mapSprite.imagePath = map.texturePath;
         mapSprite.width = map.width;
         mapSprite.height = map.height;
-        mapSprite.scale = map.scale;
         mapSprite.isSelected = map.isSelected;
         view.items.push_back(mapSprite);
     }
@@ -231,7 +230,6 @@ void Game::updateView(view::View &view)
         viewSprite.imagePath = imagePath;
         viewSprite.width = gameSprite.width;
         viewSprite.height = gameSprite.height;
-        viewSprite.scale = gameSprite.scale;
         viewSprite.isSelected = gameSprite.isSelected;
         view.items.push_back(viewSprite);
     }

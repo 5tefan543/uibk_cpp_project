@@ -58,12 +58,10 @@ std::optional<Entity> DebugSelectionSystem::getEntityAtMousePosition(Registry &r
         const Position &position = registry.getComponent<Position>(entity);
         const Sprite &sprite = registry.getComponent<Sprite>(entity);
 
-        const float x = (position.x - camera.x) * sprite.scale;
-        const float y = (position.y - camera.y) * sprite.scale;
-        const float width = sprite.width * sprite.scale;
-        const float height = sprite.height * sprite.scale;
+        const float x = position.x - camera.x;
+        const float y = position.y - camera.y;
 
-        if (contains(input.mouseGridX, input.mouseGridY, x, y, width, height)) {
+        if (contains(input.mouseGridX, input.mouseGridY, x, y, sprite.width, sprite.height)) {
             return entity;
         }
     }
@@ -71,12 +69,10 @@ std::optional<Entity> DebugSelectionSystem::getEntityAtMousePosition(Registry &r
     for (auto entity : registry.view<Map>()) {
         const Map &map = registry.getComponent<Map>(entity);
 
-        const float x = map.x * map.scale;
-        const float y = map.y * map.scale;
-        const float width = map.width * map.scale;
-        const float height = map.height * map.scale;
+        const float x = map.x - camera.x;
+        const float y = map.y - camera.y;
 
-        if (contains(input.mouseGridX, input.mouseGridY, x, y, width, height)) {
+        if (contains(input.mouseGridX, input.mouseGridY, x, y, map.width, map.height)) {
             return entity;
         }
     }

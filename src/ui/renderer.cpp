@@ -95,27 +95,13 @@ void Renderer::renderItem(sf::RenderWindow &window, const view::Sprite &sprite)
 
     sf::Sprite sfSprite(textureCache_[sprite.imagePath]);
 
-    // Calculate position with camera offset and scaling
-    float x = sprite.x;
-    float y = sprite.y;
-    float scale = sprite.scale;
+    sfSprite.setPosition({sprite.x - cameraX_, sprite.y - cameraY_});
 
-    // Apply camera offset only if not a map
-    if (!sprite.isMap) {
-        x -= cameraX_;
-        y -= cameraY_;
-    }
+    auto spriteSize = sfSprite.getLocalBounds().size;
+    const float scaleFactorX = sprite.width / spriteSize.x;
+    const float scaleFactorY = sprite.height / spriteSize.y;
 
-    // Apply scaling
-    x *= scale;
-    y *= scale;
-
-    sfSprite.setPosition(sf::Vector2f(x, y));
-
-    float scaledWidth = sprite.width * scale / sfSprite.getLocalBounds().size.x;
-    float scaledHeight = sprite.height * scale / sfSprite.getLocalBounds().size.y;
-
-    sfSprite.setScale(sf::Vector2f(scaledWidth, scaledHeight));
+    sfSprite.setScale({scaleFactorX, scaleFactorY});
 
     window.draw(sfSprite);
 
@@ -126,7 +112,6 @@ void Renderer::renderItem(sf::RenderWindow &window, const view::Sprite &sprite)
         selectionBox.setFillColor(sf::Color::Transparent);
         selectionBox.setOutlineColor(sf::Color::Yellow);
         selectionBox.setOutlineThickness(2.0f);
-
         window.draw(selectionBox);
     }
 }
