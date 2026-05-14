@@ -155,17 +155,6 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
         getNextWave();
     }
 
-    if (isGameOver()) {
-        controller::PersistenceManager::deleteSave();
-        debug_.gameSession = nullptr;
-        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
-    }
-
-    if (debug_.active && debug_.gameSession->isStoreOpenRequested) {
-        debug_.gameSession->isStoreOpenRequested = false;
-        return controller::StateTransitionAction::PushProgressionStore;
-    }
-
     return controller::StateTransitionAction::None;
 }
 
@@ -201,6 +190,7 @@ void Game::processDebugSession()
         controller::PersistedGame persistedGame = getPersistedGame();
         controller::PersistenceManager::saveGame(persistedGame);
     }
+
 }
 
 void Game::updateSystems(const controller::InputState &input, float dt)

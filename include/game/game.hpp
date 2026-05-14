@@ -21,7 +21,6 @@ class Game {
   private:
     Registry registry_;
     GameDebugSession debugSession_{registry_};
-    controller::DebugContext &debug_ = controller::DebugContext::get();
     controller::GameConfig config_;
     std::chrono::steady_clock::time_point waveStartTime_;
     std::chrono::seconds currentWaveDuration_;
@@ -59,7 +58,6 @@ class Game {
     void initEnemies();
     void processDebugSession();
     void updateSystems(const controller::InputState &input, float dt);
-    bool isGameOver();
     bool isWaveTimeFinished();
 
   public:
@@ -73,6 +71,7 @@ class Game {
     controller::StateTransitionAction update(const controller::InputState &input, float dt);
     void updateView(view::View &view);
     void getNextWave();
+    bool isGameOver();
     bool isWaveDefeated();
     void addScore(int score);
     void getNextStage();
