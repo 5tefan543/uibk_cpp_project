@@ -190,7 +190,6 @@ void Game::processDebugSession()
         controller::PersistedGame persistedGame = getPersistedGame();
         controller::PersistenceManager::saveGame(persistedGame);
     }
-
 }
 
 void Game::updateSystems(const controller::InputState &input, float dt)
