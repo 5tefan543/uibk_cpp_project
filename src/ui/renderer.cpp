@@ -9,7 +9,7 @@ namespace ui {
 Renderer::Renderer()
 {
     // Load all fonts from disk once upon instantiation
-    fonts_ = std::vector<sf::Font>({sf::Font(controller::PersistenceManager::loadConfig().assetConfig.fontPath)});
+    fonts_ = std::vector<sf::Font>({sf::Font(controller::PersistenceManager::getConfig().assetConfig.fontPath)});
     std::cout << "Renderer constructed" << std::endl;
 }
 

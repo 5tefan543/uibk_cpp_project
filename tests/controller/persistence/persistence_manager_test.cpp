@@ -109,7 +109,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk whe
 
     REQUIRE(Serializer::writeJsonToFile(input, Serializer::configFilePath));
 
-    const auto output = PersistenceManager::loadConfig();
+    const auto output = PersistenceManager::getConfig();
 
     REQUIRE(output.initialStage == 13);
     REQUIRE(output.initialWave == 8);
@@ -128,7 +128,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig throws when config 
     std::filesystem::remove(Serializer::configFilePath);
 
     try {
-        (void)PersistenceManager::loadConfig();
+        (void)PersistenceManager::getConfig();
         FAIL("Expected PersistenceManager::loadConfig() to throw std::runtime_error");
     } catch (const std::runtime_error &error) {
         const std::string message = error.what();
@@ -167,7 +167,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads config")
     PersistenceManager::saveConfig(input);
 
     GameConfig output;
-    output = PersistenceManager::loadConfig();
+    output = PersistenceManager::getConfig();
 
     REQUIRE(output.initialStage == 7);
     REQUIRE(output.initialWave == 3);
@@ -194,7 +194,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig prefers cached conf
     diskConfig.initialStage = 99;
     REQUIRE(Serializer::writeJsonToFile(diskConfig, Serializer::configFilePath));
 
-    const auto output = PersistenceManager::loadConfig();
+    const auto output = PersistenceManager::getConfig();
 
     REQUIRE(output.initialStage == 11);
     REQUIRE(output.initialWave == 6);

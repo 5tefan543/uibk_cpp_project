@@ -19,6 +19,7 @@ namespace game {
 Game::Game()
 {
     std::cout << "Game constructed" << std::endl;
+    config_ = controller::PersistenceManager::getConfig();
     getNextWave();
     initStage();
     initPlayer();

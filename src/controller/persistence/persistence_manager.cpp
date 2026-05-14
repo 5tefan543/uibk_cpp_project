@@ -78,7 +78,7 @@ bool PersistenceManager::saveConfig(const GameConfig &config)
     return false;
 }
 
-GameConfig PersistenceManager::loadConfig()
+GameConfig PersistenceManager::getConfig()
 {
     if (configCache.has_value()) {
         return *configCache;

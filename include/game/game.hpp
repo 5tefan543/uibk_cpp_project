@@ -32,8 +32,8 @@ class Game {
     MovementSystem movementSystem_;
     DebugSelectionSystem debugSelectionSystem_;
 
-    int waveDurationSeconds_ = config_.waveDurationSeconds;
-    int wavesPerStage_ = config_.wavesPerStage;
+    int waveDurationSeconds_;
+    int wavesPerStage_;
     int stage_ = 1;
     int wave_ = 0;
     int score_ = 0;
@@ -53,13 +53,14 @@ class Game {
     // all sprites in a deque inside Game.
     view::Text stageWaveInfo_;
 
-    void initStage();
     void initPlayer();
+    void initStage();
     void initPersistedPlayer(const controller::PersistedGame &persistedGame);
     void initEnemies();
     void processDebugSession();
     void updateSystems(const controller::InputState &input, float dt);
     bool isGameOver();
+    bool isWaveTimeFinished();
 
   public:
     Game();
@@ -74,9 +75,7 @@ class Game {
     void getNextWave();
     bool isWaveDefeated();
     void addScore(int score);
-    int getScore();
     void getNextStage();
-    int getWaveCount();
 };
 
 } // namespace game
