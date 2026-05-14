@@ -256,9 +256,7 @@ std::string MenuState::toString() const
 
 std::unique_ptr<GameplayState> GameplayState::createNewGameplay()
 {
-    auto state = std::make_unique<GameplayState>();
-    state->waveStartTime_ = std::chrono::steady_clock::now();
-    return state;
+    return std::make_unique<GameplayState>();
 }
 
 std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
@@ -269,7 +267,6 @@ std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
     }
 
     auto state = std::make_unique<GameplayState>();
-    state->waveStartTime_ = std::chrono::steady_clock::now();
     if (persistedGame.has_value()) {
         state->game.loadFromPersistedGame(*persistedGame);
         state->loadedFromSave_ = true;
@@ -285,48 +282,12 @@ bool GameplayState::isLoadedFromPersistedGame() const
 
 StateTransitionAction GameplayState::update(const InputState &input, float dt)
 {
-    DebugContext &debug = DebugContext::get();
-    debug.gameSession = &game.getDebugSession();
-    auto currentWaveDuration = std::chrono::steady_clock::now() - waveStartTime_;
-    auto waveDurationSeconds = std::chrono::seconds(PersistenceManager::loadConfig().waveDurationSeconds);
-    auto wavesPerStage = PersistenceManager::loadConfig().wavesPerStage;
 
     if (input.cancelPressed) {
         return controller::StateTransitionAction::PushPauseMenu;
     }
 
-    if (game.isWaveDefeated()) {
-        game.addScore(waveDurationSeconds.count() - currentWaveDuration.count());
-        if (game.getWaveCount() % wavesPerStage == 0) {
-            game.getNextWave();
-            return StateTransitionAction::PushProgressionStore;
-        }
-        game.getNextWave();
-        waveStartTime_ = std::chrono::steady_clock::now();
-    }
-
-    if (waveDurationSeconds < currentWaveDuration) {
-        if (game.getWaveCount() % wavesPerStage == 0) {
-            game.getNextWave();
-            return StateTransitionAction::PushProgressionStore;
-        }
-        game.getNextWave();
-        waveStartTime_ = std::chrono::steady_clock::now();
-    }
-
-    bool isGameOver = game.update(input, dt);
-
-    if (isGameOver) {
-        debug.gameSession = nullptr;
-        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
-    }
-
-    if (debug.active && debug.gameSession->isStoreOpenRequested) {
-        debug.gameSession->isStoreOpenRequested = false;
-        return controller::StateTransitionAction::PushProgressionStore;
-    }
-
-    return controller::StateTransitionAction::None;
+    return game.update(input, dt);
 }
 
 std::string GameplayState::toString() const

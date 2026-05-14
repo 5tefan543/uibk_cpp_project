@@ -47,7 +47,6 @@ class MenuState : public BaseState {
 
 class GameplayState : public BaseState {
     bool loadedFromSave_ = false;
-    std::chrono::time_point<std::chrono::steady_clock> waveStartTime_;
 
   public:
     game::Game game;

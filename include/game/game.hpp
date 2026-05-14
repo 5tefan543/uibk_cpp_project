@@ -1,5 +1,6 @@
 #pragma once
 
+#include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
 #include "controller/persistence/config_game.hpp"
 #include "controller/persistence/persisted_game.hpp"
@@ -12,13 +13,18 @@
 #include "game/ecs/systems/movement_system.hpp"
 #include "view/view.hpp"
 
+#include <chrono>
+
 namespace game {
 
 class Game {
   private:
     Registry registry_;
     GameDebugSession debugSession_{registry_};
+    controller::DebugContext &debug = controller::DebugContext::get();
     controller::GameConfig config_;
+    std::chrono::steady_clock::time_point waveStartTime_;
+    std::chrono::seconds currentWaveDuration_;
 
     AnimationSystem animationSystem_;
     CameraSystem cameraSystem_;
@@ -26,6 +32,8 @@ class Game {
     MovementSystem movementSystem_;
     DebugSelectionSystem debugSelectionSystem_;
 
+    int waveDurationSeconds_ = config_.waveDurationSeconds;
+    int wavesPerStage_ = config_.wavesPerStage;
     int stage_ = 1;
     int wave_ = 0;
     int score_ = 0;
@@ -61,7 +69,7 @@ class Game {
     GameDebugSession &getDebugSession();
     void loadFromPersistedGame(const controller::PersistedGame &persistedGame);
     controller::PersistedGame getPersistedGame() const;
-    bool update(const controller::InputState &input, float dt);
+    controller::StateTransitionAction update(const controller::InputState &input, float dt);
     void updateView(view::View &view);
     void getNextWave();
     bool isWaveDefeated();

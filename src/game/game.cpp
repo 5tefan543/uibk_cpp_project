@@ -121,18 +121,44 @@ controller::PersistedGame Game::getPersistedGame() const
     return persistedGame;
 }
 
-bool Game::update(const controller::InputState &input, float dt)
+controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
 {
     processDebugSession();
     updateSystems(input, dt);
 
     // update clock
 
+    if (isWaveDefeated()) {
+        addScore(waveDurationSeconds_ - currentWaveDuration_.count());
+        if (getWaveCount() % wavesPerStage_ == 0) {
+            getNextWave();
+            return controller::StateTransitionAction::PushProgressionStore;
+        }
+        getNextWave();
+        waveStartTime_ = std::chrono::steady_clock::now();
+    }
+
+    if (waveDurationSeconds_ < currentWaveDuration_.count()) {
+        if (getWaveCount() % wavesPerStage_ == 0) {
+            getNextStage();
+            return controller::StateTransitionAction::PushProgressionStore;
+        }
+        getNextWave();
+        waveStartTime_ = std::chrono::steady_clock::now();
+    }
+
     if (isGameOver()) {
         controller::PersistenceManager::deleteSave();
-        return true;
+        debug.gameSession = nullptr;
+        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
     }
-    return false;
+
+    if (debug.active && debug.gameSession->isStoreOpenRequested) {
+        debug.gameSession->isStoreOpenRequested = false;
+        return controller::StateTransitionAction::PushProgressionStore;
+    }
+
+    return controller::StateTransitionAction::None;
 }
 
 void Game::processDebugSession()
