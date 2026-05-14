@@ -20,6 +20,8 @@ Game::Game()
 {
     std::cout << "Game constructed" << std::endl;
     config_ = controller::PersistenceManager::getConfig();
+    waveDurationSeconds_ = config_.waveDurationSeconds;
+    wavesPerStage_ = config_.wavesPerStage;
     getNextWave();
     initStage();
     initPlayer();
@@ -36,13 +38,13 @@ void Game::initStage()
 
 void Game::getNextWave()
 {
-    std::cout << "Loading stage " << stage_ << ", wave " << wave_ << std::endl;
     // Logic to initialize a new wave of enemies can go here
     auto gameSave = getPersistedGame();
     if (!controller::PersistenceManager::saveGame(gameSave)) {
 
         // TODO error via gui not console
     }
+    waveStartTime_ = std::chrono::steady_clock::now();
     wave_++;
     std::cout << "Starting wave " << wave_ << " of stage " << stage_ << std::endl;
 }
@@ -122,30 +124,35 @@ controller::PersistedGame Game::getPersistedGame() const
     return persistedGame;
 }
 
+bool Game::isWaveTimeFinished(){
+    return currentWaveDuration_.count() >= waveDurationSeconds_;
+}
+
 controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
 {
     processDebugSession();
     updateSystems(input, dt);
 
     // update clock
+    auto now = std::chrono::steady_clock::now();
+    currentWaveDuration_ = std::chrono::duration_cast<std::chrono::seconds>(now - waveStartTime_);
 
     if (isWaveDefeated()) {
         addScore(waveDurationSeconds_ - currentWaveDuration_.count());
-        if (getWaveCount() % wavesPerStage_ == 0) {
-            getNextWave();
-            return controller::StateTransitionAction::PushProgressionStore;
-        }
-        getNextWave();
-        waveStartTime_ = std::chrono::steady_clock::now();
-    }
-
-    if (waveDurationSeconds_ < currentWaveDuration_.count()) {
-        if (getWaveCount() % wavesPerStage_ == 0) {
+        if (wave_ % wavesPerStage_ == 0) {
             getNextStage();
             return controller::StateTransitionAction::PushProgressionStore;
         }
         getNextWave();
-        waveStartTime_ = std::chrono::steady_clock::now();
+    }
+
+    if (waveDurationSeconds_ < currentWaveDuration_.count()) {
+        if (wave_ % wavesPerStage_ == 0) {
+            getNextStage();
+            return controller::StateTransitionAction::PushProgressionStore;
+        }
+        getNextWave();
+        
     }
 
     if (isGameOver()) {
@@ -229,15 +236,6 @@ void Game::addScore(int score)
     currency_ += score;
 }
 
-int Game::getScore()
-{
-    return score_;
-}
-
-int Game::getWaveCount()
-{
-    return wave_;
-}
 
 void Game::getNextStage()
 {
@@ -303,7 +301,7 @@ void Game::updateView(view::View &view)
     }
 
     stageWaveInfo_ = {
-        .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_),
+        .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_) + " Time remaining: " + std::to_string(waveDurationSeconds_ - currentWaveDuration_.count()) + " score: " + std::to_string(score_) + " currency: " + std::to_string(currency_), 
         .size = 24,
         .gridY = 75.0f,
     };
