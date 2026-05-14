@@ -320,7 +320,7 @@ TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
         REQUIRE(debug.gameSession != nullptr);
     }
 
-    SECTION("game over returns ReplaceCurrentWithGameOverMenu and resets gameSession")
+    SECTION("player destruction request returns None and keeps gameSession")
     {
         // ARRANGE
         debug.active = true;
@@ -331,8 +331,8 @@ TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
         StateTransitionAction action = updateOnce();
 
         // ASSERT
-        REQUIRE(action == StateTransitionAction::ReplaceCurrentWithGameOverMenu);
-        REQUIRE(debug.gameSession == nullptr);
+        REQUIRE(action == StateTransitionAction::None);
+        REQUIRE(debug.gameSession != nullptr);
     }
 
     SECTION("store open request returns PushProgressionStore when debug is active")

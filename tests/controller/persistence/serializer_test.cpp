@@ -21,6 +21,8 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when target file cannot 
 
 TEST_CASE_METHOD(TestFixture, "Serializer returns false when parent path exists as a file")
 {
+    std::filesystem::remove_all(Serializer::configDir);
+
     {
         std::ofstream configPathAsFile(Serializer::configDir);
         REQUIRE(configPathAsFile.good());

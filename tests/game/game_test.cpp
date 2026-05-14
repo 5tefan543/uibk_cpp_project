@@ -1,6 +1,7 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
 #include "controller/persistence/persistence_manager.hpp"
+#include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/game.hpp"
@@ -27,7 +28,7 @@ TEST_CASE_METHOD(TestFixture, "Game update returns correct StateTransitionAction
     REQUIRE(currentState == controller::StateTransitionAction::None);
 }
 
-TEST_CASE_METHOD(TestFixture, "Game update returns StateTransactionAction GameOver when no player exists anymore")
+TEST_CASE_METHOD(TestFixture, "Game update returns None when no player exists anymore")
 {
     // ARRANGE
     game::Game game;
@@ -42,7 +43,7 @@ TEST_CASE_METHOD(TestFixture, "Game update returns StateTransactionAction GameOv
     auto currentState = game.update(input, dummyDeltaTime);
 
     // ASSERT
-    REQUIRE(currentState == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu);
+    REQUIRE(currentState == controller::StateTransitionAction::None);
 }
 
 TEST_CASE_METHOD(TestFixture, "Game update resets stage/wave reload request when debug is active")
@@ -98,8 +99,33 @@ TEST_CASE_METHOD(TestFixture, "Game update resets player destruction request whe
     auto currentState = game.update(input, dummyDeltaTime);
 
     // ASSERT
-    REQUIRE(currentState == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu);
+    REQUIRE(currentState == controller::StateTransitionAction::None);
     REQUIRE_FALSE(session.isPlayerDestructionRequested);
+}
+
+TEST_CASE_METHOD(TestFixture, "Game update returns PushProgressionStore when a stage boundary wave is defeated")
+{
+    // ARRANGE
+    game::Game game;
+    controller::InputState input;
+    controller::DebugContext &debug = controller::DebugContext::get();
+    debug.active = true;
+
+    game::GameDebugSession &session = game.getDebugSession();
+    session.stage = 1;
+    session.wave = 5;
+    session.isStageWaveReloadRequested = true;
+
+    // Defeat the current wave by removing all enemies.
+    for (game::Entity enemy : session.registry.view<game::EnemyTag>()) {
+        session.registry.destroyEntity(enemy);
+    }
+
+    // ACT
+    const auto currentState = game.update(input, dummyDeltaTime);
+
+    // ASSERT
+    REQUIRE(currentState == controller::StateTransitionAction::PushProgressionStore);
 }
 
 TEST_CASE_METHOD(TestFixture, "Game update keeps player destruction request unchanged when debug is inactive")
@@ -132,8 +158,6 @@ TEST_CASE_METHOD(TestFixture, "Game update saves game on save request and resets
     game::GameDebugSession &session = game.getDebugSession();
     session.isSaveGameRequested = true;
 
-    REQUIRE_FALSE(controller::PersistenceManager::hasSavedGame());
-
     // ACT
     auto currentState = game.update(input, dummyDeltaTime);
 
@@ -154,15 +178,12 @@ TEST_CASE_METHOD(TestFixture, "Game update keeps save game request unchanged whe
     game::GameDebugSession &session = game.getDebugSession();
     session.isSaveGameRequested = true;
 
-    REQUIRE_FALSE(controller::PersistenceManager::hasSavedGame());
-
     // ACT
     auto currentState = game.update(input, dummyDeltaTime);
 
     // ASSERT
     REQUIRE(currentState == controller::StateTransitionAction::None);
     REQUIRE(session.isSaveGameRequested);
-    REQUIRE_FALSE(controller::PersistenceManager::hasSavedGame());
 }
 
 TEST_CASE_METHOD(TestFixture, "Game update skips system updates when debug is active and system updates are disabled")

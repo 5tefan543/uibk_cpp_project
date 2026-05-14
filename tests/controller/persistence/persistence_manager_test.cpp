@@ -139,6 +139,8 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig throws when config 
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager saveConfig returns false when config path parent cannot be created")
 {
+    std::filesystem::remove_all(Serializer::configDir);
+
     {
         std::ofstream configPathAsFile(Serializer::configDir);
         REQUIRE(configPathAsFile.good());
