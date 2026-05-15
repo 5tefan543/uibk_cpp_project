@@ -22,11 +22,12 @@ class Renderer {
     sf::Color toSfColor(const view::Color &color);
     const sf::Font &toSfFont(const view::Font font);
 
-    void renderItems(sf::RenderWindow &window, const std::vector<view::ViewItem> &items);
-    void renderItem(sf::RenderWindow &window, const view::Card &card);
-    void renderItem(sf::RenderWindow &window, const view::Button &button);
-    void renderItem(sf::RenderWindow &window, const view::Text &text);
-    void renderItem(sf::RenderWindow &window, const view::Sprite &sprite);
+    void renderViewElement(sf::RenderWindow &window, const view::ViewElement &element);
+    void renderViewElements(sf::RenderWindow &window, const std::vector<view::ViewElement> &elements);
+    void renderElement(sf::RenderWindow &window, const view::Card &card);
+    void renderElement(sf::RenderWindow &window, const view::Button &button);
+    void renderElement(sf::RenderWindow &window, const view::Text &text);
+    void renderElement(sf::RenderWindow &window, const view::Sprite &sprite);
 };
 
 } // namespace ui

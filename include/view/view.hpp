@@ -12,7 +12,6 @@ struct View {
     float cameraX = 0.0f;
     float cameraY = 0.0f;
 
-    std::vector<ViewItem> overlayItems;
-    std::vector<ViewItem> worldItems;
+    std::vector<ViewNode> nodes;
 };
 } // namespace view

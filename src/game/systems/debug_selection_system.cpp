@@ -46,14 +46,6 @@ bool contains(float mouseX, float mouseY, float x, float y, float width, float h
 std::optional<Entity> DebugSelectionSystem::getEntityAtMousePosition(Registry &registry,
                                                                      const controller::InputState &input)
 {
-    auto cameras = registry.view<Camera>();
-
-    if (cameras.empty()) {
-        return std::nullopt;
-    }
-
-    const Camera &camera = registry.getComponent<Camera>(cameras.front());
-
     for (auto entity : registry.view<Position, Sprite>()) {
         const Position &position = registry.getComponent<Position>(entity);
         const Sprite &sprite = registry.getComponent<Sprite>(entity);

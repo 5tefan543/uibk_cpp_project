@@ -45,22 +45,13 @@ void UI::initImGuiSfml()
     }
 }
 
-void UI::setWorldView(float cameraX, float cameraY)
+void UI::setSfmlView(float cameraX, float cameraY)
 {
     sf::View view;
-
     view.setSize({view::gridWidth, view::gridHeight});
-    view.setCenter({
-        cameraX + view::gridWidth / 2.0f,
-        cameraY + view::gridHeight / 2.0f,
-    });
+    view.setCenter({view::gridWidth / 2.0f + cameraX, view::gridHeight / 2.0f + cameraY});
     view.setViewport(getLetterboxViewport());
     window_.setView(view);
-}
-
-void UI::setOverlayView()
-{
-    setWorldView(0.0f, 0.0f);
 }
 
 sf::FloatRect UI::getLetterboxViewport() const
@@ -110,12 +101,7 @@ void UI::render(const view::View &view)
 
     // 2. Normal rendering
     window_.clear(renderer_.toSfColor(view.backgroundColor));
-
-    setWorldView(view.cameraX, view.cameraY);
-    renderer_.renderItems(window_, view.worldItems);
-
-    setOverlayView();
-    renderer_.renderItems(window_, view.overlayItems);
+    renderView(window_, view);
 
     // 3. Render debug UI on top
     debugUI_.render(inputState_, fps_);
@@ -123,6 +109,28 @@ void UI::render(const view::View &view)
 
     // 4. Display everything
     window_.display();
+
+    // 5. Set view to camera-relative for next frame's input polling
+    // Otherwise mouse input is not correctly mapped to grid coordinates when camera is moved
+    setSfmlView(view.cameraX, view.cameraY);
+}
+
+void UI::renderView(sf::RenderWindow &window, const view::View &view)
+{
+    std::optional<view::ViewMode> currentViewMode;
+
+    for (const auto &node : view.nodes) {
+        if (currentViewMode != node.mode) {
+            currentViewMode = node.mode;
+            if (node.mode == view::ViewMode::FixedToWorld) {
+                setSfmlView(view.cameraX, view.cameraY);
+            } else {
+                setSfmlView(0.0f, 0.0f);
+            }
+        }
+
+        renderer_.renderViewElement(window, node.element);
+    }
 }
 
 } // namespace ui
