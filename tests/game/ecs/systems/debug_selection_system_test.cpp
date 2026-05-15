@@ -15,25 +15,17 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects sprite under mouse w
     game::DebugSelectionSystem system;
     game::GameDebugSession debugSession(registry);
 
-    game::Entity camera = registry.createEntity();
-    game::Camera cameraComponent{.x = 0.0f, .y = 0.0f};
-    registry.addComponent(camera, cameraComponent);
-
     game::Entity spriteEntity = registry.createEntity();
     game::Position spritePosition{.x = 100.0f, .y = 100.0f};
-    game::Sprite spriteComponent{
-        .width = 32.0f,
-        .height = 32.0f,
-        .scale = 4.0f,
-    };
+    game::Sprite spriteComponent{.width = 32.0f, .height = 32.0f};
     registry.addComponent(spriteEntity, spritePosition);
     registry.addComponent(spriteEntity, spriteComponent);
 
     controller::InputState input{};
     input.controlHeld = true;
     input.mouseLeftPressed = true;
-    input.mouseGridX = (spritePosition.x - cameraComponent.x) * spriteComponent.scale;
-    input.mouseGridY = (spritePosition.y - cameraComponent.y) * spriteComponent.scale;
+    input.mouseGridX = spritePosition.x;
+    input.mouseGridY = spritePosition.y;
 
     system.update(registry, input, true, debugSession);
 
@@ -47,58 +39,25 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects map under mouse when
     game::DebugSelectionSystem system;
     game::GameDebugSession debugSession(registry);
 
-    game::Entity camera = registry.createEntity();
-    game::Camera cameraComponent{.x = 0.0f, .y = 0.0f};
-    registry.addComponent(camera, cameraComponent);
-
     game::Entity mapEntity = registry.createEntity();
     game::Map mapComponent{
         .x = 100.0f,
         .y = 100.0f,
         .width = 500.0f,
         .height = 500.0f,
-        .scale = 2.0f,
     };
     registry.addComponent(mapEntity, mapComponent);
 
     controller::InputState input{};
     input.controlHeld = true;
     input.mouseLeftPressed = true;
-    input.mouseGridX = mapComponent.x * mapComponent.scale;
-    input.mouseGridY = mapComponent.y * mapComponent.scale;
+    input.mouseGridX = mapComponent.x;
+    input.mouseGridY = mapComponent.y;
 
     system.update(registry, input, true, debugSession);
 
     REQUIRE(debugSession.selectedEntity == mapEntity);
     REQUIRE(registry.getComponent<game::Map>(mapEntity).isSelected);
-}
-
-TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select map when no camera exists")
-{
-    game::Registry registry;
-    game::DebugSelectionSystem system;
-    game::GameDebugSession debugSession(registry);
-
-    game::Entity mapEntity = registry.createEntity();
-    game::Map mapComponent{
-        .x = 100.0f,
-        .y = 100.0f,
-        .width = 500.0f,
-        .height = 500.0f,
-        .scale = 2.0f,
-    };
-    registry.addComponent(mapEntity, mapComponent);
-
-    controller::InputState input{};
-    input.controlHeld = true;
-    input.mouseLeftPressed = true;
-    input.mouseGridX = mapComponent.x * mapComponent.scale;
-    input.mouseGridY = mapComponent.y * mapComponent.scale;
-
-    system.update(registry, input, true, debugSession);
-
-    REQUIRE_FALSE(debugSession.selectedEntity == mapEntity);
-    REQUIRE_FALSE(registry.getComponent<game::Map>(mapEntity).isSelected);
 }
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select entity when ctrl is not held")
@@ -107,25 +66,17 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select entity when 
     game::DebugSelectionSystem system;
     game::GameDebugSession debugSession(registry);
 
-    game::Entity camera = registry.createEntity();
-    game::Camera cameraComponent{.x = 0.0f, .y = 0.0f};
-    registry.addComponent(camera, cameraComponent);
-
     game::Entity spriteEntity = registry.createEntity();
     game::Position spritePosition{.x = 100.0f, .y = 100.0f};
-    game::Sprite spriteComponent{
-        .width = 32.0f,
-        .height = 32.0f,
-        .scale = 4.0f,
-    };
+    game::Sprite spriteComponent{.width = 32.0f, .height = 32.0f};
     registry.addComponent(spriteEntity, spritePosition);
     registry.addComponent(spriteEntity, spriteComponent);
 
     controller::InputState input{};
     input.controlHeld = false;
     input.mouseLeftPressed = true;
-    input.mouseGridX = (spritePosition.x - cameraComponent.x) * spriteComponent.scale;
-    input.mouseGridY = (spritePosition.y - cameraComponent.y) * spriteComponent.scale;
+    input.mouseGridX = spritePosition.x;
+    input.mouseGridY = spritePosition.y;
 
     system.update(registry, input, true, debugSession);
 
@@ -139,16 +90,11 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select entity when 
     game::DebugSelectionSystem system;
     game::GameDebugSession debugSession(registry);
 
-    game::Entity camera = registry.createEntity();
-    game::Camera cameraComponent{.x = 0.0f, .y = 0.0f};
-    registry.addComponent(camera, cameraComponent);
-
     game::Entity spriteEntity = registry.createEntity();
     game::Position spritePosition{.x = 100.0f, .y = 100.0f};
     game::Sprite spriteComponent{
         .width = 32.0f,
         .height = 32.0f,
-        .scale = 4.0f,
     };
     registry.addComponent(spriteEntity, spritePosition);
     registry.addComponent(spriteEntity, spriteComponent);
@@ -175,7 +121,6 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem clears sprite selection when
     game::Sprite spriteComponent{
         .width = 32.0f,
         .height = 32.0f,
-        .scale = 4.0f,
         .isSelected = true,
     };
     registry.addComponent(spriteEntity, spriteComponent);
@@ -195,17 +140,12 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem clears map selection when de
     game::DebugSelectionSystem system;
     game::GameDebugSession debugSession(registry);
 
-    game::Entity camera = registry.createEntity();
-    game::Camera cameraComponent{.x = 0.0f, .y = 0.0f};
-    registry.addComponent(camera, cameraComponent);
-
     game::Entity mapEntity = registry.createEntity();
     game::Map mapComponent{
         .x = 100.0f,
         .y = 100.0f,
         .width = 500.0f,
         .height = 500.0f,
-        .scale = 2.0f,
         .isSelected = true,
     };
     registry.addComponent(mapEntity, mapComponent);

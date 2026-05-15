@@ -155,7 +155,7 @@ void MenuState::initView()
             setCenterizedY(loadGameButton, getCenterY(mainMenuCard) + loadGameButton.height / 2);
             loadGameButton.text.text = std::string("Load Game");
             loadGameButton.text.gridY = getCenterY(loadGameButton);
-            mainMenuCard.items.push_back(loadGameButton);
+            mainMenuCard.elements.push_back(loadGameButton);
         }
 
         view::Button &quitButton = buttons_.emplace_back(view::Button());
@@ -164,11 +164,11 @@ void MenuState::initView()
         quitButton.text.gridY = getCenterY(quitButton);
         quitButton.text.text = std::string("Quit");
 
-        mainMenuCard.items.push_back(title);
-        mainMenuCard.items.push_back(startGameButton);
-        mainMenuCard.items.push_back(quitButton);
-        backgroundCard.items.push_back(mainMenuCard);
-        view_.items.push_back(backgroundCard);
+        mainMenuCard.elements.push_back(title);
+        mainMenuCard.elements.push_back(startGameButton);
+        mainMenuCard.elements.push_back(quitButton);
+        backgroundCard.elements.push_back(mainMenuCard);
+        view_.nodes.push_back({view::ViewMode::FixedToScreen, backgroundCard});
         break;
     }
     case MenuType::PauseMenu: {
@@ -196,11 +196,11 @@ void MenuState::initView()
         quitButton.text.gridY = getCenterY(quitButton);
         quitButton.text.text = std::string("Quit");
 
-        mainMenuCard.items.push_back(title);
-        mainMenuCard.items.push_back(resumeButton);
-        mainMenuCard.items.push_back(quitButton);
-        backgroundCard.items.push_back(mainMenuCard);
-        view_.items.push_back(backgroundCard);
+        mainMenuCard.elements.push_back(title);
+        mainMenuCard.elements.push_back(resumeButton);
+        mainMenuCard.elements.push_back(quitButton);
+        backgroundCard.elements.push_back(mainMenuCard);
+        view_.nodes.push_back({view::ViewMode::FixedToScreen, backgroundCard});
         break;
     }
     case MenuType::GameOverMenu:
@@ -229,11 +229,11 @@ void MenuState::initView()
         quitButton.text.gridY = getCenterY(quitButton);
         quitButton.text.text = std::string("Quit");
 
-        mainMenuCard.items.push_back(title);
-        mainMenuCard.items.push_back(mainMenuButton);
-        mainMenuCard.items.push_back(quitButton);
-        backgroundCard.items.push_back(mainMenuCard);
-        view_.items.push_back(backgroundCard);
+        mainMenuCard.elements.push_back(title);
+        mainMenuCard.elements.push_back(mainMenuButton);
+        mainMenuCard.elements.push_back(quitButton);
+        backgroundCard.elements.push_back(mainMenuCard);
+        view_.nodes.push_back({view::ViewMode::FixedToScreen, backgroundCard});
         break;
     }
 
