@@ -14,7 +14,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem sets player velocity from input")
     game::InputSystem system;
 
     game::Entity player = registry.createEntity();
-    registry.addComponent<game::PlayerTag>(player, {});
+    registry.addComponent<game::PlayerTag>(player, {.moveSpeed = 200.0f});
     registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
 
     controller::InputState input;
@@ -37,7 +37,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem resets old velocity before applying n
     game::InputSystem system;
 
     game::Entity player = registry.createEntity();
-    registry.addComponent<game::PlayerTag>(player, {});
+    registry.addComponent<game::PlayerTag>(player, {.moveSpeed = 200.0f});
     registry.addComponent<game::Velocity>(player, {999.0f, 999.0f});
 
     controller::InputState input;
@@ -80,7 +80,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem opposing directions cancel each other
     game::InputSystem system;
 
     game::Entity player = registry.createEntity();
-    registry.addComponent<game::PlayerTag>(player, {});
+    registry.addComponent<game::PlayerTag>(player, {.moveSpeed = 200.0f});
     registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
 
     controller::InputState input;
