@@ -65,22 +65,13 @@ void DebugUI::renderGameSession(controller::DebugContext &debug)
         if (ImGui::CollapsingHeader("Game Session", ImGuiTreeNodeFlags_DefaultOpen)) {
 
             ImGui::SeparatorText("Stage / Wave");
-            const bool didStageChange = ImGui::InputInt("Stage", &gameSession.stage);
-            const bool didWaveChange = ImGui::InputInt("Wave", &gameSession.wave);
+            ImGui::InputInt("Stage", &gameSession.stage);
+            ImGui::InputInt("Wave", &gameSession.wave);
 
             // keep values >= 1
             gameSession.stage = std::max(1, gameSession.stage);
             gameSession.wave = std::max(1, gameSession.wave);
 
-            if (didStageChange) {
-                // move to first wave of the selected stage
-                gameSession.wave = (gameSession.stage - 1) * 5 + 1;
-            }
-
-            if (didWaveChange) {
-                // derive stage from wave
-                gameSession.stage = ((gameSession.wave - 1) / 5) + 1;
-            }
 
             if (ImGui::Button("Reload Stage/Wave") && debug.gameSession) {
                 debug.gameSession->isStageWaveReloadRequested = true;

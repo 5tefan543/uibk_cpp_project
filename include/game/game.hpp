@@ -58,22 +58,23 @@ class Game {
     void processDebugSession();
     void updateSystems(const controller::InputState &input, float dt);
     bool isWaveTimeFinished();
-
-  public:
-    Game();
-    Game(const Game &) = delete;
-    ~Game();
-
-    GameDebugSession &getDebugSession();
-    void loadFromPersistedGame(const controller::PersistedGame &persistedGame);
-    controller::PersistedGame getPersistedGame() const;
-    controller::StateTransitionAction update(const controller::InputState &input, float dt);
-    void updateView(view::View &view);
     void getNextWave();
-    bool isGameOver();
     bool isWaveDefeated();
     void addScore(int score);
     void getNextStage();
+    
+    public:
+    Game();
+    Game(const Game &) = delete;
+    ~Game();
+    
+    bool isGameOver();
+    GameDebugSession &getDebugSession();
+    void updateView(view::View &view);
+    void loadFromPersistedGame(const controller::PersistedGame &persistedGame);
+    controller::PersistedGame getPersistedGame() const;
+    controller::StateTransitionAction update(const controller::InputState &input, float dt);
+    
 };
 
 } // namespace game

@@ -180,7 +180,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay crea
 
     const PersistedGame loaded = gameplayState->game.getPersistedGame();
     REQUIRE(loaded.stage == 9);
-    REQUIRE(loaded.wave == 4);
+    REQUIRE(loaded.wave == 5); // wave is advanced to next wave in loadFromPersistedGame
     REQUIRE(loaded.currency == 777);
     REQUIRE(loaded.playerStats.speed == 360.0f);
 }

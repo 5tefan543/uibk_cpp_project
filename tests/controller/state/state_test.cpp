@@ -321,7 +321,7 @@ TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
         REQUIRE(debug.gameSession != nullptr);
     }
 
-    SECTION("player destruction request returns None and keeps gameSession")
+    SECTION("player destruction request returns ReplaceCurrentWithGameOverMenu and keeps gameSession")
     {
         // ARRANGE
         debug.active = true;
@@ -332,7 +332,7 @@ TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
         StateTransitionAction action = updateOnce();
 
         // ASSERT
-        REQUIRE(action == StateTransitionAction::None);
+        REQUIRE(action == StateTransitionAction::ReplaceCurrentWithGameOverMenu);
         REQUIRE(debug.gameSession != nullptr);
     }
 
@@ -345,7 +345,7 @@ TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
 
         // First update destroys the player entity.
         debug.gameSession->isPlayerDestructionRequested = true;
-        REQUIRE(updateOnce() == StateTransitionAction::None);
+        REQUIRE(updateOnce() == StateTransitionAction::ReplaceCurrentWithGameOverMenu);
 
         // ACT
         StateTransitionAction action = updateOnce();

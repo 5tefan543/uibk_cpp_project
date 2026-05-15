@@ -3,6 +3,8 @@
 namespace controller {
 
 struct PlayerStats {
+    float posX = 0.0f;
+    float posY = 0.0f;
     float maxHealth = 0.0f;
     float attackPower = 0.0f;
     float attackSpeed = 0.0f;

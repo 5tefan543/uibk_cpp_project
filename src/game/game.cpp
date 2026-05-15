@@ -103,8 +103,12 @@ void Game::loadFromPersistedGame(const controller::PersistedGame &persistedGame)
     auto players = registry_.view<PlayerTag>();
     if (!players.empty()) {
         PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
+        Position &position = registry_.getComponent<Position>(players.front());
         playerTag.moveSpeed = persistedGame.playerStats.speed;
+        position.x = persistedGame.playerStats.posX;
+        position.y = persistedGame.playerStats.posY;
     }
+    getNextWave();
 }
 
 controller::PersistedGame Game::getPersistedGame() const
@@ -118,7 +122,10 @@ controller::PersistedGame Game::getPersistedGame() const
     auto players = registry_.view<PlayerTag>();
     if (!players.empty()) {
         const PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
+        const Position &position = registry_.getComponent<Position>(players.front());
         persistedGame.playerStats.speed = playerTag.moveSpeed;
+        persistedGame.playerStats.posX = position.x;
+        persistedGame.playerStats.posY = position.y;
     }
 
     return persistedGame;
@@ -152,6 +159,11 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
             return controller::StateTransitionAction::PushProgressionStore;
         }
         getNextWave();
+    }
+
+    if(isGameOver()) {
+        controller::PersistenceManager::deleteSave();
+        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
     }
 
     return controller::StateTransitionAction::None;

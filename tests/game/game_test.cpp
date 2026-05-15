@@ -28,7 +28,7 @@ TEST_CASE_METHOD(TestFixture, "Game update returns correct StateTransitionAction
     REQUIRE(currentState == controller::StateTransitionAction::None);
 }
 
-TEST_CASE_METHOD(TestFixture, "Game update returns None when no player exists anymore")
+TEST_CASE_METHOD(TestFixture, "Game update returns ReplaceCurrentWithGameOverMenu when no player exists anymore")
 {
     // ARRANGE
     game::Game game;
@@ -43,7 +43,7 @@ TEST_CASE_METHOD(TestFixture, "Game update returns None when no player exists an
     auto currentState = game.update(input, dummyDeltaTime);
 
     // ASSERT
-    REQUIRE(currentState == controller::StateTransitionAction::None);
+    REQUIRE(currentState == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu);
 }
 
 TEST_CASE_METHOD(TestFixture, "Game update resets stage/wave reload request when debug is active")
@@ -99,7 +99,7 @@ TEST_CASE_METHOD(TestFixture, "Game update resets player destruction request whe
     auto currentState = game.update(input, dummyDeltaTime);
 
     // ASSERT
-    REQUIRE(currentState == controller::StateTransitionAction::None);
+    REQUIRE(currentState == controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu);
     REQUIRE_FALSE(session.isPlayerDestructionRequested);
 }
 
@@ -313,7 +313,7 @@ TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted valu
 
     const controller::PersistedGame snapshot = game.getPersistedGame();
     REQUIRE(snapshot.stage == 12);
-    REQUIRE(snapshot.wave == 5);
+    REQUIRE(snapshot.wave == 6); // wave is advanced to next wave in loadFromPersistedGame  
     REQUIRE(snapshot.currency == 1234);
     REQUIRE(snapshot.playerStats.speed == 333.0f);
 }
