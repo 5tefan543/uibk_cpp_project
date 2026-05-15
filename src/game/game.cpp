@@ -63,7 +63,7 @@ void Game::initEnemies()
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> posDist(200.0f, 800.0f);
-    std::uniform_real_distribution<> velDist(0.0f, 0.0f);
+    std::uniform_real_distribution<> velDist(0.0f, 10.0f);
 
     // Spawn 3 enemies at different positions
     for (int i = 0; i < 3; ++i) {
@@ -235,7 +235,7 @@ void Game::updateView(view::View &view)
     // Game should be able to decide how to update.
     // Currently we simply clear everything and rebuilding the view from scratch.
     // Future improvements might only make changes and add/remove where necessary.
-    view.items.clear();
+    view.nodes.clear();
 
     // Get camera data
     auto cameraEntities = registry_.view<Camera, Map>();
@@ -247,14 +247,13 @@ void Game::updateView(view::View &view)
 
         // Add map sprite
         view::Sprite mapSprite;
-        mapSprite.x = map.x - camera.x;
-        mapSprite.y = map.y - camera.y;
+        mapSprite.x = map.x;
+        mapSprite.y = map.y;
         mapSprite.imagePath = map.texturePath;
         mapSprite.width = map.width;
         mapSprite.height = map.height;
-        mapSprite.scale = map.scale;
         mapSprite.isSelected = map.isSelected;
-        view.items.push_back(mapSprite);
+        view.nodes.push_back({view::ViewMode::FixedToWorld, mapSprite});
     }
 
     // Render sprite entities
@@ -282,9 +281,8 @@ void Game::updateView(view::View &view)
         viewSprite.imagePath = imagePath;
         viewSprite.width = gameSprite.width;
         viewSprite.height = gameSprite.height;
-        viewSprite.scale = gameSprite.scale;
         viewSprite.isSelected = gameSprite.isSelected;
-        view.items.push_back(viewSprite);
+        view.nodes.push_back({view::ViewMode::FixedToWorld, viewSprite});
     }
 
     stageWaveInfo_ = {
@@ -292,8 +290,9 @@ void Game::updateView(view::View &view)
                 + " Time remaining: " + std::to_string(waveDurationSeconds_ - static_cast<int>(currentWaveDuration_))
                 + " score: " + std::to_string(score_) + " currency: " + std::to_string(currency_),
         .size = 24,
+        .gridX = 960.0f,
         .gridY = 75.0f,
     };
-    view.items.push_back(std::cref(stageWaveInfo_));
+    view.nodes.push_back({view::ViewMode::FixedToScreen, std::cref(stageWaveInfo_)});
 }
 } // namespace game

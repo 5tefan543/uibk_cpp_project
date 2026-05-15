@@ -6,41 +6,48 @@
 
 namespace view {
 // Forward declarations to avoid circular dependencies
-struct Card; // Card used in ViewItem, but Card itself includes ViewItem, so we need a forward declaration here
+struct Card; // Card used in ViewElement, but Card itself includes ViewElement, so we need a forward declaration here
 
-// Readonly assembly of items to render
-using ViewItem = std::variant<std::reference_wrapper<const Card>, std::reference_wrapper<const Button>,
-                              std::reference_wrapper<const Text>,
-                              Sprite // TODO: make Sprite reference_wrapped
-                              >;
+enum class ViewMode { FixedToScreen, FixedToWorld };
 
-// A viewItem containing: gridX, gridY, width, height (could add sprite but currently not
+// Readonly assembly of elements to render
+using ViewElement = std::variant<std::reference_wrapper<const Card>, std::reference_wrapper<const Button>,
+                                 std::reference_wrapper<const Text>,
+                                 Sprite // TODO: make Sprite reference_wrapped
+                                 >;
+
+struct ViewNode {
+    ViewMode mode;
+    ViewElement element;
+};
+
+// A ViewElement containing: gridX, gridY, width, height (could add sprite but currently not
 // necessary)
 template <typename T>
-concept CenterableViewItem = requires(T t) { std::is_same_v<T, Button> || std::is_same_v<T, Card>; };
+concept CenterableViewElement = requires(T t) { std::is_same_v<T, Button> || std::is_same_v<T, Card>; };
 
 template <typename T>
-    requires CenterableViewItem<T>
+    requires CenterableViewElement<T>
 inline float getCenterX(const T &t)
 {
     return t.gridX + t.width / 2;
 }
 template <typename T>
-    requires CenterableViewItem<T>
+    requires CenterableViewElement<T>
 inline float getCenterY(const T &t)
 {
     return t.gridY + t.height / 2;
 }
 
 template <typename T>
-    requires CenterableViewItem<T>
+    requires CenterableViewElement<T>
 inline void setCenterizedX(T &t, float x)
 {
     t.gridX = x - t.width / 2;
 }
 
 template <typename T>
-    requires CenterableViewItem<T>
+    requires CenterableViewElement<T>
 inline void setCenterizedY(T &t, float y)
 {
     t.gridY = y - t.height / 2;

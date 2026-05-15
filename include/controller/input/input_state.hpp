@@ -30,8 +30,6 @@ struct InputState {
     bool controlHeld = false;
 
     bool toggleDebugPressed = false;
-
-    bool windowResized = false;
 };
 
 } // namespace controller

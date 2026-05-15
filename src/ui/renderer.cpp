@@ -28,23 +28,19 @@ const sf::Font &Renderer::toSfFont(const view::Font font)
     return fonts_.at(font);
 }
 
-void Renderer::renderView(sf::RenderWindow &window, const view::View &view)
+void Renderer::renderViewElement(sf::RenderWindow &window, const view::ViewElement &element)
 {
-    // Store camera data
-    cameraX_ = view.cameraX;
-    cameraY_ = view.cameraY;
-
-    renderItems(window, view.items);
+    std::visit([this, &window](const auto &element) { renderElement(window, element); }, element);
 }
 
-void Renderer::renderItems(sf::RenderWindow &window, const std::vector<view::ViewItem> &items)
+void Renderer::renderViewElements(sf::RenderWindow &window, const std::vector<view::ViewElement> &elements)
 {
-    for (const view::ViewItem &item : items) {
-        std::visit([this, &window](const auto &item) { renderItem(window, item); }, item);
+    for (const view::ViewElement &element : elements) {
+        renderViewElement(window, element);
     }
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const view::Card &card)
+void Renderer::renderElement(sf::RenderWindow &window, const view::Card &card)
 {
     // Render card first
     sf::RectangleShape rect;
@@ -53,11 +49,11 @@ void Renderer::renderItem(sf::RenderWindow &window, const view::Card &card)
     rect.setFillColor(toSfColor(card.backgroundColor));
     window.draw(rect);
 
-    // Render items on the card
-    renderItems(window, card.items);
+    // Render elements on the card
+    renderViewElements(window, card.elements);
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const view::Button &button)
+void Renderer::renderElement(sf::RenderWindow &window, const view::Button &button)
 {
     sf::RectangleShape rect;
     rect.setSize({button.width, button.height});
@@ -65,10 +61,10 @@ void Renderer::renderItem(sf::RenderWindow &window, const view::Button &button)
     rect.setFillColor(button.isSelected ? toSfColor(button.selectedColor) : toSfColor(button.backgroundColor));
     window.draw(rect);
 
-    renderItem(window, button.text);
+    renderViewElement(window, button.text);
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const view::Text &text)
+void Renderer::renderElement(sf::RenderWindow &window, const view::Text &text)
 {
     sf::Text t(toSfFont(text.font), text.text, text.size);
     t.setPosition(sf::Vector2f(text.gridX, text.gridY));
@@ -82,7 +78,7 @@ void Renderer::renderItem(sf::RenderWindow &window, const view::Text &text)
     window.draw(t);
 }
 
-void Renderer::renderItem(sf::RenderWindow &window, const view::Sprite &sprite)
+void Renderer::renderElement(sf::RenderWindow &window, const view::Sprite &sprite)
 {
     // Load or get texture from cache
     if (textureCache_.find(sprite.imagePath) == textureCache_.end()) {
@@ -96,27 +92,13 @@ void Renderer::renderItem(sf::RenderWindow &window, const view::Sprite &sprite)
 
     sf::Sprite sfSprite(textureCache_[sprite.imagePath]);
 
-    // Calculate position with camera offset and scaling
-    float x = sprite.x;
-    float y = sprite.y;
-    float scale = sprite.scale;
+    sfSprite.setPosition({sprite.x, sprite.y});
 
-    // Apply camera offset only if not a map
-    if (!sprite.isMap) {
-        x -= cameraX_;
-        y -= cameraY_;
-    }
+    auto spriteSize = sfSprite.getLocalBounds().size;
+    const float scaleFactorX = sprite.width / spriteSize.x;
+    const float scaleFactorY = sprite.height / spriteSize.y;
 
-    // Apply scaling
-    x *= scale;
-    y *= scale;
-
-    sfSprite.setPosition(sf::Vector2f(x, y));
-
-    float scaledWidth = sprite.width * scale / sfSprite.getLocalBounds().size.x;
-    float scaledHeight = sprite.height * scale / sfSprite.getLocalBounds().size.y;
-
-    sfSprite.setScale(sf::Vector2f(scaledWidth, scaledHeight));
+    sfSprite.setScale({scaleFactorX, scaleFactorY});
 
     window.draw(sfSprite);
 
@@ -127,7 +109,6 @@ void Renderer::renderItem(sf::RenderWindow &window, const view::Sprite &sprite)
         selectionBox.setFillColor(sf::Color::Transparent);
         selectionBox.setOutlineColor(sf::Color::Yellow);
         selectionBox.setOutlineThickness(2.0f);
-
         window.draw(selectionBox);
     }
 }
