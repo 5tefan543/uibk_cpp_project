@@ -44,7 +44,7 @@ void Game::getNextWave()
 
         // TODO error via gui not console
     }
-    waveStartTime_ = std::chrono::steady_clock::now();
+    currentWaveDuration_ = 0.0f;
     wave_++;
     std::cout << "Starting wave " << wave_ << " of stage " << stage_ << std::endl;
 }
@@ -126,7 +126,7 @@ controller::PersistedGame Game::getPersistedGame() const
 
 bool Game::isWaveTimeFinished()
 {
-    return currentWaveDuration_.count() >= waveDurationSeconds_;
+    return currentWaveDuration_ >= waveDurationSeconds_;
 }
 
 controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
@@ -135,11 +135,10 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
     updateSystems(input, dt);
 
     // update clock
-    auto now = std::chrono::steady_clock::now();
-    currentWaveDuration_ = std::chrono::duration_cast<std::chrono::seconds>(now - waveStartTime_);
+    currentWaveDuration_ += dt;
 
     if (isWaveDefeated()) {
-        addScore(waveDurationSeconds_ - currentWaveDuration_.count());
+        addScore(waveDurationSeconds_ - (int)currentWaveDuration_);
         if (wave_ % wavesPerStage_ == 0) {
             getNextStage();
             return controller::StateTransitionAction::PushProgressionStore;
@@ -147,7 +146,7 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
         getNextWave();
     }
 
-    if (waveDurationSeconds_ < currentWaveDuration_.count()) {
+    if (waveDurationSeconds_ < currentWaveDuration_) {
         if (wave_ % wavesPerStage_ == 0) {
             getNextStage();
             return controller::StateTransitionAction::PushProgressionStore;
@@ -290,7 +289,7 @@ void Game::updateView(view::View &view)
 
     stageWaveInfo_ = {
         .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_)
-                + " Time remaining: " + std::to_string(waveDurationSeconds_ - currentWaveDuration_.count())
+                + " Time remaining: " + std::to_string(waveDurationSeconds_ - static_cast<int>(currentWaveDuration_))
                 + " score: " + std::to_string(score_) + " currency: " + std::to_string(currency_),
         .size = 24,
         .gridY = 75.0f,

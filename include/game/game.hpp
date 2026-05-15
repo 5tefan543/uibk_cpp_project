@@ -22,8 +22,7 @@ class Game {
     Registry registry_;
     GameDebugSession debugSession_{registry_};
     controller::GameConfig config_;
-    std::chrono::steady_clock::time_point waveStartTime_;
-    std::chrono::seconds currentWaveDuration_;
+    float currentWaveDuration_;
 
     AnimationSystem animationSystem_;
     CameraSystem cameraSystem_;
