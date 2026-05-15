@@ -95,7 +95,7 @@ void Renderer::renderItem(sf::RenderWindow &window, const view::Sprite &sprite)
 
     sf::Sprite sfSprite(textureCache_[sprite.imagePath]);
 
-    sfSprite.setPosition({sprite.x - cameraX_, sprite.y - cameraY_});
+    sfSprite.setPosition({sprite.x, sprite.y});
 
     auto spriteSize = sfSprite.getLocalBounds().size;
     const float scaleFactorX = sprite.width / spriteSize.x;

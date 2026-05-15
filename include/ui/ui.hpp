@@ -20,8 +20,9 @@ class UI {
     float fps_ = 0.0f;
 
     void initSfmlWindow();
-    void setSfmlView();
     void initImGuiSfml();
+    void setCamera(float cameraX, float cameraY);
+    sf::FloatRect getLetterboxViewport() const;
 
   public:
     UI();

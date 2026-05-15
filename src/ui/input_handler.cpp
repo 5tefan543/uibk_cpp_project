@@ -96,8 +96,6 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
 
             input.mouseMoved = true;
         }
-
-        input.windowResized = event->is<sf::Event::Resized>();
     }
 
     if (!imGuiIO.WantCaptureKeyboard) {

@@ -203,6 +203,13 @@ void Game::updateView(view::View &view)
         mapSprite.height = map.height;
         mapSprite.isSelected = map.isSelected;
         view.items.push_back(mapSprite);
+
+        stageWaveInfo_ = {
+            .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_),
+            .size = 24,
+            .gridX = 960.0f + camera.x,
+            .gridY = 75.0f + camera.y,
+        };
     }
 
     // Render sprite entities
@@ -234,11 +241,6 @@ void Game::updateView(view::View &view)
         view.items.push_back(viewSprite);
     }
 
-    stageWaveInfo_ = {
-        .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_),
-        .size = 24,
-        .gridY = 75.0f,
-    };
     view.items.push_back(std::cref(stageWaveInfo_));
 }
 } // namespace game
