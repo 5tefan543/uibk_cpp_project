@@ -161,7 +161,7 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
         getNextWave();
     }
 
-    if(isGameOver()) {
+    if (isGameOver()) {
         controller::PersistenceManager::deleteSave();
         return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
     }

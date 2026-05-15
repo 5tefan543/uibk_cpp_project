@@ -62,19 +62,18 @@ class Game {
     bool isWaveDefeated();
     void addScore(int score);
     void getNextStage();
-    
-    public:
+
+  public:
     Game();
     Game(const Game &) = delete;
     ~Game();
-    
+
     bool isGameOver();
     GameDebugSession &getDebugSession();
     void updateView(view::View &view);
     void loadFromPersistedGame(const controller::PersistedGame &persistedGame);
     controller::PersistedGame getPersistedGame() const;
     controller::StateTransitionAction update(const controller::InputState &input, float dt);
-    
 };
 
 } // namespace game

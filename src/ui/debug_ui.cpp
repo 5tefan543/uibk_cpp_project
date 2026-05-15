@@ -72,7 +72,6 @@ void DebugUI::renderGameSession(controller::DebugContext &debug)
             gameSession.stage = std::max(1, gameSession.stage);
             gameSession.wave = std::max(1, gameSession.wave);
 
-
             if (ImGui::Button("Reload Stage/Wave") && debug.gameSession) {
                 debug.gameSession->isStageWaveReloadRequested = true;
             }

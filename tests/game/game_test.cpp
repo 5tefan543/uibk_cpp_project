@@ -313,7 +313,7 @@ TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted valu
 
     const controller::PersistedGame snapshot = game.getPersistedGame();
     REQUIRE(snapshot.stage == 12);
-    REQUIRE(snapshot.wave == 6); // wave is advanced to next wave in loadFromPersistedGame  
+    REQUIRE(snapshot.wave == 6); // wave is advanced to next wave in loadFromPersistedGame
     REQUIRE(snapshot.currency == 1234);
     REQUIRE(snapshot.playerStats.speed == 333.0f);
 }
