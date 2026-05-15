@@ -184,7 +184,8 @@ void Game::updateView(view::View &view)
     // Game should be able to decide how to update.
     // Currently we simply clear everything and rebuilding the view from scratch.
     // Future improvements might only make changes and add/remove where necessary.
-    view.items.clear();
+    view.overlayItems.clear();
+    view.worldItems.clear();
 
     // Get camera data
     auto cameraEntities = registry_.view<Camera, Map>();
@@ -202,14 +203,7 @@ void Game::updateView(view::View &view)
         mapSprite.width = map.width;
         mapSprite.height = map.height;
         mapSprite.isSelected = map.isSelected;
-        view.items.push_back(mapSprite);
-
-        stageWaveInfo_ = {
-            .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_),
-            .size = 24,
-            .gridX = 960.0f + camera.x,
-            .gridY = 75.0f + camera.y,
-        };
+        view.worldItems.push_back(mapSprite);
     }
 
     // Render sprite entities
@@ -238,9 +232,15 @@ void Game::updateView(view::View &view)
         viewSprite.width = gameSprite.width;
         viewSprite.height = gameSprite.height;
         viewSprite.isSelected = gameSprite.isSelected;
-        view.items.push_back(viewSprite);
+        view.worldItems.push_back(viewSprite);
     }
 
-    view.items.push_back(std::cref(stageWaveInfo_));
+    stageWaveInfo_ = {
+        .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_),
+        .size = 24,
+        .gridX = 960.0f,
+        .gridY = 75.0f,
+    };
+    view.overlayItems.push_back(std::cref(stageWaveInfo_));
 }
 } // namespace game

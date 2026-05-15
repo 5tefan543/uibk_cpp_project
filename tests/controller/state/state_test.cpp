@@ -107,7 +107,7 @@ TEST_CASE_METHOD(TestFixture, "Main menu mouse input returns correct actions")
 {
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
     const view::View &view = state->getView();
-    const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.items[0]);
+    const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.overlayItems[0]);
     const view::Card &card = ViewItemAccessor::as<const view::Card>(backgroundCard.items[0]);
     const view::Button &startButton = ViewItemAccessor::as<const view::Button>(card.items[1]);
     const view::Button &quitButton = ViewItemAccessor::as<const view::Button>(card.items[2]);
@@ -190,7 +190,7 @@ TEST_CASE_METHOD(TestFixture, "Pause menu mouse input returns correct actions")
 {
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::PauseMenu);
     const view::View &view = state->getView();
-    const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.items[0]);
+    const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.overlayItems[0]);
     const view::Card &card = ViewItemAccessor::as<const view::Card>(backgroundCard.items[0]);
     const view::Button &resumeButton = ViewItemAccessor::as<const view::Button>(card.items[1]);
     const view::Button &quitButton = ViewItemAccessor::as<const view::Button>(card.items[2]);
@@ -253,7 +253,7 @@ TEST_CASE_METHOD(TestFixture, "Game over menu mouse input returns correct action
 {
     std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::GameOverMenu);
     const view::View &view = state->getView();
-    const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.items[0]);
+    const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.overlayItems[0]);
     const view::Card &card = ViewItemAccessor::as<const view::Card>(backgroundCard.items[0]);
     const view::Button &mainMenuButton = ViewItemAccessor::as<const view::Button>(card.items[1]);
     const view::Button &quitButton = ViewItemAccessor::as<const view::Button>(card.items[2]);
@@ -430,9 +430,9 @@ TEST_CASE_METHOD(TestFixture, "MenuState::getView returns expected view")
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
 
         const view::View &view = state->getView();
-        REQUIRE(view.items.size() == 1);
+        REQUIRE(view.overlayItems.size() == 1);
 
-        const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.items[0]);
+        const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.overlayItems[0]);
         const view::Card &card = ViewItemAccessor::as<const view::Card>(backgroundCard.items[0]);
         REQUIRE(card.items.size() == 3);
 
@@ -453,8 +453,8 @@ TEST_CASE_METHOD(TestFixture, "MenuState::getView returns expected view")
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::MainMenu);
 
         const view::View &view = state->getView();
-        REQUIRE(view.items.size() == 1);
-        const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.items[0]);
+        REQUIRE(view.overlayItems.size() == 1);
+        const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.overlayItems[0]);
 
         const view::Card &card = ViewItemAccessor::as<const view::Card>(backgroundCard.items[0]);
         REQUIRE(card.items.size() == 4);
@@ -477,9 +477,9 @@ TEST_CASE_METHOD(TestFixture, "MenuState::getView returns expected view")
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::PauseMenu);
 
         const view::View &view = state->getView();
-        REQUIRE(view.items.size() == 1);
+        REQUIRE(view.overlayItems.size() == 1);
 
-        const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.items[0]);
+        const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.overlayItems[0]);
         const view::Card &pauseCard = ViewItemAccessor::as<const view::Card>(backgroundCard.items[0]);
         REQUIRE(pauseCard.items.size() == 3);
 
@@ -503,9 +503,9 @@ TEST_CASE_METHOD(TestFixture, "MenuState::getView returns expected view")
         std::unique_ptr<MenuState> state = MenuState::createMenu(MenuType::GameOverMenu);
 
         const view::View &view = state->getView();
-        REQUIRE(view.items.size() == 1);
+        REQUIRE(view.overlayItems.size() == 1);
 
-        const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.items[0]);
+        const view::Card &backgroundCard = ViewItemAccessor::as<const view::Card>(view.overlayItems[0]);
         const view::Card &gameOverCard = ViewItemAccessor::as<const view::Card>(backgroundCard.items[0]);
         REQUIRE(gameOverCard.items.size() == 3);
 
@@ -531,7 +531,7 @@ TEST_CASE_METHOD(TestFixture, "GameplayState::getView returns expected view")
 
     const view::View &view = state->getView();
 
-    REQUIRE(!view.items.empty());
+    REQUIRE(!view.overlayItems.empty());
 }
 
 TEST_CASE_METHOD(TestFixture, "ProgressionStoreState::getView returns expected view")
@@ -540,7 +540,7 @@ TEST_CASE_METHOD(TestFixture, "ProgressionStoreState::getView returns expected v
 
     const view::View &view = state->getView();
 
-    REQUIRE(view.items.empty());
+    REQUIRE(view.overlayItems.empty());
 }
 
 TEST_CASE_METHOD(TestFixture, "ExitState::getView returns expected view")
@@ -549,7 +549,7 @@ TEST_CASE_METHOD(TestFixture, "ExitState::getView returns expected view")
 
     const view::View &view = state->getView();
 
-    REQUIRE(view.items.empty());
+    REQUIRE(view.overlayItems.empty());
 }
 
 TEST_CASE_METHOD(TestFixture, "ExitState::update returns ReplaceAllStatesWithExit")

@@ -45,19 +45,22 @@ void UI::initImGuiSfml()
     }
 }
 
-void UI::setCamera(float cameraX, float cameraY)
+void UI::setWorldView(float cameraX, float cameraY)
 {
-    sf::View camera;
+    sf::View view;
 
-    camera.setSize({view::gridWidth, view::gridHeight});
-    camera.setCenter({
+    view.setSize({view::gridWidth, view::gridHeight});
+    view.setCenter({
         cameraX + view::gridWidth / 2.0f,
         cameraY + view::gridHeight / 2.0f,
     });
+    view.setViewport(getLetterboxViewport());
+    window_.setView(view);
+}
 
-    camera.setViewport(getLetterboxViewport());
-
-    window_.setView(camera);
+void UI::setOverlayView()
+{
+    setWorldView(0.0f, 0.0f);
 }
 
 sf::FloatRect UI::getLetterboxViewport() const
@@ -107,8 +110,12 @@ void UI::render(const view::View &view)
 
     // 2. Normal rendering
     window_.clear(renderer_.toSfColor(view.backgroundColor));
-    setCamera(view.cameraX, view.cameraY);
-    renderer_.renderView(window_, view);
+
+    setWorldView(view.cameraX, view.cameraY);
+    renderer_.renderItems(window_, view.worldItems);
+
+    setOverlayView();
+    renderer_.renderItems(window_, view.overlayItems);
 
     // 3. Render debug UI on top
     debugUI_.render(inputState_, fps_);

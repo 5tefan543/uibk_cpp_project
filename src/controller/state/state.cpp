@@ -168,7 +168,7 @@ void MenuState::initView()
         mainMenuCard.items.push_back(startGameButton);
         mainMenuCard.items.push_back(quitButton);
         backgroundCard.items.push_back(mainMenuCard);
-        view_.items.push_back(backgroundCard);
+        view_.overlayItems.push_back(backgroundCard);
         break;
     }
     case MenuType::PauseMenu: {
@@ -200,7 +200,7 @@ void MenuState::initView()
         mainMenuCard.items.push_back(resumeButton);
         mainMenuCard.items.push_back(quitButton);
         backgroundCard.items.push_back(mainMenuCard);
-        view_.items.push_back(backgroundCard);
+        view_.overlayItems.push_back(backgroundCard);
         break;
     }
     case MenuType::GameOverMenu:
@@ -233,7 +233,7 @@ void MenuState::initView()
         mainMenuCard.items.push_back(mainMenuButton);
         mainMenuCard.items.push_back(quitButton);
         backgroundCard.items.push_back(mainMenuCard);
-        view_.items.push_back(backgroundCard);
+        view_.overlayItems.push_back(backgroundCard);
         break;
     }
 

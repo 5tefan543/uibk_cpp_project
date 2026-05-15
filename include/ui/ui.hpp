@@ -21,7 +21,8 @@ class UI {
 
     void initSfmlWindow();
     void initImGuiSfml();
-    void setCamera(float cameraX, float cameraY);
+    void setWorldView(float cameraX, float cameraY);
+    void setOverlayView();
     sf::FloatRect getLetterboxViewport() const;
 
   public:

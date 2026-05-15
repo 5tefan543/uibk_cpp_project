@@ -8,8 +8,11 @@
 namespace view {
 struct View {
     Color backgroundColor = {0, 0, 0};
-    std::vector<ViewItem> items;
-    float cameraX = 0.0f; // Camera position for viewport culling
+
+    float cameraX = 0.0f;
     float cameraY = 0.0f;
+
+    std::vector<ViewItem> overlayItems;
+    std::vector<ViewItem> worldItems;
 };
 } // namespace view

@@ -27,15 +27,6 @@ const sf::Font &Renderer::toSfFont(const view::Font font)
     return fonts_.at(font);
 }
 
-void Renderer::renderView(sf::RenderWindow &window, const view::View &view)
-{
-    // Store camera data
-    cameraX_ = view.cameraX;
-    cameraY_ = view.cameraY;
-
-    renderItems(window, view.items);
-}
-
 void Renderer::renderItems(sf::RenderWindow &window, const std::vector<view::ViewItem> &items)
 {
     for (const view::ViewItem &item : items) {
