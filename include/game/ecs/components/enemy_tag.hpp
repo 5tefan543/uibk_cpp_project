@@ -2,6 +2,8 @@
 
 namespace game {
 
-struct EnemyTag {};
+struct EnemyTag {
+    float moveSpeed = 50.0f;
+};
 
 } // namespace game

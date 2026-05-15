@@ -51,7 +51,7 @@ void Game::initEnemies()
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> posDist(200.0f, 800.0f);
+    std::uniform_real_distribution<> posDist(00.0f, 180.0f);
     std::uniform_real_distribution<> velDist(0.0f, 0.0f);
 
     // Spawn 3 enemies at different positions

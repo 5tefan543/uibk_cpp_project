@@ -24,9 +24,9 @@ void UI::initSfmlWindow()
 {
     // Fix resolution to same aspect ratio (16:9) as internal grid to maximize screen usage.
     // Non-multiple resolution-grid combination will create padding - no streching will occur.
-    const unsigned width = (unsigned)view::gridWidth;
-    const unsigned height = (unsigned)view::gridHeight;
-    window_.create(sf::VideoMode({width, height}), "My Game");
+    const unsigned width = (unsigned)view::gridWidth * 3;
+    const unsigned height = (unsigned)view::gridHeight * 3;
+    window_.create(sf::VideoMode({width, height}), "My Game", sf::State::Windowed);
     window_.setSize(sf::Vector2u(width, height));
     window_.setPosition({0, 0});
     window_.setFramerateLimit(60);
