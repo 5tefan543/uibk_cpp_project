@@ -285,6 +285,7 @@ StateTransitionAction GameplayState::update(const InputState &input, float dt)
 
     DebugContext &debug = DebugContext::get();
     debug.gameSession = &game.getDebugSession();
+    auto gameUpdateAction = game.update(input, dt);
 
     if (input.cancelPressed) {
         return controller::StateTransitionAction::PushPauseMenu;
@@ -301,7 +302,7 @@ StateTransitionAction GameplayState::update(const InputState &input, float dt)
         return controller::StateTransitionAction::PushProgressionStore;
     }
 
-    return game.update(input, dt);
+    return gameUpdateAction;
 }
 
 std::string GameplayState::toString() const
