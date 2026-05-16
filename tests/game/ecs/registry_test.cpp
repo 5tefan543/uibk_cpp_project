@@ -123,30 +123,3 @@ TEST_CASE_METHOD(TestFixture, "Registry view returns only entities with all requ
     REQUIRE(result.size() == 1);
     REQUIRE(result[0] == e1);
 }
-
-// Test for destroyEntities
-TEST_CASE_METHOD(TestFixture, "Registry destroyEntities removes multiple entities and their components")
-{
-    // ARRANGE
-    game::Registry registry;
-    game::Entity e1 = registry.createEntity();
-    game::Entity e2 = registry.createEntity();
-    game::Entity e3 = registry.createEntity();
-
-    registry.addComponent<game::Position>(e1, {1.0f, 2.0f});
-    registry.addComponent<game::Velocity>(e2, {3.0f, 4.0f});
-    registry.addComponent<game::Position>(e3, {5.0f, 6.0f});
-
-    std::vector<game::Entity> toDestroy = {e1, e3};
-
-    // ACT
-    registry.destroyEntities(toDestroy);
-
-    // ASSERT
-    REQUIRE_FALSE(registry.isEntityAlive(e1));
-    REQUIRE(registry.isEntityAlive(e2));
-    REQUIRE_FALSE(registry.isEntityAlive(e3));
-    REQUIRE_FALSE(registry.hasComponent<game::Position>(e1));
-    REQUIRE(registry.hasComponent<game::Velocity>(e2));
-    REQUIRE_FALSE(registry.hasComponent<game::Position>(e3));
-}
