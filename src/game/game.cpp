@@ -118,6 +118,7 @@ controller::PersistedGame Game::getPersistedGame() const
 
 bool Game::update(const controller::InputState &input, float dt)
 {
+    locationTable_.update(registry_);
     processDebugSession();
     updateSystems(input, dt);
     return isGameOver();

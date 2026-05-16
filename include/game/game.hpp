@@ -9,6 +9,7 @@
 #include "game/ecs/systems/debug_selection_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
+#include "game/location_table.hpp"
 #include "view/view.hpp"
 
 namespace game {
@@ -17,6 +18,7 @@ class Game {
   private:
     Registry registry_;
     GameDebugSession debugSession_{registry_};
+    LocationTable locationTable_;
 
     AnimationSystem animationSystem_;
     CameraSystem cameraSystem_;
