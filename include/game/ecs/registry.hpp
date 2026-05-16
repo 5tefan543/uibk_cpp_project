@@ -80,6 +80,13 @@ class Registry {
         }
     }
 
+    void destroyEntities(const std::vector<Entity> &entities)
+    {
+        for (Entity entity : entities) {
+            destroyEntity(entity);
+        }
+    }
+
     bool isEntityAlive(Entity entity) const
     {
         return std::find(aliveEntities_.begin(), aliveEntities_.end(), entity) != aliveEntities_.end();

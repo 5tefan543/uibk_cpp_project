@@ -25,7 +25,6 @@ Game::Game()
     getNextWave();
     initStage();
     initPlayer();
-    initEnemies();
 }
 
 void Game::initStage()
@@ -38,7 +37,10 @@ void Game::initStage()
 
 void Game::getNextWave()
 {
-    // Logic to initialize a new wave of enemies can go here
+    // delete all existing enemies
+    auto enemyEntities = registry_.view<EnemyTag>();
+    registry_.destroyEntities(enemyEntities);
+
     auto gameSave = getPersistedGame();
     if (!controller::PersistenceManager::saveGame(gameSave)) {
 
@@ -46,6 +48,10 @@ void Game::getNextWave()
     }
     currentWaveDuration_ = 0.0f;
     wave_++;
+
+    // spawn enemies for the new wave
+    initEnemies();
+
     std::cout << "Starting wave " << wave_ << " of stage " << stage_ << std::endl;
 }
 
@@ -60,6 +66,7 @@ void Game::initPlayer()
 
 void Game::initEnemies()
 {
+    // TODO Real spawning logic based on wavecount here.
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> posDist(200.0f, 800.0f);
@@ -153,7 +160,7 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
         getNextWave();
     }
 
-    if (waveDurationSeconds_ < currentWaveDuration_) {
+    if (isWaveTimeFinished()) {
         if (wave_ % wavesPerStage_ == 0) {
             getNextStage();
             return controller::StateTransitionAction::PushProgressionStore;
@@ -176,6 +183,9 @@ void Game::processDebugSession()
     if (!debug.active) {
         return;
     }
+    if (debugSession_.isClockPaused) {
+        currentWaveDuration_ = waveDurationSeconds_ - 0.5f;
+    }
 
     // Handle stage/wave reload request
     if (debugSession_.isStageWaveReloadRequested) {
@@ -183,6 +193,9 @@ void Game::processDebugSession()
         stage_ = debugSession_.stage;
         wave_ = debugSession_.wave - 1;
         getNextWave();
+    } else {
+        debugSession_.stage = stage_;
+        debugSession_.wave = wave_;
     }
 
     // Handle player destruction request

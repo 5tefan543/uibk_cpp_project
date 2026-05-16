@@ -110,10 +110,10 @@ TEST_CASE_METHOD(TestFixture, "Game update returns PushProgressionStore when a s
     controller::InputState input;
     controller::DebugContext &debug = controller::DebugContext::get();
     debug.active = true;
-
+    int wavesPerStage = controller::PersistenceManager::getConfig().wavesPerStage;
     game::GameDebugSession &session = game.getDebugSession();
     session.stage = 1;
-    session.wave = 5;
+    session.wave = wavesPerStage;
     session.isStageWaveReloadRequested = true;
 
     // Defeat the current wave by removing all enemies.
@@ -136,10 +136,11 @@ TEST_CASE_METHOD(TestFixture,
     controller::InputState input;
     controller::DebugContext &debug = controller::DebugContext::get();
     debug.active = true;
+    int wavesPerStage = controller::PersistenceManager::getConfig().wavesPerStage;
 
     game::GameDebugSession &session = game.getDebugSession();
     session.stage = 1;
-    session.wave = 4;
+    session.wave = wavesPerStage - 1;
     session.isStageWaveReloadRequested = true;
 
     for (game::Entity enemy : session.registry.view<game::EnemyTag>()) {

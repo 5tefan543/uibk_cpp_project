@@ -12,6 +12,7 @@ struct GameDebugSession {
     bool isStoreOpenRequested = false;
     bool isPlayerDestructionRequested = false;
     bool isSaveGameRequested = false;
+    bool isClockPaused = false;
 
     // stage / wave management
     int stage = 1;

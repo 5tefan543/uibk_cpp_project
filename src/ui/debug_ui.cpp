@@ -88,6 +88,8 @@ void DebugUI::renderGameSession(controller::DebugContext &debug)
                 debug.gameSession->isStageWaveReloadRequested = true;
             }
 
+            ImGui::Checkbox("Pause Clock", &debug.gameSession->isClockPaused);
+
             ImGui::SeparatorText("Persistence Management");
             if (ImGui::Button("Save Game")) {
                 debug.gameSession->isSaveGameRequested = true;
