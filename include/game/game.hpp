@@ -36,6 +36,7 @@ class Game {
     int wave_ = 0;
     int score_ = 0;
     int currency_ = 0;
+    bool openStore_ = false;
 
     // We need to store view::Text as a member because ViewElement stores a reference to it,
     // so we must ensure that the referenced object lives long enough.

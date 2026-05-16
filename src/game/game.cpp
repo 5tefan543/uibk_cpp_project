@@ -38,8 +38,9 @@ void Game::initStage()
 void Game::getNextWave()
 {
     // delete all existing enemies
-    auto enemyEntities = registry_.view<EnemyTag>();
-    registry_.destroyEntities(enemyEntities);
+    for (Entity enemy : registry_.view<EnemyTag>()) {
+        registry_.destroyEntity(enemy);
+    }
 
     auto gameSave = getPersistedGame();
     if (!controller::PersistenceManager::saveGame(gameSave)) {
@@ -145,23 +146,16 @@ bool Game::isWaveTimeFinished()
 
 controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
 {
+    openStore_ = (wave_ % wavesPerStage_) == 0;
     processDebugSession();
     updateSystems(input, dt);
 
     // update clock
     currentWaveDuration_ += dt;
 
-    if (isWaveDefeated()) {
+    if (isWaveDefeated() | isWaveTimeFinished()) {
         addScore(waveDurationSeconds_ - (int)currentWaveDuration_);
-        if (wave_ % wavesPerStage_ == 0) {
-            getNextStage();
-            return controller::StateTransitionAction::PushProgressionStore;
-        }
-        getNextWave();
-    }
-
-    if (isWaveTimeFinished()) {
-        if (wave_ % wavesPerStage_ == 0) {
+        if (openStore_) {
             getNextStage();
             return controller::StateTransitionAction::PushProgressionStore;
         }
@@ -183,6 +177,19 @@ void Game::processDebugSession()
     if (!debug.active) {
         return;
     }
+
+    if (debug.active && debug.gameSession->isStoreOpenRequested) {
+        debug.gameSession->isStoreOpenRequested = false;
+        openStore_ = true;
+
+        for (Entity enemy : registry_.view<EnemyTag>()) {
+            registry_.destroyEntity(enemy);
+        }
+        // decrement since store would increment to next stage
+        wave_ -= 1;
+        stage_ -= 1;
+    }
+
     if (debugSession_.isClockPaused) {
         currentWaveDuration_ = waveDurationSeconds_ - 0.5f;
     }
@@ -205,6 +212,7 @@ void Game::processDebugSession()
         for (Entity player : registry_.view<PlayerTag>()) {
             registry_.destroyEntity(player);
         }
+        debug.gameSession = nullptr;
     }
 
     // Handle save game request
