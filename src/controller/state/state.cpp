@@ -282,6 +282,8 @@ bool GameplayState::isLoadedFromPersistedGame() const
 
 StateTransitionAction GameplayState::update(const InputState &input, float dt)
 {
+    DebugContext &debug = DebugContext::get();
+    debug.gameSession = &game.getDebugSession();
 
     if (input.cancelPressed) {
         return controller::StateTransitionAction::PushPauseMenu;
