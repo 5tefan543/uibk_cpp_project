@@ -22,53 +22,20 @@ UI::~UI()
 
 void UI::initSfmlWindow()
 {
-    // Fix resolution to same aspect ratio (16:9) as internal grid to maximize screen usage.
-    // Non-multiple resolution-grid combination will create padding - no streching will occur.
-    const unsigned width = (unsigned)view::gridWidth * 3;
-    const unsigned height = (unsigned)view::gridHeight * 3;
-    window_.create(sf::VideoMode({width, height}), "My Game", sf::State::Windowed);
-    window_.setSize(sf::Vector2u(width, height));
+    sf::VideoMode videoMode({(unsigned)view::gridWidth, (unsigned)view::gridHeight});
+    window_.create(videoMode, "My Game", sf::State::Windowed);
     window_.setPosition({0, 0});
     window_.setFramerateLimit(60);
-    setSfmlView();
 
     // Print all available video modes - maybe interesting later if we want to support multiple resolutions with same
     // ratio as internal grid
-    //
+
     // std::vector<sf::VideoMode> modes = sf::VideoMode::getFullscreenModes(); for (std::size_t i = 0; i <
     // modes.size(); ++i) {
     //     sf::VideoMode mode = modes[i];
-    //     std::cout << "Mode #" << i << ": " << mode.size.x << "x" << mode.size.y << " - " << mode.bitsPerPixel << "
-    //     bpp"
-    //               << std::endl;
+    //     std::cout << "Mode #" << i << ": " << mode.size.x << "x" << mode.size.y << " - " << mode.bitsPerPixel <<
+    //     "bpp" << std::endl;
     // }
-}
-
-void UI::setSfmlView()
-{
-    using view::gridHeight;
-    using view::gridWidth;
-    auto winSize = window_.getSize();
-
-    const float widthScaled = gridWidth * ((float)winSize.x / gridWidth);
-    const float heightScaled = gridHeight * ((float)winSize.y / gridHeight);
-
-    const float widthOffset = (gridWidth - winSize.x) / 2;
-    const float heightOffset = (gridHeight - winSize.y) / 2;
-
-    // 1. Pull in more (blank,unused) space into view around our grid to keep gridWidth/Height consistent (View's size).
-    // 2. Move view to align grid's and window's centers (View's position).
-    // Always based on original view parameters and not last ones (e.g. window.getView()) which would throw of all
-    // calculations
-    auto v = sf::View(sf::FloatRect({widthOffset, heightOffset}, {widthScaled, heightScaled}));
-
-    // 3. Zoom in/out such that the smaller of width/height matches window's corresponding dimension.
-    // large content < 0 > small content (zoom <~> camera distance)
-    v.zoom(std::max((float)gridWidth / winSize.x, (float)gridHeight / winSize.y));
-
-    // setView() has to be called upon every change (render-target makes a copy of the view) src: "Using a
-    // View" https://www.sfml-dev.org/tutorials/3.0/graphics/view/#defining-how-the-view-is-viewed
-    window_.setView(v);
 }
 
 void UI::initImGuiSfml()
@@ -76,6 +43,42 @@ void UI::initImGuiSfml()
     if (!ImGui::SFML::Init(window_)) {
         throw std::runtime_error("Failed to initialize ImGui-SFML");
     }
+}
+
+void UI::setSfmlView(float cameraX, float cameraY)
+{
+    sf::View view;
+    view.setSize({view::gridWidth, view::gridHeight});
+    view.setCenter({view::gridWidth / 2.0f + cameraX, view::gridHeight / 2.0f + cameraY});
+    view.setViewport(getLetterboxViewport());
+    window_.setView(view);
+}
+
+sf::FloatRect UI::getLetterboxViewport() const
+{
+    const sf::Vector2u windowSize = window_.getSize();
+
+    const float windowRatio = static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y);
+    const float viewRatio = view::gridWidth / view::gridHeight;
+
+    // Viewport uses normalized coordinates [0, 1]
+    // Start with entire window
+    float viewportWidth = 1.0f;
+    float viewportHeight = 1.0f;
+    float viewportX = 0.0f;
+    float viewportY = 0.0f;
+
+    if (windowRatio > viewRatio) {
+        // Window is wider than the game view -> vertical bars left/right.
+        viewportWidth = viewRatio / windowRatio;   // Calculate width based on height to maintain aspect ratio
+        viewportX = (1.0f - viewportWidth) / 2.0f; // Center horizontally
+    } else {
+        // Window is taller than the game view -> horizontal bars top/bottom.
+        viewportHeight = windowRatio / viewRatio;   // Calculate height based on width to maintain aspect ratio
+        viewportY = (1.0f - viewportHeight) / 2.0f; // Center vertically
+    }
+
+    return sf::FloatRect({viewportX, viewportY}, {viewportWidth, viewportHeight});
 }
 
 bool UI::isOpen() const
@@ -91,26 +94,43 @@ const controller::InputState &UI::pollInput()
 
 void UI::render(const view::View &view)
 {
-    // 1. On window resize: adjust sfml view to prevent visual squishing/stretching
-    if (inputState_.windowResized) {
-        setSfmlView();
-    }
-
-    // 2. Start ImGui frame
+    // 1. Start ImGui frame
     sf::Time deltaTime = imguiClock_.restart();
     fps_ = 1.0f / deltaTime.asSeconds();
     ImGui::SFML::Update(window_, deltaTime);
 
-    // 3. Normal rendering
+    // 2. Normal rendering
     window_.clear(renderer_.toSfColor(view.backgroundColor));
-    renderer_.renderView(window_, view);
+    renderView(window_, view);
 
-    // 4. Render debug UI on top
+    // 3. Render debug UI on top
     debugUI_.render(inputState_, fps_);
     ImGui::SFML::Render(window_);
 
-    // 5. Display everything
+    // 4. Display everything
     window_.display();
+
+    // 5. Set view to camera-relative for next frame's input polling
+    // Otherwise mouse input is not correctly mapped to grid coordinates when camera is moved
+    setSfmlView(view.cameraX, view.cameraY);
+}
+
+void UI::renderView(sf::RenderWindow &window, const view::View &view)
+{
+    std::optional<view::ViewMode> currentViewMode;
+
+    for (const auto &node : view.nodes) {
+        if (currentViewMode != node.mode) {
+            currentViewMode = node.mode;
+            if (node.mode == view::ViewMode::FixedToWorld) {
+                setSfmlView(view.cameraX, view.cameraY);
+            } else {
+                setSfmlView(0.0f, 0.0f);
+            }
+        }
+
+        renderer_.renderViewElement(window, node.element);
+    }
 }
 
 } // namespace ui

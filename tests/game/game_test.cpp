@@ -244,7 +244,7 @@ TEST_CASE_METHOD(TestFixture, "Game getView returns correct view")
     game.updateView(view);
 
     // ASSERT
-    REQUIRE(!view.items.empty());
+    REQUIRE(!view.nodes.empty());
     REQUIRE(view.cameraX == 0.0f);
     REQUIRE(view.cameraY == 0.0f);
 }

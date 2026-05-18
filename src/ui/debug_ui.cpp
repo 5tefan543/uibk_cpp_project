@@ -216,7 +216,6 @@ void DebugUI::renderComponent(game::Sprite &c)
     ImGui::SeparatorText("Sprite");
     ImGui::InputFloat("width", &c.width);
     ImGui::InputFloat("height", &c.height);
-    ImGui::InputFloat("scale", &c.scale);
     ImGui::InputInt("currentFrame", &c.currentFrame);
     ImGui::InputInt("totalFrames", &c.totalFrames);
     ImGui::InputFloat("frameDuration", &c.frameDuration);
@@ -245,8 +244,7 @@ void DebugUI::renderComponent(game::Camera &c)
     ImGui::SeparatorText("Camera");
     ImGui::InputFloat("x", &c.x);
     ImGui::InputFloat("y", &c.y);
-    ImGui::InputFloat("viewportHeight", &c.viewportHeight);
-    ImGui::InputFloat("viewportWidth", &c.viewportWidth);
+    ImGui::InputFloat("margin", &c.margin);
 
     ImGui::PopID();
 }
