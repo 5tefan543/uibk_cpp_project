@@ -16,16 +16,16 @@ controller::StateTransitionAction applyMouseMove(std::unique_ptr<controller::Men
 controller::StateTransitionAction applyMouseClick(std::unique_ptr<controller::MenuState> &state, float gridX,
                                                   float gridY);
 
-class ViewItemAccessor {
+class ViewElementAccessor {
   public:
     template <typename T>
-    static T &as(const view::ViewItem &item)
+    static T &as(const view::ViewElement &item)
     {
         return std::get<std::reference_wrapper<T>>(item).get();
     }
 
     template <typename T>
-    static bool is(const view::ViewItem &item)
+    static bool is(const view::ViewElement &item)
     {
         return std::holds_alternative<std::reference_wrapper<T>>(item);
     }
