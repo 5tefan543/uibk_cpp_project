@@ -12,7 +12,6 @@
 #include <random>
 #include <view/sprite.hpp>
 #include <view/text.hpp>
-
 namespace game {
 
 Game::Game()
