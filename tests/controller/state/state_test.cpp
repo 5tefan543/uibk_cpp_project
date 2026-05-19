@@ -340,11 +340,13 @@ TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
         // ARRANGE
         debug.active = true;
         initializeGameSession();
+
+        // create dummy save to verify deletion
+        PersistenceManager::saveGame(PersistedGame{});
         REQUIRE(PersistenceManager::hasSavedGame());
 
-        // First update destroys the player entity.
+        // Set player destruction request to trigger game over condition
         debug.gameSession->isPlayerDestructionRequested = true;
-        REQUIRE(updateOnce() == StateTransitionAction::ReplaceCurrentWithGameOverMenu);
 
         // ACT
         StateTransitionAction action = updateOnce();
