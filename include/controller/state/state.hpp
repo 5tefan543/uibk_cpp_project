@@ -35,7 +35,6 @@ class MenuState : public BaseState {
 
     MenuState(MenuType type);
     void initView();
-    std::optional<std::size_t> getHoveredButtonId(const InputState &input) const;
 
   public:
     const MenuType type;
@@ -66,12 +65,10 @@ class ProgressionStoreState : public BaseState {
     std::deque<view::Text> texts_;
     std::size_t selectedButtonId_ = 0;
 
+    ProgressionStoreState();
     void initView();
-    std::optional<std::size_t> getHoveredButtonId(const InputState &input) const;
 
   public:
-    ProgressionStoreState();
-
     static std::unique_ptr<ProgressionStoreState> createStore();
 
     StateTransitionAction update(const InputState &input, float dt) override;

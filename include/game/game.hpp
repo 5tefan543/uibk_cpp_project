@@ -1,10 +1,8 @@
 #pragma once
 
-#include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
 #include "controller/persistence/config_game.hpp"
 #include "controller/persistence/persisted_game.hpp"
-#include "controller/state/state_transition_action.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
 #include "game/ecs/systems/camera_system.hpp"
@@ -12,8 +10,6 @@
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
 #include "view/view.hpp"
-
-#include <chrono>
 
 namespace game {
 
@@ -50,7 +46,6 @@ class Game {
 
     void initPlayer();
     void initStage();
-    void initPersistedPlayer(const controller::PersistedGame &persistedGame);
     void initEnemies();
     void processDebugSession(float dt);
     void updateSystems(const controller::InputState &input, float dt);

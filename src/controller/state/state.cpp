@@ -1,5 +1,6 @@
 #include "controller/state/state.hpp"
 #include "controller/debug/debug_context.hpp"
+#include "controller/input/mouse_util.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "view/text.hpp"
 #include <iostream>
@@ -30,7 +31,7 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
     // mouse left button was pressed to avoid interfering with keyboard selection
     bool isMouseSelectionActive = input.mouseMoved || input.mouseLeftPressed;
 
-    const std::optional<std::size_t> hoveredButtonId = getHoveredButtonId(input);
+    const std::optional<std::size_t> hoveredButtonId = MouseUtil::getHoveredButtonId(input, buttons_);
     if (isMouseSelectionActive && hoveredButtonId.has_value()) {
         selectedButtonId_ = hoveredButtonId.value();
     }
@@ -107,21 +108,6 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
     buttons_[selectedButtonId_].isSelected = true;
 
     return stateTransitionAction;
-}
-
-std::optional<std::size_t> MenuState::getHoveredButtonId(const InputState &input) const
-{
-    for (std::size_t idx = 0; idx < buttons_.size(); idx++) {
-        const view::Button &button = buttons_[idx];
-        const bool insideX = input.mouseGridX >= button.gridX && input.mouseGridX <= (button.gridX + button.width);
-        const bool insideY = input.mouseGridY >= button.gridY && input.mouseGridY <= (button.gridY + button.height);
-
-        if (insideX && insideY) {
-            return idx;
-        }
-    }
-
-    return std::nullopt;
 }
 
 void MenuState::initView()
@@ -318,24 +304,14 @@ const view::View &GameplayState::getView()
     return view_;
 }
 
-std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
+ProgressionStoreState::ProgressionStoreState()
 {
-    return std::make_unique<ProgressionStoreState>();
+    initView();
 }
 
-std::optional<std::size_t> ProgressionStoreState::getHoveredButtonId(const InputState &input) const
+std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
 {
-    for (std::size_t idx = 0; idx < buttons_.size(); idx++) {
-        const view::Button &button = buttons_[idx];
-        const bool insideX = input.mouseGridX >= button.gridX && input.mouseGridX <= (button.gridX + button.width);
-        const bool insideY = input.mouseGridY >= button.gridY && input.mouseGridY <= (button.gridY + button.height);
-
-        if (insideX && insideY) {
-            return idx;
-        }
-    }
-
-    return std::nullopt;
+    return std::unique_ptr<ProgressionStoreState>(new ProgressionStoreState());
 }
 
 void ProgressionStoreState::initView()
@@ -372,11 +348,6 @@ void ProgressionStoreState::initView()
     buttons_[selectedButtonId_].isSelected = true;
 }
 
-ProgressionStoreState::ProgressionStoreState()
-{
-    initView();
-}
-
 StateTransitionAction ProgressionStoreState::update(const InputState &input, [[maybe_unused]] float dt)
 {
     const size_t prevSelectedButtonId = selectedButtonId_;
@@ -384,7 +355,7 @@ StateTransitionAction ProgressionStoreState::update(const InputState &input, [[m
     StateTransitionAction stateTransitionAction = StateTransitionAction::None;
     bool isMouseSelectionActive = input.mouseMoved || input.mouseLeftPressed;
 
-    const std::optional<std::size_t> hoveredButtonId = getHoveredButtonId(input);
+    const std::optional<std::size_t> hoveredButtonId = MouseUtil::getHoveredButtonId(input, buttons_);
     if (isMouseSelectionActive && hoveredButtonId.has_value()) {
         selectedButtonId_ = hoveredButtonId.value();
     }
