@@ -120,10 +120,6 @@ add_executable(roguelike_test_runner
 
 roguelike_cxx_flags(roguelike_test_runner)
 target_include_directories(roguelike_test_runner PRIVATE tests)
-target_compile_definitions(roguelike_test_runner
-  PRIVATE
-    ROGUELIKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
-)
 target_link_libraries(roguelike_test_runner
   PRIVATE
     roguelike_game

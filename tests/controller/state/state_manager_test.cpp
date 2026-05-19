@@ -155,13 +155,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithGameplay replaces c
     stateManager.pop();
     REQUIRE(stateManager.isEmpty());
 }
-/*
-==========================================================================
-==========================================================================
-=============================HERE!!!!!!!!!!!!=============================
-==========================================================================
-==========================================================================
-*/
+
 TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded from save")
 {
     PersistedGame game;

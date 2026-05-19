@@ -103,13 +103,6 @@ TEST_CASE_METHOD(TestFixture, "Game update resets player destruction request whe
     REQUIRE_FALSE(session.isPlayerDestructionRequested);
 }
 
-/*
-==========================================================================
-==========================================================================
-=============================HERE!!!!!!!!!!!!=============================
-==========================================================================
-==========================================================================
-*/
 TEST_CASE_METHOD(TestFixture, "Game update returns PushProgressionStore when a stage boundary wave is defeated")
 {
     // ARRANGE
@@ -316,13 +309,6 @@ TEST_CASE_METHOD(TestFixture, "Game getView returns correct view")
     REQUIRE(view.cameraY == 0.0f);
 }
 
-/*
-==========================================================================
-==========================================================================
-=============================HERE!!!!!!!!!!!!=============================
-==========================================================================
-==========================================================================
-*/
 TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted values")
 {
     game::Game game;
@@ -335,7 +321,7 @@ TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted valu
     game.loadFromPersistedGame(persistedGame);
 
     const controller::PersistedGame snapshot = game.getPersistedGame();
-    REQUIRE(snapshot.wave == 5); // wave gets incremented after loading
+    REQUIRE(snapshot.wave == 5);
     REQUIRE(game.getDebugSession().stage == 3);
     REQUIRE(snapshot.currency == 1234);
     REQUIRE(snapshot.playerStats.speed == 333.0f);

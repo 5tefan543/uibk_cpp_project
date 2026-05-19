@@ -320,7 +320,7 @@ TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
         REQUIRE(debug.gameSession != nullptr);
     }
 
-    SECTION("player destruction request returns ReplaceCurrentWithGameOverMenu and keeps gameSession")
+    SECTION("player destruction request returns ReplaceCurrentWithGameOverMenu and resets gameSession")
     {
         // ARRANGE
         debug.active = true;

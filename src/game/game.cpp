@@ -40,17 +40,20 @@ void Game::initWave(int waveNumber)
         registry_.destroyEntity(enemy);
     }
 
-    auto gameSave = getPersistedGame();
-    if (!controller::PersistenceManager::saveGame(gameSave)) {
-
-        // TODO error via gui not console
-    }
     currentWaveDuration_ = 0.0f;
     wave_ = waveNumber;
     debugSession_.wave = waveNumber;
 
     stage_ = ((wave_ - 1) / config_.wavesPerStage) + 1;
     debugSession_.stage = stage_;
+
+    if (wave_ > 1) {
+        auto gameSave = getPersistedGame();
+        if (!controller::PersistenceManager::saveGame(gameSave)) {
+
+            // TODO error via gui not console
+        }
+    }
 
     // spawn enemies for the new wave
     initEnemies();
