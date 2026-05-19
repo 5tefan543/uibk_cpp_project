@@ -138,13 +138,6 @@ TEST_CASE_METHOD(TestFixture, "Game update returns PushProgressionStore when a s
     REQUIRE(currentState == controller::StateTransitionAction::PushProgressionStore);
 }
 
-/*
-==========================================================================
-==========================================================================
-=============================HERE!!!!!!!!!!!!=============================
-==========================================================================
-==========================================================================
-*/
 TEST_CASE_METHOD(TestFixture,
                  "Game update advances to next wave and returns None when defeated wave is not stage boundary")
 {
@@ -342,7 +335,7 @@ TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted valu
     game.loadFromPersistedGame(persistedGame);
 
     const controller::PersistedGame snapshot = game.getPersistedGame();
-    REQUIRE(snapshot.wave == 6); // wave gets incremented after loading
+    REQUIRE(snapshot.wave == 5); // wave gets incremented after loading
     REQUIRE(game.getDebugSession().stage == 3);
     REQUIRE(snapshot.currency == 1234);
     REQUIRE(snapshot.playerStats.speed == 333.0f);

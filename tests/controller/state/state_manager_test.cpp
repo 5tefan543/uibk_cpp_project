@@ -186,7 +186,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay crea
 
     const PersistedGame loaded = gameplayState->game.getPersistedGame();
     gameplayState->game.update(input, 0.1f); // update once to ensure game session is initialized and values are applied
-    const int expectedWave = game.wave + 1;
+    const int expectedWave = game.wave;
     const int wavesPerStage = PersistenceManager::getConfig().wavesPerStage;
     const int expectedStage = ((expectedWave - 1) / wavesPerStage) + 1;
 

@@ -115,7 +115,7 @@ void Game::loadFromPersistedGame(const controller::PersistedGame &persistedGame)
         position.x = persistedGame.playerStats.posX;
         position.y = persistedGame.playerStats.posY;
     }
-    initWave(++wave_);
+    initWave(wave_);
 }
 
 controller::PersistedGame Game::getPersistedGame() const
