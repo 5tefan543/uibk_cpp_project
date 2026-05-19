@@ -1,5 +1,6 @@
 #pragma once
 
+#include "card.hpp"
 #include "color.hpp"
 #include "view_item.hpp"
 #include <vector>
