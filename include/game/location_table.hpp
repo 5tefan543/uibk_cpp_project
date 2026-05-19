@@ -1,8 +1,12 @@
 #pragma once
+#include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/sprite.hpp"
+#include "game/ecs/components/velocity.hpp"
 #include "game/ecs/entity.hpp"
 #include "game/ecs/registry.hpp"
+#include "view/grid.hpp"
+#include <iostream>
 #include <unordered_set>
 
 namespace game {
@@ -19,12 +23,14 @@ struct LocationTable {
     std::unique_ptr<std::vector<Entity>> bucketGrid_[gridHeight / buckHeight][gridWidth / buckWidth];
 };
 
+using locTab = LocationTable<40, 40, (unsigned)view::gridWidth, (unsigned)view::gridHeight>;
+
 template <unsigned buckWidth, unsigned buckHeight, unsigned gridWidth, unsigned gridHeight>
 LocationTable<buckWidth, buckHeight, gridWidth, gridHeight>::LocationTable()
 {
     for (unsigned h = 0; h < numBuckH; h++) {
         for (unsigned w = 0; w < numBuckW; w++) {
-            bucketGrid_[h][w] = std::make_unique<std::vector<Entity>>(1);
+            bucketGrid_[h][w] = std::make_unique<std::vector<Entity>>();
         }
     }
 }
@@ -33,10 +39,10 @@ template <unsigned buckWidth, unsigned buckHeight, unsigned gridWidth, unsigned 
 void LocationTable<buckWidth, buckHeight, gridWidth, gridHeight>::update(const Registry &registry)
 {
     // bool cleanup = false;
-    auto entities = registry.view<Sprite, Position>();
-    for (auto entity : entities) {
-        const Position &position = registry.getComponent<Position>(entity);
-        const Sprite &sprite = registry.getComponent<Sprite>(entity);
+    auto enemies = registry.view<Sprite, Position, Velocity, EnemyTag>();
+    for (auto enemy : enemies) {
+        const Position &position = registry.getComponent<Position>(enemy);
+        const Sprite &sprite = registry.getComponent<Sprite>(enemy);
 
         // Put entity in every bucket its sprite overlaps with.
         // TODO: we probably want to use hitbox instead of sprite dimensions
@@ -45,13 +51,13 @@ void LocationTable<buckWidth, buckHeight, gridWidth, gridHeight>::update(const R
         // min/max(): better save than sorry - making no assumtions of logic positioning entities/sprites
         unsigned buckIx = (unsigned)std::max(0.0f, (position.x / (float)gridWidth));
         unsigned buckIy = (unsigned)std::max(0.0f, (position.y / (float)gridHeight));
-        bucketGrid_[buckIx][buckIy]->emplace_back(entity);
+        bucketGrid_[buckIx][buckIy]->emplace_back(enemy);
 
         for (float y = position.y + buckHeight; y <= (position.y + sprite.height); y += buckHeight) {
             for (float x = position.x; x <= (position.x + sprite.width); x += buckWidth) {
                 buckIy = std::min((unsigned)(y / buckHeight), numBuckH - 1);
                 buckIx = std::min((unsigned)(x / buckWidth), numBuckW - 1);
-                bucketGrid_[buckIy][buckIx]->emplace_back(entity);
+                bucketGrid_[buckIy][buckIx]->emplace_back(enemy);
             }
         }
 

@@ -19,7 +19,7 @@ void MovementSystem::update(Registry &registry, float dt)
         position.y += velocity.dy * dt;
 
         if (position.x != before.x || position.y != before.y) {
-            std::cout << "Entity " << entity << " moved to (" << position.x << ", " << position.y << ")\n";
+            // std::cout << "Entity " << entity << " moved to (" << position.x << ", " << position.y << ")\n";
         }
     }
 }

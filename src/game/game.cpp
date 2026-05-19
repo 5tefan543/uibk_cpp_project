@@ -54,7 +54,7 @@ void Game::initEnemies()
     std::uniform_real_distribution<> velDist(0.0f, 10.0f);
 
     // Spawn 3 enemies at different positions
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 50; ++i) {
         Entity enemy = registry_.createEntity();
         registry_.addComponent<EnemyTag>(enemy, {});
         registry_.addComponent<Position>(enemy, {static_cast<float>(posDist(gen)), static_cast<float>(posDist(gen))});
@@ -117,7 +117,6 @@ controller::PersistedGame Game::getPersistedGame() const
 
 bool Game::update(const controller::InputState &input, float dt)
 {
-    locationTable_.update(registry_);
     processDebugSession();
     updateSystems(input, dt);
     return isGameOver();
@@ -168,6 +167,8 @@ void Game::updateSystems(const controller::InputState &input, float dt)
         return;
     }
 
+    locationTable_.update(registry_);
+    enemyAI_.update(registry_, locationTable_);
     inputSystem_.update(registry_, input);
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, dt);

@@ -30,29 +30,6 @@ void InputSystem::update(Registry &registry, const controller::InputState &input
             velocity.dy += playerTag.moveSpeed;
         }
     }
-
-    auto players = registry.view<Velocity, PlayerTag>();
-    if (players.size() > 0) {
-        auto player = players[0];
-        Position playerPos = registry.getComponent<Position>(player);
-
-        for (auto enemy : registry.view<Velocity, EnemyTag>()) {
-            EnemyTag &enemyTag = registry.getComponent<EnemyTag>(enemy);
-            Velocity &velocity = registry.getComponent<Velocity>(enemy);
-            Position &enimyPos = registry.getComponent<Position>(enemy);
-
-            // TODO: normalize diag. movement
-            velocity.dx = (playerPos.x - enimyPos.x);
-            velocity.dy = (playerPos.y - enimyPos.y);
-            auto svdx = std::signbit(velocity.dx);
-            auto svdy = std::signbit(velocity.dy);
-            velocity.dx *= (enemyTag.moveSpeed / velocity.dx) * (svdx ? -1 : 1);
-            velocity.dy *= (enemyTag.moveSpeed / velocity.dy) * (svdy ? -1 : 1);
-            // std::sqrt(dX * dX + dY * dY)
-
-            // dx² + dy² = vel² sqrt(dx² + dy²) = velScale dx, y *= vel / velScale
-        }
-    }
 }
 
 } // namespace game

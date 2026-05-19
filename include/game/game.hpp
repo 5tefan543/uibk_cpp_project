@@ -2,19 +2,17 @@
 
 #include "controller/input/input_state.hpp"
 #include "controller/persistence/persisted_game.hpp"
-#include "controller/state/state_transition_action.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
 #include "game/ecs/systems/camera_system.hpp"
 #include "game/ecs/systems/debug_selection_system.hpp"
+#include "game/ecs/systems/enemy_ai.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
 #include "game/location_table.hpp"
 #include "view/view.hpp"
-#include <cmath>
 
 namespace game {
-
 class Game {
   private:
     Registry registry_;
@@ -22,13 +20,14 @@ class Game {
 
     // 1920/40 = 48 buckets; 1080/40 = 27 buckets
     // TODO: convert gridWidth/Height to unsigned with ceil()
-    LocationTable<40, 40, (unsigned)view::gridWidth, (unsigned)view::gridHeight> locationTable_;
+    locTab locationTable_;
 
     AnimationSystem animationSystem_;
     CameraSystem cameraSystem_;
     InputSystem inputSystem_;
     MovementSystem movementSystem_;
     DebugSelectionSystem debugSelectionSystem_;
+    EnemyAI enemyAI_;
 
     int stage_ = 1;
     int wave_ = 1;
