@@ -8,7 +8,7 @@ namespace game {
 
 struct DebugSelectionSystem {
     void update(Registry &registry, const controller::InputState &input, bool isDebugActive,
-                game::GameDebugSession &debugSession);
+                GameDebugSession &debugSession);
 
   private:
     void clearSelection(Registry &registry, GameDebugSession &debugSession);

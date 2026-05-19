@@ -1,6 +1,5 @@
 #include "ui/renderer.hpp"
 #include "controller/persistence/persistence_manager.hpp"
-#include "view/grid.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
