@@ -1,5 +1,4 @@
 #include "game/ecs/systems/debug_selection_system.hpp"
-#include "game/ecs/components/camera.hpp"
 #include "game/ecs/components/map.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/sprite.hpp"

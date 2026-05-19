@@ -13,7 +13,6 @@ using namespace controller;
 void createSavedGameFile()
 {
     PersistedGame game;
-    game.stage = 3;
     game.wave = 2;
     game.currency = 150;
     game.playerStats.speed = 444.0f;
@@ -27,7 +26,6 @@ void createSavedGameFile()
 TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads game state")
 {
     PersistedGame input;
-    input.stage = 4;
     input.wave = 9;
     input.currency = 321;
     input.playerStats.attackPower = 42.0f;
@@ -37,7 +35,6 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads game state")
 
     auto output = PersistenceManager::loadGame();
 
-    REQUIRE(output.stage == 4);
     REQUIRE(output.wave == 9);
     REQUIRE(output.currency == 321);
     REQUIRE(output.playerStats.attackPower == Catch::Approx(42.0f));
@@ -62,7 +59,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager throws when loading game witho
 TEST_CASE_METHOD(TestFixture, "PersistenceManager reports and deletes save file")
 {
     PersistedGame game;
-    game.stage = 2;
+    game.wave = 2;
     PersistenceManager::saveGame(game);
 
     REQUIRE(PersistenceManager::hasSavedGame() == true);
@@ -109,7 +106,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk whe
 
     REQUIRE(Serializer::writeJsonToFile(input, Serializer::configFilePath));
 
-    const auto output = PersistenceManager::loadConfig();
+    const auto output = PersistenceManager::getConfig();
 
     REQUIRE(output.initialStage == 13);
     REQUIRE(output.initialWave == 8);
@@ -128,7 +125,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig throws when config 
     std::filesystem::remove(Serializer::configFilePath);
 
     try {
-        (void)PersistenceManager::loadConfig();
+        (void)PersistenceManager::getConfig();
         FAIL("Expected PersistenceManager::loadConfig() to throw std::runtime_error");
     } catch (const std::runtime_error &error) {
         const std::string message = error.what();
@@ -139,6 +136,8 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig throws when config 
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager saveConfig returns false when config path parent cannot be created")
 {
+    std::filesystem::remove_all(Serializer::configDir);
+
     {
         std::ofstream configPathAsFile(Serializer::configDir);
         REQUIRE(configPathAsFile.good());
@@ -167,7 +166,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads config")
     PersistenceManager::saveConfig(input);
 
     GameConfig output;
-    output = PersistenceManager::loadConfig();
+    output = PersistenceManager::getConfig();
 
     REQUIRE(output.initialStage == 7);
     REQUIRE(output.initialWave == 3);
@@ -194,7 +193,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig prefers cached conf
     diskConfig.initialStage = 99;
     REQUIRE(Serializer::writeJsonToFile(diskConfig, Serializer::configFilePath));
 
-    const auto output = PersistenceManager::loadConfig();
+    const auto output = PersistenceManager::getConfig();
 
     REQUIRE(output.initialStage == 11);
     REQUIRE(output.initialWave == 6);

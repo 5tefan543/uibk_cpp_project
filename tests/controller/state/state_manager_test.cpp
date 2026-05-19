@@ -159,11 +159,15 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithGameplay replaces c
 TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded from save")
 {
     PersistedGame game;
-    game.stage = 9;
     game.wave = 4;
     game.currency = 777;
     game.playerStats.speed = 360.0f;
-    PersistenceManager::saveGame(game);
+    game.playerStats.hasDash = true;
+    game.score = 12345;
+    game.playerStats.maxHealth = 500.0f;
+    auto isSaved = PersistenceManager::saveGame(game);
+    InputState input;
+    REQUIRE(isSaved);
 
     StateManager stateManager;
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
@@ -175,8 +179,13 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay crea
     REQUIRE(gameplayState->isLoadedFromPersistedGame());
 
     const PersistedGame loaded = gameplayState->game.getPersistedGame();
-    REQUIRE(loaded.stage == 9);
-    REQUIRE(loaded.wave == 4);
+    gameplayState->game.update(input, 0.1f); // update once to ensure game session is initialized and values are applied
+    const int expectedWave = game.wave;
+    const int wavesPerStage = PersistenceManager::getConfig().wavesPerStage;
+    const int expectedStage = ((expectedWave - 1) / wavesPerStage) + 1;
+
+    REQUIRE(loaded.wave == expectedWave); // wave is advanced to next wave in loadFromPersistedGame
+    REQUIRE(gameplayState->game.getDebugSession().stage == expectedStage);
     REQUIRE(loaded.currency == 777);
     REQUIRE(loaded.playerStats.speed == 360.0f);
 }

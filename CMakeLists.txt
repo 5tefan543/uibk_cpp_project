@@ -127,6 +127,12 @@ target_link_libraries(roguelike_test_runner
     Catch2::Catch2WithMain
 )
 
+add_custom_command(TARGET roguelike_test_runner POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/config
+            $<TARGET_FILE_DIR:roguelike_test_runner>/config
+)
+
 include(CTest)
 include(Catch)
 catch_discover_tests(roguelike_test_runner)

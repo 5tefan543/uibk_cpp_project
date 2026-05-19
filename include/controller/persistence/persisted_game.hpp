@@ -3,6 +3,8 @@
 namespace controller {
 
 struct PlayerStats {
+    float posX = 0.0f;
+    float posY = 0.0f;
     float maxHealth = 0.0f;
     float attackPower = 0.0f;
     float attackSpeed = 0.0f;
@@ -12,9 +14,9 @@ struct PlayerStats {
 };
 
 struct PersistedGame {
-    int stage;
-    int wave;
-    int currency;
+    int wave = 0;
+    int score = 0;
+    int currency = 0;
     PlayerStats playerStats;
 };
 

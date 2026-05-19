@@ -1,5 +1,4 @@
 #include "game/debug/game_debug_session.hpp"
-#include "game/ecs/components/camera.hpp"
 #include "game/ecs/components/map.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/sprite.hpp"

@@ -64,6 +64,8 @@ void DebugUI::renderGameSession(controller::DebugContext &debug)
 
         if (ImGui::CollapsingHeader("Game Session", ImGuiTreeNodeFlags_DefaultOpen)) {
 
+            int wavesPerStage = controller::PersistenceManager::getConfig().wavesPerStage;
+
             ImGui::SeparatorText("Stage / Wave");
             const bool didStageChange = ImGui::InputInt("Stage", &gameSession.stage);
             const bool didWaveChange = ImGui::InputInt("Wave", &gameSession.wave);
@@ -74,17 +76,19 @@ void DebugUI::renderGameSession(controller::DebugContext &debug)
 
             if (didStageChange) {
                 // move to first wave of the selected stage
-                gameSession.wave = (gameSession.stage - 1) * 5 + 1;
+                gameSession.wave = (gameSession.stage - 1) * wavesPerStage + 1;
             }
 
             if (didWaveChange) {
                 // derive stage from wave
-                gameSession.stage = ((gameSession.wave - 1) / 5) + 1;
+                gameSession.stage = ((gameSession.wave - 1) / wavesPerStage) + 1;
             }
 
             if (ImGui::Button("Reload Stage/Wave") && debug.gameSession) {
                 debug.gameSession->isStageWaveReloadRequested = true;
             }
+
+            ImGui::Checkbox("Pause Clock", &debug.gameSession->isClockPaused);
 
             ImGui::SeparatorText("Persistence Management");
             if (ImGui::Button("Save Game")) {

@@ -1,5 +1,6 @@
 #include "game/game.hpp"
 #include "controller/debug/debug_context.hpp"
+#include "controller/persistence/persisted_game.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "game/ecs/components/camera.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
@@ -18,10 +19,10 @@ namespace game {
 Game::Game()
 {
     std::cout << "Game constructed" << std::endl;
+    config_ = controller::PersistenceManager::getConfig();
+    initWave(1);
     initStage();
-    initWave();
     initPlayer();
-    initEnemies();
 }
 
 void Game::initStage()
@@ -32,10 +33,32 @@ void Game::initStage()
     registry_.addComponent<Camera>(mapEntity, {});
 }
 
-void Game::initWave()
+void Game::initWave(int waveNumber)
 {
-    std::cout << "Loading stage " << stage_ << ", wave " << wave_ << std::endl;
-    // Logic to initialize a new wave of enemies can go here
+    // delete all existing enemies
+    for (Entity enemy : registry_.view<EnemyTag>()) {
+        registry_.destroyEntity(enemy);
+    }
+
+    currentWaveDuration_ = 0.0f;
+    wave_ = waveNumber;
+    debugSession_.wave = waveNumber;
+
+    stage_ = ((wave_ - 1) / config_.wavesPerStage) + 1;
+    debugSession_.stage = stage_;
+
+    if (wave_ > 1) {
+        auto gameSave = getPersistedGame();
+        if (!controller::PersistenceManager::saveGame(gameSave)) {
+
+            // TODO error via gui not console
+        }
+    }
+
+    // spawn enemies for the new wave
+    initEnemies();
+
+    std::cout << "Starting wave " << wave_ << " of stage " << stage_ << std::endl;
 }
 
 void Game::initPlayer()
@@ -49,6 +72,7 @@ void Game::initPlayer()
 
 void Game::initEnemies()
 {
+    // TODO Real spawning logic based on wavecount here.
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> posDist(200.0f, 800.0f);
@@ -80,50 +104,80 @@ GameDebugSession &Game::getDebugSession()
 
 void Game::loadFromPersistedGame(const controller::PersistedGame &persistedGame)
 {
-    stage_ = persistedGame.stage;
     wave_ = persistedGame.wave;
+    score_ = persistedGame.score;
     currency_ = persistedGame.currency;
 
-    // Update debug session with loaded stage/wave
-    debugSession_.stage = stage_;
     debugSession_.wave = wave_;
 
     auto players = registry_.view<PlayerTag>();
     if (!players.empty()) {
         PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
+        Position &position = registry_.getComponent<Position>(players.front());
         playerTag.moveSpeed = persistedGame.playerStats.speed;
+        position.x = persistedGame.playerStats.posX;
+        position.y = persistedGame.playerStats.posY;
     }
-
-    // currently when loading a game, we init the wave 2 times
-    // once in Game constructor and once here
-    // This is because the game is created already in GameplayState
-    initWave();
+    initWave(wave_);
 }
 
 controller::PersistedGame Game::getPersistedGame() const
 {
     controller::PersistedGame persistedGame;
-    persistedGame.stage = stage_;
     persistedGame.wave = wave_;
+    persistedGame.score = score_;
     persistedGame.currency = currency_;
 
     auto players = registry_.view<PlayerTag>();
     if (!players.empty()) {
         const PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
+        const Position &position = registry_.getComponent<Position>(players.front());
         persistedGame.playerStats.speed = playerTag.moveSpeed;
+        persistedGame.playerStats.posX = position.x;
+        persistedGame.playerStats.posY = position.y;
     }
 
     return persistedGame;
 }
 
-bool Game::update(const controller::InputState &input, float dt)
+bool Game::isWaveFinished()
 {
-    processDebugSession();
-    updateSystems(input, dt);
-    return isGameOver();
+    bool isWaveTimeFinished = currentWaveDuration_ >= config_.waveDurationSeconds;
+    bool isWaveDefeated = registry_.view<EnemyTag>().empty();
+
+    return isWaveDefeated | isWaveTimeFinished;
 }
 
-void Game::processDebugSession()
+controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
+{
+    processDebugSession(dt);
+    updateSystems(input, dt);
+
+    // update clock
+    currentWaveDuration_ += dt;
+
+    if (isWaveFinished()) {
+        addScore(config_.waveDurationSeconds - (int)currentWaveDuration_);
+
+        bool shouldOpenStore = (wave_ % config_.wavesPerStage) == 0;
+        initWave(++wave_);
+
+        if (shouldOpenStore) {
+            return controller::StateTransitionAction::PushProgressionStore;
+        }
+
+        return controller::StateTransitionAction::None;
+    }
+
+    if (isGameOver()) {
+        controller::PersistenceManager::deleteSave();
+        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
+    }
+
+    return controller::StateTransitionAction::None;
+}
+
+void Game::processDebugSession(float dt)
 {
     controller::DebugContext &debug = controller::DebugContext::get();
 
@@ -131,12 +185,14 @@ void Game::processDebugSession()
         return;
     }
 
+    if (debugSession_.isClockPaused) {
+        currentWaveDuration_ -= dt;
+    }
+
     // Handle stage/wave reload request
     if (debugSession_.isStageWaveReloadRequested) {
         debugSession_.isStageWaveReloadRequested = false;
-        stage_ = debugSession_.stage;
-        wave_ = debugSession_.wave;
-        initWave();
+        initWave(debugSession_.wave);
     }
 
     // Handle player destruction request
@@ -177,6 +233,12 @@ void Game::updateSystems(const controller::InputState &input, float dt)
 bool Game::isGameOver()
 {
     return registry_.view<PlayerTag>().empty();
+}
+
+void Game::addScore(int score)
+{
+    score_ += score;
+    currency_ += score;
 }
 
 void Game::updateView(view::View &view)
@@ -235,7 +297,9 @@ void Game::updateView(view::View &view)
     }
 
     stageWaveInfo_ = {
-        .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_),
+        .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_) + " Time remaining: "
+                + std::to_string(config_.waveDurationSeconds - static_cast<int>(currentWaveDuration_))
+                + " score: " + std::to_string(score_) + " currency: " + std::to_string(currency_),
         .size = 24,
         .gridX = 960.0f,
         .gridY = 75.0f,

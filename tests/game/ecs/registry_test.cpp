@@ -1,4 +1,3 @@
-#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/ecs/registry.hpp"

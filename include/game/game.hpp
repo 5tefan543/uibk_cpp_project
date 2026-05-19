@@ -1,6 +1,7 @@
 #pragma once
 
 #include "controller/input/input_state.hpp"
+#include "controller/persistence/config_game.hpp"
 #include "controller/persistence/persisted_game.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "game/ecs/registry.hpp"
@@ -17,6 +18,8 @@ class Game {
   private:
     Registry registry_;
     GameDebugSession debugSession_{registry_};
+    controller::GameConfig config_;
+    float currentWaveDuration_;
 
     AnimationSystem animationSystem_;
     CameraSystem cameraSystem_;
@@ -25,9 +28,9 @@ class Game {
     DebugSelectionSystem debugSelectionSystem_;
 
     int stage_ = 1;
-    int wave_ = 1;
+    int wave_ = 0;
+    int score_ = 0;
     int currency_ = 0;
-
     // We need to store view::Text as a member because ViewElement stores a reference to it,
     // so we must ensure that the referenced object lives long enough.
     //
@@ -42,14 +45,14 @@ class Game {
     // all sprites in a deque inside Game.
     view::Text stageWaveInfo_;
 
-    void initWave();
-    void initStage();
     void initPlayer();
-    void initPersistedPlayer(const controller::PersistedGame &persistedGame);
+    void initStage();
     void initEnemies();
-    void processDebugSession();
+    void processDebugSession(float dt);
     void updateSystems(const controller::InputState &input, float dt);
-    bool isGameOver();
+    void initWave(int waveNumber);
+    void addScore(int score);
+    bool isWaveFinished();
 
   public:
     Game();
@@ -57,10 +60,11 @@ class Game {
     ~Game();
 
     GameDebugSession &getDebugSession();
+    void updateView(view::View &view);
     void loadFromPersistedGame(const controller::PersistedGame &persistedGame);
     controller::PersistedGame getPersistedGame() const;
-    bool update(const controller::InputState &input, float dt);
-    void updateView(view::View &view);
+    controller::StateTransitionAction update(const controller::InputState &input, float dt);
+    bool isGameOver();
 };
 
 } // namespace game
