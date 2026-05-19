@@ -13,7 +13,7 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when target file cannot 
     std::filesystem::create_directories(Serializer::configDir);
 
     PersistedGame game;
-    game.stage = 1;
+    game.wave = 1;
 
     // Writing to an existing directory path should fail when opening std::ofstream.
     REQUIRE_FALSE(Serializer::writeJsonToFile(game, Serializer::configDir / ""));
@@ -29,7 +29,7 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when parent path exists 
     }
 
     PersistedGame game;
-    game.stage = 1;
+    game.wave = 1;
 
     REQUIRE_FALSE(Serializer::writeJsonToFile(game, Serializer::configDir / "persisted-game.json"));
 }
@@ -69,7 +69,6 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when deserializing inval
 TEST_CASE_METHOD(TestFixture, "Serializer writes and reads persisted game JSON")
 {
     PersistedGame input;
-    input.stage = 7;
     input.wave = 4;
     input.currency = 987;
     input.playerStats.maxHealth = 120.0f;
@@ -85,7 +84,6 @@ TEST_CASE_METHOD(TestFixture, "Serializer writes and reads persisted game JSON")
     PersistedGame output{};
     REQUIRE(Serializer::readJsonFromFile(output, Serializer::saveFilePath));
 
-    REQUIRE(output.stage == 7);
     REQUIRE(output.wave == 4);
     REQUIRE(output.currency == 987);
     REQUIRE(output.playerStats.maxHealth == Catch::Approx(120.0f));
@@ -102,7 +100,7 @@ TEST_CASE_METHOD(TestFixture, "Serializer creates missing parent directories whi
     REQUIRE_FALSE(std::filesystem::exists(nestedPath.parent_path()));
 
     PersistedGame game{};
-    game.stage = 2;
+    game.wave = 2;
 
     REQUIRE(Serializer::writeJsonToFile(game, nestedPath));
     REQUIRE(std::filesystem::exists(nestedPath.parent_path()));
@@ -112,12 +110,10 @@ TEST_CASE_METHOD(TestFixture, "Serializer creates missing parent directories whi
 TEST_CASE_METHOD(TestFixture, "Serializer overwrites existing JSON file")
 {
     PersistedGame first{};
-    first.stage = 1;
     first.wave = 1;
     first.currency = 10;
 
     PersistedGame second{};
-    second.stage = 9;
     second.wave = 8;
     second.currency = 700;
 
@@ -126,7 +122,6 @@ TEST_CASE_METHOD(TestFixture, "Serializer overwrites existing JSON file")
 
     PersistedGame output{};
     REQUIRE(Serializer::readJsonFromFile(output, Serializer::saveFilePath));
-    REQUIRE(output.stage == 9);
     REQUIRE(output.wave == 8);
     REQUIRE(output.currency == 700);
 }

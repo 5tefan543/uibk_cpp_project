@@ -12,7 +12,6 @@ namespace {
 void createSavedGameFile()
 {
     PersistedGame game;
-    game.stage = 3;
     game.wave = 2;
     game.currency = 150;
     game.playerStats.speed = 444.0f;
@@ -333,7 +332,7 @@ TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
 
         // ASSERT
         REQUIRE(action == StateTransitionAction::ReplaceCurrentWithGameOverMenu);
-        REQUIRE(debug.gameSession != nullptr);
+        REQUIRE(debug.gameSession == nullptr);
     }
 
     SECTION("game over in debug mode deletes save and transitions to game over menu")

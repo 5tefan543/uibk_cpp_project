@@ -101,13 +101,10 @@ GameDebugSession &Game::getDebugSession()
 
 void Game::loadFromPersistedGame(const controller::PersistedGame &persistedGame)
 {
-    stage_ = persistedGame.stage;
     wave_ = persistedGame.wave;
     score_ = persistedGame.score;
     currency_ = persistedGame.currency;
 
-    // Update debug session with loaded stage/wave
-    debugSession_.stage = stage_;
     debugSession_.wave = wave_;
 
     auto players = registry_.view<PlayerTag>();
@@ -124,7 +121,6 @@ void Game::loadFromPersistedGame(const controller::PersistedGame &persistedGame)
 controller::PersistedGame Game::getPersistedGame() const
 {
     controller::PersistedGame persistedGame;
-    persistedGame.stage = stage_;
     persistedGame.wave = wave_;
     persistedGame.score = score_;
     persistedGame.currency = currency_;

@@ -4,7 +4,7 @@
 #include "controller/persistence/persistence_manager.hpp"
 #include "shared/test_filesystem.hpp"
 
-#include <fstream>
+#include <filesystem>
 #include <stdexcept>
 
 struct TestFixture {
@@ -19,34 +19,18 @@ struct TestFixture {
 
     void clearPersistenceManagerCache() { controller::PersistenceManager::resetConfig(); }
 
-    void ensureTestGameConfig()
+    void ensureGameConfigAvailable()
     {
+        const std::filesystem::path sourceConfig =
+            std::filesystem::path(ROGUELIKE_SOURCE_DIR) / "config" / "game-config.json";
         const std::filesystem::path targetConfig = "config/game-config.json";
-        std::filesystem::create_directories(targetConfig.parent_path());
 
-        std::ofstream out(targetConfig);
-        if (!out) {
-            throw std::runtime_error("Failed to create test game config file");
+        if (!std::filesystem::exists(sourceConfig)) {
+            throw std::runtime_error("Missing source config file: " + sourceConfig.string());
         }
 
-        out << R"({
-  "initialStage": 1,
-  "initialWave": 1,
-  "initialCurrency": 0,
-  "waveDurationSeconds": 60,
-  "wavesPerStage": 5,
-  "windowConfig": {
-    "width": 800,
-    "height": 600,
-    "title": "Test Game"
-  },
-  "assetConfig": {
-    "playerTexturePath": "assets/characters/player.png",
-    "enemyTexturePath": "assets/characters/enemy.png",
-    "mapTexturePath": "assets/maps/test_map.png",
-    "fontPath": "assets/font/BigBlueTerm_Nerd_Font/"
-  }
-})";
+        std::filesystem::create_directories(targetConfig.parent_path());
+        std::filesystem::copy_file(sourceConfig, targetConfig, std::filesystem::copy_options::overwrite_existing);
     }
 
   public:
@@ -54,7 +38,7 @@ struct TestFixture {
     {
         resetDebugContext();
         clearPersistenceManagerCache();
-        ensureTestGameConfig();
+        ensureGameConfigAvailable();
     }
     ~TestFixture() = default;
 };

@@ -103,6 +103,13 @@ TEST_CASE_METHOD(TestFixture, "Game update resets player destruction request whe
     REQUIRE_FALSE(session.isPlayerDestructionRequested);
 }
 
+/*
+==========================================================================
+==========================================================================
+=============================HERE!!!!!!!!!!!!=============================
+==========================================================================
+==========================================================================
+*/
 TEST_CASE_METHOD(TestFixture, "Game update returns PushProgressionStore when a stage boundary wave is defeated")
 {
     // ARRANGE
@@ -116,6 +123,9 @@ TEST_CASE_METHOD(TestFixture, "Game update returns PushProgressionStore when a s
     session.wave = wavesPerStage;
     session.isStageWaveReloadRequested = true;
 
+    // Apply stage/wave reload before defeating the enemies of that wave.
+    game.update(input, 0.0f);
+
     // Defeat the current wave by removing all enemies.
     for (game::Entity enemy : session.registry.view<game::EnemyTag>()) {
         session.registry.destroyEntity(enemy);
@@ -128,6 +138,13 @@ TEST_CASE_METHOD(TestFixture, "Game update returns PushProgressionStore when a s
     REQUIRE(currentState == controller::StateTransitionAction::PushProgressionStore);
 }
 
+/*
+==========================================================================
+==========================================================================
+=============================HERE!!!!!!!!!!!!=============================
+==========================================================================
+==========================================================================
+*/
 TEST_CASE_METHOD(TestFixture,
                  "Game update advances to next wave and returns None when defeated wave is not stage boundary")
 {
@@ -137,11 +154,15 @@ TEST_CASE_METHOD(TestFixture,
     controller::DebugContext &debug = controller::DebugContext::get();
     debug.active = true;
     int wavesPerStage = controller::PersistenceManager::getConfig().wavesPerStage;
+    REQUIRE(wavesPerStage > 1);
 
     game::GameDebugSession &session = game.getDebugSession();
     session.stage = 1;
     session.wave = wavesPerStage - 1;
     session.isStageWaveReloadRequested = true;
+
+    // Apply stage/wave reload before defeating the enemies of that wave.
+    game.update(input, 0.0f);
 
     for (game::Entity enemy : session.registry.view<game::EnemyTag>()) {
         session.registry.destroyEntity(enemy);
@@ -154,8 +175,10 @@ TEST_CASE_METHOD(TestFixture,
     REQUIRE(currentState == controller::StateTransitionAction::None);
 
     const controller::PersistedGame persisted = game.getPersistedGame();
-    REQUIRE(persisted.stage == 1);
-    REQUIRE(persisted.wave == 5);
+    const int expectedWave = wavesPerStage;
+    const int expectedStage = ((expectedWave - 1) / wavesPerStage) + 1;
+    REQUIRE(persisted.wave == expectedWave);
+    REQUIRE(game.getDebugSession().stage == expectedStage);
 }
 
 TEST_CASE_METHOD(TestFixture, "Game update keeps player destruction request unchanged when debug is inactive")
@@ -300,12 +323,18 @@ TEST_CASE_METHOD(TestFixture, "Game getView returns correct view")
     REQUIRE(view.cameraY == 0.0f);
 }
 
+/*
+==========================================================================
+==========================================================================
+=============================HERE!!!!!!!!!!!!=============================
+==========================================================================
+==========================================================================
+*/
 TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted values")
 {
     game::Game game;
 
     controller::PersistedGame persistedGame;
-    persistedGame.stage = 12;
     persistedGame.wave = 5;
     persistedGame.currency = 1234;
     persistedGame.playerStats.speed = 333.0f;
@@ -313,8 +342,8 @@ TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted valu
     game.loadFromPersistedGame(persistedGame);
 
     const controller::PersistedGame snapshot = game.getPersistedGame();
-    REQUIRE(snapshot.stage == 12);
-    REQUIRE(snapshot.wave == 6); // wave is advanced to next wave in loadFromPersistedGame
+    REQUIRE(snapshot.wave == 6); // wave gets incremented after loading
+    REQUIRE(game.getDebugSession().stage == 3);
     REQUIRE(snapshot.currency == 1234);
     REQUIRE(snapshot.playerStats.speed == 333.0f);
 }
