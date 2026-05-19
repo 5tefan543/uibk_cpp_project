@@ -149,17 +149,8 @@ bool Game::isWaveFinished()
     return isWaveDefeated | isWaveTimeFinished;
 }
 
-bool Game::openStore()
+controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
 {
-
-    bool shoulStoreOpenNextWave = (wave_ % config_.wavesPerStage) == 0;
-
-    return shoulStoreOpenNextWave && isWaveFinished();
-}
-
-void Game::update(const controller::InputState &input, float dt)
-{
-
     processDebugSession(dt);
     updateSystems(input, dt);
 
@@ -168,14 +159,23 @@ void Game::update(const controller::InputState &input, float dt)
 
     if (isWaveFinished()) {
         addScore(config_.waveDurationSeconds - (int)currentWaveDuration_);
+
+        bool shouldOpenStore = (wave_ % config_.wavesPerStage) == 0;
         initWave(++wave_);
-        return;
+
+        if (shouldOpenStore) {
+            return controller::StateTransitionAction::PushProgressionStore;
+        }
+
+        return controller::StateTransitionAction::None;
     }
 
     if (isGameOver()) {
         controller::PersistenceManager::deleteSave();
-        return;
+        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
     }
+
+    return controller::StateTransitionAction::None;
 }
 
 void Game::processDebugSession(float dt)

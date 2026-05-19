@@ -3,6 +3,7 @@
 #include "controller/input/input_state.hpp"
 #include "controller/persistence/config_game.hpp"
 #include "controller/persistence/persisted_game.hpp"
+#include "controller/state/state_transition_action.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
 #include "game/ecs/systems/camera_system.hpp"
@@ -58,13 +59,12 @@ class Game {
     Game(const Game &) = delete;
     ~Game();
 
-    bool openStore();
-    bool isGameOver();
     GameDebugSession &getDebugSession();
     void updateView(view::View &view);
     void loadFromPersistedGame(const controller::PersistedGame &persistedGame);
     controller::PersistedGame getPersistedGame() const;
-    void update(const controller::InputState &input, float dt);
+    controller::StateTransitionAction update(const controller::InputState &input, float dt);
+    bool isGameOver();
 };
 
 } // namespace game
