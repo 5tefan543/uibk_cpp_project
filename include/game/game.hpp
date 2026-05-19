@@ -30,14 +30,10 @@ class Game {
     MovementSystem movementSystem_;
     DebugSelectionSystem debugSelectionSystem_;
 
-    int waveDurationSeconds_;
-    int wavesPerStage_;
     int stage_ = 1;
     int wave_ = 0;
     int score_ = 0;
     int currency_ = 0;
-    bool openStore_ = false;
-
     // We need to store view::Text as a member because ViewElement stores a reference to it,
     // so we must ensure that the referenced object lives long enough.
     //
@@ -56,25 +52,24 @@ class Game {
     void initStage();
     void initPersistedPlayer(const controller::PersistedGame &persistedGame);
     void initEnemies();
-    void processDebugSession();
+    void processDebugSession(float dt);
     void updateSystems(const controller::InputState &input, float dt);
-    bool isWaveTimeFinished();
-    void getNextWave();
-    bool isWaveDefeated();
+    void initWave(int waveNumber);
     void addScore(int score);
-    void getNextStage();
+    bool isWaveFinished();
 
   public:
     Game();
     Game(const Game &) = delete;
     ~Game();
 
+    bool openStore();
     bool isGameOver();
     GameDebugSession &getDebugSession();
     void updateView(view::View &view);
     void loadFromPersistedGame(const controller::PersistedGame &persistedGame);
     controller::PersistedGame getPersistedGame() const;
-    controller::StateTransitionAction update(const controller::InputState &input, float dt);
+    void update(const controller::InputState &input, float dt);
 };
 
 } // namespace game

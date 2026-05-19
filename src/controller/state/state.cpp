@@ -284,12 +284,27 @@ StateTransitionAction GameplayState::update(const InputState &input, float dt)
 {
     DebugContext &debug = DebugContext::get();
     debug.gameSession = &game.getDebugSession();
-
     if (input.cancelPressed) {
         return controller::StateTransitionAction::PushPauseMenu;
     }
 
-    return game.update(input, dt);
+    game.update(input, dt);
+
+    if (game.isGameOver()) {
+        debug.gameSession = nullptr;
+        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
+    }
+
+    if (game.openStore()) {
+        return controller::StateTransitionAction::PushProgressionStore;
+    }
+
+    if (debug.active && debug.gameSession->isStoreOpenRequested) {
+        debug.gameSession->isStoreOpenRequested = false;
+        return controller::StateTransitionAction::PushProgressionStore;
+    }
+
+    return controller::StateTransitionAction::None;
 }
 
 std::string GameplayState::toString() const
