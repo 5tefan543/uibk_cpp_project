@@ -8,6 +8,7 @@
 #include "game/ecs/components/map_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
+#include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "view/sprite.hpp"
 #include <iostream>
@@ -38,11 +39,19 @@ Game::Game(const controller::PersistedGame &persistedGame) : Game(persistedGame.
 
     auto players = registry_.view<PlayerTag>();
     if (!players.empty()) {
-        PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
         Position &position = registry_.getComponent<Position>(players.front());
-        playerTag.moveSpeed = persistedGame.playerStats.speed;
+
         position.x = persistedGame.playerStats.posX;
         position.y = persistedGame.playerStats.posY;
+
+        PlayerStats &playerStats = registry_.getComponent<PlayerStats>(players.front());
+        playerStats.maxHealth = persistedGame.playerStats.maxHealth;
+        playerStats.health = persistedGame.playerStats.maxHealth;
+        playerStats.attackPower = persistedGame.playerStats.attackPower;
+        playerStats.attackSpeed = persistedGame.playerStats.attackSpeed;
+        playerStats.defense = persistedGame.playerStats.defense;
+        playerStats.moveSpeed = persistedGame.playerStats.speed;
+        playerStats.hasDash = persistedGame.playerStats.hasDash;
     }
 }
 
@@ -76,6 +85,17 @@ void Game::initPlayer()
 {
     Entity player = registry_.createEntity();
     registry_.addComponent<PlayerTag>(player, {});
+
+    PlayerStats playerStats;
+    playerStats.maxHealth = 100.0f;
+    playerStats.health = playerStats.maxHealth;
+    playerStats.attackPower = 10.0f;
+    playerStats.attackSpeed = 1.0f;
+    playerStats.defense = 0.0f;
+    playerStats.moveSpeed = 750.0f;
+    playerStats.hasDash = false;
+    registry_.addComponent<PlayerStats>(player, playerStats);
+
     registry_.addComponent<Position>(player, {100.0f, 100.0f});
     registry_.addComponent<Velocity>(player, {0.0f, 0.0f});
     Animation playerAnimation = {
@@ -102,7 +122,7 @@ void Game::initWave(int waveNumber)
         }
     }
 
-    spawnEnemySystem_.update(registry_);
+    spawnEnemySystem_.update(registry_, wave_, stage_, config_);
 
     std::cout << "Starting wave " << wave_ << " of stage " << stage_ << std::endl;
 }
@@ -119,13 +139,19 @@ controller::PersistedGame Game::getPersistedGame() const
     persistedGame.score = score_;
     persistedGame.currency = currency_;
 
-    auto players = registry_.view<PlayerTag>();
+    auto players = registry_.view<Position, PlayerStats, PlayerTag>();
     if (!players.empty()) {
-        const PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
         const Position &position = registry_.getComponent<Position>(players.front());
-        persistedGame.playerStats.speed = playerTag.moveSpeed;
         persistedGame.playerStats.posX = position.x;
         persistedGame.playerStats.posY = position.y;
+
+        const PlayerStats &playerStats = registry_.getComponent<PlayerStats>(players.front());
+        persistedGame.playerStats.maxHealth = playerStats.maxHealth;
+        persistedGame.playerStats.attackPower = playerStats.attackPower;
+        persistedGame.playerStats.attackSpeed = playerStats.attackSpeed;
+        persistedGame.playerStats.defense = playerStats.defense;
+        persistedGame.playerStats.speed = playerStats.moveSpeed;
+        persistedGame.playerStats.hasDash = playerStats.hasDash;
     }
 
     return persistedGame;

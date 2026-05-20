@@ -3,9 +3,11 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
 #include "game/ecs/components/animation.hpp"
+#include "game/ecs/components/boss_tag.hpp"
 #include "game/ecs/components/camera_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
+#include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "view/sprite.hpp"
 
@@ -20,7 +22,9 @@ class DebugUI {
     void renderGameSession(controller::DebugContext &debug);
     void renderEcsManagement(controller::DebugContext &debug, game::GameDebugSession &gameSession);
     void renderComponent(game::CameraTag &c);
-    void renderComponent(game::PlayerTag &c);
+    void renderComponent(game::Stats &c);
+    void renderComponent(game::PlayerStats &c);
+    void renderComponent(game::EnemyStats &c);
     void renderComponent(game::Position &c);
     void renderComponent(game::Velocity &c);
     void renderComponent(game::Animation &c);

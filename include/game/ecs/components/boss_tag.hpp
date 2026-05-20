@@ -2,6 +2,6 @@
 
 namespace game {
 
-struct PlayerTag {};
+struct BossTag {};
 
 } // namespace game

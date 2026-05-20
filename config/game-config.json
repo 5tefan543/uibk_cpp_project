@@ -4,6 +4,7 @@
     "initialCurrency": 0,
     "waveDurationSeconds": 10,
     "wavesPerStage": 2,
+    "maxEnemyCount": 1000,
     "windowConfig": {
         "width": 1920,
         "height": 1080,
