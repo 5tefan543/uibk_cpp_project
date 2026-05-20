@@ -4,38 +4,69 @@
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/map_tag.hpp"
 #include "game/ecs/components/position.hpp"
-#include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "view/sprite.hpp"
 #include <algorithm>
 #include <cmath>
 #include <random>
+#include <stdexcept>
 
 namespace game {
 
+namespace {
+
+constexpr float baseEnemyCount = 2.0f;
+constexpr float enemyCountGrowthPerWave = 1.5f;
+constexpr float enemyCountVariationRatio = 0.25f;
+
+constexpr float baseEnemyScaling = 1.0f;
+constexpr float enemyScalingGrowthPerWave = 0.15f;
+constexpr float enemyScalingVariationMean = 1.0f;
+constexpr float enemyScalingVariationStddev = 0.10f;
+constexpr float minEnemyScalingVariation = 0.8f;
+constexpr float maxEnemyScalingVariation = 1.2f;
+constexpr float bossScalingMultiplier = 4.0f;
+
+constexpr float baseEnemyHealth = 10.0f;
+constexpr float baseEnemyAttackPower = 2.0f;
+constexpr float baseEnemyAttackSpeed = 1.0f;
+constexpr float baseEnemyDefense = 0.25f;
+constexpr float baseEnemyMoveSpeed = 100.0f;
+
+const std::string enemyBaseTexturePath = "assets/characters/enemy_1_";
+const std::string bossBaseTexturePath = "assets/characters/boss_1_";
+const std::string texturePathSuffix = "right_1.png";
+
+} // namespace
+
 SpawnEnemySystem::SpawnEnemySystem() : randomEngine_(std::random_device{}()) {}
 
-void SpawnEnemySystem::update(Registry &registry, int wave, int stage, const controller::GameConfig &config)
+void SpawnEnemySystem::update(Registry &registry, int wave, const controller::GameConfig &config)
 {
-    // delete all existing enemies
-    for (Entity enemy : registry.view<EnemyTag>()) {
-        registry.destroyEntity(enemy);
-    }
+    clearEnemies(registry);
 
-    const int enemyCount = calculateEnemyCount(wave, config.maxEnemyCount);
+    const int enemyCount = generateEnemyCount(wave, config.maxEnemyCount);
     for (int i = 0; i < enemyCount; ++i) {
-        spawnEnemy(registry, wave, stage, false);
+        spawnEnemy(registry, wave, false);
     }
 
     if (isBossWave(wave, config.wavesPerStage)) {
-        spawnEnemy(registry, wave, stage, true);
+        spawnEnemy(registry, wave, true);
     }
 }
 
-int SpawnEnemySystem::calculateEnemyCount(int wave, int maxEnemyCount)
+void SpawnEnemySystem::clearEnemies(Registry &registry)
 {
-    const float averageEnemyCount = 2.0f + static_cast<float>(wave) * 1.5f;
-    const float variation = std::max(1.0f, averageEnemyCount * 0.25f);
+    for (Entity enemy : registry.view<EnemyTag>()) {
+        registry.destroyEntity(enemy);
+    }
+}
+
+int SpawnEnemySystem::generateEnemyCount(int wave, int maxEnemyCount)
+{
+    const float averageEnemyCount = baseEnemyCount + static_cast<float>(wave) * enemyCountGrowthPerWave;
+
+    const float variation = std::max(1.0f, averageEnemyCount * enemyCountVariationRatio);
 
     std::normal_distribution<float> enemyCountDistribution(averageEnemyCount, variation);
     const int sampledEnemyCount = static_cast<int>(std::round(enemyCountDistribution(randomEngine_)));
@@ -48,7 +79,7 @@ bool SpawnEnemySystem::isBossWave(int wave, int wavesPerStage) const
     return wavesPerStage > 0 && wave % wavesPerStage == 0;
 }
 
-void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, int stage, bool isBoss)
+void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, bool isBoss)
 {
     auto mapEntities = registry.view<MapTag, view::Sprite>();
 
@@ -57,43 +88,68 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, int stage, bool 
     }
 
     view::Sprite enemySprite;
-
     view::Sprite &mapSprite = registry.getComponent<view::Sprite>(mapEntities.front());
+
     std::uniform_real_distribution<float> posXDistribution(enemySprite.width, mapSprite.width - enemySprite.width);
     std::uniform_real_distribution<float> posYDistribution(enemySprite.height, mapSprite.height - enemySprite.height);
+
+    const std::string baseTexturePath = getEnemyBaseTexturePath(isBoss);
 
     Entity enemy = registry.createEntity();
     registry.addComponent<EnemyTag>(enemy, {});
     registry.addComponent<Position>(enemy, {posXDistribution(randomEngine_), posYDistribution(randomEngine_)});
-    registry.addComponent<Velocity>(enemy, {0.0f, 0.0f});
-
-    EnemyStats stats;
-    const float scaling = 1.0f + static_cast<float>(wave - 1) * 0.15f + static_cast<float>(stage - 1) * 0.35f;
-    stats.maxHealth = 10.0f * scaling;
-    stats.health = stats.maxHealth;
-    stats.attackPower = 2.0f * scaling;
-    stats.attackSpeed = 1.0f;
-    stats.defense = 0.5f * static_cast<float>(stage - 1);
-    stats.moveSpeed = 100.0f + static_cast<float>(wave - 1) * 5.0f;
-    stats.scoreReward = 5 + wave;
-
-    Animation animation;
+    registry.addComponent<Velocity>(enemy, {});
+    registry.addComponent<EnemyStats>(enemy, createEnemyStats(wave, isBoss));
+    registry.addComponent<Animation>(enemy, {.baseTexturePath = baseTexturePath});
+    registry.addComponent<view::Sprite>(enemy, {.imagePath = baseTexturePath + texturePathSuffix});
 
     if (isBoss) {
         registry.addComponent<BossTag>(enemy, {});
-        stats.maxHealth *= 4.0f;
-        stats.health = stats.maxHealth;
-        stats.attackPower *= 2.0f;
-        stats.defense += 2.0f;
-        stats.scoreReward *= 5;
-        animation.baseTexturePath = "assets/characters/boss_1_";
-    } else {
-        animation.baseTexturePath = "assets/characters/enemy_1_";
+    }
+}
+
+std::string SpawnEnemySystem::getEnemyBaseTexturePath(bool isBoss) const
+{
+    if (isBoss) {
+        return bossBaseTexturePath;
     }
 
-    registry.addComponent<EnemyStats>(enemy, stats);
-    registry.addComponent<Animation>(enemy, animation);
-    registry.addComponent<view::Sprite>(enemy, {.imagePath = animation.baseTexturePath + "right_1.png"});
+    return enemyBaseTexturePath;
+}
+
+EnemyStats SpawnEnemySystem::createEnemyStats(int wave, bool isBoss)
+{
+    const float scaling = generateEnemyScaling(wave, isBoss);
+
+    EnemyStats stats;
+    stats.maxHealth = baseEnemyHealth * scaling;
+    stats.health = stats.maxHealth;
+    stats.attackPower = baseEnemyAttackPower * scaling;
+    stats.attackSpeed = baseEnemyAttackSpeed * scaling;
+    stats.defense = baseEnemyDefense * scaling;
+    stats.moveSpeed = baseEnemyMoveSpeed * scaling;
+
+    stats.scoreReward = static_cast<int>(std::round(scaling));
+
+    return stats;
+}
+
+float SpawnEnemySystem::generateEnemyScaling(int wave, bool isBoss)
+{
+    const float waveScaling = baseEnemyScaling + static_cast<float>(wave - 1) * enemyScalingGrowthPerWave;
+
+    std::normal_distribution<float> variationDistribution(enemyScalingVariationMean, enemyScalingVariationStddev);
+
+    const float variation =
+        std::clamp(variationDistribution(randomEngine_), minEnemyScalingVariation, maxEnemyScalingVariation);
+
+    float scaling = waveScaling * variation;
+
+    if (isBoss) {
+        scaling *= bossScalingMultiplier;
+    }
+
+    return scaling;
 }
 
 } // namespace game

@@ -122,7 +122,7 @@ void Game::initWave(int waveNumber)
         }
     }
 
-    spawnEnemySystem_.update(registry_, wave_, stage_, config_);
+    spawnEnemySystem_.update(registry_, wave_, config_);
 
     std::cout << "Starting wave " << wave_ << " of stage " << stage_ << std::endl;
 }
