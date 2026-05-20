@@ -1,11 +1,10 @@
 #pragma once
 
+#include "shapes/rectangle.hpp"
+
 namespace game {
 struct HitBox {
-    float width;
-    float height;
-    float offsetX;
-    float offsetY;
+    Rectangle<float> rect;
     bool isActive;
 };
 } // namespace game

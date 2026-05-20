@@ -136,14 +136,10 @@ void Game::initEnemies()
         };
         registry_.addComponent<Animation>(enemy, animation);
         registry_.addComponent<view::Sprite>(enemy, {.imagePath = animation.baseTexturePath + "right_1.png"});
-        registry_.addComponent<HitBox>(enemy,
-                                       {
-                                           .width = 32.0f * 4,
-                                           .height = 32.0f * 4,
-                                           .offsetX = 0 * 4, // Assuming the hitbox is centered on the entity position
-                                           .offsetY = 0 * 4, // Assuming the hitbox is centered on the entity position
-                                           .isActive = true,
-                                       });
+        registry_.addComponent<HitBox>(enemy, {
+                                                  .rect = {0.0f, 0.0f, 32.0f * 4, 32.0f * 4},
+                                                  .isActive = true,
+                                              });
     }
 }
 
@@ -251,6 +247,7 @@ void Game::updateSystems(const controller::InputState &input, float dt)
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, dt);
     cameraSystem_.update(registry_);
+    collisionDetectionSystem_.update(registry_);
 }
 
 bool Game::isWaveFinished()
@@ -303,14 +300,15 @@ void Game::updateView(view::View &view)
         for (auto entity : registry_.view<Position, HitBox>()) {
             const Position &position = registry_.getComponent<Position>(entity);
             const HitBox &hitbox = registry_.getComponent<HitBox>(entity);
-
+            std::cerr << "Entity " << entity << " has hitbox: x=" << hitbox.rect.x << " y=" << hitbox.rect.y
+                      << " width=" << hitbox.rect.width << " height=" << hitbox.rect.height << std::endl;
             view::Rectangle hitboxRect = {
-                .width = hitbox.width,
-                .height = hitbox.height,
-                .gridX = position.x + hitbox.offsetX,
-                .gridY = position.y + hitbox.offsetY,
+                .width = hitbox.rect.width,
+                .height = hitbox.rect.height,
+                .gridX = position.x + hitbox.rect.x,
+                .gridY = position.y + hitbox.rect.y,
                 .borderColor = {255, 0, 0},
-                .thickness = 2.0f,
+                .thickness = 10.0f,
             };
 
             view.nodes.push_back({view::ViewMode::FixedToWorld, hitboxRect});
