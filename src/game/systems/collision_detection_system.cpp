@@ -8,14 +8,11 @@
 #include "game/ecs/registry.hpp"
 #include "view/sprite.hpp"
 
-#include <iostream>
-
 namespace game {
 
 void CollisionDetectionSystem::updateHitBoxPositions(Registry &registry)
 {
     auto entitiesWithHitBoxes = registry.view<HitBox, view::Sprite, Position>();
-    std::cout << "Size: " << entitiesWithHitBoxes.size() << std::endl;
     for (size_t i = 0; i < entitiesWithHitBoxes.size(); ++i) {
 
         HitBox &hitBox = registry.getComponent<HitBox>(entitiesWithHitBoxes[i]);
@@ -75,13 +72,9 @@ void CollisionDetectionSystem::update(Registry &registry)
 
                 // Example collision handling logic
                 if ((isEntityAPlayer && isEntityBEnemy) || (isEntityAEnemy && isEntityBPlayer)) {
-                    std::cout << "Collision detected between player and enemy!" << std::endl;
-                    // Apply damage or other effects here
                 }
 
                 if ((isEntityAProjectile && isEntityBEnemy) || (isEntityAEnemy && isEntityBProjectile)) {
-                    std::cout << "Collision detected between projectile and enemy!" << std::endl;
-                    // Apply damage or other effects here
                 }
             }
         }

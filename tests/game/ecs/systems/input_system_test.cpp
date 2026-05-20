@@ -1,5 +1,5 @@
 #include "controller/input/input_state.hpp"
-#include "game/ecs/components/player_tag.hpp"
+#include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/input_system.hpp"
@@ -14,7 +14,9 @@ TEST_CASE_METHOD(TestFixture, "InputSystem sets player velocity from input")
     game::InputSystem system;
 
     game::Entity player = registry.createEntity();
-    registry.addComponent<game::PlayerTag>(player, {.moveSpeed = 200.0f});
+    game::PlayerStats playerStats;
+    playerStats.moveSpeed = 200.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
     registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
 
     controller::InputState input;
@@ -37,7 +39,9 @@ TEST_CASE_METHOD(TestFixture, "InputSystem resets old velocity before applying n
     game::InputSystem system;
 
     game::Entity player = registry.createEntity();
-    registry.addComponent<game::PlayerTag>(player, {.moveSpeed = 200.0f});
+    game::PlayerStats playerStats;
+    playerStats.moveSpeed = 200.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
     registry.addComponent<game::Velocity>(player, {999.0f, 999.0f});
 
     controller::InputState input;
@@ -51,7 +55,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem resets old velocity before applying n
     REQUIRE(velocity.dy == 0.0f);
 }
 
-TEST_CASE_METHOD(TestFixture, "InputSystem does not update entity without PlayerTag")
+TEST_CASE_METHOD(TestFixture, "InputSystem does not update entity without PlayerStats")
 {
     // ARRANGE
     game::Registry registry;
@@ -80,7 +84,9 @@ TEST_CASE_METHOD(TestFixture, "InputSystem opposing directions cancel each other
     game::InputSystem system;
 
     game::Entity player = registry.createEntity();
-    registry.addComponent<game::PlayerTag>(player, {.moveSpeed = 200.0f});
+    game::PlayerStats playerStats;
+    playerStats.moveSpeed = 200.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
     registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
 
     controller::InputState input;

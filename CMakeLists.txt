@@ -33,6 +33,7 @@ add_library(roguelike_game
   src/game/systems/animation_system.cpp
   src/game/systems/camera_system.cpp
   src/game/systems/debug_selection_system.cpp
+  src/game/systems/spawn_enemy_system.cpp
   src/game/systems/collision_detection_system.cpp
 )
 

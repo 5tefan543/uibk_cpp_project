@@ -162,8 +162,11 @@ void DebugUI::renderEcsManagement(controller::DebugContext &debug, game::GameDeb
                 if (gameSession.registry.hasComponent<game::Velocity>(entity)) {
                     renderComponent(gameSession.registry.getComponent<game::Velocity>(entity));
                 }
-                if (gameSession.registry.hasComponent<game::PlayerTag>(entity)) {
-                    renderComponent(gameSession.registry.getComponent<game::PlayerTag>(entity));
+                if (gameSession.registry.hasComponent<game::PlayerStats>(entity)) {
+                    renderComponent(gameSession.registry.getComponent<game::PlayerStats>(entity));
+                }
+                if (gameSession.registry.hasComponent<game::EnemyStats>(entity)) {
+                    renderComponent(gameSession.registry.getComponent<game::EnemyStats>(entity));
                 }
                 if (gameSession.registry.hasComponent<game::Animation>(entity)) {
                     renderComponent(gameSession.registry.getComponent<game::Animation>(entity));
@@ -190,12 +193,41 @@ void DebugUI::renderComponent(game::CameraTag &c)
     ImGui::PopID();
 }
 
-void DebugUI::renderComponent(game::PlayerTag &c)
+void DebugUI::renderComponent(game::Stats &c)
 {
-    ImGui::PushID("PlayerTagComponent");
+    ImGui::PushID("StatsComponent");
 
-    ImGui::SeparatorText("PlayerTag");
+    ImGui::SeparatorText("Stats");
+    ImGui::InputFloat("maxHealth", &c.maxHealth);
+    ImGui::InputFloat("health", &c.health);
+    ImGui::InputFloat("attackPower", &c.attackPower);
+    ImGui::InputFloat("attackSpeed", &c.attackSpeed);
+    ImGui::InputFloat("defense", &c.defense);
     ImGui::InputFloat("moveSpeed", &c.moveSpeed);
+
+    ImGui::PopID();
+}
+
+void DebugUI::renderComponent(game::PlayerStats &c)
+{
+    renderComponent(static_cast<game::Stats &>(c));
+
+    ImGui::PushID("PlayerStatsComponent");
+
+    ImGui::SeparatorText("PlayerStats");
+    ImGui::Checkbox("hasDash", &c.hasDash);
+
+    ImGui::PopID();
+}
+
+void DebugUI::renderComponent(game::EnemyStats &c)
+{
+    renderComponent(static_cast<game::Stats &>(c));
+
+    ImGui::PushID("EnemyStatsComponent");
+
+    ImGui::SeparatorText("EnemyStats");
+    ImGui::InputInt("scoreReward", &c.scoreReward);
 
     ImGui::PopID();
 }
