@@ -27,7 +27,6 @@ class Game {
     MovementSystem movementSystem_;
     DebugSelectionSystem debugSelectionSystem_;
 
-    bool isInitialized_ = false;
     int stage_ = 1;
     int wave_ = 1;
     int score_ = 0;
@@ -66,7 +65,6 @@ class Game {
     ~Game();
 
     GameDebugSession &getDebugSession();
-    void loadFromPersistedGame(const controller::PersistedGame &persistedGame);
     controller::PersistedGame getPersistedGame() const;
     controller::StateTransitionAction update(const controller::InputState &input, float dt);
     bool isGameOver();
