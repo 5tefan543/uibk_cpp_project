@@ -71,6 +71,17 @@ void Renderer::renderViewElements(sf::RenderWindow &window, const std::vector<vi
     }
 }
 
+void Renderer::renderElement(sf::RenderWindow &window, const view::Rectangle &rectangle)
+{
+    sf::RectangleShape rect;
+    rect.setSize({rectangle.width, rectangle.height});
+    rect.setPosition({rectangle.gridX, rectangle.gridY});
+    rect.setOutlineColor(toSfColor(rectangle.borderColor));
+    rect.setOutlineThickness(rectangle.thickness);
+    rect.setFillColor(sf::Color::Transparent);
+    window.draw(rect);
+}
+
 void Renderer::renderElement(sf::RenderWindow &window, const view::Card &card)
 {
     // Render card first

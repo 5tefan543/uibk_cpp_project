@@ -5,6 +5,7 @@
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/camera_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/map_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
@@ -135,6 +136,14 @@ void Game::initEnemies()
         };
         registry_.addComponent<Animation>(enemy, animation);
         registry_.addComponent<view::Sprite>(enemy, {.imagePath = animation.baseTexturePath + "right_1.png"});
+        registry_.addComponent<HitBox>(enemy,
+                                       {
+                                           .width = 32.0f * 4,
+                                           .height = 32.0f * 4,
+                                           .offsetX = 0 * 4, // Assuming the hitbox is centered on the entity position
+                                           .offsetY = 0 * 4, // Assuming the hitbox is centered on the entity position
+                                           .isActive = true,
+                                       });
     }
 }
 
@@ -287,6 +296,25 @@ void Game::updateView(view::View &view)
         sprite.y = position.y;
 
         view.nodes.push_back({view::ViewMode::FixedToWorld, sprite});
+    }
+
+    controller::DebugContext &debug = controller::DebugContext::get();
+    if (debug.active && debug.gameSettings.showHitboxes) {
+        for (auto entity : registry_.view<Position, HitBox>()) {
+            const Position &position = registry_.getComponent<Position>(entity);
+            const HitBox &hitbox = registry_.getComponent<HitBox>(entity);
+
+            view::Rectangle hitboxRect = {
+                .width = hitbox.width,
+                .height = hitbox.height,
+                .gridX = position.x + hitbox.offsetX,
+                .gridY = position.y + hitbox.offsetY,
+                .borderColor = {255, 0, 0},
+                .thickness = 2.0f,
+            };
+
+            view.nodes.push_back({view::ViewMode::FixedToWorld, hitboxRect});
+        }
     }
 
     stageWaveInfo_ = {

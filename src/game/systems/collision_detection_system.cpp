@@ -3,7 +3,7 @@
 #include "game/ecs/systems/collision_detection_system.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
-#include "game/ecs/components/map.hpp"
+#include "game/ecs/components/map_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/projectile.hpp"
 #include "game/ecs/registry.hpp"
@@ -19,7 +19,7 @@ bool CollisionDetectionSystem::checkCollision(const Entity &entityA, const Entit
         return false;
     }
 
-    return hitBoxA.rect.(hitBoxB.rect);
+    return hitBoxA.rect.intersects(hitBoxB.rect);
 }
 
 void CollisionDetectionSystem::update(Registry &registry)
@@ -58,3 +58,4 @@ void CollisionDetectionSystem::update(Registry &registry)
         }
     }
 }
+} // namespace game

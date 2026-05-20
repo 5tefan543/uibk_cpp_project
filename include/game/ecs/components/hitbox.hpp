@@ -1,9 +1,11 @@
 #pragma once
-#include "SFML/Graphics.hpp"
 
 namespace game {
 struct HitBox {
-    sf::FloatRect rect;
+    float width;
+    float height;
+    float offsetX;
+    float offsetY;
     bool isActive;
 };
-}
+} // namespace game
