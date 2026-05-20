@@ -7,7 +7,7 @@ namespace game {
 
 void InputSystem::update(Registry &registry, const controller::InputState &input)
 {
-    for (auto entity : registry.view<Velocity, PlayerStats, PlayerTag>()) {
+    for (auto entity : registry.view<Velocity, PlayerStats>()) {
         Velocity &velocity = registry.getComponent<Velocity>(entity);
         PlayerStats &playerStats = registry.getComponent<PlayerStats>(entity);
 
