@@ -11,8 +11,6 @@
 #include "game/ecs/components/velocity.hpp"
 #include "view/sprite.hpp"
 #include <iostream>
-#include <random>
-#include <view/sprite.hpp>
 #include <view/text.hpp>
 
 namespace game {
@@ -89,11 +87,6 @@ void Game::initPlayer()
 
 void Game::initWave(int waveNumber)
 {
-    // delete all existing enemies
-    for (Entity enemy : registry_.view<EnemyTag>()) {
-        registry_.destroyEntity(enemy);
-    }
-
     currentWaveDuration_ = 0.0f;
     wave_ = waveNumber;
     debugSession_.wave = waveNumber;
@@ -109,33 +102,9 @@ void Game::initWave(int waveNumber)
         }
     }
 
-    // spawn enemies for the new wave
-    initEnemies();
+    spawnEnemySystem_.update(registry_);
 
     std::cout << "Starting wave " << wave_ << " of stage " << stage_ << std::endl;
-}
-
-void Game::initEnemies()
-{
-    // TODO Real spawning logic based on wavecount here.
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> posDist(200.0f, 800.0f);
-    std::uniform_real_distribution<> velDist(0.0f, 0.0f);
-
-    // Spawn 3 enemies at different positions
-    for (int i = 0; i < 3; ++i) {
-        Entity enemy = registry_.createEntity();
-        registry_.addComponent<EnemyTag>(enemy, {});
-        registry_.addComponent<Position>(enemy, {static_cast<float>(posDist(gen)), static_cast<float>(posDist(gen))});
-        registry_.addComponent<Velocity>(enemy, {static_cast<float>(velDist(gen)), static_cast<float>(velDist(gen))});
-
-        Animation animation = {
-            .baseTexturePath = "assets/characters/enemy_1_",
-        };
-        registry_.addComponent<Animation>(enemy, animation);
-        registry_.addComponent<view::Sprite>(enemy, {.imagePath = animation.baseTexturePath + "right_1.png"});
-    }
 }
 
 GameDebugSession &Game::getDebugSession()

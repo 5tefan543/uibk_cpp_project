@@ -10,6 +10,7 @@
 #include "game/ecs/systems/debug_selection_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
+#include "game/ecs/systems/spawn_enemy_system.hpp"
 #include "view/view.hpp"
 
 namespace game {
@@ -26,6 +27,7 @@ class Game {
     InputSystem inputSystem_;
     MovementSystem movementSystem_;
     DebugSelectionSystem debugSelectionSystem_;
+    SpawnEnemySystem spawnEnemySystem_;
 
     int stage_ = 1;
     int wave_ = 1;
@@ -51,7 +53,6 @@ class Game {
     void initCamera();
     void initPlayer();
     void initWave(int waveNumber);
-    void initEnemies();
     void processDebugSession(float dt);
     void updateSystems(const controller::InputState &input, float dt);
     bool isWaveFinished();
