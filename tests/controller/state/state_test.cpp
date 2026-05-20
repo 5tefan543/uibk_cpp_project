@@ -2,7 +2,6 @@
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state.hpp"
 #include "shared/test_fixture.hpp"
-#include "shared/util.hpp"
 #include <catch2/catch_test_macros.hpp>
 
 using namespace controller;

@@ -37,14 +37,7 @@ void AnimationSystem::update(Registry &registry, float dt)
         // Update sprite image path based on current animation state
         std::string directionStr = (animation.direction == Direction::Left) ? "left" : "right";
         int frameNum = animation.currentFrame + 1; // Frames are 1-indexed in filenames
-
-        if (registry.hasComponent<EnemyTag>(entity)) {
-            sprite.imagePath = animation.baseTexturePath + directionStr + "_" + std::to_string(frameNum) + ".png";
-        }
-
-        if (registry.hasComponent<PlayerTag>(entity)) {
-            sprite.imagePath = animation.baseTexturePath + directionStr + "_" + std::to_string(frameNum) + ".png";
-        }
+        sprite.imagePath = animation.baseTexturePath + directionStr + "_" + std::to_string(frameNum) + ".png";
     }
 }
 

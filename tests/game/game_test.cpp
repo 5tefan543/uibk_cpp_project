@@ -6,7 +6,6 @@
 #include "game/ecs/components/position.hpp"
 #include "game/game.hpp"
 #include "shared/test_fixture.hpp"
-#include "shared/util.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -311,14 +310,12 @@ TEST_CASE_METHOD(TestFixture, "Game getView returns correct view")
 
 TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted values")
 {
-    game::Game game;
-
     controller::PersistedGame persistedGame;
     persistedGame.wave = 5;
     persistedGame.currency = 1234;
     persistedGame.playerStats.speed = 333.0f;
 
-    game.loadFromPersistedGame(persistedGame);
+    game::Game game(persistedGame);
 
     const controller::PersistedGame snapshot = game.getPersistedGame();
     REQUIRE(snapshot.wave == 5);

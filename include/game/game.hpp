@@ -46,7 +46,8 @@ class Game {
     // all sprites in a deque inside Game.
     view::Text stageWaveInfo_;
 
-    void initialize();
+    explicit Game(int wave);
+
     void initMap();
     void initCamera();
     void initPlayer();
@@ -59,7 +60,9 @@ class Game {
 
   public:
     Game();
+    Game(const controller::PersistedGame &persistedGame);
     Game(const Game &) = delete;
+    Game(Game &&) = delete;
     ~Game();
 
     GameDebugSession &getDebugSession();

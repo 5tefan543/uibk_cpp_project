@@ -17,12 +17,35 @@
 
 namespace game {
 
-Game::Game()
+Game::Game(int wave)
 {
-    std::cout << "Game constructed" << std::endl;
     config_ = controller::PersistenceManager::getConfig();
     initMap();
     initCamera();
+    initPlayer();
+    initWave(wave);
+}
+
+Game::Game() : Game(1)
+{
+    std::cout << "New game constructed" << std::endl;
+}
+
+Game::Game(const controller::PersistedGame &persistedGame) : Game(persistedGame.wave)
+{
+    std::cout << "Game constructed from persisted game" << std::endl;
+
+    score_ = persistedGame.score;
+    currency_ = persistedGame.currency;
+
+    auto players = registry_.view<PlayerTag>();
+    if (!players.empty()) {
+        PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
+        Position &position = registry_.getComponent<Position>(players.front());
+        playerTag.moveSpeed = persistedGame.playerStats.speed;
+        position.x = persistedGame.playerStats.posX;
+        position.y = persistedGame.playerStats.posY;
+    }
 }
 
 Game::~Game()
@@ -36,11 +59,12 @@ void Game::initMap()
     Entity map = registry_.createEntity();
     registry_.addComponent<MapTag>(map, {});
     registry_.addComponent<Position>(map, {0.0f, 0.0f});
-    registry_.addComponent<view::Sprite>(map, {
-                                                  .imagePath = "assets/maps/map.bmp",
-                                                  .width = 1920.0f * 2.0f,
-                                                  .height = 1080.0f * 2.0f,
-                                              });
+    view::Sprite mapSprite = {
+        .imagePath = "assets/maps/map.bmp",
+        .width = 1920.0f * 2.0f,
+        .height = 1080.0f * 2.0f,
+    };
+    registry_.addComponent<view::Sprite>(map, mapSprite);
 }
 
 void Game::initCamera()
@@ -50,97 +74,17 @@ void Game::initCamera()
     registry_.addComponent<Position>(camera, {0.0f, 0.0f});
 }
 
-GameDebugSession &Game::getDebugSession()
-{
-    return debugSession_;
-}
-
-void Game::loadFromPersistedGame(const controller::PersistedGame &persistedGame)
-{
-    wave_ = persistedGame.wave;
-    score_ = persistedGame.score;
-    currency_ = persistedGame.currency;
-
-    debugSession_.wave = wave_;
-
-    auto players = registry_.view<PlayerTag>();
-    if (!players.empty()) {
-        PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
-        Position &position = registry_.getComponent<Position>(players.front());
-        playerTag.moveSpeed = persistedGame.playerStats.speed;
-        position.x = persistedGame.playerStats.posX;
-        position.y = persistedGame.playerStats.posY;
-    }
-}
-
-controller::PersistedGame Game::getPersistedGame() const
-{
-    controller::PersistedGame persistedGame;
-    persistedGame.wave = wave_;
-    persistedGame.score = score_;
-    persistedGame.currency = currency_;
-
-    auto players = registry_.view<PlayerTag>();
-    if (!players.empty()) {
-        const PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
-        const Position &position = registry_.getComponent<Position>(players.front());
-        persistedGame.playerStats.speed = playerTag.moveSpeed;
-        persistedGame.playerStats.posX = position.x;
-        persistedGame.playerStats.posY = position.y;
-    }
-
-    return persistedGame;
-}
-
-controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
-{
-    initialize();
-    processDebugSession(dt);
-    updateSystems(input, dt);
-
-    // update clock
-    currentWaveDuration_ += dt;
-
-    if (isWaveFinished()) {
-        addScore(config_.waveDurationSeconds - (int)currentWaveDuration_);
-
-        bool shouldOpenStore = (wave_ % config_.wavesPerStage) == 0;
-        initWave(++wave_);
-
-        if (shouldOpenStore) {
-            return controller::StateTransitionAction::PushProgressionStore;
-        }
-
-        return controller::StateTransitionAction::None;
-    }
-
-    if (isGameOver()) {
-        controller::PersistenceManager::deleteSave();
-        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
-    }
-
-    return controller::StateTransitionAction::None;
-}
-
-void Game::initialize()
-{
-    if (!isInitialized_) {
-        isInitialized_ = true;
-        initPlayer();
-        initWave(wave_);
-    }
-}
-
 void Game::initPlayer()
 {
     Entity player = registry_.createEntity();
     registry_.addComponent<PlayerTag>(player, {});
     registry_.addComponent<Position>(player, {100.0f, 100.0f});
     registry_.addComponent<Velocity>(player, {0.0f, 0.0f});
-    registry_.addComponent<view::Sprite>(player, {});
-    registry_.addComponent<Animation>(player, {
-                                                  .baseTexturePath = "assets/characters/character_",
-                                              });
+    Animation playerAnimation = {
+        .baseTexturePath = "assets/characters/character_",
+    };
+    registry_.addComponent<Animation>(player, playerAnimation);
+    registry_.addComponent<view::Sprite>(player, {.imagePath = playerAnimation.baseTexturePath + "right_1.png"});
 }
 
 void Game::initWave(int waveNumber)
@@ -177,7 +121,7 @@ void Game::initEnemies()
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> posDist(200.0f, 800.0f);
-    std::uniform_real_distribution<> velDist(0.0f, 10.0f);
+    std::uniform_real_distribution<> velDist(0.0f, 0.0f);
 
     // Spawn 3 enemies at different positions
     for (int i = 0; i < 3; ++i) {
@@ -185,11 +129,66 @@ void Game::initEnemies()
         registry_.addComponent<EnemyTag>(enemy, {});
         registry_.addComponent<Position>(enemy, {static_cast<float>(posDist(gen)), static_cast<float>(posDist(gen))});
         registry_.addComponent<Velocity>(enemy, {static_cast<float>(velDist(gen)), static_cast<float>(velDist(gen))});
-        registry_.addComponent<view::Sprite>(enemy, {});
-        registry_.addComponent<Animation>(enemy, {
-                                                     .baseTexturePath = "assets/characters/enemy_1_",
-                                                 });
+
+        Animation animation = {
+            .baseTexturePath = "assets/characters/enemy_1_",
+        };
+        registry_.addComponent<Animation>(enemy, animation);
+        registry_.addComponent<view::Sprite>(enemy, {.imagePath = animation.baseTexturePath + "right_1.png"});
     }
+}
+
+GameDebugSession &Game::getDebugSession()
+{
+    return debugSession_;
+}
+
+controller::PersistedGame Game::getPersistedGame() const
+{
+    controller::PersistedGame persistedGame;
+    persistedGame.wave = wave_;
+    persistedGame.score = score_;
+    persistedGame.currency = currency_;
+
+    auto players = registry_.view<PlayerTag>();
+    if (!players.empty()) {
+        const PlayerTag &playerTag = registry_.getComponent<PlayerTag>(players.front());
+        const Position &position = registry_.getComponent<Position>(players.front());
+        persistedGame.playerStats.speed = playerTag.moveSpeed;
+        persistedGame.playerStats.posX = position.x;
+        persistedGame.playerStats.posY = position.y;
+    }
+
+    return persistedGame;
+}
+
+controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
+{
+    processDebugSession(dt);
+    updateSystems(input, dt);
+
+    // update clock
+    currentWaveDuration_ += dt;
+
+    if (isWaveFinished()) {
+        addScore(config_.waveDurationSeconds - (int)currentWaveDuration_);
+
+        bool shouldOpenStore = (wave_ % config_.wavesPerStage) == 0;
+        initWave(++wave_);
+
+        if (shouldOpenStore) {
+            return controller::StateTransitionAction::PushProgressionStore;
+        }
+
+        return controller::StateTransitionAction::None;
+    }
+
+    if (isGameOver()) {
+        controller::PersistenceManager::deleteSave();
+        return controller::StateTransitionAction::ReplaceCurrentWithGameOverMenu;
+    }
+
+    return controller::StateTransitionAction::None;
 }
 
 void Game::processDebugSession(float dt)
