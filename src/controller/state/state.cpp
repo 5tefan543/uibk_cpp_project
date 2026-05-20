@@ -242,7 +242,7 @@ std::string MenuState::toString() const
 
 std::unique_ptr<GameplayState> GameplayState::createNewGameplay()
 {
-    return std::make_unique<GameplayState>();
+    return std::unique_ptr<GameplayState>(new GameplayState());
 }
 
 std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
@@ -252,13 +252,19 @@ std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
         persistedGame = PersistenceManager::loadGame();
     }
 
-    auto state = std::make_unique<GameplayState>();
     if (persistedGame.has_value()) {
-        state->game.loadFromPersistedGame(*persistedGame);
-        state->loadedFromSave_ = true;
+        return std::unique_ptr<GameplayState>(new GameplayState(persistedGame.value()));
     }
 
-    return state;
+    std::cout << "No saved game found, starting new game instead." << std::endl;
+    return createNewGameplay();
+}
+
+GameplayState::GameplayState() : game() {}
+
+GameplayState::GameplayState(const PersistedGame &persistedGame) : game(persistedGame)
+{
+    loadedFromSave_ = true;
 }
 
 bool GameplayState::isLoadedFromPersistedGame() const

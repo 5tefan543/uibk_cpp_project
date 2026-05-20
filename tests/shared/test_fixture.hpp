@@ -5,6 +5,7 @@
 #include "controller/persistence/serializer.hpp"
 #include "shared/test_filesystem.hpp"
 
+#include "util.hpp"
 #include <filesystem>
 #include <stdexcept>
 

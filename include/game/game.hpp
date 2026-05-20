@@ -28,7 +28,7 @@ class Game {
     DebugSelectionSystem debugSelectionSystem_;
 
     int stage_ = 1;
-    int wave_ = 0;
+    int wave_ = 1;
     int score_ = 0;
     int currency_ = 0;
     // We need to store view::Text as a member because ViewElement stores a reference to it,
@@ -45,26 +45,30 @@ class Game {
     // all sprites in a deque inside Game.
     view::Text stageWaveInfo_;
 
+    explicit Game(int wave);
+
+    void initMap();
+    void initCamera();
     void initPlayer();
-    void initStage();
+    void initWave(int waveNumber);
     void initEnemies();
     void processDebugSession(float dt);
     void updateSystems(const controller::InputState &input, float dt);
-    void initWave(int waveNumber);
-    void addScore(int score);
     bool isWaveFinished();
+    void addScore(int score);
 
   public:
     Game();
+    Game(const controller::PersistedGame &persistedGame);
     Game(const Game &) = delete;
+    Game(Game &&) = delete;
     ~Game();
 
     GameDebugSession &getDebugSession();
-    void updateView(view::View &view);
-    void loadFromPersistedGame(const controller::PersistedGame &persistedGame);
     controller::PersistedGame getPersistedGame() const;
     controller::StateTransitionAction update(const controller::InputState &input, float dt);
     bool isGameOver();
+    void updateView(view::View &view);
 };
 
 } // namespace game

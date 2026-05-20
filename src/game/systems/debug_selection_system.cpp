@@ -1,7 +1,7 @@
 #include "game/ecs/systems/debug_selection_system.hpp"
-#include "game/ecs/components/map.hpp"
+#include "game/ecs/components/map_tag.hpp"
 #include "game/ecs/components/position.hpp"
-#include "game/ecs/components/sprite.hpp"
+#include "view/sprite.hpp"
 
 namespace game {
 
@@ -28,12 +28,8 @@ void DebugSelectionSystem::clearSelection(Registry &registry, GameDebugSession &
 
     Entity selectedEntity = debugSession.selectedEntity.value();
 
-    if (registry.hasComponent<Map>(selectedEntity)) {
-        registry.getComponent<Map>(selectedEntity).isSelected = false;
-    }
-
-    if (registry.hasComponent<Sprite>(selectedEntity)) {
-        registry.getComponent<Sprite>(selectedEntity).isSelected = false;
+    if (registry.hasComponent<view::Sprite>(selectedEntity)) {
+        registry.getComponent<view::Sprite>(selectedEntity).isSelected = false;
     }
 }
 
@@ -45,21 +41,25 @@ bool contains(float mouseX, float mouseY, float x, float y, float width, float h
 std::optional<Entity> DebugSelectionSystem::getEntityAtMousePosition(Registry &registry,
                                                                      const controller::InputState &input)
 {
-    for (auto entity : registry.view<Position, Sprite>()) {
+    std::optional<Entity> selectedMap = std::nullopt;
+
+    for (auto entity : registry.view<Position, view::Sprite>()) {
         const Position &position = registry.getComponent<Position>(entity);
-        const Sprite &sprite = registry.getComponent<Sprite>(entity);
+        const view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
 
         if (contains(input.mouseGridX, input.mouseGridY, position.x, position.y, sprite.width, sprite.height)) {
+
+            if (registry.hasComponent<MapTag>(entity)) {
+                selectedMap = entity;
+                continue;
+            }
             return entity;
         }
     }
 
-    for (auto entity : registry.view<Map>()) {
-        const Map &map = registry.getComponent<Map>(entity);
-
-        if (contains(input.mouseGridX, input.mouseGridY, map.x, map.y, map.width, map.height)) {
-            return entity;
-        }
+    // only return map if no other entity is selected
+    if (selectedMap.has_value()) {
+        return selectedMap.value();
     }
 
     return std::nullopt;
@@ -71,12 +71,8 @@ void DebugSelectionSystem::updateSelection(Registry &registry, GameDebugSession 
         return debugSession.selectedEntity.has_value() && debugSession.selectedEntity.value() == entity;
     };
 
-    for (auto entity : registry.view<Map>()) {
-        registry.getComponent<Map>(entity).isSelected = isSelected(entity);
-    }
-
-    for (auto entity : registry.view<Sprite>()) {
-        registry.getComponent<Sprite>(entity).isSelected = isSelected(entity);
+    for (auto entity : registry.view<view::Sprite>()) {
+        registry.getComponent<view::Sprite>(entity).isSelected = isSelected(entity);
     }
 }
 

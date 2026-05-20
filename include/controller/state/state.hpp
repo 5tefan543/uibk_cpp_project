@@ -47,6 +47,9 @@ class MenuState : public BaseState {
 class GameplayState : public BaseState {
     bool loadedFromSave_ = false;
 
+    GameplayState();
+    explicit GameplayState(const PersistedGame &persistedGame);
+
   public:
     game::Game game;
 
