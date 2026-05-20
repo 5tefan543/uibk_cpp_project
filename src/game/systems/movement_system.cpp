@@ -1,5 +1,4 @@
 #include "game/ecs/systems/movement_system.hpp"
-
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/velocity.hpp"
 

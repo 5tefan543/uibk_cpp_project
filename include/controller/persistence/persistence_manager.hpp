@@ -22,7 +22,7 @@ class PersistenceManager {
     static std::vector<LeaderboardEntry> getTopNLeaderboardEntries(int topN);
 
     static bool saveConfig(const GameConfig &config);
-    static GameConfig loadConfig();
+    static GameConfig getConfig();
     static void resetConfig();
 };
 

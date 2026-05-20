@@ -1,5 +1,4 @@
 #include "ui/ui.hpp"
-
 #include "view/grid.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>

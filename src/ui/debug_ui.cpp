@@ -64,6 +64,8 @@ void DebugUI::renderGameSession(controller::DebugContext &debug)
 
         if (ImGui::CollapsingHeader("Game Session", ImGuiTreeNodeFlags_DefaultOpen)) {
 
+            int wavesPerStage = controller::PersistenceManager::getConfig().wavesPerStage;
+
             ImGui::SeparatorText("Stage / Wave");
             const bool didStageChange = ImGui::InputInt("Stage", &gameSession.stage);
             const bool didWaveChange = ImGui::InputInt("Wave", &gameSession.wave);
@@ -74,17 +76,19 @@ void DebugUI::renderGameSession(controller::DebugContext &debug)
 
             if (didStageChange) {
                 // move to first wave of the selected stage
-                gameSession.wave = (gameSession.stage - 1) * 5 + 1;
+                gameSession.wave = (gameSession.stage - 1) * wavesPerStage + 1;
             }
 
             if (didWaveChange) {
                 // derive stage from wave
-                gameSession.stage = ((gameSession.wave - 1) / 5) + 1;
+                gameSession.stage = ((gameSession.wave - 1) / wavesPerStage) + 1;
             }
 
             if (ImGui::Button("Reload Stage/Wave") && debug.gameSession) {
                 debug.gameSession->isStageWaveReloadRequested = true;
             }
+
+            ImGui::Checkbox("Pause Clock", &debug.gameSession->isClockPaused);
 
             ImGui::SeparatorText("Persistence Management");
             if (ImGui::Button("Save Game")) {
@@ -149,6 +153,9 @@ void DebugUI::renderEcsManagement(controller::DebugContext &debug, game::GameDeb
             if (gameSession.registry.isEntityAlive(entity)) {
                 ImGui::Text("Selected entity: %u", entity);
 
+                if (gameSession.registry.hasComponent<game::CameraTag>(entity)) {
+                    renderComponent(gameSession.registry.getComponent<game::CameraTag>(entity));
+                }
                 if (gameSession.registry.hasComponent<game::Position>(entity)) {
                     renderComponent(gameSession.registry.getComponent<game::Position>(entity));
                 }
@@ -158,16 +165,12 @@ void DebugUI::renderEcsManagement(controller::DebugContext &debug, game::GameDeb
                 if (gameSession.registry.hasComponent<game::PlayerTag>(entity)) {
                     renderComponent(gameSession.registry.getComponent<game::PlayerTag>(entity));
                 }
-                if (gameSession.registry.hasComponent<game::Sprite>(entity)) {
-                    renderComponent(gameSession.registry.getComponent<game::Sprite>(entity));
+                if (gameSession.registry.hasComponent<game::Animation>(entity)) {
+                    renderComponent(gameSession.registry.getComponent<game::Animation>(entity));
                 }
-                if (gameSession.registry.hasComponent<game::Map>(entity)) {
-                    renderComponent(gameSession.registry.getComponent<game::Map>(entity));
+                if (gameSession.registry.hasComponent<view::Sprite>(entity)) {
+                    renderComponent(gameSession.registry.getComponent<view::Sprite>(entity));
                 }
-                if (gameSession.registry.hasComponent<game::Camera>(entity)) {
-                    renderComponent(gameSession.registry.getComponent<game::Camera>(entity));
-                }
-
             } else {
                 gameSession.selectedEntity.reset();
             }
@@ -175,6 +178,16 @@ void DebugUI::renderEcsManagement(controller::DebugContext &debug, game::GameDeb
             ImGui::Text("No entity selected");
         }
     }
+}
+
+void DebugUI::renderComponent(game::CameraTag &c)
+{
+    ImGui::PushID("CameraComponent");
+
+    ImGui::SeparatorText("CameraTag");
+    ImGui::InputFloat("margin", &c.margin);
+
+    ImGui::PopID();
 }
 
 void DebugUI::renderComponent(game::PlayerTag &c)
@@ -209,13 +222,11 @@ void DebugUI::renderComponent(game::Velocity &c)
     ImGui::PopID();
 }
 
-void DebugUI::renderComponent(game::Sprite &c)
+void DebugUI::renderComponent(game::Animation &c)
 {
-    ImGui::PushID("SpriteComponent");
+    ImGui::PushID("AnimationComponent");
 
-    ImGui::SeparatorText("Sprite");
-    ImGui::InputFloat("width", &c.width);
-    ImGui::InputFloat("height", &c.height);
+    ImGui::SeparatorText("Animation");
     ImGui::InputInt("currentFrame", &c.currentFrame);
     ImGui::InputInt("totalFrames", &c.totalFrames);
     ImGui::InputFloat("frameDuration", &c.frameDuration);
@@ -224,28 +235,16 @@ void DebugUI::renderComponent(game::Sprite &c)
     ImGui::PopID();
 }
 
-void DebugUI::renderComponent(game::Map &c)
+void DebugUI::renderComponent(view::Sprite &c)
 {
-    ImGui::PushID("MapComponent");
+    ImGui::PushID("SpriteComponent");
 
-    ImGui::SeparatorText("Map");
+    ImGui::SeparatorText("Sprite");
     ImGui::InputFloat("width", &c.width);
     ImGui::InputFloat("height", &c.height);
-    ImGui::InputFloat("x", &c.x);
-    ImGui::InputFloat("y", &c.y);
+    ImGui::Text("imagePath: %s", c.imagePath.c_str());
 
     ImGui::PopID();
 }
 
-void DebugUI::renderComponent(game::Camera &c)
-{
-    ImGui::PushID("CameraComponent");
-
-    ImGui::SeparatorText("Camera");
-    ImGui::InputFloat("x", &c.x);
-    ImGui::InputFloat("y", &c.y);
-    ImGui::InputFloat("margin", &c.margin);
-
-    ImGui::PopID();
-}
 } // namespace ui

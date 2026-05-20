@@ -24,6 +24,7 @@ class ScopedTestDirectory {
         fs::remove_all(testPath_, ec);
     }
 
+    const fs::path &oldPath() const { return oldPath_; }
     const fs::path &path() const { return testPath_; }
 
   private:
