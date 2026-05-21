@@ -8,12 +8,16 @@ namespace ui {
 
 DebugUI::DebugUI()
 {
+#ifdef LOG_STDOUT
     std::cout << "DebugUI constructed" << std::endl;
+#endif
 }
 
 DebugUI::~DebugUI()
 {
+#ifdef LOG_STDOUT
     std::cout << "DebugUI destructed" << std::endl;
+#endif
 }
 
 void DebugUI::render(const controller::InputState &input, float fps)

@@ -10,14 +10,18 @@ namespace ui {
 
 UI::UI()
 {
+#ifdef LOG_STDOUT
     std::cout << "UI constructed" << std::endl;
+#endif
     initSfmlWindow();
     initImGuiSfml();
 }
 
 UI::~UI()
 {
+#ifdef LOG_STDOUT
     std::cout << "UI destructed" << std::endl;
+#endif
 }
 
 void UI::initSfmlWindow()

@@ -16,7 +16,9 @@ namespace game {
 
 Game::Game() : locationTable_(40, 40) // 1920/40 = 48 buckets; 1080/40 = 27 buckets
 {
+#ifdef LOG_STDOUT
     std::cout << "Game constructed" << std::endl;
+#endif
     initStage();
     initWave();
     initPlayer();
@@ -33,7 +35,9 @@ void Game::initStage()
 
 void Game::initWave()
 {
+#ifdef LOG_STDOUT
     std::cout << "Loading stage " << stage_ << ", wave " << wave_ << std::endl;
+#endif
     // Logic to initialize a new wave of enemies can go here
 }
 
@@ -69,7 +73,9 @@ void Game::initEnemies()
 
 Game::~Game()
 {
+#ifdef LOG_STDOUT
     std::cout << "Game destructed" << std::endl;
+#endif
 }
 
 GameDebugSession &Game::getDebugSession()
@@ -141,7 +147,9 @@ void Game::processDebugSession()
     // Handle player destruction request
     if (debugSession_.isPlayerDestructionRequested) {
         debugSession_.isPlayerDestructionRequested = false;
+#ifdef LOG_STDOUT
         std::cout << "Destroying player entity!" << std::endl;
+#endif
         for (Entity player : registry_.view<PlayerTag>()) {
             registry_.destroyEntity(player);
         }
@@ -150,7 +158,9 @@ void Game::processDebugSession()
     // Handle save game request
     if (debugSession_.isSaveGameRequested) {
         debugSession_.isSaveGameRequested = false;
+#ifdef LOG_STDOUT
         std::cout << "Saving game!" << std::endl;
+#endif
         controller::PersistedGame persistedGame = getPersistedGame();
         controller::PersistenceManager::saveGame(persistedGame);
     }

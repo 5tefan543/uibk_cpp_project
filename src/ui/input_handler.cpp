@@ -9,12 +9,16 @@ namespace ui {
 
 InputHandler::InputHandler()
 {
+#ifdef LOG_STDOUT
     std::cout << "InputHandler constructed" << std::endl;
+#endif
 }
 
 InputHandler::~InputHandler()
 {
+#ifdef LOG_STDOUT
     std::cout << "InputHandler destructed" << std::endl;
+#endif
 }
 
 controller::InputState InputHandler::pollInput(sf::RenderWindow &window)

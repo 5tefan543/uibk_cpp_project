@@ -9,12 +9,16 @@ Renderer::Renderer()
 {
     // Load all fonts from disk once upon instantiation
     fonts_ = std::vector<sf::Font>({sf::Font("assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf")});
+#ifdef LOG_STDOUT
     std::cout << "Renderer constructed" << std::endl;
+#endif
 }
 
 Renderer::~Renderer()
 {
+#ifdef LOG_STDOUT
     std::cout << "Renderer destructed" << std::endl;
+#endif
 }
 
 sf::Color Renderer::toSfColor(const view::Color &color)

@@ -6,13 +6,17 @@ namespace controller {
 
 Controller::Controller()
 {
+#ifdef LOG_STDOUT
     std::cout << "Controller constructed" << std::endl;
+#endif
     stateManager_.push(MenuState::createMenu(MenuType::MainMenu));
 }
 
 Controller::~Controller()
 {
+#ifdef LOG_STDOUT
     std::cout << "Controller destructed" << std::endl;
+#endif
 }
 
 void Controller::update(const InputState &input, float dt)

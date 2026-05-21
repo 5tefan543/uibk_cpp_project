@@ -6,22 +6,26 @@
 #include "game/ecs/entity.hpp"
 #include "game/ecs/registry.hpp"
 #include "view/grid.hpp"
+#include <iostream>
 #include <unordered_set>
 
 namespace game {
 
-LocationTable::LocationTable(unsigned buckWidth, unsigned buckHeight)
+LocationTable::LocationTable(const unsigned buckWidth, const unsigned buckHeight)
     : buckWidth(buckWidth), buckHeight(buckHeight), numBuckW(view::gridWidth / buckWidth),
       numBuckH(view::gridHeight / buckHeight)
 {
-    // TODO: make static
-    bucketGrid_ = std::vector<std::vector<Entity>>(numBuckW * numBuckH, std::vector<Entity>());
+    bucketGrid_ = std::vector<std::unique_ptr<std::vector<Entity>>>();
+    bucketGrid_.reserve(numBuckW * numBuckH);
+    for (size_t i = 0; i < numBuckW * numBuckH; i++) {
+        bucketGrid_.emplace_back(std::make_unique<std::vector<Entity>>());
+    }
 }
 
 void LocationTable::update(const Registry &registry)
 {
-    for (auto bucket : bucketGrid_) {
-        bucket.clear(); // Leaves the capacity() of the vector unchanged
+    for (auto &bucket : bucketGrid_) {
+        bucket->clear(); // Leaves the capacity() of the vector unchanged
     }
 
     // bool cleanup = false;
@@ -35,15 +39,17 @@ void LocationTable::update(const Registry &registry)
         // Distances can be determined either way since hitbox & sprite have the same center.
 
         // min/max(): better save than sorry - making no assumtions of logic positioning entities/sprites
-        unsigned buckIx = (unsigned)std::max(0.0f, (position.x / view::gridWidth));
-        unsigned buckIy = (unsigned)std::max(0.0f, (position.y / view::gridHeight));
-        getBucket(buckIx, buckIy).emplace_back(entity);
+        const float startX = (unsigned)std::max(0.0f, (position.x / buckWidth));
+        const float startY = (unsigned)std::max(0.0f, (position.y / buckHeight));
 
-        for (float y = position.y + buckHeight; y <= (position.y + sprite.height); y += buckHeight) {
-            for (float x = position.x; x <= (position.x + sprite.width); x += buckWidth) {
-                buckIy = std::min((unsigned)(y / buckHeight), numBuckH - 1);
-                buckIx = std::min((unsigned)(x / buckWidth), numBuckW - 1);
-                getBucket(buckIx, buckIy).emplace_back(entity);
+        const unsigned numX = std::min(
+            (unsigned)((position.x + sprite.width) / buckWidth) - (unsigned)(position.x / buckWidth), numBuckW - 1);
+        const unsigned numY = std::min(
+            (unsigned)((position.y + sprite.height) / buckHeight) - (unsigned)(position.y / buckHeight), numBuckH - 1);
+
+        for (unsigned buckY = startY; buckY <= numY + startY; buckY++) {
+            for (unsigned buckX = startX; buckX <= numX + startX; buckX++) {
+                getBucket(buckX, buckY)->emplace_back(entity);
             }
         }
 
@@ -78,16 +84,16 @@ void LocationTable::update(const Registry &registry)
 
 // Guarantees to return all entities whose hitbox/sprite is inside the radius but there might be some included that are
 // not. Extra filtering is required if strictly those inside the radius are required.
-std::unordered_set<Entity> LocationTable::getEntitiesNear(const float x, const float y, float radius)
+std::unordered_set<Entity> LocationTable::getEntitiesNear(const float x, const float y, const float radius)
 {
     // min/max(): better save than sorry - making no assumtions of logic positioning entities/sprites
     std::unordered_set<Entity> inRange;
     unsigned buckIx = (unsigned)(std::max(0.0f, x - radius) / (float)buckWidth);
     unsigned buckIy = (unsigned)(std::max(0.0f, y - radius) / (float)buckHeight);
-    for (; (float)buckIy <= (y + radius); buckIy += view::gridHeight) {
-        for (; (float)buckIx <= (x + radius); buckIx += view::gridWidth) {
-            // unordered_set removes duplicate entities introduced by update
-            inRange.insert_range(cgetBucket(std::min(buckIx, numBuckW - 1), std::min(buckIy, numBuckH - 1)));
+    for (unsigned y = buckIy; (float)y <= ((float)buckIy + radius); y += view::gridHeight) {
+        for (unsigned x = buckIx; (float)x <= ((float)buckIx + radius); x += view::gridWidth) {
+            // unordered_set removes duplicate entities introduced by update (sprite crossing bucket borders)
+            inRange.insert_range(*cgetBucket(std::min(x, numBuckW - 1), std::min(y, numBuckH - 1)));
         }
     }
     return inRange;

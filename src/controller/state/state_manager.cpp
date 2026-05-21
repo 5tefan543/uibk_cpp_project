@@ -98,7 +98,9 @@ std::string StateManager::getDebugInfo() const
 
 void StateManager::printDebugInfo() const
 {
+#ifdef LOG_STDOUT
     std::cout << getDebugInfo() << std::endl;
+#endif
 }
 
 } // namespace controller

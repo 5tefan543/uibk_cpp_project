@@ -2,6 +2,7 @@
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
+#include "game/ecs/components/sprite.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/location_table.hpp"
 #include <cmath>
