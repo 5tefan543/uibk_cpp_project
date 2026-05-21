@@ -36,7 +36,20 @@ bool CollisionDetectionSystem::checkCollision(const Entity &entityA, const Entit
     return hitBoxA.rect.findIntersection(hitBoxB.rect).has_value();
 }
 
-void CollisionDetectionSystem::initializeHitBoxes(Registry &registry) {}
+void CollisionDetectionSystem::initializeHitBoxes(Registry &registry)
+{
+    auto entitiesWithHitBoxes = registry.view<view::Sprite, Position>();
+    for (size_t i = 0; i < entitiesWithHitBoxes.size(); ++i) {
+
+        view::Sprite &sprite = registry.getComponent<view::Sprite>(entitiesWithHitBoxes[i]);
+        Position &position = registry.getComponent<Position>(entitiesWithHitBoxes[i]);
+        HitBox &hitBox = registry.addComponent<HitBox>(
+            entitiesWithHitBoxes[i], {
+                                         .rect = {position.x, position.y, sprite.width, sprite.height},
+                                         .isActive = true,
+                                     });
+    }
+}
 
 void CollisionDetectionSystem::applyDamage(Entity &source, Entity &target, Registry &registry) {}
 
@@ -45,9 +58,9 @@ void CollisionDetectionSystem::forceMove(Entity &entity, Registry &registry) {}
 void CollisionDetectionSystem::update(Registry &registry)
 {
     if (!isInitialized_) {
-
         initializeHitBoxes(registry);
         isInitialized_ = true;
+        return;
     }
 
     updateHitBoxPositions(registry);

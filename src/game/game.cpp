@@ -291,16 +291,19 @@ void Game::updateView(view::View &view)
         for (auto entity : registry_.view<Position, HitBox>()) {
             const Position &position = registry_.getComponent<Position>(entity);
             const HitBox &hitbox = registry_.getComponent<HitBox>(entity);
-            std::cerr << "Entity " << entity << " has hitbox: x=" << hitbox.rect.x << " y=" << hitbox.rect.y
-                      << " width=" << hitbox.rect.width << " height=" << hitbox.rect.height << std::endl;
+            std::cout << "Rendering hitbox at (" << hitbox.rect.x << ", " << hitbox.rect.y << ") with size ("
+                      << hitbox.rect.width << ", " << hitbox.rect.height << ")\n";
             view::Rectangle hitboxRect = {
                 .width = hitbox.rect.width,
                 .height = hitbox.rect.height,
-                .gridX = position.x + hitbox.rect.x,
-                .gridY = position.y + hitbox.rect.y,
+                .gridX = hitbox.rect.x,
+                .gridY = hitbox.rect.y,
                 .borderColor = {255, 0, 0},
-                .thickness = 10.0f,
+                .thickness = 8.0f,
+
             };
+            std::cout << "Hitbox Rectangle: (" << hitboxRect.gridX << ", " << hitboxRect.gridY << ") with size ("
+                      << hitboxRect.width << ", " << hitboxRect.height << ")\n";
 
             view.nodes.push_back({view::ViewMode::FixedToWorld, hitboxRect});
         }

@@ -16,6 +16,12 @@ struct Rectangle {
                  || y > other.y + other.height);
     }
 
+    bool contains(const Rectangle<T> &other) const
+    {
+        return x <= other.x && y <= other.y && x + width >= other.x + other.width
+               && y + height >= other.y + other.height;
+    }
+
     std::optional<Rectangle<T>> findIntersection(const Rectangle<T> &other) const
     {
         if (!intersects(other)) {
