@@ -2,12 +2,13 @@
 #include "SFML/Graphics/Image.hpp"
 #include "SFML/Graphics/RectangleShape.hpp"
 #include "SFML/Graphics/Texture.hpp"
+#include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/map_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
-#include "game/ecs/components/projectile.hpp"
+#include "game/ecs/components/stats.hpp"
 #include "game/ecs/registry.hpp"
 #include "view/sprite.hpp"
 
@@ -62,7 +63,24 @@ void CollisionDetectionSystem::initializeHitBoxes(Registry &registry)
 }
 
 // Maybe move into own system
-void CollisionDetectionSystem::applyDamage(const Entity &source, const Entity &target, Registry &registry) {}
+void CollisionDetectionSystem::applyDamage(const Entity &source, const Entity &target, Registry &registry)
+{
+
+    if (!registry.hasComponent<Damage>(source) || registry.hasComponent<Damage>(target)) {
+        return;
+    }
+    if (registry.hasComponent<PlayerTag>(source) && registry.hasComponent<EnemyStats>(target)) {
+        Damage &sourceDamage = registry.getComponent<Damage>(source);
+        EnemyStats &targetStats = registry.getComponent<EnemyStats>(target);
+        targetStats.health -= sourceDamage.amount;
+    } else if (registry.hasComponent<EnemyTag>(source) && registry.hasComponent<PlayerStats>(target)) {
+        Damage &sourceDamage = registry.getComponent<Damage>(source);
+        PlayerStats &targetStats = registry.getComponent<PlayerStats>(target);
+        targetStats.health -= sourceDamage.amount;
+    } else {
+        return; // No valid damage interaction
+    }
+}
 
 void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &registry)
 {
@@ -102,25 +120,11 @@ void CollisionDetectionSystem::update(Registry &registry)
         enforceMapBound(entitiesWithHitBoxes.at(i), registry);
 
         for (size_t j = i + 1; j < entitiesWithHitBoxes.size(); ++j) {
-            Entity entityA = entitiesWithHitBoxes[i];
-            Entity entityB = entitiesWithHitBoxes[j];
-
-            if (checkCollision(entityA, entityB, registry)) {
-                // Handle collision between entityA and entityB
-                // For example, you can check their tags and apply damage or other effects
-                bool isEntityAPlayer = registry.hasComponent<PlayerTag>(entityA);
-                bool isEntityBPlayer = registry.hasComponent<PlayerTag>(entityB);
-                bool isEntityAEnemy = registry.hasComponent<EnemyTag>(entityA);
-                bool isEntityBEnemy = registry.hasComponent<EnemyTag>(entityB);
-                bool isEntityAProjectile = registry.hasComponent<Projectile>(entityA);
-                bool isEntityBProjectile = registry.hasComponent<Projectile>(entityB);
-
-                // Example collision handling logic
-                if ((isEntityAPlayer && isEntityBEnemy) || (isEntityAEnemy && isEntityBPlayer)) {
-                }
-
-                if ((isEntityAProjectile && isEntityBEnemy) || (isEntityAEnemy && isEntityBProjectile)) {
-                }
+            Entity source = entitiesWithHitBoxes.at(i);
+            Entity target = entitiesWithHitBoxes.at(j);
+            if (checkCollision(source, target, registry)) {
+                applyDamage(source, target, registry);
+                applyDamage(target, source, registry);
             }
         }
     }

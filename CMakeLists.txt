@@ -122,6 +122,7 @@ add_executable(roguelike_test_runner
   tests/game/ecs/systems/animation_system_test.cpp
   tests/game/ecs/systems/camera_system_test.cpp
   tests/game/ecs/systems/debug_selection_system_test.cpp
+  tests/game/ecs/systems/collision_detection_system_test.cpp
 )
 
 roguelike_cxx_flags(roguelike_test_runner)
