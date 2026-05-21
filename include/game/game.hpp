@@ -13,14 +13,13 @@
 #include "view/view.hpp"
 
 namespace game {
+
 class Game {
   private:
     Registry registry_;
     GameDebugSession debugSession_{registry_};
 
-    // 1920/40 = 48 buckets; 1080/40 = 27 buckets
-    // TODO: convert gridWidth/Height to unsigned with ceil()
-    locTab locationTable_;
+    LocationTable locationTable_;
 
     AnimationSystem animationSystem_;
     CameraSystem cameraSystem_;

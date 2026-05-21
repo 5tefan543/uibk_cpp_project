@@ -3,10 +3,8 @@
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/velocity.hpp"
-#include "game/game.hpp"
 #include "game/location_table.hpp"
 #include <cmath>
-#include <iostream>
 
 namespace game {
 
@@ -66,7 +64,7 @@ struct Vec2 {
 };
 
 // Ideas: change direction with delay/(de)accel coupled to dt
-void EnemyAI::update(Registry &registry, locTab &locationTable)
+void EnemyAI::update(Registry &registry, LocationTable &locationTable)
 {
     const auto players = registry.view<Velocity, PlayerTag>();
     if (players.size() > 0) {

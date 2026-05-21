@@ -34,6 +34,7 @@ add_library(roguelike_game
   src/game/systems/camera_system.cpp
   src/game/systems/debug_selection_system.cpp
   src/game/systems/enemy_ai.cpp
+  src/game/location_table.cpp
 )
 
 roguelike_cxx_flags(roguelike_game)

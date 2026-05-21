@@ -14,7 +14,7 @@
 #include <view/text.hpp>
 namespace game {
 
-Game::Game()
+Game::Game() : locationTable_(40, 40) // 1920/40 = 48 buckets; 1080/40 = 27 buckets
 {
     std::cout << "Game constructed" << std::endl;
     initStage();
