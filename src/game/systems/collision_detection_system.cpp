@@ -13,18 +13,18 @@
 
 namespace game {
 
-void CollisionDetectionSystem::updateHitBoxPositions(Registry &registry)
+void CollisionDetectionSystem::updateHitBoxPosition(const Entity &entity, Registry &registry)
 {
-    auto entitiesWithHitBoxes = registry.view<HitBox, view::Sprite, Position>();
-    for (size_t i = 0; i < entitiesWithHitBoxes.size(); ++i) {
-
-        HitBox &hitBox = registry.getComponent<HitBox>(entitiesWithHitBoxes[i]);
-        Position &position = registry.getComponent<Position>(entitiesWithHitBoxes[i]);
-
-        hitBox.rect.x = position.x;
-        hitBox.rect.y = position.y;
-        hitBox.isActive = true;
+    if (!registry.hasComponent<Position>(entity) || !registry.hasComponent<HitBox>(entity)) {
+        return;
     }
+
+    HitBox &hitBox = registry.getComponent<HitBox>(entity);
+    Position &position = registry.getComponent<Position>(entity);
+
+    hitBox.rect.x = position.x;
+    hitBox.rect.y = position.y;
+    hitBox.isActive = true;
 }
 
 bool CollisionDetectionSystem::checkCollision(const Entity &entityA, const Entity &entityB, Registry &registry)
@@ -45,6 +45,12 @@ void CollisionDetectionSystem::initializeHitBoxes(Registry &registry)
     for (size_t i = 0; i < entitiesWithHitBoxes.size(); ++i) {
 
         view::Sprite &sprite = registry.getComponent<view::Sprite>(entitiesWithHitBoxes[i]);
+        // Problem with previous idea via alpha:
+        // - Performance heavy to read pixel data for every sprite on initialization,
+        // But hitbox values can be cached
+        // Dependency to sf or other rendering library would be needed here
+        // Or Renderer will be dependend on that system both no-gos
+        // maybe make an external python script that takes pngs and gives back json hitboxes
 
         Position &position = registry.getComponent<Position>(entitiesWithHitBoxes[i]);
         HitBox &hitBox = registry.addComponent<HitBox>(
@@ -55,9 +61,31 @@ void CollisionDetectionSystem::initializeHitBoxes(Registry &registry)
     }
 }
 
-void CollisionDetectionSystem::applyDamage(Entity &source, Entity &target, Registry &registry) {}
+// Maybe move into own system
+void CollisionDetectionSystem::applyDamage(const Entity &source, const Entity &target, Registry &registry) {}
 
-void CollisionDetectionSystem::forceMove(Entity &entity, Registry &registry) {}
+void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &registry)
+{
+    if (!registry.hasComponent<Position>(entity) || !registry.hasComponent<HitBox>(entity)) {
+        return;
+    }
+
+    Position &position = registry.getComponent<Position>(entity);
+    HitBox &hitBox = registry.getComponent<HitBox>(entity);
+
+    // Assuming there's only one map entity with a MapTag
+    auto mapEntities = registry.view<MapTag, HitBox>();
+    if (mapEntities.empty()) {
+        return; // No map entity found
+    }
+
+    const HitBox &mapHitBox = registry.getComponent<HitBox>(mapEntities[0]);
+    Rectangle<float> entityRect{position.x, position.y, hitBox.rect.width, hitBox.rect.height};
+    entityRect.snapBack(mapHitBox.rect);
+
+    position.x = entityRect.x;
+    position.y = entityRect.y;
+}
 
 void CollisionDetectionSystem::update(Registry &registry)
 {
@@ -67,11 +95,11 @@ void CollisionDetectionSystem::update(Registry &registry)
         return;
     }
 
-    updateHitBoxPositions(registry);
-
-    auto entitiesWithHitBoxes = registry.view<HitBox, view::Sprite, Position>();
+    const std::vector<Entity> &entitiesWithHitBoxes = registry.view<HitBox, Position>();
 
     for (size_t i = 0; i < entitiesWithHitBoxes.size(); ++i) {
+        updateHitBoxPosition(entitiesWithHitBoxes.at(i), registry);
+        enforceMapBound(entitiesWithHitBoxes.at(i), registry);
 
         for (size_t j = i + 1; j < entitiesWithHitBoxes.size(); ++j) {
             Entity entityA = entitiesWithHitBoxes[i];
@@ -98,58 +126,4 @@ void CollisionDetectionSystem::update(Registry &registry)
     }
 }
 
-HitBox CollisionDetectionSystem::createHitBoxShape(const view::Sprite &sprite)
-{
-    const sf::Texture &texture = getTexture(sprite.imagePath);
-    const sf::Image image = texture.copyToImage();
-    const sf::Vector2u imageSize = image.getSize();
-
-    HitBox rect;
-
-    if (imageSize.x == 0 || imageSize.y == 0) {
-        rect.setSize({sprite.width, sprite.height});
-        rect.setPosition({sprite.x, sprite.y});
-        rect.setFillColor(sf::Color::Transparent);
-        rect.setOutlineColor(sf::Color::Red);
-        rect.setOutlineThickness(1.0f);
-        return rect;
-    }
-
-    unsigned int minX = imageSize.x;
-    unsigned int minY = imageSize.y;
-    unsigned int maxX = 0;
-    unsigned int maxY = 0;
-    bool hasVisiblePixel = false;
-
-    for (unsigned int y = 0; y < imageSize.y; ++y) {
-        for (unsigned int x = 0; x < imageSize.x; ++x) {
-            if (image.getPixel({x, y}).a > 0) {
-                hasVisiblePixel = true;
-                minX = std::min(minX, x);
-                minY = std::min(minY, y);
-                maxX = std::max(maxX, x);
-                maxY = std::max(maxY, y);
-            }
-        }
-    }
-
-    if (!hasVisiblePixel) {
-        rect.setSize({sprite.width, sprite.height});
-        rect.setPosition({sprite.x, sprite.y});
-        rect.setFillColor(sf::Color::Transparent);
-        rect.setOutlineColor(sf::Color::Red);
-        rect.setOutlineThickness(1.0f);
-        return rect;
-    }
-
-    const float scaleX = sprite.width / static_cast<float>(imageSize.x);
-    const float scaleY = sprite.height / static_cast<float>(imageSize.y);
-
-    rect.setPosition({sprite.x + static_cast<float>(minX) * scaleX, sprite.y + static_cast<float>(minY) * scaleY});
-    rect.setSize({static_cast<float>(maxX - minX + 1) * scaleX, static_cast<float>(maxY - minY + 1) * scaleY});
-    rect.setFillColor(sf::Color::Transparent);
-    rect.setOutlineColor(sf::Color::Red);
-    rect.setOutlineThickness(1.0f);
-    return rect;
-}
 } // namespace game

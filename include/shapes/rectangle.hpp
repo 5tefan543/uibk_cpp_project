@@ -22,6 +22,23 @@ struct Rectangle {
                && y + height >= other.y + other.height;
     }
 
+    Rectangle<T> snapBack(const Rectangle<T> &boundary)
+    {
+        if (x < boundary.x) {
+            x = boundary.x;
+        }
+        if (y < boundary.y) {
+            y = boundary.y;
+        }
+        if (x + width > boundary.x + boundary.width) {
+            x = boundary.x + boundary.width - width;
+        }
+        if (y + height > boundary.y + boundary.height) {
+            y = boundary.y + boundary.height - height;
+        }
+        return *this;
+    }
+
     std::optional<Rectangle<T>> findIntersection(const Rectangle<T> &other) const
     {
         if (!intersects(other)) {
