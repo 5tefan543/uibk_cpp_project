@@ -39,6 +39,10 @@ add_library(roguelike_game
 
 roguelike_cxx_flags(roguelike_game)
 target_include_directories(roguelike_game PUBLIC include)
+target_link_libraries(roguelike_game
+  PUBLIC
+    SFML::Graphics
+)
 
 # Controller library
 add_library(roguelike_controller

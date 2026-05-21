@@ -3,7 +3,7 @@
     "initialWave": 1,
     "initialCurrency": 0,
     "waveDurationSeconds": 10,
-    "wavesPerStage": 2,
+    "wavesPerStage": 200,
     "maxEnemyCount": 500,
     "windowConfig": {
         "width": 1920,
