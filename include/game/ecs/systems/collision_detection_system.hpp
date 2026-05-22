@@ -15,7 +15,7 @@ class CollisionDetectionSystem {
     void initializeHitBoxes(Registry &registry);
 
   public:
-    CollisionDetectionSystem() : isInitialized_(false), wave_(0) {}
+    CollisionDetectionSystem();
     void update(Registry &registry, int wave);
 };
 

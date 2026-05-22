@@ -36,6 +36,8 @@ bool CollisionDetectionSystem::checkCollision(const Entity &entityA, const Entit
     return hitBoxA.rect.intersects(hitBoxB.rect);
 }
 
+CollisionDetectionSystem::CollisionDetectionSystem() : isInitialized_(false), wave_(0) {}
+
 void CollisionDetectionSystem::initializeHitBoxes(Registry &registry)
 {
     auto entitiesWithHitBoxes = registry.view<view::Sprite, Position>();
@@ -66,16 +68,25 @@ void CollisionDetectionSystem::applyDamage(const Entity &source, const Entity &t
 {
 
     if (!registry.hasComponent<Damage>(source) || registry.hasComponent<Damage>(target)) {
-        return;
+        return; // Damage instances do not interact with each other
     }
+
+    Damage &damage = registry.getComponent<Damage>(source);
+
+    if (!damage.isActive) {
+        return; // Damage already applied in this update cycle
+    }
+
     if (registry.hasComponent<PlayerTag>(source) && registry.hasComponent<EnemyStats>(target)) {
-        Damage &sourceDamage = registry.getComponent<Damage>(source);
         EnemyStats &targetStats = registry.getComponent<EnemyStats>(target);
-        targetStats.health -= sourceDamage.amount;
+        targetStats.health -= damage.amount;
+        damage.isActive = false; // Mark damage as applied to prevent multiple applications in one update
+        return;
     } else if (registry.hasComponent<EnemyTag>(source) && registry.hasComponent<PlayerStats>(target)) {
-        Damage &sourceDamage = registry.getComponent<Damage>(source);
         PlayerStats &targetStats = registry.getComponent<PlayerStats>(target);
-        targetStats.health -= sourceDamage.amount;
+        targetStats.health -= damage.amount;
+        damage.isActive = false; // Mark damage as applied to prevent multiple applications in one update
+        return;
     } else {
         return; // No valid damage interaction
     }

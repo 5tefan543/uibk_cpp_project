@@ -6,9 +6,7 @@
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/registry.hpp"
-#define private public
 #include "game/ecs/systems/collision_detection_system.hpp"
-#undef private
 #include "shared/test_fixture.hpp"
 #include "view/sprite.hpp"
 
@@ -148,8 +146,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem keeps entities inside ma
     registry.addComponent<game::Position>(entity2, {95.0f, -10.0f});
     registry.addComponent<view::Sprite>(entity2, {.width = 20.0f, .height = 20.0f});
 
-    system.update(registry, 1);
-    system.update(registry, 1);
+    system.update(registry, 0);
+    system.update(registry, 0);
 
     const auto &position = registry.getComponent<game::Position>(entity1);
     REQUIRE(position.x == 0.0f);
@@ -218,4 +216,29 @@ TEST_CASE_METHOD(TestFixture, "Hitboxes are not re-initialized when wave does no
 
     system.update(registry, 1);
     REQUIRE_FALSE(registry.hasComponent<game::HitBox>(entity2));
+}
+
+TEST_CASE_METHOD(TestFixture, "Damage components are inactive after applying damage")
+{
+    game::Registry registry;
+    game::CollisionDetectionSystem system;
+
+    game::Entity entity = registry.createEntity();
+    registry.addComponent<game::Position>(entity, {3.0f, 7.0f});
+    registry.addComponent<view::Sprite>(entity, {.width = 16.0f, .height = 20.0f});
+    registry.addComponent<Damage>(entity, {.amount = 10.0f, .isActive = true, .kind = DamageKind::MeleeArc});
+    registry.addComponent<game::EnemyTag>(entity, {});
+
+    game::Entity player = registry.createEntity();
+    registry.addComponent<game::PlayerTag>(player, {});
+    game::PlayerStats playerStats;
+    playerStats.health = 50.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+    registry.addComponent<game::Position>(player, {3.0f, 7.0f});
+    registry.addComponent<view::Sprite>(player, {.width = 16.0f, .height = 20.0f});
+    system.update(registry, 0);
+    system.update(registry, 0);
+
+    Damage &damage = registry.getComponent<Damage>(entity);
+    REQUIRE_FALSE(damage.isActive);
 }
