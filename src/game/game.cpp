@@ -289,7 +289,6 @@ void Game::updateView(view::View &view)
     controller::DebugContext &debug = controller::DebugContext::get();
     if (debug.active && debug.gameSettings.showHitboxes) {
         for (auto entity : registry_.view<Position, HitBox>()) {
-            const Position &position = registry_.getComponent<Position>(entity);
             const HitBox &hitbox = registry_.getComponent<HitBox>(entity);
             view::Rectangle hitboxRect = {
                 .width = hitbox.rect.width,

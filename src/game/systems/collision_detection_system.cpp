@@ -50,11 +50,11 @@ void CollisionDetectionSystem::initializeHitBoxes(Registry &registry)
         // maybe make an external python script that takes pngs and gives back json hitboxes
 
         Position &position = registry.getComponent<Position>(entitiesWithHitBoxes[i]);
-        HitBox &hitBox = registry.addComponent<HitBox>(
-            entitiesWithHitBoxes[i], {
-                                         .rect = {position.x, position.y, sprite.width, sprite.height},
-                                         .isActive = true,
-                                     });
+        registry.addComponent<HitBox>(entitiesWithHitBoxes[i],
+                                      {
+                                          .rect = {position.x, position.y, sprite.width, sprite.height},
+                                          .isActive = true,
+                                      });
     }
 }
 
@@ -103,9 +103,9 @@ void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &r
 
 void CollisionDetectionSystem::update(Registry &registry)
 {
-    if (!isInitialized_) {
+    if (!isInitialized) {
         initializeHitBoxes(registry);
-        isInitialized_ = true;
+        isInitialized = true;
         return;
     }
 
