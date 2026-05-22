@@ -64,7 +64,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not update w
     REQUIRE_FALSE(registry.hasComponent<game::HitBox>(entity));
 }
 
-TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem applies player damage to enemy on collision")
+TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem activates player damage to enemy on collision")
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
@@ -76,7 +76,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem applies player damage to
     registry.addComponent<Damage>(
         player,
         {.amount = 12.0f,
-         .isActive = true,
+         .isColliding = false,
          .kind = DamageKind::Projectile,
          .params = ProjectileDamage{
              .speed = 0.0f, .maxRange = 0.0f, .distanceTraveled = 0.0f, .pushbackForce = 0.0f, .targetsHit = 0}});
@@ -89,15 +89,17 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem applies player damage to
     registry.addComponent<game::EnemyStats>(enemy, enemyStats);
     registry.addComponent<game::Position>(enemy, {5.0f, 5.0f});
     registry.addComponent<view::Sprite>(enemy, {.width = 10.0f, .height = 10.0f});
+    REQUIRE_FALSE(registry.getComponent<Damage>(player).isColliding);
 
     system.update(registry, 1);
     system.update(registry, 1);
 
     const auto &updatedEnemyStats = registry.getComponent<game::EnemyStats>(enemy);
-    REQUIRE(updatedEnemyStats.health == 38.0f);
+    REQUIRE(updatedEnemyStats.health == 50.0f);
+    REQUIRE(registry.getComponent<Damage>(player).isColliding);
 }
 
-TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem applies enemy damage to player on collision")
+TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem activatesto enemy damage on player on collision")
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
@@ -116,16 +118,18 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem applies enemy damage to 
     registry.addComponent<view::Sprite>(enemy, {.width = 10.0f, .height = 10.0f});
     registry.addComponent<Damage>(
         enemy, {.amount = 7.0f,
-                .isActive = true,
+                .isColliding = false,
                 .kind = DamageKind::MeleeArc,
                 .params = MeleeArcDamage{
                     .arcAngleDeg = 90.0f, .arcRadius = 20.0f, .activeTimeSec = 0.2f, .elapsedSec = 0.0f}});
+    REQUIRE_FALSE(registry.getComponent<Damage>(enemy).isColliding);
 
     system.update(registry, 1);
     system.update(registry, 1);
 
     const auto &updatedPlayerStats = registry.getComponent<game::PlayerStats>(player);
-    REQUIRE(updatedPlayerStats.health == 23.0f);
+    REQUIRE(updatedPlayerStats.health == 30.0f);
+    REQUIRE(registry.getComponent<Damage>(enemy).isColliding);
 }
 
 TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem keeps entities inside map bounds")
@@ -216,29 +220,4 @@ TEST_CASE_METHOD(TestFixture, "Hitboxes are not re-initialized when wave does no
 
     system.update(registry, 1);
     REQUIRE_FALSE(registry.hasComponent<game::HitBox>(entity2));
-}
-
-TEST_CASE_METHOD(TestFixture, "Damage components are inactive after applying damage")
-{
-    game::Registry registry;
-    game::CollisionDetectionSystem system;
-
-    game::Entity entity = registry.createEntity();
-    registry.addComponent<game::Position>(entity, {3.0f, 7.0f});
-    registry.addComponent<view::Sprite>(entity, {.width = 16.0f, .height = 20.0f});
-    registry.addComponent<Damage>(entity, {.amount = 10.0f, .isActive = true, .kind = DamageKind::MeleeArc});
-    registry.addComponent<game::EnemyTag>(entity, {});
-
-    game::Entity player = registry.createEntity();
-    registry.addComponent<game::PlayerTag>(player, {});
-    game::PlayerStats playerStats;
-    playerStats.health = 50.0f;
-    registry.addComponent<game::PlayerStats>(player, playerStats);
-    registry.addComponent<game::Position>(player, {3.0f, 7.0f});
-    registry.addComponent<view::Sprite>(player, {.width = 16.0f, .height = 20.0f});
-    system.update(registry, 0);
-    system.update(registry, 0);
-
-    Damage &damage = registry.getComponent<Damage>(entity);
-    REQUIRE_FALSE(damage.isActive);
 }

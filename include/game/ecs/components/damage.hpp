@@ -25,7 +25,7 @@ struct MeleeArcDamage {
 
 struct Damage {
     float amount;  // shared damage value
-    bool isActive; // shared enable flag
+    bool isColliding; // shared enable flag
     DamageKind kind;
     std::variant<ProjectileDamage, MeleeArcDamage> params;
 };

@@ -2,4 +2,8 @@
 
 namespace game {
 
+void DamageSystem::update(Registry &registry, float dt){
+    
+}
+
 } // namespace game

@@ -64,7 +64,7 @@ void CollisionDetectionSystem::initializeHitBoxes(Registry &registry)
 }
 
 // Maybe move into own system
-void CollisionDetectionSystem::applyDamage(const Entity &source, const Entity &target, Registry &registry)
+void CollisionDetectionSystem::activateDamage(const Entity &source, const Entity &target, Registry &registry)
 {
 
     if (!registry.hasComponent<Damage>(source) || registry.hasComponent<Damage>(target)) {
@@ -73,19 +73,18 @@ void CollisionDetectionSystem::applyDamage(const Entity &source, const Entity &t
 
     Damage &damage = registry.getComponent<Damage>(source);
 
-    if (!damage.isActive) {
-        return; // Damage already applied in this update cycle
+    if(damage.isColliding){
+        return;
     }
 
+
     if (registry.hasComponent<PlayerTag>(source) && registry.hasComponent<EnemyStats>(target)) {
-        EnemyStats &targetStats = registry.getComponent<EnemyStats>(target);
-        targetStats.health -= damage.amount;
-        damage.isActive = false; // Mark damage as applied to prevent multiple applications in one update
-        return;
+        damage.isColliding = true; 
+        return;// Mark damage as isColliding for Damage System
     } else if (registry.hasComponent<EnemyTag>(source) && registry.hasComponent<PlayerStats>(target)) {
-        PlayerStats &targetStats = registry.getComponent<PlayerStats>(target);
-        targetStats.health -= damage.amount;
-        damage.isActive = false; // Mark damage as applied to prevent multiple applications in one update
+        damage.isColliding = true; 
+        
+
         return;
     } else {
         return; // No valid damage interaction
@@ -137,8 +136,7 @@ void CollisionDetectionSystem::update(Registry &registry, int wave)
             Entity source = entitiesWithHitBoxes.at(i);
             Entity target = entitiesWithHitBoxes.at(j);
             if (checkCollision(source, target, registry)) {
-                applyDamage(source, target, registry);
-                applyDamage(target, source, registry);
+                activateDamage(source, target, registry);
             }
         }
     }

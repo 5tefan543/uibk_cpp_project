@@ -6,7 +6,7 @@ namespace game {
 class DamageSystem {
   public:
     DamageSystem() = default;
-    void update(Registry &registry);
+    void update(Registry &registry, float dt);
 };
 
 } // namespace game
