@@ -5,8 +5,14 @@
 
 namespace game {
 
-struct InputSystem {
-    void update(Registry &registry, const controller::InputState &input);
+class InputSystem {
+  private:
+    void attack(Registry &registry, const PlayerStats &stats, Entity entity);
+    void updateCooldown(float dt);
+    float timeSinceLastAttack_ = 0.0f;
+
+  public:
+    void update(Registry &registry, const controller::InputState &input, float dt);
 };
 
 } // namespace game

@@ -234,7 +234,7 @@ void Game::updateSystems(const controller::InputState &input, float dt)
         return;
     }
 
-    inputSystem_.update(registry_, input);
+    inputSystem_.update(registry_, input, dt);
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, dt);
     cameraSystem_.update(registry_);
