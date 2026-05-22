@@ -238,7 +238,7 @@ void Game::updateSystems(const controller::InputState &input, float dt)
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, dt);
     cameraSystem_.update(registry_);
-    collisionDetectionSystem_.update(registry_);
+    collisionDetectionSystem_.update(registry_, wave_);
 }
 
 bool Game::isWaveFinished()

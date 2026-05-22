@@ -40,6 +40,9 @@ void CollisionDetectionSystem::initializeHitBoxes(Registry &registry)
 {
     auto entitiesWithHitBoxes = registry.view<view::Sprite, Position>();
     for (size_t i = 0; i < entitiesWithHitBoxes.size(); ++i) {
+        if(registry.hasComponent<HitBox>(entitiesWithHitBoxes[i])) {
+            continue; // Skip if hitbox already exists
+        }
 
         view::Sprite &sprite = registry.getComponent<view::Sprite>(entitiesWithHitBoxes[i]);
         // Problem with previous idea via alpha:
@@ -101,10 +104,14 @@ void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &r
     position.y = entityRect.y;
 }
 
-void CollisionDetectionSystem::update(Registry &registry)
+void CollisionDetectionSystem::update(Registry &registry, int wave)
 {
+    if (wave != wave_) {
+        isInitialized_ = false;
+    }
     if (!isInitialized_) {
         initializeHitBoxes(registry);
+        wave_ = wave;
         isInitialized_ = true;
         return;
     }

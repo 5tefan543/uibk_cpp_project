@@ -23,7 +23,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem initializes hitboxes on 
     registry.addComponent<game::Position>(entity, {3.0f, 7.0f});
     registry.addComponent<view::Sprite>(entity, {.width = 16.0f, .height = 20.0f});
 
-    system.update(registry);
+    system.update(registry, 1);
 
     REQUIRE(registry.hasComponent<game::HitBox>(entity));
     const auto &hitBox = registry.getComponent<game::HitBox>(entity);
@@ -42,7 +42,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does nothing when
     game::Entity entity = registry.createEntity();
     registry.addComponent<game::HitBox>(entity, {.rect = {1.0f, 2.0f, 3.0f, 4.0f}, .isActive = false});
 
-    system.update(registry);
+    system.update(registry, 1);
 
     const auto &hitBox = registry.getComponent<game::HitBox>(entity);
     REQUIRE(hitBox.rect.x == 1.0f);
@@ -60,7 +60,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not update w
     game::Entity entity = registry.createEntity();
     registry.addComponent<game::Position>(entity, {8.0f, 9.0f});
 
-    system.update(registry);
+    system.update(registry, 1);
 
     REQUIRE(registry.hasComponent<game::Position>(entity));
     REQUIRE_FALSE(registry.hasComponent<game::HitBox>(entity));
@@ -92,8 +92,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem applies player damage to
     registry.addComponent<game::Position>(enemy, {5.0f, 5.0f});
     registry.addComponent<view::Sprite>(enemy, {.width = 10.0f, .height = 10.0f});
 
-    system.update(registry);
-    system.update(registry);
+    system.update(registry, 1);
+    system.update(registry, 1);
 
     const auto &updatedEnemyStats = registry.getComponent<game::EnemyStats>(enemy);
     REQUIRE(updatedEnemyStats.health == 38.0f);
@@ -123,8 +123,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem applies enemy damage to 
                 .params = MeleeArcDamage{
                     .arcAngleDeg = 90.0f, .arcRadius = 20.0f, .activeTimeSec = 0.2f, .elapsedSec = 0.0f}});
 
-    system.update(registry);
-    system.update(registry);
+    system.update(registry, 1);
+    system.update(registry, 1);
 
     const auto &updatedPlayerStats = registry.getComponent<game::PlayerStats>(player);
     REQUIRE(updatedPlayerStats.health == 23.0f);
@@ -148,8 +148,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem keeps entities inside ma
     registry.addComponent<game::Position>(entity2, {95.0f, -10.0f});
     registry.addComponent<view::Sprite>(entity2, {.width = 20.0f, .height = 20.0f});
 
-    system.update(registry);
-    system.update(registry);
+    system.update(registry, 1);
+    system.update(registry, 1);
 
     const auto &position = registry.getComponent<game::Position>(entity1);
     REQUIRE(position.x == 0.0f);
@@ -158,4 +158,67 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem keeps entities inside ma
     const auto &position2 = registry.getComponent<game::Position>(entity2);
     REQUIRE(position2.x == 80.0f);
     REQUIRE(position2.y == 0.0f);
+}
+
+
+TEST_CASE_METHOD(TestFixture, "Hitboxes are re-initialized when wave changes")
+{
+    game::Registry registry;
+    game::CollisionDetectionSystem system;
+
+    game::Entity entity = registry.createEntity();
+    registry.addComponent<game::Position>(entity, {3.0f, 7.0f});
+    registry.addComponent<view::Sprite>(entity, {.width = 16.0f, .height = 20.0f});
+
+    system.update(registry, 1);
+
+    REQUIRE(registry.hasComponent<game::HitBox>(entity));
+    const auto &hitBox = registry.getComponent<game::HitBox>(entity);
+    REQUIRE(hitBox.rect.x == 3.0f);
+    REQUIRE(hitBox.rect.y == 7.0f);
+    REQUIRE(hitBox.rect.width == 16.0f);
+    REQUIRE(hitBox.rect.height == 20.0f);
+    REQUIRE(hitBox.isActive);
+
+    game::Entity entity2 = registry.createEntity();
+    registry.addComponent<game::Position>(entity2, {10.0f, 20.0f});
+    registry.addComponent<view::Sprite>(entity2, {.width = 16.0f, .height = 20.0f});
+
+    system.update(registry, 2);
+    REQUIRE(registry.hasComponent<game::HitBox>(entity2));
+    const auto &hitBox2 = registry.getComponent<game::HitBox>(entity2);
+    REQUIRE(hitBox2.rect.x == 10.0f);
+    REQUIRE(hitBox2.rect.y == 20.0f);
+    REQUIRE(hitBox2.rect.width == 16.0f);
+    REQUIRE(hitBox2.rect.height == 20.0f);
+    REQUIRE(hitBox2.isActive);
+
+}
+
+TEST_CASE_METHOD(TestFixture, "Hitboxes are not re-initialized when wave does not change")
+{
+    game::Registry registry;
+    game::CollisionDetectionSystem system;
+
+    game::Entity entity = registry.createEntity();
+    registry.addComponent<game::Position>(entity, {3.0f, 7.0f});
+    registry.addComponent<view::Sprite>(entity, {.width = 16.0f, .height = 20.0f});
+
+    system.update(registry, 1);
+
+    REQUIRE(registry.hasComponent<game::HitBox>(entity));
+    const auto &hitBox = registry.getComponent<game::HitBox>(entity);
+    REQUIRE(hitBox.rect.x == 3.0f);
+    REQUIRE(hitBox.rect.y == 7.0f);
+    REQUIRE(hitBox.rect.width == 16.0f);
+    REQUIRE(hitBox.rect.height == 20.0f);
+    REQUIRE(hitBox.isActive);
+
+    game::Entity entity2 = registry.createEntity();
+    registry.addComponent<game::Position>(entity2, {10.0f, 20.0f});
+    registry.addComponent<view::Sprite>(entity2, {.width = 16.0f, .height = 20.0f});
+
+    system.update(registry, 1);
+    REQUIRE_FALSE(registry.hasComponent<game::HitBox>(entity2));    
+
 }
