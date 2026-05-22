@@ -3,7 +3,9 @@
 
 namespace game {
 
-struct DamageSystem {
+class DamageSystem {
+  public:
+    DamageSystem() = default;
     void update(Registry &registry);
 };
 
