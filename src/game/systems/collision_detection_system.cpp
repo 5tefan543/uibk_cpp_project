@@ -40,7 +40,7 @@ void CollisionDetectionSystem::initializeHitBoxes(Registry &registry)
 {
     auto entitiesWithHitBoxes = registry.view<view::Sprite, Position>();
     for (size_t i = 0; i < entitiesWithHitBoxes.size(); ++i) {
-        if(registry.hasComponent<HitBox>(entitiesWithHitBoxes[i])) {
+        if (registry.hasComponent<HitBox>(entitiesWithHitBoxes[i])) {
             continue; // Skip if hitbox already exists
         }
 

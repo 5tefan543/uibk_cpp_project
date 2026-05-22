@@ -160,7 +160,6 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem keeps entities inside ma
     REQUIRE(position2.y == 0.0f);
 }
 
-
 TEST_CASE_METHOD(TestFixture, "Hitboxes are re-initialized when wave changes")
 {
     game::Registry registry;
@@ -192,7 +191,6 @@ TEST_CASE_METHOD(TestFixture, "Hitboxes are re-initialized when wave changes")
     REQUIRE(hitBox2.rect.width == 16.0f);
     REQUIRE(hitBox2.rect.height == 20.0f);
     REQUIRE(hitBox2.isActive);
-
 }
 
 TEST_CASE_METHOD(TestFixture, "Hitboxes are not re-initialized when wave does not change")
@@ -219,6 +217,5 @@ TEST_CASE_METHOD(TestFixture, "Hitboxes are not re-initialized when wave does no
     registry.addComponent<view::Sprite>(entity2, {.width = 16.0f, .height = 20.0f});
 
     system.update(registry, 1);
-    REQUIRE_FALSE(registry.hasComponent<game::HitBox>(entity2));    
-
+    REQUIRE_FALSE(registry.hasComponent<game::HitBox>(entity2));
 }
