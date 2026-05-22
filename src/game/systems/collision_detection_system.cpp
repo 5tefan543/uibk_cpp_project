@@ -33,10 +33,6 @@ bool CollisionDetectionSystem::checkCollision(const Entity &entityA, const Entit
     const HitBox &hitBoxA = registry.getComponent<HitBox>(entityA);
     const HitBox &hitBoxB = registry.getComponent<HitBox>(entityB);
 
-    if (!hitBoxA.isActive || !hitBoxB.isActive) {
-        return false;
-    }
-
     return hitBoxA.rect.intersects(hitBoxB.rect);
 }
 

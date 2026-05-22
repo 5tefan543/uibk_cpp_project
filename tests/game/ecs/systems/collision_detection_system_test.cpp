@@ -6,7 +6,9 @@
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/registry.hpp"
+#define private public
 #include "game/ecs/systems/collision_detection_system.hpp"
+#undef private
 #include "shared/test_fixture.hpp"
 #include "view/sprite.hpp"
 
@@ -30,6 +32,38 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem initializes hitboxes on 
     REQUIRE(hitBox.rect.width == 16.0f);
     REQUIRE(hitBox.rect.height == 20.0f);
     REQUIRE(hitBox.isActive);
+}
+
+TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem updateHitBoxPosition returns early when entity has no Position")
+{
+    game::Registry registry;
+    game::CollisionDetectionSystem system;
+
+    game::Entity entity = registry.createEntity();
+    registry.addComponent<game::HitBox>(entity, {.rect = {1.0f, 2.0f, 3.0f, 4.0f}, .isActive = false});
+
+    system.updateHitBoxPosition(entity, registry);
+
+    const auto &hitBox = registry.getComponent<game::HitBox>(entity);
+    REQUIRE(hitBox.rect.x == 1.0f);
+    REQUIRE(hitBox.rect.y == 2.0f);
+    REQUIRE(hitBox.rect.width == 3.0f);
+    REQUIRE(hitBox.rect.height == 4.0f);
+    REQUIRE_FALSE(hitBox.isActive);
+}
+
+TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem updateHitBoxPosition returns early when entity has no HitBox")
+{
+    game::Registry registry;
+    game::CollisionDetectionSystem system;
+
+    game::Entity entity = registry.createEntity();
+    registry.addComponent<game::Position>(entity, {8.0f, 9.0f});
+
+    system.updateHitBoxPosition(entity, registry);
+
+    REQUIRE(registry.hasComponent<game::Position>(entity));
+    REQUIRE_FALSE(registry.hasComponent<game::HitBox>(entity));
 }
 
 TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem applies player damage to enemy on collision")
@@ -106,14 +140,22 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem keeps entities inside ma
     registry.addComponent<game::Position>(map, {0.0f, 0.0f});
     registry.addComponent<view::Sprite>(map, {.width = 100.0f, .height = 100.0f});
 
-    game::Entity entity = registry.createEntity();
-    registry.addComponent<game::Position>(entity, {-10.0f, 95.0f});
-    registry.addComponent<view::Sprite>(entity, {.width = 20.0f, .height = 20.0f});
+    game::Entity entity1 = registry.createEntity();
+    registry.addComponent<game::Position>(entity1, {-10.0f, 95.0f});
+    registry.addComponent<view::Sprite>(entity1, {.width = 20.0f, .height = 20.0f});
+
+    game::Entity entity2 = registry.createEntity();
+    registry.addComponent<game::Position>(entity2, {95.0f, -10.0f});
+    registry.addComponent<view::Sprite>(entity2, {.width = 20.0f, .height = 20.0f});
 
     system.update(registry);
     system.update(registry);
 
-    const auto &position = registry.getComponent<game::Position>(entity);
+    const auto &position = registry.getComponent<game::Position>(entity1);
     REQUIRE(position.x == 0.0f);
     REQUIRE(position.y == 80.0f);
+
+    const auto &position2 = registry.getComponent<game::Position>(entity2);
+    REQUIRE(position2.x == 80.0f);
+    REQUIRE(position2.y == 0.0f);
 }

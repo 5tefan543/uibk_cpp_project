@@ -2,6 +2,7 @@
 #include "controller/input/input_state.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/game.hpp"
@@ -306,6 +307,48 @@ TEST_CASE_METHOD(TestFixture, "Game getView returns correct view")
     REQUIRE(!view.nodes.empty());
     REQUIRE(view.cameraX == 0.0f);
     REQUIRE(view.cameraY == 0.0f);
+}
+
+TEST_CASE_METHOD(TestFixture, "Game updateView with hitbox debug enabled handles empty hitbox list")
+{
+    game::Game game;
+    view::View view;
+
+    controller::DebugContext &debug = controller::DebugContext::get();
+    debug.active = true;
+    debug.gameSettings.showHitboxes = true;
+
+    game.updateView(view);
+
+    auto hitboxEntities = game.getDebugSession().registry.view<game::HitBox>();
+    REQUIRE(hitboxEntities.empty());
+
+    REQUIRE(!view.nodes.empty());
+}
+
+TEST_CASE_METHOD(TestFixture, "Game updateView with hitbox debug enabled renders hitbox rectangles")
+{
+    game::Game game;
+    controller::InputState input;
+
+    controller::DebugContext &debug = controller::DebugContext::get();
+    debug.active = true;
+    debug.gameSettings.showHitboxes = false;
+
+    view::View withoutHitboxes;
+    game.updateView(withoutHitboxes);
+    const size_t nodesWithoutHitboxes = withoutHitboxes.nodes.size();
+
+    game.update(input, 0.0f);
+
+    auto hitboxEntities = game.getDebugSession().registry.view<game::HitBox>();
+    REQUIRE_FALSE(hitboxEntities.empty());
+
+    debug.gameSettings.showHitboxes = true;
+    view::View withHitboxes;
+    game.updateView(withHitboxes);
+
+    REQUIRE(withHitboxes.nodes.size() > nodesWithoutHitboxes);
 }
 
 TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted values")
