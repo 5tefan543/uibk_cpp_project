@@ -161,7 +161,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay crea
     PersistedGame game;
     game.wave = 4;
     game.currency = 777;
-    game.playerStats.speed = 360.0f;
+    game.playerStats.moveSpeed = 360.0f;
     game.playerStats.hasDash = true;
     game.score = 12345;
     game.playerStats.maxHealth = 500.0f;
@@ -187,7 +187,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay crea
     REQUIRE(loaded.wave == expectedWave); // wave is advanced to next wave in loadFromPersistedGame
     REQUIRE(gameplayState->game.getDebugSession().stage == expectedStage);
     REQUIRE(loaded.currency == 777);
-    REQUIRE(loaded.playerStats.speed == 360.0f);
+    REQUIRE(loaded.playerStats.moveSpeed == 360.0f);
 }
 
 TEST_CASE_METHOD(TestFixture, "applyAction PushPauseMenu pushes cancelPressed menu on top")

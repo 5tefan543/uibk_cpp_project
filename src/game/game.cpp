@@ -40,19 +40,12 @@ Game::Game(const controller::PersistedGame &persistedGame) : Game(persistedGame.
 
     auto players = registry_.view<PlayerTag>();
     if (!players.empty()) {
-        Position &position = registry_.getComponent<Position>(players.front());
+        Entity player = players.front();
+        registry_.removeComponent<Position>(player);
+        registry_.addComponent<Position>(player, persistedGame.position);
 
-        position.x = persistedGame.playerStats.posX;
-        position.y = persistedGame.playerStats.posY;
-
-        PlayerStats &playerStats = registry_.getComponent<PlayerStats>(players.front());
-        playerStats.maxHealth = persistedGame.playerStats.maxHealth;
-        playerStats.health = persistedGame.playerStats.maxHealth;
-        playerStats.attackPower = persistedGame.playerStats.attackPower;
-        playerStats.attackSpeed = persistedGame.playerStats.attackSpeed;
-        playerStats.defense = persistedGame.playerStats.defense;
-        playerStats.moveSpeed = persistedGame.playerStats.speed;
-        playerStats.hasDash = persistedGame.playerStats.hasDash;
+        registry_.removeComponent<PlayerStats>(player);
+        registry_.addComponent<PlayerStats>(player, persistedGame.playerStats);
     }
 }
 
@@ -143,16 +136,9 @@ controller::PersistedGame Game::getPersistedGame() const
     auto players = registry_.view<Position, PlayerStats, PlayerTag>();
     if (!players.empty()) {
         const Position &position = registry_.getComponent<Position>(players.front());
-        persistedGame.playerStats.posX = position.x;
-        persistedGame.playerStats.posY = position.y;
-
+        persistedGame.position = position;
         const PlayerStats &playerStats = registry_.getComponent<PlayerStats>(players.front());
-        persistedGame.playerStats.maxHealth = playerStats.maxHealth;
-        persistedGame.playerStats.attackPower = playerStats.attackPower;
-        persistedGame.playerStats.attackSpeed = playerStats.attackSpeed;
-        persistedGame.playerStats.defense = playerStats.defense;
-        persistedGame.playerStats.speed = playerStats.moveSpeed;
-        persistedGame.playerStats.hasDash = playerStats.hasDash;
+        persistedGame.playerStats = playerStats;
     }
 
     return persistedGame;

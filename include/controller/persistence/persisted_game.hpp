@@ -1,23 +1,16 @@
 #pragma once
 
-namespace controller {
+#include "game/ecs/components/position.hpp"
+#include "game/ecs/components/stats.hpp"
 
-struct PlayerStats {
-    float posX = 0.0f;
-    float posY = 0.0f;
-    float maxHealth = 0.0f;
-    float attackPower = 0.0f;
-    float attackSpeed = 0.0f;
-    float defense = 0.0f;
-    float speed = 0.0f;
-    bool hasDash = false;
-};
+namespace controller {
 
 struct PersistedGame {
     int wave = 0;
     int score = 0;
     int currency = 0;
-    PlayerStats playerStats;
+    game::Position position;
+    game::PlayerStats playerStats;
 };
 
 } // namespace controller

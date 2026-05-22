@@ -15,7 +15,7 @@ void createSavedGameFile()
     PersistedGame game;
     game.wave = 2;
     game.currency = 150;
-    game.playerStats.speed = 444.0f;
+    game.playerStats.moveSpeed = 444.0f;
     game.playerStats.hasDash = false;
     game.playerStats.attackPower = 55.0f;
     game.playerStats.attackSpeed = 1.5f;

@@ -24,7 +24,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem sets player velocity from input")
     input.upHeld = true;
 
     // ACT
-    system.update(registry, input);
+    system.update(registry, input, dummyDeltaTime);
 
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(player);
@@ -47,7 +47,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem resets old velocity before applying n
     controller::InputState input;
 
     // ACT
-    system.update(registry, input);
+    system.update(registry, input, dummyDeltaTime);
 
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(player);
@@ -69,7 +69,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem does not update entity without Player
     input.downHeld = true;
 
     // ACT
-    system.update(registry, input);
+    system.update(registry, input, dummyDeltaTime);
 
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(notPlayer);
@@ -96,7 +96,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem opposing directions cancel each other
     input.downHeld = true;
 
     // ACT
-    system.update(registry, input);
+    system.update(registry, input, dummyDeltaTime);
 
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(player);

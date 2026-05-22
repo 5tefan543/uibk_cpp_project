@@ -10,6 +10,68 @@
 #include <sstream>
 #include <vector>
 
+template <>
+struct glz::meta<DamageKind> {
+    static constexpr auto value = glz::enumerate("Projectile", DamageKind::Projectile, "MeleeArc", DamageKind::MeleeArc,
+                                                 "Beam", DamageKind::Beam, "Area", DamageKind::Area);
+};
+
+template <>
+struct glz::meta<game::Position> {
+    static constexpr auto value = glz::object("x", &game::Position::x, "y", &game::Position::y);
+};
+
+template <>
+struct glz::meta<game::PlayerStats> {
+    static constexpr auto value =
+        glz::object("maxHealth", &game::PlayerStats::maxHealth, "health", &game::PlayerStats::health, "attackPower",
+                    &game::PlayerStats::attackPower, "attackSpeed", &game::PlayerStats::attackSpeed, "defense",
+                    &game::PlayerStats::defense, "moveSpeed", &game::PlayerStats::moveSpeed, "speedOfAttack",
+                    &game::PlayerStats::speedOfAttack, "attackRange", &game::PlayerStats::attackRange, "hasDash",
+                    &game::PlayerStats::hasDash, "dmgKind", &game::PlayerStats::dmgKind, "enemiesPierced",
+                    &game::PlayerStats::enemiesPierced);
+};
+
+template <>
+struct glz::meta<controller::PersistedGame> {
+    static constexpr auto value =
+        glz::object("wave", &controller::PersistedGame::wave, "score", &controller::PersistedGame::score, "currency",
+                    &controller::PersistedGame::currency, "position", &controller::PersistedGame::position,
+                    "playerStats", &controller::PersistedGame::playerStats);
+};
+
+template <>
+struct glz::meta<controller::WindowConfig> {
+    static constexpr auto value =
+        glz::object("width", &controller::WindowConfig::width, "height", &controller::WindowConfig::height, "title",
+                    &controller::WindowConfig::title);
+};
+
+template <>
+struct glz::meta<controller::AssetConfig> {
+    static constexpr auto value = glz::object(
+        "playerTexturePath", &controller::AssetConfig::playerTexturePath, "enemyTexturePath",
+        &controller::AssetConfig::enemyTexturePath, "mapTexturePath", &controller::AssetConfig::mapTexturePath,
+        "fontPath", &controller::AssetConfig::fontPath, "projectilePath", &controller::AssetConfig::projectilePath);
+};
+
+template <>
+struct glz::meta<controller::GameConfig> {
+    static constexpr auto value = glz::object(
+        "initialStage", &controller::GameConfig::initialStage, "initialWave", &controller::GameConfig::initialWave,
+        "initialCurrency", &controller::GameConfig::initialCurrency, "waveDurationSeconds",
+        &controller::GameConfig::waveDurationSeconds, "wavesPerStage", &controller::GameConfig::wavesPerStage,
+        "maxEnemyCount", &controller::GameConfig::maxEnemyCount, "windowConfig", &controller::GameConfig::windowConfig,
+        "assetConfig", &controller::GameConfig::assetConfig);
+};
+
+template <>
+struct glz::meta<controller::LeaderboardEntry> {
+    static constexpr auto value =
+        glz::object("playerName", &controller::LeaderboardEntry::playerName, "score",
+                    &controller::LeaderboardEntry::score, "wave", &controller::LeaderboardEntry::wave);
+};
+
 namespace controller {
 
 class Serializer {

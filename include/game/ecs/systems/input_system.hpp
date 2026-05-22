@@ -1,6 +1,7 @@
 #pragma once
 
 #include "controller/input/input_state.hpp"
+#include "game/ecs/components/stats.hpp"
 #include "game/ecs/registry.hpp"
 
 namespace game {
