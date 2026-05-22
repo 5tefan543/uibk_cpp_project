@@ -34,7 +34,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem initializes hitboxes on 
     REQUIRE(hitBox.isActive);
 }
 
-TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem updateHitBoxPosition returns early when entity has no Position")
+TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does nothing when entity has no Position")
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
@@ -42,7 +42,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem updateHitBoxPosition ret
     game::Entity entity = registry.createEntity();
     registry.addComponent<game::HitBox>(entity, {.rect = {1.0f, 2.0f, 3.0f, 4.0f}, .isActive = false});
 
-    system.updateHitBoxPosition(entity, registry);
+    system.update(registry);
 
     const auto &hitBox = registry.getComponent<game::HitBox>(entity);
     REQUIRE(hitBox.rect.x == 1.0f);
@@ -52,7 +52,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem updateHitBoxPosition ret
     REQUIRE_FALSE(hitBox.isActive);
 }
 
-TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem updateHitBoxPosition returns early when entity has no HitBox")
+TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not update when entity has no hitbox")
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
@@ -60,7 +60,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem updateHitBoxPosition ret
     game::Entity entity = registry.createEntity();
     registry.addComponent<game::Position>(entity, {8.0f, 9.0f});
 
-    system.updateHitBoxPosition(entity, registry);
+    system.update(registry);
 
     REQUIRE(registry.hasComponent<game::Position>(entity));
     REQUIRE_FALSE(registry.hasComponent<game::HitBox>(entity));

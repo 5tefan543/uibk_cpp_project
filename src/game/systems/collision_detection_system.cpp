@@ -103,9 +103,9 @@ void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &r
 
 void CollisionDetectionSystem::update(Registry &registry)
 {
-    if (!isInitialized) {
+    if (!isInitialized_) {
         initializeHitBoxes(registry);
-        isInitialized = true;
+        isInitialized_ = true;
         return;
     }
 

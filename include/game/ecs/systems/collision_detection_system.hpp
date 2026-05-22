@@ -11,7 +11,7 @@ class CollisionDetectionSystem {
     void enforceMapBound(const Entity &entity, Registry &registry);
     void applyDamage(const Entity &source, const Entity &target, Registry &registry);
     void initializeHitBoxes(Registry &registry);
-    bool isInitialized = false;
+    bool isInitialized_ = false;
 
   public:
     void update(Registry &registry);
