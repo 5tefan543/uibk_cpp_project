@@ -14,7 +14,8 @@
         "playerTexturePath": "assets/characters/character_",
         "enemyTexturePath": "assets/characters/enemy_1_",
         "mapTexturePath": "assets/map/map_1.png",
-        "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf"
+        "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf",
+        "projectilePath": "assets/effects/base_projectile_1.png"
     }
 
 }

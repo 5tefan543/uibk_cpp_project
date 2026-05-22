@@ -8,7 +8,7 @@ namespace game {
 
 class InputSystem {
   private:
-    void attack(Registry &registry, const PlayerStats &stats, Entity entity);
+    void attack(Registry &registry, const PlayerStats &stats, const Entity entity, const controller::InputState &input);
     void updateCooldown(float dt);
     float timeSinceLastAttack_ = 0.0f;
 
