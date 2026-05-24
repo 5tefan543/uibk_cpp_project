@@ -85,6 +85,7 @@ void Game::initPlayer()
     playerStats.defense = 0.0f;
     playerStats.moveSpeed = 750.0f;
     playerStats.hasDash = false;
+    playerStats.attackRange = 1000.0f;
     playerStats.speedOfAttack = 200.0f;
     registry_.addComponent<PlayerStats>(player, playerStats);
 

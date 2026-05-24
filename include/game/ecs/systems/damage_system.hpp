@@ -5,7 +5,7 @@ namespace game {
 
 class DamageSystem {
   private:
-    void removeIfDead(Registry &registry, Entity entity);
+    void updateProjectile(Entity projectile, Registry &registry);
 
   public:
     DamageSystem() = default;
