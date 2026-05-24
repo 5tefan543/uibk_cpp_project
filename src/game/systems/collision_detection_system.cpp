@@ -13,10 +13,15 @@
 #include "game/ecs/registry.hpp"
 #include "view/sprite.hpp"
 
+#include <iostream>
+
 namespace game {
 
 void CollisionDetectionSystem::updateHitBoxPosition(const Entity &entity, Registry &registry)
 {
+    if (registry.hasComponent<MapTag>(entity)) {
+        return; // Map is static and does not need hitbox position updates
+    }
     if (!registry.hasComponent<Position>(entity) || !registry.hasComponent<HitBox>(entity)) {
         return;
     }
@@ -33,6 +38,10 @@ bool CollisionDetectionSystem::checkCollision(const Entity &entityA, const Entit
 {
     const HitBox &hitBoxA = registry.getComponent<HitBox>(entityA);
     const HitBox &hitBoxB = registry.getComponent<HitBox>(entityB);
+
+    if (hitBoxA.rect.intersects(hitBoxB.rect)) {
+        std::cout << "Collision detected between Entity " << entityA << " and Entity " << entityB << std::endl;
+    }
 
     return hitBoxA.rect.intersects(hitBoxB.rect);
 }
@@ -69,25 +78,27 @@ void CollisionDetectionSystem::activateDamage(const Entity &source, const Entity
 {
 
     if (!registry.hasComponent<Damage>(source) || registry.hasComponent<Damage>(target)) {
+        std::cout << "No valid damage interaction between Entity " << source << " and Entity " << target << std::endl;
         return; // Damage instances do not interact with each other
     }
 
     Damage &damage = registry.getComponent<Damage>(source);
 
     if (damage.isColliding) {
+        std::cout << "Damage already colliding for Entity " << source << std::endl;
         return;
     }
 
     if (registry.hasComponent<PlayerTag>(source) && registry.hasComponent<EnemyStats>(target)) {
         damage.isColliding = true;
+
         DamageTag damageTag = {target};
-        registry.removeComponent<DamageTag>(source);
         registry.addComponent<DamageTag>(source, damageTag);
+        std::cout << "Activated damage from Entity " << source << " to Entity " << target << std::endl;
         return; // Mark damage as isColliding for Damage System
     } else if (registry.hasComponent<EnemyTag>(source) && registry.hasComponent<PlayerStats>(target)) {
         damage.isColliding = true;
         DamageTag damageTag = {target};
-        registry.removeComponent<DamageTag>(source);
         registry.addComponent<DamageTag>(source, damageTag);
         return;
     } else {
@@ -133,10 +144,13 @@ void CollisionDetectionSystem::update(Registry &registry, int wave)
     const std::vector<Entity> &entitiesWithHitBoxes = registry.view<HitBox, Position>();
 
     for (size_t i = 0; i < entitiesWithHitBoxes.size(); ++i) {
-        updateHitBoxPosition(entitiesWithHitBoxes.at(i), registry);
         enforceMapBound(entitiesWithHitBoxes.at(i), registry);
+        if (registry.hasComponent<MapTag>(entitiesWithHitBoxes.at(i))) {
+            continue; // Skip map for collision detection
+        }
+        updateHitBoxPosition(entitiesWithHitBoxes.at(i), registry);
 
-        for (size_t j = i + 1; j < entitiesWithHitBoxes.size(); ++j) {
+        for (size_t j = 0; j < entitiesWithHitBoxes.size(); ++j) {
             Entity source = entitiesWithHitBoxes.at(i);
             Entity target = entitiesWithHitBoxes.at(j);
             if (checkCollision(source, target, registry)) {

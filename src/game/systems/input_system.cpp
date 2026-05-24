@@ -28,7 +28,6 @@ void InputSystem::attack(Registry &registry, const PlayerStats &stats, Entity pl
 
     timeSinceLastAttack_ = 0.0f;
     Entity attackEntity = registry.createEntity();
-    registry.addComponent<DamageTag>(attackEntity, {});
     Position playerPosition = registry.getComponent<Position>(playerEntity);
     Damage damageComponent{.amount = 10.0f,
                            .isColliding = false,
@@ -48,16 +47,18 @@ void InputSystem::attack(Registry &registry, const PlayerStats &stats, Entity pl
                         .height = 16.0f};
     HitBox hitBox{.rect = {position.x, position.y, sprite.width, sprite.height}, .isActive = true};
     float angle = std::atan2(input.mouseGridY - playerPosition.y, input.mouseGridX - playerPosition.x);
-    Velocity velocity{.dx = stats.speedOfAttack * std::cos(angle), .dy = stats.speedOfAttack * std::sin(angle)};
+    Velocity velocity{.dx = stats.speedOfAttack * 10 * std::cos(angle),
+                      .dy = stats.speedOfAttack * 10 * std::sin(angle)};
     std::cout << "SpeedOfAttack: " << stats.attackSpeed << " attacks/sec\n";
     std::cout << "angle: " << angle << " radians\n";
-    std::cout << "Player attacked with velocity (" << stats.speedOfAttack * std::cos(angle) << ", " << velocity.dy
-              << ")\n";
+    std::cout << "Player attacked with velocity (" << stats.speedOfAttack * 10 * std::cos(angle) << ", "
+              << stats.speedOfAttack * 10 * std::sin(angle) << ")\n";
     registry.addComponent<Damage>(attackEntity, damageComponent);
     registry.addComponent<view::Sprite>(attackEntity, sprite);
     registry.addComponent<Position>(attackEntity, position);
     registry.addComponent<Velocity>(attackEntity, velocity);
     registry.addComponent<HitBox>(attackEntity, hitBox);
+    registry.addComponent<PlayerTag>(attackEntity, {}); // Mark as player's attack for collision detection
 }
 
 void InputSystem::update(Registry &registry, const controller::InputState &input, float dt)
