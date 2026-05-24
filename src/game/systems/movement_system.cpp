@@ -12,14 +12,8 @@ void MovementSystem::update(Registry &registry, float dt)
         Position &position = registry.getComponent<Position>(entity);
         Velocity &velocity = registry.getComponent<Velocity>(entity);
 
-        Position before = position;
-
         position.x += velocity.dx * dt;
         position.y += velocity.dy * dt;
-
-        if (position.x != before.x || position.y != before.y) {
-            std::cout << "Entity " << entity << " moved to (" << position.x << ", " << position.y << ")\n";
-        }
     }
 }
 

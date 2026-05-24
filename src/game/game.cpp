@@ -35,9 +35,6 @@ Game::Game(const controller::PersistedGame &persistedGame) : Game(persistedGame.
 {
     std::cout << "Game constructed from persisted game" << std::endl;
 
-    score_ = persistedGame.score;
-    currency_ = persistedGame.currency;
-
     auto players = registry_.view<PlayerTag>();
     if (!players.empty()) {
         Entity player = players.front();
@@ -88,6 +85,7 @@ void Game::initPlayer()
     playerStats.defense = 0.0f;
     playerStats.moveSpeed = 750.0f;
     playerStats.hasDash = false;
+    playerStats.speedOfAttack = 200.0f;
     registry_.addComponent<PlayerStats>(player, playerStats);
 
     registry_.addComponent<Position>(player, {100.0f, 100.0f});
@@ -130,8 +128,6 @@ controller::PersistedGame Game::getPersistedGame() const
 {
     controller::PersistedGame persistedGame;
     persistedGame.wave = wave_;
-    persistedGame.score = score_;
-    persistedGame.currency = currency_;
 
     auto players = registry_.view<Position, PlayerStats, PlayerTag>();
     if (!players.empty()) {
@@ -243,8 +239,11 @@ bool Game::isGameOver()
 
 void Game::addScore(int score)
 {
-    score_ += score;
-    currency_ += score;
+    for (Entity player : registry_.view<PlayerTag>()) {
+        PlayerStats &playerStats = registry_.getComponent<PlayerStats>(player);
+        playerStats.score += score;
+        playerStats.currency += score;
+    }
 }
 
 void Game::updateView(view::View &view)
@@ -293,8 +292,10 @@ void Game::updateView(view::View &view)
 
     stageWaveInfo_ = {
         .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_) + " Time remaining: "
-                + std::to_string(config_.waveDurationSeconds - static_cast<int>(currentWaveDuration_))
-                + " score: " + std::to_string(score_) + " currency: " + std::to_string(currency_),
+                + std::to_string(config_.waveDurationSeconds - static_cast<int>(currentWaveDuration_)) + " score: "
+                + std::to_string(registry_.getComponent<PlayerStats>(registry_.view<PlayerTag>().front()).score)
+                + " currency: "
+                + std::to_string(registry_.getComponent<PlayerStats>(registry_.view<PlayerTag>().front()).currency),
         .size = 24,
         .gridX = 960.0f,
         .gridY = 75.0f,

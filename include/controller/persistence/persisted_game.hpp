@@ -7,8 +7,6 @@ namespace controller {
 
 struct PersistedGame {
     int wave = 0;
-    int score = 0;
-    int currency = 0;
     game::Position position;
     game::PlayerStats playerStats;
 };

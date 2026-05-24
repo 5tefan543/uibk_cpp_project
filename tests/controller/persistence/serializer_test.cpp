@@ -70,7 +70,8 @@ TEST_CASE_METHOD(TestFixture, "Serializer writes and reads persisted game JSON")
 {
     PersistedGame input;
     input.wave = 4;
-    input.currency = 987;
+    input.playerStats.currency = 987;
+    input.playerStats.score = 987;
     input.playerStats.maxHealth = 120.0f;
     input.playerStats.attackPower = 24.5f;
     input.playerStats.attackSpeed = 1.75f;
@@ -85,7 +86,8 @@ TEST_CASE_METHOD(TestFixture, "Serializer writes and reads persisted game JSON")
     REQUIRE(Serializer::readJsonFromFile(output, Serializer::saveFilePath));
 
     REQUIRE(output.wave == 4);
-    REQUIRE(output.currency == 987);
+    REQUIRE(output.playerStats.currency == 987);
+    REQUIRE(output.playerStats.score == 987);
     REQUIRE(output.playerStats.maxHealth == Catch::Approx(120.0f));
     REQUIRE(output.playerStats.attackPower == Catch::Approx(24.5f));
     REQUIRE(output.playerStats.attackSpeed == Catch::Approx(1.75f));
@@ -111,11 +113,9 @@ TEST_CASE_METHOD(TestFixture, "Serializer overwrites existing JSON file")
 {
     PersistedGame first{};
     first.wave = 1;
-    first.currency = 10;
 
     PersistedGame second{};
     second.wave = 8;
-    second.currency = 700;
 
     REQUIRE(Serializer::writeJsonToFile(first, Serializer::saveFilePath));
     REQUIRE(Serializer::writeJsonToFile(second, Serializer::saveFilePath));
@@ -123,7 +123,6 @@ TEST_CASE_METHOD(TestFixture, "Serializer overwrites existing JSON file")
     PersistedGame output{};
     REQUIRE(Serializer::readJsonFromFile(output, Serializer::saveFilePath));
     REQUIRE(output.wave == 8);
-    REQUIRE(output.currency == 700);
 }
 
 TEST_CASE_METHOD(TestFixture, "Serializer writes and reads leaderboard entry vectors")

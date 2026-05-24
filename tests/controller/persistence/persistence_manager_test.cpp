@@ -14,7 +14,7 @@ void createSavedGameFile()
 {
     PersistedGame game;
     game.wave = 2;
-    game.currency = 150;
+    game.playerStats.currency = 150;
     game.playerStats.moveSpeed = 444.0f;
     game.playerStats.hasDash = false;
     game.playerStats.attackPower = 55.0f;
@@ -27,7 +27,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads game state")
 {
     PersistedGame input;
     input.wave = 9;
-    input.currency = 321;
+    input.playerStats.currency = 321;
     input.playerStats.attackPower = 42.0f;
     input.playerStats.hasDash = true;
 
@@ -36,7 +36,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads game state")
     auto output = PersistenceManager::loadGame();
 
     REQUIRE(output.wave == 9);
-    REQUIRE(output.currency == 321);
+    REQUIRE(output.playerStats.currency == 321);
     REQUIRE(output.playerStats.attackPower == Catch::Approx(42.0f));
     REQUIRE(output.playerStats.hasDash == true);
 }

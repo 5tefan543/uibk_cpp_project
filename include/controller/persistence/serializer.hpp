@@ -29,14 +29,14 @@ struct glz::meta<game::PlayerStats> {
                     &game::PlayerStats::defense, "moveSpeed", &game::PlayerStats::moveSpeed, "speedOfAttack",
                     &game::PlayerStats::speedOfAttack, "attackRange", &game::PlayerStats::attackRange, "hasDash",
                     &game::PlayerStats::hasDash, "dmgKind", &game::PlayerStats::dmgKind, "enemiesPierced",
-                    &game::PlayerStats::enemiesPierced);
+                    &game::PlayerStats::enemiesPierced, "score", &game::PlayerStats::score, "currency",
+                    &game::PlayerStats::currency);
 };
 
 template <>
 struct glz::meta<controller::PersistedGame> {
     static constexpr auto value =
-        glz::object("wave", &controller::PersistedGame::wave, "score", &controller::PersistedGame::score, "currency",
-                    &controller::PersistedGame::currency, "position", &controller::PersistedGame::position,
+        glz::object("wave", &controller::PersistedGame::wave, "position", &controller::PersistedGame::position,
                     "playerStats", &controller::PersistedGame::playerStats);
 };
 

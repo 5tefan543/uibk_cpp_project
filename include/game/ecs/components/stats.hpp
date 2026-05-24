@@ -19,6 +19,8 @@ struct PlayerStats : Stats {
     bool hasDash = false;
     DamageKind dmgKind = DamageKind::Projectile;
     int enemiesPierced = 0;
+    int score = 0;
+    int currency = 0;
 };
 
 struct EnemyStats : Stats {

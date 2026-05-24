@@ -355,7 +355,7 @@ TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted valu
 {
     controller::PersistedGame persistedGame;
     persistedGame.wave = 5;
-    persistedGame.currency = 1234;
+    persistedGame.playerStats.currency = 1234;
     persistedGame.playerStats.moveSpeed = 333.0f;
 
     game::Game game(persistedGame);
@@ -364,6 +364,6 @@ TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted valu
     REQUIRE(snapshot.wave == 5);
     int resultStage = ((snapshot.wave - 1) / controller::PersistenceManager::getConfig().wavesPerStage) + 1;
     REQUIRE(game.getDebugSession().stage == resultStage);
-    REQUIRE(snapshot.currency == 1234);
+    REQUIRE(snapshot.playerStats.currency == 1234);
     REQUIRE(snapshot.playerStats.moveSpeed == 333.0f);
 }

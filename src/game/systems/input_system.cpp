@@ -49,10 +49,6 @@ void InputSystem::attack(Registry &registry, const PlayerStats &stats, Entity pl
     float angle = std::atan2(input.mouseGridY - playerPosition.y, input.mouseGridX - playerPosition.x);
     Velocity velocity{.dx = stats.speedOfAttack * 10 * std::cos(angle),
                       .dy = stats.speedOfAttack * 10 * std::sin(angle)};
-    std::cout << "SpeedOfAttack: " << stats.attackSpeed << " attacks/sec\n";
-    std::cout << "angle: " << angle << " radians\n";
-    std::cout << "Player attacked with velocity (" << stats.speedOfAttack * 10 * std::cos(angle) << ", "
-              << stats.speedOfAttack * 10 * std::sin(angle) << ")\n";
     registry.addComponent<Damage>(attackEntity, damageComponent);
     registry.addComponent<view::Sprite>(attackEntity, sprite);
     registry.addComponent<Position>(attackEntity, position);

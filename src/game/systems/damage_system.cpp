@@ -34,6 +34,10 @@ void DamageSystem::update(Registry &registry, float dt)
             EnemyStats &enemyStats = registry.getComponent<EnemyStats>(targetEntity);
             enemyStats.health -= damage.amount;
             if (enemyStats.health <= 0.0f) {
+                Entity player = registry.view<PlayerStats>().front();
+                PlayerStats &playerStats = registry.getComponent<PlayerStats>(player);
+                playerStats.score += enemyStats.scoreReward;
+                playerStats.currency += enemyStats.scoreReward;
                 registry.destroyEntity(targetEntity);
             }
         }

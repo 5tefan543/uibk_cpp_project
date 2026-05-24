@@ -35,8 +35,6 @@ class Game {
 
     int stage_ = 1;
     int wave_ = 1;
-    int score_ = 0;
-    int currency_ = 0;
     // We need to store view::Text as a member because ViewElement stores a reference to it,
     // so we must ensure that the referenced object lives long enough.
     //

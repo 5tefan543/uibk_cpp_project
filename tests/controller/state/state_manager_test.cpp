@@ -160,10 +160,10 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay crea
 {
     PersistedGame game;
     game.wave = 4;
-    game.currency = 777;
+    game.playerStats.currency = 777;
     game.playerStats.moveSpeed = 360.0f;
     game.playerStats.hasDash = true;
-    game.score = 12345;
+    game.playerStats.score = 12345;
     game.playerStats.maxHealth = 500.0f;
     auto isSaved = PersistenceManager::saveGame(game);
     InputState input;
@@ -186,7 +186,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay crea
 
     REQUIRE(loaded.wave == expectedWave); // wave is advanced to next wave in loadFromPersistedGame
     REQUIRE(gameplayState->game.getDebugSession().stage == expectedStage);
-    REQUIRE(loaded.currency == 777);
+    REQUIRE(loaded.playerStats.currency == 777);
     REQUIRE(loaded.playerStats.moveSpeed == 360.0f);
 }
 
