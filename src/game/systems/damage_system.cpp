@@ -5,14 +5,6 @@
 
 namespace game {
 
-void DamageSystem::removeIfDead(Registry &registry, Entity entity)
-{
-    Stats &stats = registry.getComponent<Stats>(entity);
-    if (stats.health <= 0.0f) {
-        registry.destroyEntity(entity);
-    }
-}
-
 void DamageSystem::update(Registry &registry, float dt)
 {
     auto damageEntities = registry.view<Damage, DamageTag>();
@@ -28,16 +20,22 @@ void DamageSystem::update(Registry &registry, float dt)
         Entity targetEntity = damageTag.target;
 
         if (!registry.isEntityAlive(targetEntity)) {
-            registry.destroyEntity(damageEntity);
-            continue; // Skip if target entity is no longer alive
+            registry.removeComponent<DamageTag>(damageEntity);
+            continue; // Skip if target entity is no longer alive, and remove the damage tag to find new target
         }
 
         if (registry.hasComponent<PlayerStats>(targetEntity)) {
             PlayerStats &playerStats = registry.getComponent<PlayerStats>(targetEntity);
             playerStats.health -= damage.amount;
+            if (playerStats.health <= 0.0f) {
+                registry.destroyEntity(targetEntity);
+            }
         } else if (registry.hasComponent<EnemyStats>(targetEntity)) {
             EnemyStats &enemyStats = registry.getComponent<EnemyStats>(targetEntity);
             enemyStats.health -= damage.amount;
+            if (enemyStats.health <= 0.0f) {
+                registry.destroyEntity(targetEntity);
+            }
         }
 
         // After applying damage, remove the damage entity

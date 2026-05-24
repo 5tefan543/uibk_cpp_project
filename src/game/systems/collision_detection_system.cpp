@@ -36,12 +36,20 @@ void CollisionDetectionSystem::updateHitBoxPosition(const Entity &entity, Regist
 
 bool CollisionDetectionSystem::checkCollision(const Entity &entityA, const Entity &entityB, Registry &registry)
 {
+    // collision pairs to skip checking:
+
+    if (registry.hasComponent<PlayerTag>(entityA) && registry.hasComponent<PlayerTag>(entityB)) {
+        return false; // Skip player-player collision
+    }
+    if (registry.hasComponent<EnemyTag>(entityA) && registry.hasComponent<EnemyTag>(entityB)) {
+        return false; // Skip enemy-enemy collision
+    }
+    if (registry.hasComponent<Damage>(entityA) && registry.hasComponent<Damage>(entityB)) {
+        return false; // Skip damage-damage collision
+    }
+
     const HitBox &hitBoxA = registry.getComponent<HitBox>(entityA);
     const HitBox &hitBoxB = registry.getComponent<HitBox>(entityB);
-
-    if (hitBoxA.rect.intersects(hitBoxB.rect)) {
-        std::cout << "Collision detected between Entity " << entityA << " and Entity " << entityB << std::endl;
-    }
 
     return hitBoxA.rect.intersects(hitBoxB.rect);
 }
@@ -78,14 +86,12 @@ void CollisionDetectionSystem::activateDamage(const Entity &source, const Entity
 {
 
     if (!registry.hasComponent<Damage>(source) || registry.hasComponent<Damage>(target)) {
-        std::cout << "No valid damage interaction between Entity " << source << " and Entity " << target << std::endl;
         return; // Damage instances do not interact with each other
     }
 
     Damage &damage = registry.getComponent<Damage>(source);
 
     if (damage.isColliding) {
-        std::cout << "Damage already colliding for Entity " << source << std::endl;
         return;
     }
 
@@ -94,15 +100,14 @@ void CollisionDetectionSystem::activateDamage(const Entity &source, const Entity
 
         DamageTag damageTag = {target};
         registry.addComponent<DamageTag>(source, damageTag);
-        std::cout << "Activated damage from Entity " << source << " to Entity " << target << std::endl;
-        return; // Mark damage as isColliding for Damage System
+        return;
     } else if (registry.hasComponent<EnemyTag>(source) && registry.hasComponent<PlayerStats>(target)) {
         damage.isColliding = true;
         DamageTag damageTag = {target};
         registry.addComponent<DamageTag>(source, damageTag);
         return;
     } else {
-        return; // No valid damage interaction
+        return;
     }
 }
 
