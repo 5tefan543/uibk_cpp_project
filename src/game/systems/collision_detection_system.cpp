@@ -3,6 +3,7 @@
 #include "SFML/Graphics/RectangleShape.hpp"
 #include "SFML/Graphics/Texture.hpp"
 #include "game/ecs/components/damage.hpp"
+#include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/map_tag.hpp"
@@ -73,18 +74,21 @@ void CollisionDetectionSystem::activateDamage(const Entity &source, const Entity
 
     Damage &damage = registry.getComponent<Damage>(source);
 
-    if(damage.isColliding){
+    if (damage.isColliding) {
         return;
     }
 
-
     if (registry.hasComponent<PlayerTag>(source) && registry.hasComponent<EnemyStats>(target)) {
-        damage.isColliding = true; 
-        return;// Mark damage as isColliding for Damage System
+        damage.isColliding = true;
+        DamageTag damageTag = {target};
+        registry.removeComponent<DamageTag>(source);
+        registry.addComponent<DamageTag>(source, damageTag);
+        return; // Mark damage as isColliding for Damage System
     } else if (registry.hasComponent<EnemyTag>(source) && registry.hasComponent<PlayerStats>(target)) {
-        damage.isColliding = true; 
-        
-
+        damage.isColliding = true;
+        DamageTag damageTag = {target};
+        registry.removeComponent<DamageTag>(source);
+        registry.addComponent<DamageTag>(source, damageTag);
         return;
     } else {
         return; // No valid damage interaction

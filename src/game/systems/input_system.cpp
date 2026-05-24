@@ -3,6 +3,7 @@
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
@@ -45,7 +46,7 @@ void InputSystem::attack(Registry &registry, const PlayerStats &stats, Entity pl
                         .imagePath = controller::PersistenceManager::getConfig().assetConfig.projectilePath,
                         .width = 16.0f,
                         .height = 16.0f};
-
+    HitBox hitBox{.rect = {position.x, position.y, sprite.width, sprite.height}, .isActive = true};
     float angle = std::atan2(input.mouseGridY - playerPosition.y, input.mouseGridX - playerPosition.x);
     Velocity velocity{.dx = stats.speedOfAttack * std::cos(angle), .dy = stats.speedOfAttack * std::sin(angle)};
     std::cout << "SpeedOfAttack: " << stats.attackSpeed << " attacks/sec\n";
@@ -56,6 +57,7 @@ void InputSystem::attack(Registry &registry, const PlayerStats &stats, Entity pl
     registry.addComponent<view::Sprite>(attackEntity, sprite);
     registry.addComponent<Position>(attackEntity, position);
     registry.addComponent<Velocity>(attackEntity, velocity);
+    registry.addComponent<HitBox>(attackEntity, hitBox);
 }
 
 void InputSystem::update(Registry &registry, const controller::InputState &input, float dt)

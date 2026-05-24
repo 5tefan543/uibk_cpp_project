@@ -3,6 +3,8 @@
 
 namespace game {
 
-struct DamageTag {};
-Entity target;
+struct DamageTag {
+    Entity target;
+};
+
 } // namespace game

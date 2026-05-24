@@ -8,6 +8,7 @@
 #include "game/ecs/systems/animation_system.hpp"
 #include "game/ecs/systems/camera_system.hpp"
 #include "game/ecs/systems/collision_detection_system.hpp"
+#include "game/ecs/systems/damage_system.hpp"
 #include "game/ecs/systems/debug_selection_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
@@ -30,6 +31,7 @@ class Game {
     DebugSelectionSystem debugSelectionSystem_;
     SpawnEnemySystem spawnEnemySystem_;
     CollisionDetectionSystem collisionDetectionSystem_;
+    DamageSystem damageSystem_;
 
     int stage_ = 1;
     int wave_ = 1;

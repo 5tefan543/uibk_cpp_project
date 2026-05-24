@@ -225,6 +225,7 @@ void Game::updateSystems(const controller::InputState &input, float dt)
     animationSystem_.update(registry_, dt);
     cameraSystem_.update(registry_);
     collisionDetectionSystem_.update(registry_, wave_);
+    damageSystem_.update(registry_, dt);
 }
 
 bool Game::isWaveFinished()
