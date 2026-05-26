@@ -156,6 +156,26 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithGameplay replaces c
     REQUIRE(stateManager.isEmpty());
 }
 
+TEST_CASE_METHOD(TestFixture, "applyAction StartNewGameMelee replaces current state with melee gameplay")
+{
+    StateManager stateManager;
+    stateManager.push(MenuState::createMenu(MenuType::CharacterSelection));
+
+    stateManager.applyAction(StateTransitionAction::StartNewGameMelee);
+
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
+}
+
+TEST_CASE_METHOD(TestFixture, "applyAction StartNewGameRanged replaces current state with ranged gameplay")
+{
+    StateManager stateManager;
+    stateManager.push(MenuState::createMenu(MenuType::CharacterSelection));
+
+    stateManager.applyAction(StateTransitionAction::StartNewGameRanged);
+
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
+}
+
 TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded from save")
 {
     PersistedGame game;

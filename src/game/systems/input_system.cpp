@@ -71,7 +71,7 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
     Position playerPosition = registry.getComponent<Position>(playerEntity);
     Damage damageComponent{.amount = 10.0f,
                            .isColliding = false,
-                           .kind = DamageKind::Projectile,
+                           .kind = DamageKind::MeleeArc,
                            .params = MeleeArcDamage{.activeTimeSec = 0.2f, .elapsedSec = 0.0f}};
 
     Position position{.x = playerPosition.x, .y = playerPosition.y};

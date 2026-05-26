@@ -17,21 +17,27 @@
 
 namespace game {
 
-Game::Game(int wave)
+Game::Game(int wave, CharacterType characterType)
 {
     config_ = controller::PersistenceManager::getConfig();
     initMap();
     initCamera();
-    initPlayer();
+    initPlayer(characterType);
     initWave(wave);
 }
 
-Game::Game() : Game(1)
+Game::Game() : Game(1, CharacterType::Melee)
 {
     std::cout << "New game constructed" << std::endl;
 }
 
-Game::Game(const controller::PersistedGame &persistedGame) : Game(persistedGame.wave)
+Game::Game(CharacterType characterType) : Game(1, characterType)
+{
+    std::cout << "New game constructed" << std::endl;
+}
+
+Game::Game(const controller::PersistedGame &persistedGame)
+    : Game(persistedGame.wave, persistedGame.playerStats.characterType)
 {
     std::cout << "Game constructed from persisted game" << std::endl;
 
@@ -72,7 +78,7 @@ void Game::initCamera()
     registry_.addComponent<Position>(camera, {0.0f, 0.0f});
 }
 
-void Game::initPlayer()
+void Game::initPlayer(CharacterType characterType)
 {
     Entity player = registry_.createEntity();
     registry_.addComponent<PlayerTag>(player, {});
@@ -80,20 +86,29 @@ void Game::initPlayer()
     PlayerStats playerStats;
     playerStats.maxHealth = 100.0f;
     playerStats.health = playerStats.maxHealth;
-    playerStats.attackPower = 10.0f;
-    playerStats.attackSpeed = 1.0f;
+    if (characterType == CharacterType::Melee) {
+        playerStats.attackPower = 14.0f;
+        playerStats.attackSpeed = 1.25f;
+        playerStats.moveSpeed = 700.0f;
+        playerStats.hasDash = true;
+        playerStats.attackRange = 140.0f;
+        playerStats.speedOfAttack = 220.0f;
+        playerStats.dmgKind = DamageKind::MeleeArc;
+    } else {
+        playerStats.attackPower = 10.0f;
+        playerStats.attackSpeed = 1.0f;
+        playerStats.moveSpeed = 750.0f;
+        playerStats.hasDash = false;
+        playerStats.attackRange = 1000.0f;
+        playerStats.speedOfAttack = 240.0f;
+        playerStats.dmgKind = DamageKind::Projectile;
+    }
     playerStats.defense = 0.0f;
-    playerStats.moveSpeed = 750.0f;
-    playerStats.hasDash = false;
-    playerStats.attackRange = 1000.0f;
-    playerStats.speedOfAttack = 200.0f;
     registry_.addComponent<PlayerStats>(player, playerStats);
 
     registry_.addComponent<Position>(player, {100.0f, 100.0f});
     registry_.addComponent<Velocity>(player, {0.0f, 0.0f});
-    Animation playerAnimation = {
-        .baseTexturePath = "assets/characters/character_",
-    };
+    Animation playerAnimation = {.baseTexturePath = "assets/characters/character_"};
     registry_.addComponent<Animation>(player, playerAnimation);
     registry_.addComponent<view::Sprite>(player, {.imagePath = playerAnimation.baseTexturePath + "right_1.png"});
 }

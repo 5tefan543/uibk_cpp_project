@@ -64,6 +64,13 @@ TEST_CASE_METHOD(TestFixture, "GameplayState::createNewGameplay constructs gamep
     REQUIRE(state != nullptr);
 }
 
+TEST_CASE_METHOD(TestFixture, "GameplayState::createNewGameplay can construct a ranged gameplay state")
+{
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay(game::CharacterType::Ranged);
+
+    REQUIRE(state != nullptr);
+}
+
 TEST_CASE_METHOD(TestFixture, "ProgressionStoreState::createStore constructs store state with expected properties")
 {
     // ACT
@@ -79,7 +86,8 @@ TEST_CASE_METHOD(TestFixture, "Main menu update returns correct actions")
 
     SECTION("confirm on initial selection starts gameplay")
     {
-        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithGameplay);
+        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM)
+                == StateTransitionAction::ReplaceCurrentWithCharacterSelection);
     }
 
     SECTION("down changes selection so confirm exits")
@@ -92,12 +100,29 @@ TEST_CASE_METHOD(TestFixture, "Main menu update returns correct actions")
     {
         REQUIRE(applyInput<controller::MenuState>(state, DOWN) == StateTransitionAction::None);
         REQUIRE(applyInput<controller::MenuState>(state, UP) == StateTransitionAction::None);
-        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithGameplay);
+        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM)
+                == StateTransitionAction::ReplaceCurrentWithCharacterSelection);
     }
 
     SECTION("irrelevant input returns None")
     {
         REQUIRE(applyInput<controller::MenuState>(state, NONE) == StateTransitionAction::None);
+    }
+}
+
+TEST_CASE_METHOD(TestFixture, "Character selection update returns character specific start actions")
+{
+    auto state = MenuState::createMenu(MenuType::CharacterSelection);
+
+    SECTION("confirm on initial selection starts melee game")
+    {
+        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM) == StateTransitionAction::StartNewGameMelee);
+    }
+
+    SECTION("down changes selection so confirm starts ranged game")
+    {
+        REQUIRE(applyInput<controller::MenuState>(state, DOWN) == StateTransitionAction::None);
+        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM) == StateTransitionAction::StartNewGameRanged);
     }
 }
 
@@ -118,10 +143,10 @@ TEST_CASE_METHOD(TestFixture, "Main menu mouse input returns correct actions")
         REQUIRE(quitButton.isSelected == true);
     }
 
-    SECTION("mouse click on start game starts gameplay")
+    SECTION("mouse click on start game starts character selection")
     {
         REQUIRE(applyMouseClick<controller::MenuState>(state, getCenterX(startButton), getCenterY(startButton))
-                == StateTransitionAction::ReplaceCurrentWithGameplay);
+                == StateTransitionAction::ReplaceCurrentWithCharacterSelection);
     }
 
     SECTION("mouse click on quit exits game")

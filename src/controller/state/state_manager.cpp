@@ -57,6 +57,12 @@ void StateManager::applyAction(StateTransitionAction action)
     case StateTransitionAction::ReplaceCurrentWithGameplay:
         replaceCurrent(GameplayState::createNewGameplay());
         break;
+    case StateTransitionAction::StartNewGameMelee:
+        replaceCurrent(GameplayState::createNewGameplay(game::CharacterType::Melee));
+        break;
+    case StateTransitionAction::StartNewGameRanged:
+        replaceCurrent(GameplayState::createNewGameplay(game::CharacterType::Ranged));
+        break;
     case StateTransitionAction::ReplaceCurrentWithLoadedGameplay:
         replaceCurrent(GameplayState::createLoadedGameplay());
         break;
@@ -78,6 +84,9 @@ void StateManager::applyAction(StateTransitionAction action)
     case StateTransitionAction::ReplaceAllStatesWithExit:
         clear();
         push(ExitState::createExitState());
+        break;
+    case StateTransitionAction::ReplaceCurrentWithCharacterSelection:
+        push(MenuState::createMenu(MenuType::CharacterSelection));
         break;
     }
 }

@@ -4,6 +4,8 @@
 
 namespace game {
 
+enum class CharacterType { Melee, Ranged };
+
 struct Stats {
     float maxHealth = 1.0f;
     float health = 1.0f;
@@ -16,6 +18,7 @@ struct Stats {
 };
 
 struct PlayerStats : Stats {
+    CharacterType characterType = CharacterType::Melee;
     bool hasDash = false;
     DamageKind dmgKind = DamageKind::Projectile;
     int enemiesPierced = 0;
