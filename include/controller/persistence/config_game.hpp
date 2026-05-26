@@ -15,6 +15,7 @@ struct AssetConfig {
     std::string mapTexturePath;
     std::string fontPath;
     std::string projectilePath;
+    std::string meleePath;
 };
 
 struct GameConfig {

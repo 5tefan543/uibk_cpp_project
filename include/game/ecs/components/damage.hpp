@@ -1,6 +1,7 @@
 #pragma once
 #include <variant>
 
+namespace game {
 enum class DamageKind {
     Projectile,
     MeleeArc,
@@ -12,8 +13,7 @@ struct ProjectileDamage {
     float speed;            // units/sec
     float maxRange;         // projectile lifetime distance
     float distanceTraveled; // runtime state
-    float pushbackForce;    // e.g. for knockback
-    int targetsHit;         // runtime state, e.g. for piercing projectiles
+    int targetsHit;
 };
 
 struct MeleeArcDamage {
@@ -22,15 +22,6 @@ struct MeleeArcDamage {
     float activeTimeSec; // short hit window
     float elapsedSec;    // runtime state
 };
-
-struct Damage {
-    float amount;  // shared damage value
-    bool isColliding; // shared enable flag
-    DamageKind kind;
-    std::variant<ProjectileDamage, MeleeArcDamage> params;
-};
-
-// Ignore the following structs for now,
 
 struct BeamDamage {
     float length;        // reach
@@ -44,3 +35,15 @@ struct AreaDamage {
     float activeTimeSec; // short hit window
     float elapsedSec;    // runtime state
 };
+
+struct Damage {
+    float amount;     // shared damage value
+    bool isColliding; // shared enable flag
+    bool isMultiHit;
+    float pushBackForce; // e.g. for knockback
+    float stunChance;
+    DamageKind kind;
+    std::variant<ProjectileDamage, MeleeArcDamage, BeamDamage, AreaDamage> params;
+};
+
+} // namespace game

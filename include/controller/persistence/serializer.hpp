@@ -11,9 +11,10 @@
 #include <vector>
 
 template <>
-struct glz::meta<DamageKind> {
-    static constexpr auto value = glz::enumerate("Projectile", DamageKind::Projectile, "MeleeArc", DamageKind::MeleeArc,
-                                                 "Beam", DamageKind::Beam, "Area", DamageKind::Area);
+struct glz::meta<game::DamageKind> {
+    static constexpr auto value =
+        glz::enumerate("Projectile", game::DamageKind::Projectile, "MeleeArc", game::DamageKind::MeleeArc, "Beam",
+                       game::DamageKind::Beam, "Area", game::DamageKind::Area);
 };
 
 template <>
@@ -52,7 +53,8 @@ struct glz::meta<controller::AssetConfig> {
     static constexpr auto value = glz::object(
         "playerTexturePath", &controller::AssetConfig::playerTexturePath, "enemyTexturePath",
         &controller::AssetConfig::enemyTexturePath, "mapTexturePath", &controller::AssetConfig::mapTexturePath,
-        "fontPath", &controller::AssetConfig::fontPath, "projectilePath", &controller::AssetConfig::projectilePath);
+        "fontPath", &controller::AssetConfig::fontPath, "projectilePath", &controller::AssetConfig::projectilePath,
+        "meleePath", &controller::AssetConfig::meleePath);
 };
 
 template <>

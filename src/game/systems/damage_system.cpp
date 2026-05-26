@@ -5,7 +5,14 @@
 
 namespace game {
 
-void DamageSystem::updateProjectile(Entity projectile, Registry &registry) {}
+void DamageSystem::updateDamage(Entity damageEntity, Stats &stats, Registry &registry)
+{
+
+    // update knockback movement
+    // update piercing
+    // update time
+    //
+}
 
 void DamageSystem::update(Registry &registry, float dt)
 {
@@ -14,10 +21,6 @@ void DamageSystem::update(Registry &registry, float dt)
         Entity damageEntity = damageEntities[i];
         Damage &damage = registry.getComponent<Damage>(damageEntity);
         DamageTag &damageTag = registry.getComponent<DamageTag>(damageEntity);
-
-        if (damage.kind == DamageKind::Projectile) {
-            updateProjectile(damageEntity, registry);
-        }
 
         if (!damage.isColliding) {
             continue; // Skip if damage is not currently colliding

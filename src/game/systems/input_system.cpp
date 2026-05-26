@@ -29,14 +29,15 @@ void InputSystem::attack(Registry &registry, const PlayerStats &stats, Entity pl
     timeSinceLastAttack_ = 0.0f;
     Entity attackEntity = registry.createEntity();
     Position playerPosition = registry.getComponent<Position>(playerEntity);
-    Damage damageComponent{.amount = 10.0f,
-                           .isColliding = false,
-                           .kind = DamageKind::Projectile,
-                           .params = ProjectileDamage{.speed = stats.speedOfAttack,
-                                                      .maxRange = stats.attackRange,
-                                                      .distanceTraveled = 0.0f,
-                                                      .pushbackForce = 0.0f,
-                                                      .targetsHit = 0}};
+    Damage damageComponent{
+        .amount = 10.0f,
+        .isColliding = false,
+        .isMultiHit = false,
+        .pushBackForce = 0.0f,
+        .stunChance = 0.0f,
+        .kind = DamageKind::Projectile,
+        .params = ProjectileDamage{
+            .speed = stats.speedOfAttack, .maxRange = stats.attackRange, .distanceTraveled = 0.0f, .targetsHit = 0}};
 
     Position position{.x = playerPosition.x, .y = playerPosition.y};
 
@@ -57,6 +58,38 @@ void InputSystem::attack(Registry &registry, const PlayerStats &stats, Entity pl
     registry.addComponent<PlayerTag>(attackEntity, {}); // Mark as player's attack for collision detection
 }
 
+void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Entity playerEntity,
+                              const controller::InputState &input)
+{
+
+    if (timeSinceLastAttack_ <= 1.0f / stats.attackSpeed) {
+        return; // Attack is still on cooldown
+    }
+
+    timeSinceLastAttack_ = 0.0f;
+    Entity attackEntity = registry.createEntity();
+    Position playerPosition = registry.getComponent<Position>(playerEntity);
+    Damage damageComponent{.amount = 10.0f,
+                           .isColliding = false,
+                           .kind = DamageKind::Projectile,
+                           .params = MeleeArcDamage{.activeTimeSec = 0.2f, .elapsedSec = 0.0f}};
+
+    Position position{.x = playerPosition.x, .y = playerPosition.y};
+
+    view::Sprite sprite{.x = playerPosition.x,
+                        .y = playerPosition.y + 64,
+                        .imagePath = controller::PersistenceManager::getConfig().assetConfig.meleePath,
+                        .width = 64.0f,
+                        .height = 64.0f};
+    HitBox hitBox{.rect = {position.x, position.y, sprite.width, sprite.height}, .isActive = true};
+
+    registry.addComponent<Damage>(attackEntity, damageComponent);
+    registry.addComponent<view::Sprite>(attackEntity, sprite);
+    registry.addComponent<Position>(attackEntity, position);
+    registry.addComponent<HitBox>(attackEntity, hitBox);
+    registry.addComponent<PlayerTag>(attackEntity, {}); // Mark as player's attack for collision detection
+}
+
 void InputSystem::update(Registry &registry, const controller::InputState &input, float dt)
 {
     updateCooldown(dt);
@@ -67,10 +100,6 @@ void InputSystem::update(Registry &registry, const controller::InputState &input
 
         velocity.dx = 0.0F;
         velocity.dy = 0.0F;
-
-        if (input.mouseLeftPressed) {
-            attack(registry, playerStats, entity, input);
-        }
 
         if (input.leftHeld) {
             velocity.dx -= playerStats.moveSpeed;
@@ -83,6 +112,13 @@ void InputSystem::update(Registry &registry, const controller::InputState &input
         }
         if (input.downHeld) {
             velocity.dy += playerStats.moveSpeed;
+        }
+
+        if (input.mouseLeftPressed) {
+            attack(registry, playerStats, entity, input);
+        }
+        if (input.mouseRightPressed) {
+            attackMelee(registry, playerStats, entity, input);
         }
     }
 }

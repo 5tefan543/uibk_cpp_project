@@ -73,13 +73,15 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem activates player damage 
     registry.addComponent<game::PlayerTag>(player, {});
     registry.addComponent<game::Position>(player, {0.0f, 0.0f});
     registry.addComponent<view::Sprite>(player, {.width = 10.0f, .height = 10.0f});
-    registry.addComponent<Damage>(
-        player,
-        {.amount = 12.0f,
-         .isColliding = false,
-         .kind = DamageKind::Projectile,
-         .params = ProjectileDamage{
-             .speed = 0.0f, .maxRange = 0.0f, .distanceTraveled = 0.0f, .pushbackForce = 0.0f, .targetsHit = 0}});
+    registry.addComponent<game::Damage>(
+        player, game::Damage{.amount = 12.0f,
+                             .isColliding = false,
+                             .isMultiHit = false,
+                             .pushBackForce = 0.0f,
+                             .stunChance = 0.0f,
+                             .kind = game::DamageKind::Projectile,
+                             .params = game::ProjectileDamage{
+                                 .speed = 0.0f, .maxRange = 0.0f, .distanceTraveled = 0.0f, .targetsHit = 0}});
 
     game::Entity enemy = registry.createEntity();
     registry.addComponent<game::EnemyTag>(enemy, {});
@@ -89,14 +91,14 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem activates player damage 
     registry.addComponent<game::EnemyStats>(enemy, enemyStats);
     registry.addComponent<game::Position>(enemy, {5.0f, 5.0f});
     registry.addComponent<view::Sprite>(enemy, {.width = 10.0f, .height = 10.0f});
-    REQUIRE_FALSE(registry.getComponent<Damage>(player).isColliding);
+    REQUIRE_FALSE(registry.getComponent<game::Damage>(player).isColliding);
 
     system.update(registry, 1);
     system.update(registry, 1);
 
     const auto &updatedEnemyStats = registry.getComponent<game::EnemyStats>(enemy);
     REQUIRE(updatedEnemyStats.health == 50.0f);
-    REQUIRE(registry.getComponent<Damage>(player).isColliding);
+    REQUIRE(registry.getComponent<game::Damage>(player).isColliding);
 }
 
 TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem activatesto enemy damage on player on collision")
@@ -116,20 +118,23 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem activatesto enemy damage
     registry.addComponent<game::EnemyTag>(enemy, {});
     registry.addComponent<game::Position>(enemy, {4.0f, 4.0f});
     registry.addComponent<view::Sprite>(enemy, {.width = 10.0f, .height = 10.0f});
-    registry.addComponent<Damage>(
-        enemy, {.amount = 7.0f,
-                .isColliding = false,
-                .kind = DamageKind::MeleeArc,
-                .params = MeleeArcDamage{
-                    .arcAngleDeg = 90.0f, .arcRadius = 20.0f, .activeTimeSec = 0.2f, .elapsedSec = 0.0f}});
-    REQUIRE_FALSE(registry.getComponent<Damage>(enemy).isColliding);
+    registry.addComponent<game::Damage>(
+        enemy, game::Damage{.amount = 7.0f,
+                            .isColliding = false,
+                            .isMultiHit = false,
+                            .pushBackForce = 0.0f,
+                            .stunChance = 0.0f,
+                            .kind = game::DamageKind::MeleeArc,
+                            .params = game::MeleeArcDamage{
+                                .arcAngleDeg = 90.0f, .arcRadius = 20.0f, .activeTimeSec = 0.2f, .elapsedSec = 0.0f}});
+    REQUIRE_FALSE(registry.getComponent<game::Damage>(enemy).isColliding);
 
     system.update(registry, 1);
     system.update(registry, 1);
 
     const auto &updatedPlayerStats = registry.getComponent<game::PlayerStats>(player);
     REQUIRE(updatedPlayerStats.health == 30.0f);
-    REQUIRE(registry.getComponent<Damage>(enemy).isColliding);
+    REQUIRE(registry.getComponent<game::Damage>(enemy).isColliding);
 }
 
 TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem keeps entities inside map bounds")

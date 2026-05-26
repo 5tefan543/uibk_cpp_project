@@ -1,11 +1,12 @@
 #pragma once
+#include "game/ecs/components/stats.hpp"
 #include "game/ecs/registry.hpp"
 
 namespace game {
 
 class DamageSystem {
   private:
-    void updateProjectile(Entity projectile, Registry &registry);
+    void updateDamage(Entity damageEntity, Stats &stats, Registry &registry);
 
   public:
     DamageSystem() = default;

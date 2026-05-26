@@ -11,11 +11,12 @@
         "title": "Robotato"
     },
     "assetConfig": {
+        "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf",
         "playerTexturePath": "assets/characters/character_",
         "enemyTexturePath": "assets/characters/enemy_1_",
         "mapTexturePath": "assets/map/map_1.png",
-        "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf",
-        "projectilePath": "assets/effects/base_projectile_1.png"
+        "projectilePath": "assets/effects/base_projectile_1.png",
+        "meleePath": "accets/effects/base_swipe_1.png"
     }
 
 }
