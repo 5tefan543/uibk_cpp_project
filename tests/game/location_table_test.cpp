@@ -1,22 +1,17 @@
-#define TESTING
-#include "controller/debug/debug_context.hpp"
-#include "controller/input/input_state.hpp"
-#include "controller/persistence/persistence_manager.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
-#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
-#include "game/ecs/components/sprite.hpp"
 #include "game/ecs/components/velocity.hpp"
-#include "game/game.hpp"
-#include "shared/test_fixture.hpp"
-#include "shared/util.hpp"
+#include "game/location_table.hpp"
+#include "view/grid.hpp"
+
+#include "view/sprite.hpp"
 #include <SFML/Graphics/Rect.hpp>
 
 #include <algorithm>
 #include <catch2/catch_test_macros.hpp>
 #include <cmath>
-#include <iostream>
 
+// #include <iostream>
 // void printLTtable(game::LocationTableTester &ltSpy)
 // {
 //     for (size_t l = 0; l < ltSpy.getNumBuckH(); l++) {
@@ -35,6 +30,7 @@
 TEST_CASE("test location table", "[location-table]")
 {
     using namespace game;
+    using Sprite = view::Sprite;
     // Tests assume grid dims are integers and dividable by 2
     REQUIRE(std::fmod(view::gridWidth, 2) == 0.0f);
     REQUIRE(std::fmod(view::gridHeight, 2) == 0.0f);
@@ -63,9 +59,9 @@ TEST_CASE("test location table", "[location-table]")
         registry.addComponent<Position>(e, {p.x, p.y});
         registry.addComponent<Velocity>(e, {0, 0});
         if (sprtSize.has_value()) {
-            registry.addComponent<Sprite>(e, game::Sprite{.width = sprtSize.value().x, .height = sprtSize.value().y});
+            registry.addComponent<Sprite>(e, Sprite{.width = sprtSize.value().x, .height = sprtSize.value().y});
         } else {
-            registry.addComponent<Sprite>(e, game::Sprite{.width = spriteSize.x, .height = spriteSize.y});
+            registry.addComponent<Sprite>(e, Sprite{.width = spriteSize.x, .height = spriteSize.y});
         }
         lt.update(registry);
         return e;

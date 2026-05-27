@@ -2,6 +2,7 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/persistence/persisted_game.hpp"
 #include "controller/persistence/persistence_manager.hpp"
+#include "controller/state/state_transition_action.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/camera_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"

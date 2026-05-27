@@ -36,9 +36,10 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects sprite under mouse w
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects map when only map is under mouse")
 {
+    game::LocationTable unused({0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
-    game::GameDebugSession debugSession(registry);
+    game::GameDebugSession debugSession(registry, unused);
 
     game::Entity mapEntity = registry.createEntity();
     game::Position mapPosition{.x = 100.0f, .y = 100.0f};
@@ -62,9 +63,10 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects map when only map is
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem prefers non-map sprite over map when both are under mouse")
 {
+    game::LocationTable unused({0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
-    game::GameDebugSession debugSession(registry);
+    game::GameDebugSession debugSession(registry, unused);
 
     game::Entity mapEntity = registry.createEntity();
     registry.addComponent(mapEntity, game::Position{.x = 0.0f, .y = 0.0f});

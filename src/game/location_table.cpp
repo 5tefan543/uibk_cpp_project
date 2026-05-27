@@ -1,11 +1,11 @@
 #include "game/location_table.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/position.hpp"
-#include "game/ecs/components/sprite.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/ecs/entity.hpp"
 #include "game/ecs/registry.hpp"
 #include "view/grid.hpp"
+#include "view/sprite.hpp"
 #include <iostream>
 #include <unordered_set>
 
@@ -39,10 +39,10 @@ void LocationTable::update(const Registry &registry)
     }
 
     // bool cleanup = false;
-    auto entities = registry.view<Sprite, Position, Velocity, EnemyTag>();
+    auto entities = registry.view<view::Sprite, Position, Velocity, EnemyTag>();
     for (auto entity : entities) {
         const Position &position = registry.getComponent<Position>(entity);
-        const Sprite &sprite = registry.getComponent<Sprite>(entity);
+        const view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
         const Vec2<float> pos = {position.x, position.y};             // TODO: Vec2
         const Vec2<float> spriteSize = {sprite.width, sprite.height}; // TODO: Vec2
 

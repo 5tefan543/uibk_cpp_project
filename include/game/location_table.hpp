@@ -1,8 +1,8 @@
 #pragma once
-#include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/entity.hpp"
 #include "game/ecs/registry.hpp"
+#include "utils/vector.hpp"
 #include <unordered_set>
 
 namespace game {
