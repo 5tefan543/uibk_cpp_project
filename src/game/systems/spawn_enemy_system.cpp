@@ -47,7 +47,7 @@ constexpr float enemyMoveSpeedVariationStddev = 0.08f;
 constexpr float minEnemyMoveSpeedVariation = 0.9f;
 constexpr float maxEnemyMoveSpeedVariation = 1.1f;
 
-const std::string enemyBaseTexturePath = "assets/characters/enemy_1_";
+const std::string enemyBaseTexturePath = "assets/characters/blob_enemy/blob_";
 const std::string bossBaseTexturePath = "assets/characters/boss_1_";
 const std::string texturePathSuffix = "right_1.png";
 

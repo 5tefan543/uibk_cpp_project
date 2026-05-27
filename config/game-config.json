@@ -14,7 +14,7 @@
         "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf",
         "meleeTexturePath": "assets/characters/melee/character_melee_",
         "rangedTexturePath": "assets/characters/ranged/character_ranged_",
-        "enemyTexturePath": "assets/characters/enemy_1_",
+        "enemyTexturePath": "assets/characters/enemy_blob/blob_",
         "mapTexturePath": "assets/map/map_1.png",
         "projectilePath": "assets/effects/base_projectile_1.png",
         "meleePath": "accets/effects/base_swipe_1.png"
