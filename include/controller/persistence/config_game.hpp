@@ -10,7 +10,8 @@ struct WindowConfig {
 };
 
 struct AssetConfig {
-    std::string playerTexturePath;
+    std::string meleeTexturePath;
+    std::string rangedTexturePath;
     std::string enemyTexturePath;
     std::string mapTexturePath;
     std::string fontPath;

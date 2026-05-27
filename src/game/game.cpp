@@ -82,7 +82,7 @@ void Game::initPlayer(CharacterType characterType)
 {
     Entity player = registry_.createEntity();
     registry_.addComponent<PlayerTag>(player, {});
-
+    Animation playerAnimation;
     PlayerStats playerStats;
     playerStats.maxHealth = 100.0f;
     playerStats.health = playerStats.maxHealth;
@@ -94,6 +94,7 @@ void Game::initPlayer(CharacterType characterType)
         playerStats.attackRange = 140.0f;
         playerStats.speedOfAttack = 220.0f;
         playerStats.dmgKind = DamageKind::MeleeArc;
+        playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePath};
     } else {
         playerStats.attackPower = 10.0f;
         playerStats.attackSpeed = 1.0f;
@@ -102,13 +103,13 @@ void Game::initPlayer(CharacterType characterType)
         playerStats.attackRange = 1000.0f;
         playerStats.speedOfAttack = 240.0f;
         playerStats.dmgKind = DamageKind::Projectile;
+        playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePath};
     }
     playerStats.defense = 0.0f;
     registry_.addComponent<PlayerStats>(player, playerStats);
 
     registry_.addComponent<Position>(player, {100.0f, 100.0f});
     registry_.addComponent<Velocity>(player, {0.0f, 0.0f});
-    Animation playerAnimation = {.baseTexturePath = "assets/characters/character_"};
     registry_.addComponent<Animation>(player, playerAnimation);
     registry_.addComponent<view::Sprite>(player, {.imagePath = playerAnimation.baseTexturePath + "right_1.png"});
 }

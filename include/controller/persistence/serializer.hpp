@@ -51,10 +51,10 @@ struct glz::meta<controller::WindowConfig> {
 template <>
 struct glz::meta<controller::AssetConfig> {
     static constexpr auto value = glz::object(
-        "playerTexturePath", &controller::AssetConfig::playerTexturePath, "enemyTexturePath",
-        &controller::AssetConfig::enemyTexturePath, "mapTexturePath", &controller::AssetConfig::mapTexturePath,
-        "fontPath", &controller::AssetConfig::fontPath, "projectilePath", &controller::AssetConfig::projectilePath,
-        "meleePath", &controller::AssetConfig::meleePath);
+        "meleeTexturePath", &controller::AssetConfig::meleeTexturePath, "rangedTexturePath",
+        &controller::AssetConfig::rangedTexturePath, "enemyTexturePath", &controller::AssetConfig::enemyTexturePath,
+        "mapTexturePath", &controller::AssetConfig::mapTexturePath, "fontPath", &controller::AssetConfig::fontPath,
+        "projectilePath", &controller::AssetConfig::projectilePath, "meleePath", &controller::AssetConfig::meleePath);
 };
 
 template <>

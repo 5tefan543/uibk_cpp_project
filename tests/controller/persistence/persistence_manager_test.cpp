@@ -99,7 +99,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk whe
     input.windowConfig.width = 1024;
     input.windowConfig.height = 768;
     input.windowConfig.title = "Disk Config";
-    input.assetConfig.playerTexturePath = "assets/player.png";
+    input.assetConfig.meleeTexturePath = "assets/player.png";
     input.assetConfig.enemyTexturePath = "assets/enemy.png";
     input.assetConfig.mapTexturePath = "assets/map.png";
     input.assetConfig.fontPath = "assets/font.ttf";
@@ -114,7 +114,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk whe
     REQUIRE(output.windowConfig.width == 1024);
     REQUIRE(output.windowConfig.height == 768);
     REQUIRE(output.windowConfig.title == "Disk Config");
-    REQUIRE(output.assetConfig.playerTexturePath == "assets/player.png");
+    REQUIRE(output.assetConfig.meleeTexturePath == "assets/player.png");
     REQUIRE(output.assetConfig.enemyTexturePath == "assets/enemy.png");
     REQUIRE(output.assetConfig.mapTexturePath == "assets/map.png");
     REQUIRE(output.assetConfig.fontPath == "assets/font.ttf");
@@ -158,7 +158,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads config")
     input.windowConfig.width = 1280;
     input.windowConfig.height = 720;
     input.windowConfig.title = "Test Window";
-    input.assetConfig.playerTexturePath = "assets/players/test_player.png";
+    input.assetConfig.meleeTexturePath = "assets/players/test_player.png";
     input.assetConfig.enemyTexturePath = "assets/enemies/test_enemy.png";
     input.assetConfig.mapTexturePath = "assets/maps/test_map.png";
     input.assetConfig.fontPath = "assets/fonts/test_font.ttf";
@@ -174,7 +174,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads config")
     REQUIRE(output.windowConfig.width == 1280);
     REQUIRE(output.windowConfig.height == 720);
     REQUIRE(output.windowConfig.title == "Test Window");
-    REQUIRE(output.assetConfig.playerTexturePath == "assets/players/test_player.png");
+    REQUIRE(output.assetConfig.meleeTexturePath == "assets/players/test_player.png");
     REQUIRE(output.assetConfig.enemyTexturePath == "assets/enemies/test_enemy.png");
     REQUIRE(output.assetConfig.mapTexturePath == "assets/maps/test_map.png");
     REQUIRE(output.assetConfig.fontPath == "assets/fonts/test_font.ttf");
