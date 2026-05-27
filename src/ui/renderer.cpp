@@ -1,4 +1,5 @@
 #include "ui/renderer.hpp"
+#include "controller/debug/debug_context.hpp"
 #include "view/grid.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
@@ -114,6 +115,42 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Sprite &sprit
         selectionBox.setOutlineThickness(2.0f);
         window.draw(selectionBox);
     }
+}
+
+void Renderer::renderDebugLocationTable(sf::RenderWindow &window)
+{
+    auto &context = controller::DebugContext::get();
+    if (!context.gameSettings.showLocationTable) {
+        return;
+    }
+    game::LocationTable &lt = context.gameSession->locationTable;
+    for (unsigned y = 0; y < lt.numBuckets.y; y++) {
+        for (unsigned x = 0; x < lt.numBuckets.x; x++) {
+            sf::RectangleShape bucket;
+            bucket.setPosition({(x * lt.bucketSize.x), (y * lt.bucketSize.y)});
+            bucket.setSize({lt.bucketSize.x, lt.bucketSize.y});
+            bucket.setOutlineColor(sf::Color::Blue);
+            bucket.setFillColor(sf::Color::Transparent);
+            bucket.setOutlineThickness(1.0f);
+            window.draw(bucket);
+
+            sf::Text t(toSfFont(view::Font::Default), std::format("{}", lt.cgetBucket(x, y)->size()));
+            t.setOrigin(t.getLocalBounds().getCenter());
+            t.setPosition({bucket.getPosition() + bucket.getGeometricCenter()});
+            t.setFillColor(sf::Color::Black);
+            const float twscale = lt.bucketSize.x / t.getLocalBounds().size.x;
+            const float thscale = lt.bucketSize.y / t.getLocalBounds().size.y;
+            const auto tscale = std::min(twscale * 0.7f, thscale * 0.7f);
+            t.setScale({tscale, tscale});
+            window.draw(t);
+        }
+    }
+}
+
+void Renderer::renderDebugContext(sf::RenderWindow &window)
+{
+    renderDebugLocationTable(window);
+    // Add more debug related rendering here if required
 }
 
 } // namespace ui

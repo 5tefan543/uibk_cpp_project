@@ -58,6 +58,7 @@ void DebugUI::renderGameSettings(controller::DebugContext &debug)
 
         ImGui::SeparatorText("Collision");
         ImGui::Checkbox("Show Hitboxes", &debug.gameSettings.showHitboxes);
+        ImGui::Checkbox("Show Location Table", &debug.gameSettings.showLocationTable);
     }
 }
 

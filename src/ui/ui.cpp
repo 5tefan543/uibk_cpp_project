@@ -108,6 +108,8 @@ void UI::render(const view::View &view)
     renderView(window_, view);
 
     // 3. Render debug UI on top
+    setSfmlView(view.cameraX, view.cameraY);
+    renderer_.renderDebugContext(window_);
     debugUI_.render(inputState_, fps_);
     ImGui::SFML::Render(window_);
 

@@ -14,7 +14,7 @@
 #include <view/text.hpp>
 namespace game {
 
-Game::Game() : locationTable_(40, 40) // 1920/40 = 48 buckets; 1080/40 = 27 buckets
+Game::Game() : locationTable_({40, 40}) // 1920/40 = 48 buckets; 1080/40 = 27 buckets
 {
 #ifdef LOG_STDOUT
     std::cout << "Game constructed" << std::endl;
@@ -57,14 +57,12 @@ void Game::initEnemies()
     std::uniform_real_distribution<> posDist(200.0f, 800.0f);
     std::uniform_real_distribution<> velDist(0.0f, 10.0f);
 
-    // Spawn 3 enemies at different positions
     for (int i = 0; i < 50; ++i) {
         Entity enemy = registry_.createEntity();
         registry_.addComponent<EnemyTag>(enemy, {});
         registry_.addComponent<Position>(enemy, {static_cast<float>(posDist(gen)), static_cast<float>(posDist(gen))});
         registry_.addComponent<Velocity>(enemy, {static_cast<float>(velDist(gen)), static_cast<float>(velDist(gen))});
 
-        // Set sprite with enemy texture
         Sprite sprite;
         sprite.baseTexturePath = "assets/characters/enemy_1_";
         registry_.addComponent<Sprite>(enemy, sprite);

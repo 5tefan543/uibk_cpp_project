@@ -11,9 +11,10 @@
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects sprite under mouse when ctrl-clicked")
 {
+    game::LocationTable unused({0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
-    game::GameDebugSession debugSession(registry);
+    game::GameDebugSession debugSession(registry, unused);
 
     game::Entity spriteEntity = registry.createEntity();
     game::Position spritePosition{.x = 100.0f, .y = 100.0f};
@@ -35,9 +36,10 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects sprite under mouse w
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects map under mouse when ctrl-clicked")
 {
+    game::LocationTable unused({0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
-    game::GameDebugSession debugSession(registry);
+    game::GameDebugSession debugSession(registry, unused);
 
     game::Entity mapEntity = registry.createEntity();
     game::Map mapComponent{
@@ -62,9 +64,10 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects map under mouse when
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select entity when ctrl is not held")
 {
+    game::LocationTable unused({0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
-    game::GameDebugSession debugSession(registry);
+    game::GameDebugSession debugSession(registry, unused);
 
     game::Entity spriteEntity = registry.createEntity();
     game::Position spritePosition{.x = 100.0f, .y = 100.0f};
@@ -86,9 +89,10 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select entity when 
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select entity when mouse is outside entity")
 {
+    game::LocationTable unused({0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
-    game::GameDebugSession debugSession(registry);
+    game::GameDebugSession debugSession(registry, unused);
 
     game::Entity spriteEntity = registry.createEntity();
     game::Position spritePosition{.x = 100.0f, .y = 100.0f};
@@ -113,9 +117,10 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select entity when 
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem clears sprite selection when debug is disabled")
 {
+    game::LocationTable unused({0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
-    game::GameDebugSession debugSession(registry);
+    game::GameDebugSession debugSession(registry, unused);
 
     game::Entity spriteEntity = registry.createEntity();
     game::Sprite spriteComponent{
@@ -136,9 +141,10 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem clears sprite selection when
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem clears map selection when debug is disabled")
 {
+    game::LocationTable unused({0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
-    game::GameDebugSession debugSession(registry);
+    game::GameDebugSession debugSession(registry, unused);
 
     game::Entity mapEntity = registry.createEntity();
     game::Map mapComponent{

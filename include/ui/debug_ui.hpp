@@ -19,6 +19,7 @@ class DebugUI {
     void renderGameSettings(controller::DebugContext &debug);
     void renderGameSession(controller::DebugContext &debug);
     void renderEcsManagement(controller::DebugContext &debug, game::GameDebugSession &gameSession);
+    void renderLocationTable(controller::DebugContext &debug);
     void renderComponent(game::PlayerTag &c);
     void renderComponent(game::Position &c);
     void renderComponent(game::Velocity &c);

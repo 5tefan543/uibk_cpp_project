@@ -17,9 +17,8 @@ namespace game {
 class Game {
   private:
     Registry registry_;
-    GameDebugSession debugSession_{registry_};
-
     LocationTable locationTable_;
+    GameDebugSession debugSession_{registry_, locationTable_};
 
     AnimationSystem animationSystem_;
     CameraSystem cameraSystem_;

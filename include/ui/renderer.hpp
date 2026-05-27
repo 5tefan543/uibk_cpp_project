@@ -14,6 +14,7 @@ class Renderer {
   private:
     std::vector<sf::Font> fonts_;
     std::map<std::string, sf::Texture> textureCache_;
+    void renderDebugLocationTable(sf::RenderWindow &window);
 
   public:
     Renderer();
@@ -28,6 +29,7 @@ class Renderer {
     void renderElement(sf::RenderWindow &window, const view::Button &button);
     void renderElement(sf::RenderWindow &window, const view::Text &text);
     void renderElement(sf::RenderWindow &window, const view::Sprite &sprite);
+    void renderDebugContext(sf::RenderWindow &window);
 };
 
 } // namespace ui

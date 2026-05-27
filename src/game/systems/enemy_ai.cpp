@@ -6,65 +6,10 @@
 #include "game/ecs/components/velocity.hpp"
 #include "game/location_table.hpp"
 #include <cmath>
+#include <iostream>
 
 namespace game {
 
-template <typename T>
-struct Vec2 {
-    T x;
-    T y;
-
-    Vec2<T> operator+(Vec2<T> other) const { return Vec2{x + other.x, y + other.y}; }
-    Vec2<T> operator-(Vec2<T> other) const { return Vec2{x - other.x, y - other.y}; }
-    Vec2<T> operator*(T scalar) const { return Vec2{x * scalar, y * scalar}; }
-    Vec2<T> operator/(Vec2<T> other) const { return Vec2{x / other.x, y / other.y}; }
-    Vec2<T> operator/(T scalar) const { return Vec2{x / scalar, y / scalar}; }
-    Vec2<T> operator*(Vec2<T> other) const { return Vec2{x * other.x, y * other.y}; }
-    void operator+=(T scalar)
-    {
-        x += scalar;
-        y += scalar;
-    };
-    void operator-=(T scalar)
-    {
-        x -= scalar;
-        y -= scalar;
-    };
-    void operator*=(T scalar)
-    {
-        x *= scalar;
-        y *= scalar;
-    };
-    void operator/=(T scalar)
-    {
-        x /= scalar;
-        y /= scalar;
-    };
-    void operator+=(Vec2<T> other)
-    {
-        x += other.x;
-        y += other.y;
-    };
-    void operator-=(Vec2<T> other)
-    {
-        x -= other.x;
-        y -= other.y;
-    };
-    void operator*=(Vec2<T> other)
-    {
-        x *= other.x;
-        y *= other.y;
-    };
-    void operator/=(Vec2<T> other)
-    {
-        x /= other.x;
-        y /= other.y;
-    };
-    T length() const { return std::sqrt(x * x + y * y); };
-    Vec2<T> abs() const { return {std::abs(x), std::abs(y)}; };
-};
-
-// Ideas: change direction with delay/(de)accel coupled to dt
 void EnemyAI::update(Registry &registry, LocationTable &locationTable)
 {
     const auto players = registry.view<Velocity, PlayerTag>();
@@ -79,27 +24,27 @@ void EnemyAI::update(Registry &registry, LocationTable &locationTable)
             Position &enemyPos = registry.getComponent<Position>(enemy);
             Vec2 posE{enemyPos.x, enemyPos.y};
 
+            // Set movement direction exactly towards player
             Vec2 v = posP - posE;
-            v *= enemyTag.moveSpeed / v.length();
 
-            float radiusNear = 100;
-            auto enemiesNear = locationTable.getEntitiesNear(posE.x, posE.y, radiusNear);
-            for (Entity e : enemiesNear) {
+            // Calc. repelling force between enemies
+            auto enemiesInRange = locationTable.getEntitiesInRange(posE, 50, registry);
+            Vec2<float> repelOffset = {0, 0};
+            for (auto [e, position] : enemiesInRange) {
                 if (e == enemy) {
                     continue;
                 }
-                Position &posNear = registry.getComponent<Position>(e);
-                auto towardsother = posE - Vec2{posNear.x, posNear.y};
-                if (towardsother.length() < radiusNear) {
-                    towardsother *= (enemyTag.moveSpeed / towardsother.length());
-                    v += towardsother;
-                    // std::cout << "enemy " << enemy << "moved away" << std::endl;
-                }
+                const auto p = Vec2{position.x, position.y}; // TODO: into Vec2
+                const auto pToOther = (posE - p);
+                repelOffset += pToOther / std::pow(pToOther.length(), 2); // increase repelling with proximity
+                repelOffset.normalize();
             }
+            v.normalize();
+            v += repelOffset;
 
-            v *= enemyTag.moveSpeed / v.length();
-            velocity.dx = v.x;
-            velocity.dy = v.y;
+            v.setLenght(enemyTag.moveSpeed);
+            velocity.dx = v.x; // TODO: into Vec2
+            velocity.dy = v.y; // TODO: into Vec2
         }
     }
 }
