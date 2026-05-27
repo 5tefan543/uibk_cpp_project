@@ -20,6 +20,9 @@ struct GameConfig {
     int initialStage;
     int initialWave;
     int initialCurrency;
+    int waveDurationSeconds;
+    int wavesPerStage;
+    int maxEnemyCount;
     WindowConfig windowConfig;
     AssetConfig assetConfig;
 };

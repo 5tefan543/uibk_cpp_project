@@ -1,6 +1,6 @@
 #include "ui/renderer.hpp"
 #include "controller/debug/debug_context.hpp"
-#include "view/grid.hpp"
+#include "controller/persistence/persistence_manager.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
@@ -9,7 +9,7 @@ namespace ui {
 Renderer::Renderer()
 {
     // Load all fonts from disk once upon instantiation
-    fonts_ = std::vector<sf::Font>({sf::Font("assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf")});
+    fonts_ = std::vector<sf::Font>({sf::Font(controller::PersistenceManager::getConfig().assetConfig.fontPath)});
 #ifdef LOG_STDOUT
     std::cout << "Renderer constructed" << std::endl;
 #endif
@@ -30,6 +30,39 @@ sf::Color Renderer::toSfColor(const view::Color &color)
 const sf::Font &Renderer::toSfFont(const view::Font font)
 {
     return fonts_.at(font);
+}
+
+sf::Texture &Renderer::getTexture(const std::string &imagePath)
+{
+    static const std::string fallbackTexturePath = "assets/icons/question_mark.png";
+
+    std::string texturePath = imagePath;
+
+    if (texturePath.empty()) {
+        texturePath = fallbackTexturePath;
+    }
+
+    auto it = textureCache_.find(texturePath);
+    if (it != textureCache_.end()) {
+        return it->second;
+    }
+
+    sf::Texture texture;
+
+    if (!texture.loadFromFile(texturePath)) {
+
+        if (texturePath == fallbackTexturePath) {
+            throw std::runtime_error("Failed to load fallback texture: " + fallbackTexturePath);
+        }
+#ifdef LOG_STDOUT
+        std::cerr << "Failed to load texture: " << texturePath << ". Using fallback texture.\n";
+#endif
+
+        return getTexture(fallbackTexturePath);
+    }
+
+    auto [insertedIt, inserted] = textureCache_.emplace(texturePath, std::move(texture));
+    return insertedIt->second;
 }
 
 void Renderer::renderViewElement(sf::RenderWindow &window, const view::ViewElement &element)
@@ -84,17 +117,7 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Text &text)
 
 void Renderer::renderElement(sf::RenderWindow &window, const view::Sprite &sprite)
 {
-    // Load or get texture from cache
-    if (textureCache_.find(sprite.imagePath) == textureCache_.end()) {
-        sf::Texture texture;
-        if (!texture.loadFromFile(sprite.imagePath)) {
-            std::cerr << "Failed to load texture: " << sprite.imagePath << std::endl;
-            return;
-        }
-        textureCache_[sprite.imagePath] = texture;
-    }
-
-    sf::Sprite sfSprite(textureCache_[sprite.imagePath]);
+    sf::Sprite sfSprite(getTexture(sprite.imagePath));
 
     sfSprite.setPosition({sprite.x, sprite.y});
 

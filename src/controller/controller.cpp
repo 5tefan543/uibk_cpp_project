@@ -1,5 +1,6 @@
 #include "controller/controller.hpp"
 #include "controller/debug/debug_context.hpp"
+#include "controller/persistence/leaderboard.hpp"
 #include <iostream>
 
 namespace controller {

@@ -14,21 +14,21 @@ class Renderer {
   private:
     std::vector<sf::Font> fonts_;
     std::map<std::string, sf::Texture> textureCache_;
+    const sf::Font &toSfFont(const view::Font font);
+    sf::Texture &getTexture(const std::string &imagePath);
+    void renderElement(sf::RenderWindow &window, const view::Card &card);
+    void renderElement(sf::RenderWindow &window, const view::Button &button);
+    void renderElement(sf::RenderWindow &window, const view::Text &text);
+    void renderElement(sf::RenderWindow &window, const view::Sprite &sprite);
     void renderDebugLocationTable(sf::RenderWindow &window);
 
   public:
     Renderer();
     ~Renderer();
 
-    sf::Color toSfColor(const view::Color &color);
-    const sf::Font &toSfFont(const view::Font font);
-
     void renderViewElement(sf::RenderWindow &window, const view::ViewElement &element);
     void renderViewElements(sf::RenderWindow &window, const std::vector<view::ViewElement> &elements);
-    void renderElement(sf::RenderWindow &window, const view::Card &card);
-    void renderElement(sf::RenderWindow &window, const view::Button &button);
-    void renderElement(sf::RenderWindow &window, const view::Text &text);
-    void renderElement(sf::RenderWindow &window, const view::Sprite &sprite);
+    sf::Color toSfColor(const view::Color &color);
     void renderDebugContext(sf::RenderWindow &window);
 };
 

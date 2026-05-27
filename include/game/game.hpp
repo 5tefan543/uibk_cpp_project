@@ -1,6 +1,7 @@
 #pragma once
 
 #include "controller/input/input_state.hpp"
+#include "controller/persistence/config_game.hpp"
 #include "controller/persistence/persisted_game.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
@@ -9,6 +10,7 @@
 #include "game/ecs/systems/enemy_ai.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
+#include "game/ecs/systems/spawn_enemy_system.hpp"
 #include "game/location_table.hpp"
 #include "view/view.hpp"
 
@@ -19,6 +21,8 @@ class Game {
     Registry registry_;
     LocationTable locationTable_;
     GameDebugSession debugSession_{registry_, locationTable_};
+    controller::GameConfig config_;
+    float currentWaveDuration_;
 
     AnimationSystem animationSystem_;
     CameraSystem cameraSystem_;
@@ -26,11 +30,12 @@ class Game {
     MovementSystem movementSystem_;
     DebugSelectionSystem debugSelectionSystem_;
     EnemyAI enemyAI_;
+    SpawnEnemySystem spawnEnemySystem_;
 
     int stage_ = 1;
     int wave_ = 1;
+    int score_ = 0;
     int currency_ = 0;
-
     // We need to store view::Text as a member because ViewElement stores a reference to it,
     // so we must ensure that the referenced object lives long enough.
     //
@@ -45,24 +50,28 @@ class Game {
     // all sprites in a deque inside Game.
     view::Text stageWaveInfo_;
 
-    void initWave();
-    void initStage();
+    explicit Game(int wave);
+
+    void initMap();
+    void initCamera();
     void initPlayer();
-    void initPersistedPlayer(const controller::PersistedGame &persistedGame);
-    void initEnemies();
-    void processDebugSession();
+    void initWave(int waveNumber);
+    void processDebugSession(float dt);
     void updateSystems(const controller::InputState &input, float dt);
-    bool isGameOver();
+    bool isWaveFinished();
+    void addScore(int score);
 
   public:
     Game();
+    Game(const controller::PersistedGame &persistedGame);
     Game(const Game &) = delete;
+    Game(Game &&) = delete;
     ~Game();
 
     GameDebugSession &getDebugSession();
-    void loadFromPersistedGame(const controller::PersistedGame &persistedGame);
     controller::PersistedGame getPersistedGame() const;
-    bool update(const controller::InputState &input, float dt);
+    controller::StateTransitionAction update(const controller::InputState &input, float dt);
+    bool isGameOver();
     void updateView(view::View &view);
 };
 

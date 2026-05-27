@@ -10,52 +10,6 @@
 #include <sstream>
 #include <vector>
 
-// glz::meta explicit specializations must be at global (namespace) scope —
-// they cannot be nested inside a class body.
-
-template <>
-struct glz::meta<controller::PlayerStats> {
-    using T = controller::PlayerStats;
-    static constexpr auto value =
-        object("maxHealth", &T::maxHealth, "attackPower", &T::attackPower, "attackSpeed", &T::attackSpeed, "defense",
-               &T::defense, "speed", &T::speed, "hasDash", &T::hasDash);
-};
-
-template <>
-struct glz::meta<controller::PersistedGame> {
-    using T = controller::PersistedGame;
-    static constexpr auto value =
-        object("stage", &T::stage, "wave", &T::wave, "currency", &T::currency, "playerStats", &T::playerStats);
-};
-
-template <>
-struct glz::meta<controller::WindowConfig> {
-    using T = controller::WindowConfig;
-    static constexpr auto value = object("width", &T::width, "height", &T::height, "title", &T::title);
-};
-
-template <>
-struct glz::meta<controller::AssetConfig> {
-    using T = controller::AssetConfig;
-    static constexpr auto value =
-        object("playerTexturePath", &T::playerTexturePath, "enemyTexturePath", &T::enemyTexturePath, "mapTexturePath",
-               &T::mapTexturePath, "fontPath", &T::fontPath);
-};
-
-template <>
-struct glz::meta<controller::GameConfig> {
-    using T = controller::GameConfig;
-    static constexpr auto value =
-        object("initialStage", &T::initialStage, "initialWave", &T::initialWave, "initialCurrency", &T::initialCurrency,
-               "windowConfig", &T::windowConfig, "assetConfig", &T::assetConfig);
-};
-
-template <>
-struct glz::meta<controller::LeaderboardEntry> {
-    using T = controller::LeaderboardEntry;
-    static constexpr auto value = object("playerName", &T::playerName, "score", &T::score, "wave", &T::wave);
-};
-
 namespace controller {
 
 class Serializer {
@@ -124,7 +78,8 @@ class Serializer {
 
         if (const auto err = glz::read_json(value, buffer.str())) {
 #ifdef LOG_STDOUT
-            std::cerr << "Failed to deserialize JSON for " << path << std::endl;
+            std::cerr << "Failed to deserialize JSON for " << path << ": " << glz::format_error(err, buffer.str())
+                      << '\n';
 #endif
             return false;
         }

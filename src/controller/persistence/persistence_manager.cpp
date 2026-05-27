@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
+#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -78,7 +79,7 @@ bool PersistenceManager::saveConfig(const GameConfig &config)
     return false;
 }
 
-GameConfig PersistenceManager::loadConfig()
+GameConfig PersistenceManager::getConfig()
 {
     if (configCache.has_value()) {
         return *configCache;
