@@ -18,8 +18,8 @@ void InputSystem::updateCooldown(float dt)
     timeSinceLastAttack_ += dt;
 }
 
-void InputSystem::attack(Registry &registry, const PlayerStats &stats, Entity playerEntity,
-                         const controller::InputState &input)
+void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Entity playerEntity,
+                               const controller::InputState &input)
 {
 
     if (timeSinceLastAttack_ <= 1.0f / stats.attackSpeed) {
@@ -66,26 +66,38 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
         return; // Attack is still on cooldown
     }
 
+    Animation animation;
+    animation.direction = Direction::Right;
+    animation.currentFrame = 0;
+    animation.frameTimer = 0.0f;
+    animation.frameDuration = 0.32f; // seconds per animation frame
+    animation.totalFrames = 2;       // Total animation frames in each direction
+    animation.baseTexturePath = controller::PersistenceManager::getConfig().assetConfig.meleeTexturePath + "atk_";
     timeSinceLastAttack_ = 0.0f;
     Entity attackEntity = registry.createEntity();
     Position playerPosition = registry.getComponent<Position>(playerEntity);
     Damage damageComponent{.amount = 10.0f,
                            .isColliding = false,
                            .kind = DamageKind::MeleeArc,
-                           .params = MeleeArcDamage{.activeTimeSec = 0.2f, .elapsedSec = 0.0f}};
+                           .params =
+                               MeleeArcDamage{.activeTimeSec = animation.totalFrames * animation.frameDuration + 0.1f,
+                                              .elapsedSec = 0.0f}};
 
     Position position{.x = playerPosition.x, .y = playerPosition.y};
 
-    view::Sprite sprite{.x = playerPosition.x,
-                        .y = playerPosition.y + 64,
-                        .imagePath = controller::PersistenceManager::getConfig().assetConfig.meleePath,
-                        .width = 64.0f,
-                        .height = 64.0f};
-    HitBox hitBox{.rect = {position.x, position.y, sprite.width, sprite.height}, .isActive = true};
+    HitBox hitBox{.rect = {position.x, position.y, 64, 64}, .isActive = true};
+
+    bool isRight = input.mouseGridX > playerPosition.x;
+
+    view::Sprite sprite;
+    sprite.x = playerPosition.x;
+    sprite.y = playerPosition.y;
+    sprite.imagePath = animation.baseTexturePath + (isRight ? "right_1.png" : "left_1.png");
 
     registry.addComponent<Damage>(attackEntity, damageComponent);
-    registry.addComponent<view::Sprite>(attackEntity, sprite);
     registry.addComponent<Position>(attackEntity, position);
+    registry.addComponent<view::Sprite>(attackEntity, sprite);
+    registry.addComponent<Animation>(attackEntity, animation);
     registry.addComponent<HitBox>(attackEntity, hitBox);
     registry.addComponent<PlayerTag>(attackEntity, {}); // Mark as player's attack for collision detection
 }
@@ -115,10 +127,20 @@ void InputSystem::update(Registry &registry, const controller::InputState &input
         }
 
         if (input.mouseLeftPressed) {
-            attack(registry, playerStats, entity, input);
+            if (playerStats.dmgKind == DamageKind::MeleeArc) {
+                attackMelee(registry, playerStats, entity, input);
+            } else {
+                attackRanged(registry, playerStats, entity, input);
+            }
         }
+
         if (input.mouseRightPressed) {
-            attackMelee(registry, playerStats, entity, input);
+            // special abilities for ranged and melee here
+            if (playerStats.dmgKind == DamageKind::MeleeArc) {
+                // Area
+            } else {
+                // Beam or multi projectiles
+            }
         }
     }
 }

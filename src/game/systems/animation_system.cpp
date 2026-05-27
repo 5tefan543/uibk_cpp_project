@@ -11,27 +11,30 @@ namespace game {
 
 void AnimationSystem::update(Registry &registry, float dt)
 {
-    for (auto entity : registry.view<Animation, view::Sprite, Velocity>()) {
+    for (auto entity : registry.view<Animation, view::Sprite>()) {
         Animation &animation = registry.getComponent<Animation>(entity);
-        const Velocity &velocity = registry.getComponent<Velocity>(entity);
         view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
 
-        bool isMoving = std::abs(velocity.dx) > 0.1f || std::abs(velocity.dy) > 0.1f;
+        if (registry.hasComponent<Velocity>(entity)) {
+            const Velocity &velocity = registry.getComponent<Velocity>(entity);
 
-        if (std::abs(velocity.dx) > 0.1f) {
-            animation.direction = velocity.dx > 0 ? Direction::Right : Direction::Left;
-        }
+            bool isMoving = std::abs(velocity.dx) > 0.1f || std::abs(velocity.dy) > 0.1f;
 
-        // Only update animation frame if moving
-        if (isMoving) {
-            animation.frameTimer += dt;
-            if (animation.frameTimer >= animation.frameDuration) {
-                animation.frameTimer -= animation.frameDuration;
-                animation.currentFrame = (animation.currentFrame + 1) % animation.totalFrames;
+            if (std::abs(velocity.dx) > 0.1f) {
+                animation.direction = velocity.dx > 0 ? Direction::Right : Direction::Left;
             }
-        } else {
-            // Add Idle Anmimation
-            animation.frameTimer = 0.0f;
+
+            // Only update animation frame if moving
+            if (isMoving) {
+                animation.frameTimer += dt;
+                if (animation.frameTimer >= animation.frameDuration) {
+                    animation.frameTimer -= animation.frameDuration;
+                    animation.currentFrame = (animation.currentFrame + 1) % animation.totalFrames;
+                }
+            } else {
+                // Add Idle Anmimation
+                animation.frameTimer = 0.0f;
+            }
         }
 
         // Update sprite image path based on current animation state

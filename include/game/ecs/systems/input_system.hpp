@@ -8,7 +8,8 @@ namespace game {
 
 class InputSystem {
   private:
-    void attack(Registry &registry, const PlayerStats &stats, const Entity entity, const controller::InputState &input);
+    void attackRanged(Registry &registry, const PlayerStats &stats, const Entity entity,
+                      const controller::InputState &input);
     void attackMelee(Registry &registry, const PlayerStats &stats, const Entity entity,
                      const controller::InputState &input);
     void updateCooldown(float dt);
