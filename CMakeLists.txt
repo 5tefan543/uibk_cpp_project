@@ -25,6 +25,11 @@ find_package(ImGui-SFML CONFIG REQUIRED)
 
 find_package(glaze CONFIG REQUIRED)
 
+IF (DEFINED LOG_STDOUT)
+    add_compile_definitions(LOG_STDOUT)
+ENDIF()
+
+
 # Game library
 add_library(roguelike_game
   src/game/game.cpp
