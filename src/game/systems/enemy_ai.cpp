@@ -26,6 +26,7 @@ void EnemyAI::update(Registry &registry, LocationTable &locationTable)
 
             // Set movement direction exactly towards player
             Vec2 v = posP - posE;
+            auto playerDist = v.length();
 
             // Calc. repelling force between enemies
             auto enemiesInRange = locationTable.getEntitiesInRange(posE, 50, registry);
@@ -36,8 +37,7 @@ void EnemyAI::update(Registry &registry, LocationTable &locationTable)
                 }
                 const auto p = Vec2{position.x, position.y}; // TODO: into Vec2
                 const auto pToOther = (posE - p);
-                repelOffset += pToOther / std::pow(pToOther.length(), 2); // increase repelling with proximity
-                repelOffset.normalize();
+                repelOffset += pToOther / (std::pow(pToOther.length(), 1.5)); // increase repelling with proximity
             }
             v.normalize();
             v += repelOffset;

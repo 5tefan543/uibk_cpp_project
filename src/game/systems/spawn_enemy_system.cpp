@@ -59,10 +59,11 @@ void SpawnEnemySystem::update(Registry &registry, int wave, const controller::Ga
 {
     clearEnemies(registry);
 
-    const SpawnContext context = createSpawnContext(registry);
+    SpawnContext context = createSpawnContext(registry);
 
     const int enemyCount = generateEnemyCount(wave, config.maxEnemyCount);
     for (int i = 0; i < enemyCount; ++i) {
+        context.spawnID = i;
         spawnEnemy(registry, wave, false, context);
     }
 
@@ -83,12 +84,11 @@ SpawnEnemySystem::SpawnContext SpawnEnemySystem::createSpawnContext(Registry &re
     const Entity map = mapEntities.front();
     const Entity player = playerEntities.front();
 
-    return SpawnContext{
-        .mapSprite = registry.getComponent<view::Sprite>(map),
-        .playerPosition = registry.getComponent<Position>(player),
-        .playerSprite = registry.getComponent<view::Sprite>(player),
-        .playerStats = registry.getComponent<PlayerStats>(player),
-    };
+    return SpawnContext{.mapSprite = registry.getComponent<view::Sprite>(map),
+                        .playerPosition = registry.getComponent<Position>(player),
+                        .playerSprite = registry.getComponent<view::Sprite>(player),
+                        .playerStats = registry.getComponent<PlayerStats>(player),
+                        .spawnID = 0};
 }
 
 void SpawnEnemySystem::clearEnemies(Registry &registry)
@@ -130,7 +130,9 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, bool isBoss, con
     registry.addComponent<Position>(enemy, spawnPosition);
     registry.addComponent<Velocity>(enemy, {});
     registry.addComponent<EnemyStats>(enemy, enemyStats);
-    registry.addComponent<Animation>(enemy, {.baseTexturePath = baseTexturePath});
+    auto a = Animation{.baseTexturePath = baseTexturePath};
+    a.currentFrame = context.spawnID % a.totalFrames;
+    auto animation = registry.addComponent<Animation>(enemy, a);
     registry.addComponent<view::Sprite>(enemy, enemySprite);
 
     if (isBoss) {
