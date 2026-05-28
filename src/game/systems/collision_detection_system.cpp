@@ -31,7 +31,6 @@ void CollisionDetectionSystem::updateHitBoxPosition(const Entity &entity, Regist
 
     hitBox.rect.x = position.x;
     hitBox.rect.y = position.y;
-    hitBox.isActive = true;
 }
 
 bool CollisionDetectionSystem::checkCollision(const Entity &entityA, const Entity &entityB, Registry &registry)
@@ -76,7 +75,6 @@ void CollisionDetectionSystem::initializeHitBoxes(Registry &registry)
         registry.addComponent<HitBox>(entitiesWithHitBoxes[i],
                                       {
                                           .rect = {position.x, position.y, sprite.width, sprite.height},
-                                          .isActive = true,
                                       });
     }
 }

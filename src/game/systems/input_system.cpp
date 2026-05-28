@@ -47,7 +47,7 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
                         .imagePath = controller::PersistenceManager::getConfig().assetConfig.projectilePath,
                         .width = 16.0f,
                         .height = 16.0f};
-    HitBox hitBox{.rect = {position.x, position.y, sprite.width, sprite.height}, .isActive = true};
+    HitBox hitBox{.rect = {position.x, position.y, sprite.width, sprite.height}};
     float angle = std::atan2(input.mouseGridY - playerPosition.y, input.mouseGridX - playerPosition.x);
     Velocity velocity{.dx = stats.speedOfAttack * 10 * std::cos(angle),
                       .dy = stats.speedOfAttack * 10 * std::sin(angle)};
@@ -100,7 +100,7 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
 
     Position position{.x = playerPosition.x, .y = playerPosition.y};
 
-    HitBox hitBox{.rect = {position.x, position.y, 64, 64}, .isActive = true};
+    HitBox hitBox{.rect = {position.x, position.y, 64, 64}};
 
     registry.addComponent<Damage>(attackEntity, damageComponent);
     registry.addComponent<Position>(attackEntity, position);

@@ -54,6 +54,7 @@ class Game {
     void initMap();
     void initCamera();
     void initPlayer(CharacterType characterType);
+    void initPlayer(Position position, PlayerStats playerStats);
     void initWave(int waveNumber);
     void processDebugSession(float dt);
     void updateSystems(const controller::InputState &input, float dt);

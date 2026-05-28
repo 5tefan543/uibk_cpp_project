@@ -29,7 +29,6 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem initializes hitboxes on 
     REQUIRE(hitBox.rect.y == 7.0f);
     REQUIRE(hitBox.rect.width == 16.0f);
     REQUIRE(hitBox.rect.height == 20.0f);
-    REQUIRE(hitBox.isActive);
 }
 
 TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does nothing when entity has no Position")
@@ -38,7 +37,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does nothing when
     game::CollisionDetectionSystem system;
 
     game::Entity entity = registry.createEntity();
-    registry.addComponent<game::HitBox>(entity, {.rect = {1.0f, 2.0f, 3.0f, 4.0f}, .isActive = false});
+    registry.addComponent<game::HitBox>(entity, {.rect = {1.0f, 2.0f, 3.0f, 4.0f}});
 
     system.update(registry, 1);
 
@@ -47,7 +46,6 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does nothing when
     REQUIRE(hitBox.rect.y == 2.0f);
     REQUIRE(hitBox.rect.width == 3.0f);
     REQUIRE(hitBox.rect.height == 4.0f);
-    REQUIRE_FALSE(hitBox.isActive);
 }
 
 TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not update when entity has no hitbox")
@@ -184,7 +182,6 @@ TEST_CASE_METHOD(TestFixture, "Hitboxes are re-initialized when wave changes")
     REQUIRE(hitBox.rect.y == 7.0f);
     REQUIRE(hitBox.rect.width == 16.0f);
     REQUIRE(hitBox.rect.height == 20.0f);
-    REQUIRE(hitBox.isActive);
 
     game::Entity entity2 = registry.createEntity();
     registry.addComponent<game::Position>(entity2, {10.0f, 20.0f});
@@ -197,7 +194,6 @@ TEST_CASE_METHOD(TestFixture, "Hitboxes are re-initialized when wave changes")
     REQUIRE(hitBox2.rect.y == 20.0f);
     REQUIRE(hitBox2.rect.width == 16.0f);
     REQUIRE(hitBox2.rect.height == 20.0f);
-    REQUIRE(hitBox2.isActive);
 }
 
 TEST_CASE_METHOD(TestFixture, "Hitboxes are not re-initialized when wave does not change")
@@ -217,7 +213,6 @@ TEST_CASE_METHOD(TestFixture, "Hitboxes are not re-initialized when wave does no
     REQUIRE(hitBox.rect.y == 7.0f);
     REQUIRE(hitBox.rect.width == 16.0f);
     REQUIRE(hitBox.rect.height == 20.0f);
-    REQUIRE(hitBox.isActive);
 
     game::Entity entity2 = registry.createEntity();
     registry.addComponent<game::Position>(entity2, {10.0f, 20.0f});

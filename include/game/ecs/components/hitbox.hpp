@@ -5,6 +5,5 @@
 namespace game {
 struct HitBox {
     Rectangle<float> rect;
-    bool isActive;
 };
 } // namespace game

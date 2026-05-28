@@ -39,15 +39,11 @@ Game::Game(const PersistedGame &persistedGame) : Game(persistedGame.wave, persis
 {
     std::cout << "Game constructed from persisted game" << std::endl;
 
-    auto players = registry_.view<PlayerTag>();
-    if (!players.empty()) {
-        Entity player = players.front();
-        registry_.removeComponent<Position>(player);
-        registry_.addComponent<Position>(player, persistedGame.position);
-
-        registry_.removeComponent<PlayerStats>(player);
-        registry_.addComponent<PlayerStats>(player, persistedGame.playerStats);
-    }
+    config_ = controller::PersistenceManager::getConfig();
+    initMap();
+    initCamera();
+    initPlayer(persistedGame.position, persistedGame.playerStats);
+    initWave(persistedGame.wave);
 }
 
 Game::~Game()
@@ -111,6 +107,27 @@ void Game::initPlayer(CharacterType characterType)
     registry_.addComponent<PlayerStats>(player, playerStats);
 
     registry_.addComponent<Position>(player, {100.0f, 100.0f});
+    registry_.addComponent<Velocity>(player, {0.0f, 0.0f});
+    registry_.addComponent<Animation>(player, playerAnimation);
+    registry_.addComponent<view::Sprite>(player, {.imagePath = playerAnimation.baseTexturePath + "right_1.png"});
+}
+
+void Game::initPlayer(Position position, PlayerStats playerStats)
+{
+    Entity player = registry_.createEntity();
+    registry_.addComponent<PlayerTag>(player, {});
+    Animation playerAnimation;
+    if (playerStats.characterType == CharacterType::Melee) {
+        playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePath};
+        playerAnimation.attackTexturePath = config_.assetConfig.meleeTexturePath + "atk_";
+        playerAnimation.attackMoveSpeedMultiplier = 0.5f;
+    } else {
+        playerStats.dmgKind = DamageKind::Projectile;
+        playerStats.characterType = CharacterType::Ranged;
+        playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePath};
+    }
+    registry_.addComponent<PlayerStats>(player, playerStats);
+    registry_.addComponent<Position>(player, position);
     registry_.addComponent<Velocity>(player, {0.0f, 0.0f});
     registry_.addComponent<Animation>(player, playerAnimation);
     registry_.addComponent<view::Sprite>(player, {.imagePath = playerAnimation.baseTexturePath + "right_1.png"});
