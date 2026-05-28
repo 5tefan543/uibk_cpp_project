@@ -88,12 +88,14 @@ TEST_CASE("test location table", "[location-table]")
     {
         std::vector<Entity> before;
         for (auto &row : lt.cgetGrid()) {
-            before.append_range(*row.get());
+            auto &r = *row.get();
+            before.insert(before.cend(), r.cbegin(), r.cend());
         }
         lt.update(registry);
         std::vector<Entity> after;
         for (auto &row : lt.cgetGrid()) {
-            after.append_range(*row.get());
+            auto &r = *row.get();
+            after.insert(after.cend(), r.cbegin(), r.cend());
         }
         REQUIRE(before == after);
     }
