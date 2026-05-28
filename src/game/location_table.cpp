@@ -6,7 +6,6 @@
 #include "game/ecs/registry.hpp"
 #include "view/grid.hpp"
 #include "view/sprite.hpp"
-#include <iostream>
 #include <unordered_set>
 
 namespace game {
@@ -97,7 +96,7 @@ std::unordered_set<Entity> LocationTable::getEntitiesNear(const Vec2<float> posi
     for (unsigned buckY = firstBuck.y; buckY <= lastBuck.y; buckY++) {
         for (unsigned buckX = firstBuck.x; buckX <= lastBuck.x; buckX++) {
             const std::vector<Entity> &near = *cgetBucket(buckX, buckY);
-            inRange.insert_range(near);
+            inRange.insert(near.cbegin(), near.cend());
         }
     }
 
