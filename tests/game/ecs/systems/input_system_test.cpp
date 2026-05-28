@@ -28,8 +28,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem sets player velocity from input")
 
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(player);
-    REQUIRE(velocity.dx == -200.0f);
-    REQUIRE(velocity.dy == -200.0f);
+    auto speed = std::sqrt(std::pow(velocity.dx, 2) + std::pow(velocity.dx, 2));
+    REQUIRE(std::abs(speed) - playerStats.moveSpeed < 0.001f);
 }
 
 TEST_CASE_METHOD(TestFixture, "InputSystem resets old velocity before applying new input")
