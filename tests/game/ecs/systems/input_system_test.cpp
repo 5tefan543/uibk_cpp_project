@@ -2,6 +2,7 @@
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
@@ -11,6 +12,7 @@
 #include "view/sprite.hpp"
 
 #include <catch2/catch_test_macros.hpp>
+#include <cmath>
 
 TEST_CASE_METHOD(TestFixture, "InputSystem sets player velocity from input")
 {
@@ -170,4 +172,71 @@ TEST_CASE_METHOD(TestFixture, "InputSystem reduces movement speed while attack o
     const auto &velocity = registry.getComponent<game::Velocity>(player);
     REQUIRE(velocity.dx == 100.0f);
     REQUIRE(velocity.dy == 0.0f);
+}
+
+TEST_CASE_METHOD(TestFixture, "InputSystem ranged attack spawns projectile with expected components")
+{
+    game::Registry registry;
+    game::InputSystem system;
+
+    const game::Entity player = registry.createEntity();
+    game::PlayerStats playerStats;
+    playerStats.attackSpeed = 1.0f;
+    playerStats.attackRange = 120.0f;
+    playerStats.speedOfAttack = 5.0f;
+    playerStats.dmgKind = game::DamageKind::Projectile;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+    registry.addComponent<game::Position>(player, {10.0f, 20.0f});
+    registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
+
+    controller::InputState input;
+    input.mouseLeftPressed = true;
+    input.mouseGridX = 13.0f;
+    input.mouseGridY = 24.0f;
+
+    system.update(registry, input, 1.1f);
+
+    const auto attackEntities =
+        registry.view<game::Damage, game::Velocity, game::HitBox, game::Position, game::PlayerTag, view::Sprite>();
+    REQUIRE(attackEntities.size() == 1);
+
+    const game::Entity projectile = attackEntities.front();
+    const auto &damage = registry.getComponent<game::Damage>(projectile);
+    const auto *projectileParams = std::get_if<game::ProjectileDamage>(&damage.params);
+    REQUIRE(projectileParams != nullptr);
+    REQUIRE(projectileParams->maxRange == 120.0f);
+
+    const auto &velocity = registry.getComponent<game::Velocity>(projectile);
+    REQUIRE(std::abs(velocity.dx - 30.0f) < 0.001f);
+    REQUIRE(std::abs(velocity.dy - 40.0f) < 0.001f);
+}
+
+TEST_CASE_METHOD(TestFixture, "InputSystem attack cooldown is strict on boundary and blocks rapid second attack")
+{
+    game::Registry registry;
+    game::InputSystem system;
+
+    const game::Entity player = registry.createEntity();
+    game::PlayerStats playerStats;
+    playerStats.attackSpeed = 2.0f;
+    playerStats.attackRange = 80.0f;
+    playerStats.speedOfAttack = 6.0f;
+    playerStats.dmgKind = game::DamageKind::Projectile;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+    registry.addComponent<game::Position>(player, {0.0f, 0.0f});
+    registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
+
+    controller::InputState input;
+    input.mouseLeftPressed = true;
+    input.mouseGridX = 10.0f;
+    input.mouseGridY = 0.0f;
+
+    system.update(registry, input, 0.5f);
+    REQUIRE(registry.view<game::Damage>().empty());
+
+    system.update(registry, input, 0.01f);
+    REQUIRE(registry.view<game::Damage>().size() == 1);
+
+    system.update(registry, input, 0.2f);
+    REQUIRE(registry.view<game::Damage>().size() == 1);
 }

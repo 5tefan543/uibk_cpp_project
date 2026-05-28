@@ -116,3 +116,92 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem applies damage on collision and dest
     REQUIRE(updatedPlayerStats.score == 3);
     REQUIRE(updatedPlayerStats.currency == 3);
 }
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem projectile uses configured speed when velocity component is absent")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity projectile = registry.createEntity();
+    registry.addComponent<game::Damage>(
+        projectile, {.amount = 5.0f,
+                     .isColliding = false,
+                     .isMultiHit = false,
+                     .pushBackForce = 0.0f,
+                     .stunChance = 0.0f,
+                     .kind = game::DamageKind::Projectile,
+                     .params = game::ProjectileDamage{
+                         .speed = 7.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .targetsHit = 0}});
+
+    system.update(registry, 3.0f);
+
+    REQUIRE(registry.isEntityAlive(projectile));
+    const auto &damage = registry.getComponent<game::Damage>(projectile);
+    const auto *projectileParams = std::get_if<game::ProjectileDamage>(&damage.params);
+    REQUIRE(projectileParams != nullptr);
+    REQUIRE(projectileParams->distanceTraveled == 21.0f);
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem removes DamageTag when target is already dead")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity projectile = registry.createEntity();
+    registry.addComponent<game::Damage>(
+        projectile, {.amount = 1.0f,
+                     .isColliding = true,
+                     .isMultiHit = false,
+                     .pushBackForce = 0.0f,
+                     .stunChance = 0.0f,
+                     .kind = game::DamageKind::Projectile,
+                     .params = game::ProjectileDamage{
+                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .targetsHit = 0}});
+
+    const game::Entity deadTarget = registry.createEntity();
+    game::EnemyStats enemyStats;
+    enemyStats.health = 10.0f;
+    enemyStats.scoreReward = 1;
+    registry.addComponent<game::EnemyStats>(deadTarget, enemyStats);
+
+    registry.addComponent<game::DamageTag>(projectile, {.target = deadTarget});
+    registry.destroyEntity(deadTarget);
+
+    system.update(registry, 0.016f);
+
+    REQUIRE(registry.isEntityAlive(projectile));
+    REQUIRE_FALSE(registry.hasComponent<game::DamageTag>(projectile));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem destroys beam and area damage entities after active time")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity beam = registry.createEntity();
+    registry.addComponent<game::Damage>(
+        beam, {.amount = 3.0f,
+               .isColliding = false,
+               .isMultiHit = false,
+               .pushBackForce = 0.0f,
+               .stunChance = 0.0f,
+               .kind = game::DamageKind::Beam,
+               .params = game::BeamDamage{.length = 80.0f, .width = 12.0f, .activeTimeSec = 0.2f, .elapsedSec = 0.0f}});
+
+    const game::Entity area = registry.createEntity();
+    registry.addComponent<game::Damage>(
+        area, {.amount = 3.0f,
+               .isColliding = false,
+               .isMultiHit = false,
+               .pushBackForce = 0.0f,
+               .stunChance = 0.0f,
+               .kind = game::DamageKind::Area,
+               .params = game::AreaDamage{.radius = 40.0f, .activeTimeSec = 0.4f, .elapsedSec = 0.0f}});
+
+    system.update(registry, 0.21f);
+    REQUIRE_FALSE(registry.isEntityAlive(beam));
+    REQUIRE(registry.isEntityAlive(area));
+
+    system.update(registry, 0.2f);
+    REQUIRE_FALSE(registry.isEntityAlive(area));
+}
