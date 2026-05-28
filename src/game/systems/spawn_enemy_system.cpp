@@ -59,36 +59,36 @@ void SpawnEnemySystem::update(Registry &registry, int wave, const controller::Ga
 {
     clearEnemies(registry);
 
-    auto mapEntities = registry.view<MapTag, view::Sprite>();
-    auto playerEntities = registry.view<PlayerTag, Position, PlayerStats, view::Sprite>();
+    const SpawnContext context = createSpawnContext(registry);
+
+    const int enemyCount = generateEnemyCount(wave, config.maxEnemyCount);
+    for (int i = 0; i < enemyCount; ++i) {
+        spawnEnemy(registry, wave, false, context);
+    }
+
+    if (isBossWave(wave, config.wavesPerStage)) {
+        spawnEnemy(registry, wave, true, context);
+    }
+}
+
+SpawnEnemySystem::SpawnContext SpawnEnemySystem::createSpawnContext(Registry &registry) const
+{
+    const auto mapEntities = registry.view<MapTag, view::Sprite>();
+    const auto playerEntities = registry.view<PlayerTag, Position, PlayerStats, view::Sprite>();
 
     if (mapEntities.empty() || playerEntities.empty()) {
         throw std::runtime_error("No map or player entity found when trying to spawn enemy");
     }
 
-    // TODO: refactor ECS to use std::deque instead of std::vector
-    // Since we get references to components we need to be careful to not invalidate them by creating new entities and
-    // adding components Using a std::deque would solve this problem since it preserves references.
+    const Entity map = mapEntities.front();
+    const Entity player = playerEntities.front();
 
-    // const view::Sprite &mapSprite = registry.getComponent<view::Sprite>(mapEntities.front());
-    // const Position &playerPos = registry.getComponent<Position>(playerEntities.front());
-    // const PlayerStats &playerStats = registry.getComponent<PlayerStats>(playerEntities.front());
-    // const view::Sprite &playerSprite = registry.getComponent<view::Sprite>(playerEntities.front());
-
-    // For now just copy the components to avoid reference invalidation issues -> REMOVE LATER
-    const view::Sprite mapSprite = registry.getComponent<view::Sprite>(mapEntities.front());
-    const Position playerPos = registry.getComponent<Position>(playerEntities.front());
-    const PlayerStats playerStats = registry.getComponent<PlayerStats>(playerEntities.front());
-    const view::Sprite playerSprite = registry.getComponent<view::Sprite>(playerEntities.front());
-
-    const int enemyCount = generateEnemyCount(wave, config.maxEnemyCount);
-    for (int i = 0; i < enemyCount; ++i) {
-        spawnEnemy(registry, wave, false, mapSprite, playerPos, playerSprite, playerStats);
-    }
-
-    if (isBossWave(wave, config.wavesPerStage)) {
-        spawnEnemy(registry, wave, true, mapSprite, playerPos, playerSprite, playerStats);
-    }
+    return SpawnContext{
+        .mapSprite = registry.getComponent<view::Sprite>(map),
+        .playerPosition = registry.getComponent<Position>(player),
+        .playerSprite = registry.getComponent<view::Sprite>(player),
+        .playerStats = registry.getComponent<PlayerStats>(player),
+    };
 }
 
 void SpawnEnemySystem::clearEnemies(Registry &registry)
@@ -114,9 +114,7 @@ bool SpawnEnemySystem::isBossWave(int wave, int wavesPerStage) const
     return wavesPerStage > 0 && wave % wavesPerStage == 0;
 }
 
-void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, bool isBoss, const view::Sprite &mapSprite,
-                                  const Position &playerPos, const view::Sprite &playerSprite,
-                                  const PlayerStats &playerStats)
+void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, bool isBoss, const SpawnContext &context)
 {
     const std::string baseTexturePath = getBaseTexturePath(isBoss);
 
@@ -124,8 +122,8 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, bool isBoss, con
         .imagePath = baseTexturePath + texturePathSuffix,
     };
 
-    Position spawnPosition = generateSpawnPosition(mapSprite, playerPos, playerSprite, enemySprite, isBoss);
-    EnemyStats enemyStats = createEnemyStats(wave, isBoss, playerStats.moveSpeed);
+    Position spawnPosition = generateSpawnPosition(context, enemySprite, isBoss);
+    EnemyStats enemyStats = createEnemyStats(wave, isBoss, context);
 
     Entity enemy = registry.createEntity();
     registry.addComponent<EnemyTag>(enemy, {});
@@ -140,19 +138,17 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, bool isBoss, con
     }
 }
 
-Position SpawnEnemySystem::generateSpawnPosition(const view::Sprite &mapSprite, const Position &playerPos,
-                                                 const view::Sprite &playerSprite, const view::Sprite &enemySprite,
+Position SpawnEnemySystem::generateSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite,
                                                  bool isBoss)
 {
     if (isBoss) {
-        return generateBossSpawnPosition(mapSprite, playerPos, playerSprite, enemySprite);
+        return generateBossSpawnPosition(context, enemySprite);
     }
 
-    return generateRandomSpawnPosition(mapSprite, enemySprite);
+    return generateRandomSpawnPosition(context, enemySprite);
 }
 
-Position SpawnEnemySystem::generateBossSpawnPosition(const view::Sprite &mapSprite, const Position &playerPos,
-                                                     const view::Sprite &playerSprite, const view::Sprite &enemySprite)
+Position SpawnEnemySystem::generateBossSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite)
 {
     std::uniform_real_distribution<float> angleDistribution(0.0f, 2.0f * pi);
     std::uniform_real_distribution<float> distanceDistribution(minBossSpawnDistanceFromPlayer,
@@ -161,20 +157,22 @@ Position SpawnEnemySystem::generateBossSpawnPosition(const view::Sprite &mapSpri
     const float angle = angleDistribution(randomEngine_);
     const float distance = distanceDistribution(randomEngine_);
 
-    float playerCenterX = playerPos.x + playerSprite.width / 2.0f;
-    float playerCenterY = playerPos.y + playerSprite.height / 2.0f;
+    const float playerCenterX = context.playerPosition.x + context.playerSprite.width / 2.0f;
+    const float playerCenterY = context.playerPosition.y + context.playerSprite.height / 2.0f;
 
     const float x = playerCenterX + std::cos(angle) * distance;
     const float y = playerCenterY + std::sin(angle) * distance;
 
-    return {std::clamp(x, enemySprite.width, mapSprite.width - enemySprite.width),
-            std::clamp(y, enemySprite.height, mapSprite.height - enemySprite.height)};
+    return {std::clamp(x, enemySprite.width, context.mapSprite.width - enemySprite.width),
+            std::clamp(y, enemySprite.height, context.mapSprite.height - enemySprite.height)};
 }
 
-Position SpawnEnemySystem::generateRandomSpawnPosition(const view::Sprite &mapSprite, const view::Sprite &enemySprite)
+Position SpawnEnemySystem::generateRandomSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite)
 {
-    std::uniform_real_distribution<float> posXDistribution(enemySprite.width, mapSprite.width - enemySprite.width);
-    std::uniform_real_distribution<float> posYDistribution(enemySprite.height, mapSprite.height - enemySprite.height);
+    std::uniform_real_distribution<float> posXDistribution(enemySprite.width,
+                                                           context.mapSprite.width - enemySprite.width);
+    std::uniform_real_distribution<float> posYDistribution(enemySprite.height,
+                                                           context.mapSprite.height - enemySprite.height);
 
     return {posXDistribution(randomEngine_), posYDistribution(randomEngine_)};
 }
@@ -188,7 +186,7 @@ std::string SpawnEnemySystem::getBaseTexturePath(bool isBoss) const
     return enemyBaseTexturePath;
 }
 
-EnemyStats SpawnEnemySystem::createEnemyStats(int wave, bool isBoss, float playerMoveSpeed)
+EnemyStats SpawnEnemySystem::createEnemyStats(int wave, bool isBoss, const SpawnContext &context)
 {
     const float combatScaling = generateCombatScaling(wave, isBoss);
 
@@ -198,7 +196,7 @@ EnemyStats SpawnEnemySystem::createEnemyStats(int wave, bool isBoss, float playe
     stats.attackPower = baseEnemyAttackPower * combatScaling;
     stats.attackSpeed = baseEnemyAttackSpeed;
     stats.defense = baseEnemyDefense * combatScaling;
-    stats.moveSpeed = generateEnemyMoveSpeed(wave, isBoss, playerMoveSpeed);
+    stats.moveSpeed = generateEnemyMoveSpeed(wave, isBoss, context);
     stats.scoreReward = std::max(1, static_cast<int>(std::round(combatScaling)));
 
     return stats;
@@ -222,7 +220,7 @@ float SpawnEnemySystem::generateCombatScaling(int wave, bool isBoss)
     return scaling;
 }
 
-float SpawnEnemySystem::generateEnemyMoveSpeed(int wave, bool isBoss, float playerMoveSpeed)
+float SpawnEnemySystem::generateEnemyMoveSpeed(int wave, bool isBoss, const SpawnContext &context)
 {
     const float wantedMoveSpeed = baseEnemyMoveSpeed + static_cast<float>(wave - 1) * enemyMoveSpeedGrowthPerWave;
 
@@ -233,7 +231,7 @@ float SpawnEnemySystem::generateEnemyMoveSpeed(int wave, bool isBoss, float play
 
     const float variedMoveSpeed = wantedMoveSpeed * variation;
 
-    float maxMoveSpeed = playerMoveSpeed;
+    float maxMoveSpeed = context.playerStats.moveSpeed;
 
     if (isBoss) {
         maxMoveSpeed *= maxBossMoveSpeedRatioOfPlayer;
