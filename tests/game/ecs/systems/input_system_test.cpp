@@ -1,9 +1,14 @@
 #include "controller/input/input_state.hpp"
+#include "game/ecs/components/animation.hpp"
+#include "game/ecs/components/damage.hpp"
+#include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "shared/test_fixture.hpp"
+#include "view/sprite.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -101,5 +106,68 @@ TEST_CASE_METHOD(TestFixture, "InputSystem opposing directions cancel each other
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(player);
     REQUIRE(velocity.dx == 0.0f);
+    REQUIRE(velocity.dy == 0.0f);
+}
+
+TEST_CASE_METHOD(TestFixture, "InputSystem melee attack activates player attack animation override")
+{
+    game::Registry registry;
+    game::InputSystem system;
+
+    game::Entity player = registry.createEntity();
+
+    game::PlayerStats playerStats;
+    playerStats.attackSpeed = 2.0f;
+    playerStats.dmgKind = game::DamageKind::MeleeArc;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+    registry.addComponent<game::Position>(player, {100.0f, 100.0f});
+    registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
+    registry.addComponent<game::Animation>(player, {.attackTexturePath = "assets/characters/melee/atk_",
+                                                    .attackFrameDuration = 0.3f,
+                                                    .attackTotalFrames = 2,
+                                                    .attackMoveSpeedMultiplier = 0.5f});
+
+    controller::InputState input;
+    input.mouseLeftPressed = true;
+    input.mouseGridX = 130.0f;
+    input.mouseGridY = 100.0f;
+
+    system.update(registry, input, 1.0f);
+
+    const auto &animation = registry.getComponent<game::Animation>(player);
+    REQUIRE(animation.overrideState == game::AnimationOverrideState::Attack);
+    REQUIRE(animation.overrideDirection == game::Direction::Right);
+    REQUIRE(animation.overrideTimeRemaining > 0.59f);
+    REQUIRE(animation.overrideTimeRemaining < 0.61f);
+
+    const auto damageEntities = registry.view<game::Damage, game::HitBox>();
+    REQUIRE(damageEntities.size() == 1);
+
+    for (game::Entity attack : damageEntities) {
+        REQUIRE_FALSE(registry.hasComponent<view::Sprite>(attack));
+        REQUIRE_FALSE(registry.hasComponent<game::Animation>(attack));
+    }
+}
+
+TEST_CASE_METHOD(TestFixture, "InputSystem reduces movement speed while attack override is active")
+{
+    game::Registry registry;
+    game::InputSystem system;
+
+    game::Entity player = registry.createEntity();
+    game::PlayerStats playerStats;
+    playerStats.moveSpeed = 200.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+    registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
+    registry.addComponent<game::Animation>(
+        player, {.overrideState = game::AnimationOverrideState::Attack, .attackMoveSpeedMultiplier = 0.5f});
+
+    controller::InputState input;
+    input.rightHeld = true;
+
+    system.update(registry, input, dummyDeltaTime);
+
+    const auto &velocity = registry.getComponent<game::Velocity>(player);
+    REQUIRE(velocity.dx == 100.0f);
     REQUIRE(velocity.dy == 0.0f);
 }

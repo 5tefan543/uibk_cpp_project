@@ -265,6 +265,13 @@ void DebugUI::renderComponent(game::Animation &c)
     ImGui::InputInt("totalFrames", &c.totalFrames);
     ImGui::InputFloat("frameDuration", &c.frameDuration);
     ImGui::InputFloat("frameTimer", &c.frameTimer);
+    ImGui::InputFloat("overrideTimeRemaining", &c.overrideTimeRemaining);
+    ImGui::InputFloat("attackFrameDuration", &c.attackFrameDuration);
+    ImGui::InputInt("attackTotalFrames", &c.attackTotalFrames);
+    ImGui::InputFloat("attackMoveSpeedMultiplier", &c.attackMoveSpeedMultiplier);
+    ImGui::Text("overrideState: %s", c.overrideState == game::AnimationOverrideState::Attack ? "Attack" : "None");
+    ImGui::Text("overrideDirection: %s", c.overrideDirection == game::Direction::Left ? "Left" : "Right");
+    ImGui::Text("attackTexturePath: %s", c.attackTexturePath.c_str());
 
     ImGui::PopID();
 }

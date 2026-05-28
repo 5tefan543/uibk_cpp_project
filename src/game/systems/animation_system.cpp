@@ -5,6 +5,7 @@
 #include "game/ecs/components/velocity.hpp"
 #include "view/sprite.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 namespace game {
@@ -14,6 +15,29 @@ void AnimationSystem::update(Registry &registry, float dt)
     for (auto entity : registry.view<Animation, view::Sprite>()) {
         Animation &animation = registry.getComponent<Animation>(entity);
         view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
+
+        if (animation.overrideState == AnimationOverrideState::Attack && !animation.attackTexturePath.empty()) {
+            animation.overrideTimeRemaining = std::max(0.0f, animation.overrideTimeRemaining - dt);
+            animation.direction = animation.overrideDirection;
+
+            animation.frameTimer += dt;
+            if (animation.frameTimer >= animation.attackFrameDuration) {
+                animation.frameTimer -= animation.attackFrameDuration;
+                animation.currentFrame = (animation.currentFrame + 1) % animation.attackTotalFrames;
+            }
+
+            std::string directionStr = (animation.overrideDirection == Direction::Left) ? "left" : "right";
+            int frameNum = animation.currentFrame + 1;
+            sprite.imagePath = animation.attackTexturePath + directionStr + "_" + std::to_string(frameNum) + ".png";
+
+            if (animation.overrideTimeRemaining <= 0.0f) {
+                animation.overrideState = AnimationOverrideState::None;
+                animation.frameTimer = 0.0f;
+                animation.currentFrame = 0;
+            }
+
+            continue;
+        }
 
         if (registry.hasComponent<Velocity>(entity)) {
             const Velocity &velocity = registry.getComponent<Velocity>(entity);

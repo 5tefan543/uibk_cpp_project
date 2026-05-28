@@ -5,6 +5,7 @@
 #include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/player_tag.hpp"
+#include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "view/sprite.hpp"
@@ -66,38 +67,43 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
         return; // Attack is still on cooldown
     }
 
-    Animation animation;
-    animation.direction = Direction::Right;
-    animation.currentFrame = 0;
-    animation.frameTimer = 0.0f;
-    animation.frameDuration = 0.32f; // seconds per animation frame
-    animation.totalFrames = 2;       // Total animation frames in each direction
-    animation.baseTexturePath = controller::PersistenceManager::getConfig().assetConfig.meleeTexturePath + "atk_";
+    Position playerPosition = registry.getComponent<Position>(playerEntity);
+    Direction attackDirection = input.mouseGridX >= playerPosition.x ? Direction::Right : Direction::Left;
+
+    float attackDurationSec = 0.65f;
+    if (registry.hasComponent<Animation>(playerEntity)) {
+        Animation &playerAnimation = registry.getComponent<Animation>(playerEntity);
+        playerAnimation.overrideState = AnimationOverrideState::Attack;
+        playerAnimation.overrideTimeRemaining =
+            static_cast<float>(playerAnimation.attackTotalFrames) * playerAnimation.attackFrameDuration;
+        playerAnimation.overrideDirection = attackDirection;
+        playerAnimation.direction = attackDirection;
+        playerAnimation.currentFrame = 0;
+        playerAnimation.frameTimer = 0.0f;
+
+        attackDurationSec = playerAnimation.overrideTimeRemaining;
+    }
+
     timeSinceLastAttack_ = 0.0f;
     Entity attackEntity = registry.createEntity();
-    Position playerPosition = registry.getComponent<Position>(playerEntity);
+
     Damage damageComponent{.amount = 10.0f,
                            .isColliding = false,
+                           .isMultiHit = false,
+                           .pushBackForce = 0.0f,
+                           .stunChance = 0.0f,
                            .kind = DamageKind::MeleeArc,
-                           .params =
-                               MeleeArcDamage{.activeTimeSec = animation.totalFrames * animation.frameDuration + 0.1f,
-                                              .elapsedSec = 0.0f}};
+                           .params = MeleeArcDamage{.arcAngleDeg = 90.0f,
+                                                    .arcRadius = stats.attackRange,
+                                                    .activeTimeSec = attackDurationSec + 0.1f,
+                                                    .elapsedSec = 0.0f}};
 
     Position position{.x = playerPosition.x, .y = playerPosition.y};
 
     HitBox hitBox{.rect = {position.x, position.y, 64, 64}, .isActive = true};
 
-    bool isRight = input.mouseGridX > playerPosition.x;
-
-    view::Sprite sprite;
-    sprite.x = playerPosition.x;
-    sprite.y = playerPosition.y;
-    sprite.imagePath = animation.baseTexturePath + (isRight ? "right_1.png" : "left_1.png");
-
     registry.addComponent<Damage>(attackEntity, damageComponent);
     registry.addComponent<Position>(attackEntity, position);
-    registry.addComponent<view::Sprite>(attackEntity, sprite);
-    registry.addComponent<Animation>(attackEntity, animation);
     registry.addComponent<HitBox>(attackEntity, hitBox);
     registry.addComponent<PlayerTag>(attackEntity, {}); // Mark as player's attack for collision detection
 }
@@ -140,6 +146,14 @@ void InputSystem::update(Registry &registry, const controller::InputState &input
                 // Area
             } else {
                 // Beam or multi projectiles
+            }
+        }
+
+        if (registry.hasComponent<Animation>(entity)) {
+            const Animation &animation = registry.getComponent<Animation>(entity);
+            if (animation.overrideState == AnimationOverrideState::Attack) {
+                velocity.dx *= animation.attackMoveSpeedMultiplier;
+                velocity.dy *= animation.attackMoveSpeedMultiplier;
             }
         }
     }

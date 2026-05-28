@@ -95,6 +95,8 @@ void Game::initPlayer(CharacterType characterType)
         playerStats.speedOfAttack = 220.0f;
         playerStats.dmgKind = DamageKind::MeleeArc;
         playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePath};
+        playerAnimation.attackTexturePath = config_.assetConfig.meleeTexturePath + "atk_";
+        playerAnimation.attackMoveSpeedMultiplier = 0.5f;
     } else {
         playerStats.attackPower = 10.0f;
         playerStats.attackSpeed = 1.0f;
