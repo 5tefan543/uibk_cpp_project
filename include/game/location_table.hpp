@@ -6,10 +6,6 @@
 #include <unordered_set>
 
 namespace game {
-#define TESTING
-#ifdef TESTING
-struct LocationTableTester;
-#endif
 
 // Lookup 2D Table for finding entities based on their location in the world grid with dimensions view::gridWidth X
 // view::gridHeight.
