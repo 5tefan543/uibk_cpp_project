@@ -10,7 +10,7 @@ namespace {
 
 void createSavedGameFile()
 {
-    PersistedGame game;
+    game::PersistedGame game;
     game.wave = 2;
     game.playerStats.score = 150;
     game.playerStats.moveSpeed = 444.0f;
@@ -366,7 +366,7 @@ TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
         initializeGameSession();
 
         // create dummy save to verify deletion
-        PersistenceManager::saveGame(PersistedGame{});
+        PersistenceManager::saveGame(game::PersistedGame{});
         REQUIRE(PersistenceManager::hasSavedGame());
 
         // Set player destruction request to trigger game over condition

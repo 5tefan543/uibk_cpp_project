@@ -178,7 +178,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction StartNewGameRanged replaces current s
 
 TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded from save")
 {
-    PersistedGame game;
+    game::PersistedGame game;
     game.wave = 4;
     game.playerStats.currency = 777;
     game.playerStats.moveSpeed = 360.0f;
@@ -198,7 +198,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay crea
     REQUIRE(gameplayState != nullptr);
     REQUIRE(gameplayState->isLoadedFromPersistedGame());
 
-    const PersistedGame loaded = gameplayState->game.getPersistedGame();
+    const game::PersistedGame loaded = gameplayState->game.getPersistedGame();
     gameplayState->game.update(input, 0.1f); // update once to ensure game session is initialized and values are applied
     const int expectedWave = game.wave;
     const int wavesPerStage = PersistenceManager::getConfig().wavesPerStage;

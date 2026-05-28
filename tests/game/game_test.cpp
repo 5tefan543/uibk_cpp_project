@@ -160,7 +160,7 @@ TEST_CASE_METHOD(TestFixture,
     // ASSERT
     REQUIRE(currentState == controller::StateTransitionAction::None);
 
-    const controller::PersistedGame persisted = game.getPersistedGame();
+    const game::PersistedGame persisted = game.getPersistedGame();
     const int expectedWave = wavesPerStage;
     const int expectedStage = ((expectedWave - 1) / wavesPerStage) + 1;
     REQUIRE(persisted.wave == expectedWave);
@@ -353,14 +353,14 @@ TEST_CASE_METHOD(TestFixture, "Game updateView with hitbox debug enabled renders
 
 TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted values")
 {
-    controller::PersistedGame persistedGame;
+    game::PersistedGame persistedGame;
     persistedGame.wave = 5;
     persistedGame.playerStats.currency = 1234;
     persistedGame.playerStats.moveSpeed = 333.0f;
 
     game::Game game(persistedGame);
 
-    const controller::PersistedGame snapshot = game.getPersistedGame();
+    const game::PersistedGame snapshot = game.getPersistedGame();
     REQUIRE(snapshot.wave == 5);
     int resultStage = ((snapshot.wave - 1) / controller::PersistenceManager::getConfig().wavesPerStage) + 1;
     REQUIRE(game.getDebugSession().stage == resultStage);

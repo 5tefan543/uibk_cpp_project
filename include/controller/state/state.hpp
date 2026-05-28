@@ -49,7 +49,7 @@ class GameplayState : public BaseState {
 
     GameplayState();
     explicit GameplayState(game::CharacterType characterType);
-    explicit GameplayState(const PersistedGame &persistedGame);
+    explicit GameplayState(const game::PersistedGame &persistedGame);
 
   public:
     game::Game game;

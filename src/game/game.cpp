@@ -1,6 +1,5 @@
 #include "game/game.hpp"
 #include "controller/debug/debug_context.hpp"
-#include "controller/persistence/persisted_game.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/camera_tag.hpp"
@@ -36,8 +35,7 @@ Game::Game(CharacterType characterType) : Game(1, characterType)
     std::cout << "New game constructed" << std::endl;
 }
 
-Game::Game(const controller::PersistedGame &persistedGame)
-    : Game(persistedGame.wave, persistedGame.playerStats.characterType)
+Game::Game(const PersistedGame &persistedGame) : Game(persistedGame.wave, persistedGame.playerStats.characterType)
 {
     std::cout << "Game constructed from persisted game" << std::endl;
 
@@ -145,9 +143,9 @@ GameDebugSession &Game::getDebugSession()
     return debugSession_;
 }
 
-controller::PersistedGame Game::getPersistedGame() const
+PersistedGame Game::getPersistedGame() const
 {
-    controller::PersistedGame persistedGame;
+    PersistedGame persistedGame;
     persistedGame.wave = wave_;
 
     auto players = registry_.view<Position, PlayerStats, PlayerTag>();
@@ -221,7 +219,7 @@ void Game::processDebugSession(float dt)
     if (debugSession_.isSaveGameRequested) {
         debugSession_.isSaveGameRequested = false;
         std::cout << "Saving game!" << std::endl;
-        controller::PersistedGame persistedGame = getPersistedGame();
+        PersistedGame persistedGame = getPersistedGame();
         controller::PersistenceManager::saveGame(persistedGame);
     }
 }

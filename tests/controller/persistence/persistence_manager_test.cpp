@@ -12,7 +12,7 @@ using namespace controller;
 
 void createSavedGameFile()
 {
-    PersistedGame game;
+    game::PersistedGame game;
     game.wave = 2;
     game.playerStats.currency = 150;
     game.playerStats.moveSpeed = 444.0f;
@@ -25,7 +25,7 @@ void createSavedGameFile()
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads game state")
 {
-    PersistedGame input;
+    game::PersistedGame input;
     input.wave = 9;
     input.playerStats.currency = 321;
     input.playerStats.attackPower = 42.0f;
@@ -58,7 +58,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager throws when loading game witho
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager reports and deletes save file")
 {
-    PersistedGame game;
+    game::PersistedGame game;
     game.wave = 2;
     PersistenceManager::saveGame(game);
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "config_game.hpp"
+#include "game/persisted_game.hpp"
 #include "leaderboard.hpp"
-#include "persisted_game.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -35,10 +35,10 @@ struct glz::meta<game::PlayerStats> {
 };
 
 template <>
-struct glz::meta<controller::PersistedGame> {
+struct glz::meta<game::PersistedGame> {
     static constexpr auto value =
-        glz::object("wave", &controller::PersistedGame::wave, "position", &controller::PersistedGame::position,
-                    "playerStats", &controller::PersistedGame::playerStats);
+        glz::object("wave", &game::PersistedGame::wave, "position", &game::PersistedGame::position, "playerStats",
+                    &game::PersistedGame::playerStats);
 };
 
 template <>

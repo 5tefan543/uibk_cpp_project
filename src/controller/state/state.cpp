@@ -301,7 +301,7 @@ std::unique_ptr<GameplayState> GameplayState::createNewGameplay(const game::Char
 
 std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
 {
-    std::optional<PersistedGame> persistedGame = std::nullopt;
+    std::optional<game::PersistedGame> persistedGame = std::nullopt;
     if (PersistenceManager::hasSavedGame()) {
         persistedGame = PersistenceManager::loadGame();
     }
@@ -318,7 +318,7 @@ GameplayState::GameplayState() : game() {}
 
 GameplayState::GameplayState(const game::CharacterType characterType) : game(characterType) {}
 
-GameplayState::GameplayState(const PersistedGame &persistedGame) : game(persistedGame)
+GameplayState::GameplayState(const game::PersistedGame &persistedGame) : game(persistedGame)
 {
     loadedFromSave_ = true;
 }

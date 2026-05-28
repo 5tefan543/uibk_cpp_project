@@ -3,12 +3,12 @@
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 
-namespace controller {
+namespace game {
 
 struct PersistedGame {
     int wave = 0;
-    game::Position position;
-    game::PlayerStats playerStats;
+    Position position;
+    PlayerStats playerStats;
 };
 
-} // namespace controller
+} // namespace game

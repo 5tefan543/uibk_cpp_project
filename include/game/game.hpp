@@ -2,7 +2,6 @@
 
 #include "controller/input/input_state.hpp"
 #include "controller/persistence/config_game.hpp"
-#include "controller/persistence/persisted_game.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
@@ -13,6 +12,7 @@
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
 #include "game/ecs/systems/spawn_enemy_system.hpp"
+#include "game/persisted_game.hpp"
 #include "view/view.hpp"
 
 namespace game {
@@ -63,13 +63,13 @@ class Game {
   public:
     Game();
     explicit Game(CharacterType characterType);
-    Game(const controller::PersistedGame &persistedGame);
+    Game(const PersistedGame &persistedGame);
     Game(const Game &) = delete;
     Game(Game &&) = delete;
     ~Game();
 
     GameDebugSession &getDebugSession();
-    controller::PersistedGame getPersistedGame() const;
+    PersistedGame getPersistedGame() const;
     controller::StateTransitionAction update(const controller::InputState &input, float dt);
     bool isGameOver();
     void updateView(view::View &view);
