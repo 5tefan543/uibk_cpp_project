@@ -5,9 +5,6 @@
 namespace game {
 
 class DamageSystem {
-  private:
-    void updateDamage(Entity damageEntity, Stats &stats, Registry &registry);
-
   public:
     DamageSystem() = default;
     void update(Registry &registry, float dt);

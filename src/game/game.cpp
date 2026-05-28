@@ -94,6 +94,7 @@ void Game::initPlayer(CharacterType characterType)
         playerStats.attackRange = 140.0f;
         playerStats.speedOfAttack = 220.0f;
         playerStats.dmgKind = DamageKind::MeleeArc;
+        playerStats.characterType = CharacterType::Melee;
         playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePath};
         playerAnimation.attackTexturePath = config_.assetConfig.meleeTexturePath + "atk_";
         playerAnimation.attackMoveSpeedMultiplier = 0.5f;
@@ -105,6 +106,7 @@ void Game::initPlayer(CharacterType characterType)
         playerStats.attackRange = 1000.0f;
         playerStats.speedOfAttack = 240.0f;
         playerStats.dmgKind = DamageKind::Projectile;
+        playerStats.characterType = CharacterType::Ranged;
         playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePath};
     }
     playerStats.defense = 0.0f;
