@@ -1,19 +1,17 @@
 #include "game/ecs/systems/enemy_ai.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
-#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/location_table.hpp"
 #include "view/sprite.hpp"
 #include <cmath>
-#include <iostream>
 
 namespace game {
 
 void EnemyAI::update(Registry &registry, LocationTable &locationTable)
 {
-    const auto players = registry.view<Velocity, PlayerTag>();
+    const auto players = registry.view<Velocity, PlayerStats>();
     if (players.size() > 0) {
         const auto player = players[0];
         const Position playerPos = registry.getComponent<Position>(player);
