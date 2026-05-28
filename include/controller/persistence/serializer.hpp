@@ -11,6 +11,12 @@
 #include <vector>
 
 template <>
+struct glz::meta<game::CharacterType> {
+    static constexpr auto value =
+        glz::enumerate("Melee", game::CharacterType::Melee, "Ranged", game::CharacterType::Ranged);
+};
+
+template <>
 struct glz::meta<game::DamageKind> {
     static constexpr auto value =
         glz::enumerate("Projectile", game::DamageKind::Projectile, "MeleeArc", game::DamageKind::MeleeArc, "Beam",
@@ -31,7 +37,7 @@ struct glz::meta<game::PlayerStats> {
                     &game::PlayerStats::speedOfAttack, "attackRange", &game::PlayerStats::attackRange, "hasDash",
                     &game::PlayerStats::hasDash, "dmgKind", &game::PlayerStats::dmgKind, "enemiesPierced",
                     &game::PlayerStats::enemiesPierced, "score", &game::PlayerStats::score, "currency",
-                    &game::PlayerStats::currency);
+                    &game::PlayerStats::currency, "characterType", &game::PlayerStats::characterType);
 };
 
 template <>

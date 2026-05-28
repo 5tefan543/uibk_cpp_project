@@ -53,6 +53,7 @@ class Game {
 
     void initMap();
     void initCamera();
+    void initCamera(Position position);
     void initPlayer(CharacterType characterType);
     void initPlayer(Position position, PlayerStats playerStats);
     void initWave(int waveNumber);

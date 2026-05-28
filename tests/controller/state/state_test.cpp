@@ -12,6 +12,7 @@ void createSavedGameFile()
 {
     game::PersistedGame game;
     game.wave = 2;
+    game.position = {1550.0f, 369.5f};
     game.playerStats.score = 150;
     game.playerStats.moveSpeed = 444.0f;
     game.playerStats.hasDash = false;

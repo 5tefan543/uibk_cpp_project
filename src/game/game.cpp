@@ -35,13 +35,13 @@ Game::Game(CharacterType characterType) : Game(1, characterType)
     std::cout << "New game constructed" << std::endl;
 }
 
-Game::Game(const PersistedGame &persistedGame) : Game(persistedGame.wave, persistedGame.playerStats.characterType)
+Game::Game(const PersistedGame &persistedGame)
 {
     std::cout << "Game constructed from persisted game" << std::endl;
 
     config_ = controller::PersistenceManager::getConfig();
     initMap();
-    initCamera();
+    initCamera(persistedGame.position);
     initPlayer(persistedGame.position, persistedGame.playerStats);
     initWave(persistedGame.wave);
 }
@@ -70,6 +70,12 @@ void Game::initCamera()
     Entity camera = registry_.createEntity();
     registry_.addComponent<CameraTag>(camera, {});
     registry_.addComponent<Position>(camera, {0.0f, 0.0f});
+}
+void Game::initCamera(Position position)
+{
+    Entity camera = registry_.createEntity();
+    registry_.addComponent<CameraTag>(camera, {});
+    registry_.addComponent<Position>(camera, position);
 }
 
 void Game::initPlayer(CharacterType characterType)

@@ -6,10 +6,7 @@ namespace game {
 
 enum class Direction { Left, Right, Up, Down };
 
-enum class AnimationOverrideState {
-    None,
-    Attack,
-};
+enum class AnimationOverrideState { None, Attack, TakingDamage };
 
 struct Animation {
     Direction direction = Direction::Right;
