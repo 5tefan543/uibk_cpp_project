@@ -1,4 +1,5 @@
 #include "logging/log.hpp"
+#include <format>
 #include <iostream>
 #include <string>
 
