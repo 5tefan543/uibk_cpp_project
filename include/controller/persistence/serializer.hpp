@@ -30,9 +30,9 @@ struct glz::meta<game::PlayerStats> {
                     &game::PlayerStats::attackPower, "attackSpeed", &game::PlayerStats::attackSpeed, "defense",
                     &game::PlayerStats::defense, "moveSpeed", &game::PlayerStats::moveSpeed, "speedOfAttack",
                     &game::PlayerStats::speedOfAttack, "attackRange", &game::PlayerStats::attackRange, "hasDash",
-                    &game::PlayerStats::hasDash, "dmgKind", &game::PlayerStats::dmgKind, "enemiesPierced",
-                    &game::PlayerStats::enemiesPierced, "score", &game::PlayerStats::score, "currency",
-                    &game::PlayerStats::currency, "characterType", &game::PlayerStats::characterType);
+                    &game::PlayerStats::hasDash, "enemiesPierced", &game::PlayerStats::enemiesPierced, "score",
+                    &game::PlayerStats::score, "currency", &game::PlayerStats::currency, "characterType",
+                    &game::PlayerStats::characterType);
 };
 
 namespace controller {

@@ -16,6 +16,34 @@
 
 namespace game {
 
+namespace {
+
+const controller::PlayerClassConfig &getClassConfig(const controller::PlayerClassConfigs &playerClasses,
+                                                    CharacterType type)
+{
+    if (type == CharacterType::Melee) {
+        return playerClasses.melee;
+    }
+
+    return playerClasses.ranged;
+}
+
+void applyClassStats(const controller::PlayerClassConfig &classConfig, PlayerStats &playerStats)
+{
+    playerStats.maxHealth = classConfig.stats.maxHealth;
+    playerStats.health = playerStats.maxHealth;
+    playerStats.attackPower = classConfig.stats.attackPower;
+    playerStats.attackSpeed = classConfig.stats.attackSpeed;
+    playerStats.defense = classConfig.stats.defense;
+    playerStats.moveSpeed = classConfig.stats.moveSpeed;
+    playerStats.speedOfAttack = classConfig.stats.speedOfAttack;
+    playerStats.attackRange = classConfig.stats.attackRange;
+    playerStats.hasDash = classConfig.hasDash;
+    playerStats.characterType = classConfig.characterType;
+}
+
+} // namespace
+
 Game::Game(int wave, CharacterType characterType)
 {
     config_ = controller::PersistenceManager::getConfig();
@@ -84,32 +112,18 @@ void Game::initPlayer(CharacterType characterType)
     registry_.addComponent<PlayerTag>(player, {});
     Animation playerAnimation;
     PlayerStats playerStats;
-    playerStats.maxHealth = 100.0f;
-    playerStats.health = playerStats.maxHealth;
+
+    const controller::PlayerClassConfig &classConfig = getClassConfig(config_.playerClasses, characterType);
+    applyClassStats(classConfig, playerStats);
+
     if (characterType == CharacterType::Melee) {
-        playerStats.attackPower = 14.0f;
-        playerStats.attackSpeed = 1.25f;
-        playerStats.moveSpeed = 700.0f;
-        playerStats.hasDash = true;
-        playerStats.attackRange = 140.0f;
-        playerStats.speedOfAttack = 220.0f;
-        playerStats.dmgKind = DamageKind::MeleeArc;
-        playerStats.characterType = CharacterType::Melee;
         playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePath};
         playerAnimation.attackTexturePath = config_.assetConfig.meleeTexturePath + "atk_";
         playerAnimation.attackMoveSpeedMultiplier = 0.5f;
     } else {
-        playerStats.attackPower = 10.0f;
-        playerStats.attackSpeed = 1.0f;
-        playerStats.moveSpeed = 750.0f;
-        playerStats.hasDash = false;
-        playerStats.attackRange = 1000.0f;
-        playerStats.speedOfAttack = 240.0f;
-        playerStats.dmgKind = DamageKind::Projectile;
-        playerStats.characterType = CharacterType::Ranged;
         playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePath};
     }
-    playerStats.defense = 0.0f;
+
     registry_.addComponent<PlayerStats>(player, playerStats);
 
     registry_.addComponent<Position>(player, {100.0f, 100.0f});
@@ -128,7 +142,6 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
         playerAnimation.attackTexturePath = config_.assetConfig.meleeTexturePath + "atk_";
         playerAnimation.attackMoveSpeedMultiplier = 0.5f;
     } else {
-        playerStats.dmgKind = DamageKind::Projectile;
         playerStats.characterType = CharacterType::Ranged;
         playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePath};
     }
@@ -258,7 +271,7 @@ void Game::updateSystems(const controller::InputState &input, float dt)
         return;
     }
 
-    inputSystem_.update(registry_, input, dt);
+    inputSystem_.update(registry_, config_, input, dt);
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, dt);
     cameraSystem_.update(registry_);

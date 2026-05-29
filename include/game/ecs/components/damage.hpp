@@ -17,8 +17,7 @@ struct ProjectileDamage {
 };
 
 struct MeleeArcDamage {
-    float arcAngleDeg;   // e.g. 90
-    float arcRadius;     // reach
+    float reach;         // reach
     float activeTimeSec; // short hit window
     float elapsedSec;    // runtime state
 };

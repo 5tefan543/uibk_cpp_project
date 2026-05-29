@@ -20,7 +20,6 @@ struct Stats {
 struct PlayerStats : Stats {
     CharacterType characterType = CharacterType::Melee;
     bool hasDash = false;
-    DamageKind dmgKind = DamageKind::Projectile;
     int enemiesPierced = 0;
     int score = 0;
     int currency = 0;

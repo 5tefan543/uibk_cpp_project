@@ -69,8 +69,7 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem destroys melee damage entity after a
                       .pushBackForce = 0.0f,
                       .stunChance = 0.0f,
                       .kind = game::DamageKind::MeleeArc,
-                      .params = game::MeleeArcDamage{
-                          .arcAngleDeg = 90.0f, .arcRadius = 40.0f, .activeTimeSec = 0.2f, .elapsedSec = 0.0f}});
+                      .params = game::MeleeArcDamage{.reach = 40.0f, .activeTimeSec = 0.2f, .elapsedSec = 0.0f}});
 
     system.update(registry, 0.1f);
     REQUIRE(registry.isEntityAlive(meleeDamage));

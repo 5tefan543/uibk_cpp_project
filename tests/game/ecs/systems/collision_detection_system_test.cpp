@@ -123,8 +123,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem activatesto enemy damage
                             .pushBackForce = 0.0f,
                             .stunChance = 0.0f,
                             .kind = game::DamageKind::MeleeArc,
-                            .params = game::MeleeArcDamage{
-                                .arcAngleDeg = 90.0f, .arcRadius = 20.0f, .activeTimeSec = 0.2f, .elapsedSec = 0.0f}});
+                            .params = game::MeleeArcDamage{.reach = 20.0f, .activeTimeSec = 0.2f, .elapsedSec = 0.0f}});
     REQUIRE_FALSE(registry.getComponent<game::Damage>(enemy).isColliding);
 
     system.update(registry, 1);

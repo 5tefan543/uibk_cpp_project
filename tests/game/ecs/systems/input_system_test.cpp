@@ -1,4 +1,5 @@
 #include "controller/input/input_state.hpp"
+#include "controller/persistence/persistence_manager.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/hitbox.hpp"
@@ -31,7 +32,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem sets player velocity from input")
     input.upHeld = true;
 
     // ACT
-    system.update(registry, input, dummyDeltaTime);
+    const auto config = controller::PersistenceManager::getConfig();
+    system.update(registry, config, input, dummyDeltaTime);
 
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(player);
@@ -54,7 +56,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem resets old velocity before applying n
     controller::InputState input;
 
     // ACT
-    system.update(registry, input, dummyDeltaTime);
+    const auto config = controller::PersistenceManager::getConfig();
+    system.update(registry, config, input, dummyDeltaTime);
 
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(player);
@@ -76,7 +79,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem does not update entity without Player
     input.downHeld = true;
 
     // ACT
-    system.update(registry, input, dummyDeltaTime);
+    const auto config = controller::PersistenceManager::getConfig();
+    system.update(registry, config, input, dummyDeltaTime);
 
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(notPlayer);
@@ -103,7 +107,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem opposing directions cancel each other
     input.downHeld = true;
 
     // ACT
-    system.update(registry, input, dummyDeltaTime);
+    const auto config = controller::PersistenceManager::getConfig();
+    system.update(registry, config, input, dummyDeltaTime);
 
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(player);
@@ -120,7 +125,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem melee attack activates player attack 
 
     game::PlayerStats playerStats;
     playerStats.attackSpeed = 2.0f;
-    playerStats.dmgKind = game::DamageKind::MeleeArc;
+    playerStats.characterType = game::CharacterType::Melee;
     registry.addComponent<game::PlayerStats>(player, playerStats);
     registry.addComponent<game::Position>(player, {100.0f, 100.0f});
     registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
@@ -134,7 +139,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem melee attack activates player attack 
     input.mouseGridX = 130.0f;
     input.mouseGridY = 100.0f;
 
-    system.update(registry, input, 1.0f);
+    const auto config = controller::PersistenceManager::getConfig();
+    system.update(registry, config, input, 1.0f);
 
     const auto &animation = registry.getComponent<game::Animation>(player);
     REQUIRE(animation.overrideState == game::AnimationOverrideState::Attack);
@@ -167,7 +173,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem reduces movement speed while attack o
     controller::InputState input;
     input.rightHeld = true;
 
-    system.update(registry, input, dummyDeltaTime);
+    const auto config = controller::PersistenceManager::getConfig();
+    system.update(registry, config, input, dummyDeltaTime);
 
     const auto &velocity = registry.getComponent<game::Velocity>(player);
     REQUIRE(velocity.dx == 100.0f);
@@ -184,7 +191,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem ranged attack spawns projectile with 
     playerStats.attackSpeed = 1.0f;
     playerStats.attackRange = 120.0f;
     playerStats.speedOfAttack = 5.0f;
-    playerStats.dmgKind = game::DamageKind::Projectile;
+    playerStats.characterType = game::CharacterType::Ranged;
     registry.addComponent<game::PlayerStats>(player, playerStats);
     registry.addComponent<game::Position>(player, {10.0f, 20.0f});
     registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
@@ -194,7 +201,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem ranged attack spawns projectile with 
     input.mouseGridX = 13.0f;
     input.mouseGridY = 24.0f;
 
-    system.update(registry, input, 1.1f);
+    const auto config = controller::PersistenceManager::getConfig();
+    system.update(registry, config, input, 1.1f);
 
     const auto attackEntities =
         registry.view<game::Damage, game::Velocity, game::HitBox, game::Position, game::PlayerTag, view::Sprite>();
@@ -221,7 +229,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem attack cooldown is strict on boundary
     playerStats.attackSpeed = 2.0f;
     playerStats.attackRange = 80.0f;
     playerStats.speedOfAttack = 6.0f;
-    playerStats.dmgKind = game::DamageKind::Projectile;
+    playerStats.characterType = game::CharacterType::Ranged;
     registry.addComponent<game::PlayerStats>(player, playerStats);
     registry.addComponent<game::Position>(player, {0.0f, 0.0f});
     registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
@@ -231,12 +239,14 @@ TEST_CASE_METHOD(TestFixture, "InputSystem attack cooldown is strict on boundary
     input.mouseGridX = 10.0f;
     input.mouseGridY = 0.0f;
 
-    system.update(registry, input, 0.5f);
+    const auto config = controller::PersistenceManager::getConfig();
+
+    system.update(registry, config, input, 0.5f);
     REQUIRE(registry.view<game::Damage>().empty());
 
-    system.update(registry, input, 0.01f);
+    system.update(registry, config, input, 0.01f);
     REQUIRE(registry.view<game::Damage>().size() == 1);
 
-    system.update(registry, input, 0.2f);
+    system.update(registry, config, input, 0.2f);
     REQUIRE(registry.view<game::Damage>().size() == 1);
 }
