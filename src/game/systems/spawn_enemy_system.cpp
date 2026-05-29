@@ -17,6 +17,15 @@ namespace {
 constexpr float pi = 3.14159265358979323846f;
 const std::string texturePathSuffix = "right_1.png";
 
+void applyAnimationOverwrite(const controller::AnimationOverwriteConfig &overwrite, std::string &texturePath,
+                             float &frameDuration, int &totalFrames, float &moveSpeedMultiplier)
+{
+    texturePath = overwrite.texturePath;
+    frameDuration = overwrite.frameDuration;
+    totalFrames = overwrite.totalFrames;
+    moveSpeedMultiplier = overwrite.moveSpeedMultiplier;
+}
+
 } // namespace
 
 SpawnEnemySystem::SpawnEnemySystem() : randomEngine_(std::random_device{}()) {}
@@ -124,7 +133,14 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const controller
     registry.addComponent<Position>(enemy, spawnPosition);
     registry.addComponent<Velocity>(enemy, {});
     registry.addComponent<EnemyStats>(enemy, enemyStats);
-    registry.addComponent<Animation>(enemy, {.baseTexturePath = baseTexturePath});
+    Animation enemyAnimation{.baseTexturePath = baseTexturePath};
+    applyAnimationOverwrite(archetype.attack.animationOverwrite, enemyAnimation.attackTexturePath,
+                            enemyAnimation.attackFrameDuration, enemyAnimation.attackTotalFrames,
+                            enemyAnimation.attackMoveSpeedMultiplier);
+    applyAnimationOverwrite(archetype.deathOverwrite, enemyAnimation.deathTexturePath,
+                            enemyAnimation.deathFrameDuration, enemyAnimation.deathTotalFrames,
+                            enemyAnimation.deathMoveSpeedMultiplier);
+    registry.addComponent<Animation>(enemy, enemyAnimation);
     registry.addComponent<view::Sprite>(enemy, enemySprite);
 
     if (archetype.isBoss) {

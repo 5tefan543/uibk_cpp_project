@@ -17,12 +17,31 @@
         "enemyTexturePath": "assets/characters/enemy_blob/blob_",
         "mapTexturePath": "assets/map/map_1.png",
         "projectilePath": "assets/effects/base_projectile_1.png",
-        "meleePath": "assets/effects/base_swipe_1.png"
+        "droppableItems": [
+            {
+                "id": "common",
+                "spritePath": "assets/icons/store/icons-common_1.png"
+            },
+            {
+                "id": "rare",
+                "spritePath": "assets/icons/store/icons-rare_1.png"
+            },
+            {
+                "id": "epic",
+                "spritePath": "assets/icons/store/icons-epic_1.png"
+            }
+        ]
     },
     "playerClasses": {
         "melee": {
             "characterType": "Melee",
             "hasDash": true,
+            "deathOverwrite": {
+                "texturePath": "",
+                "frameDuration": 0.16,
+                "totalFrames": 2,
+                "moveSpeedMultiplier": 0.0
+            },
             "stats": {
                 "maxHealth": 100.0,
                 "attackPower": 14.0,
@@ -38,6 +57,12 @@
                 "isMultiHit": false,
                 "pushBackForce": 0.0,
                 "stunChance": 0.0,
+                "animationOverwrite": {
+                    "texturePath": "assets/characters/melee/character_melee_atk_",
+                    "frameDuration": 0.16,
+                    "totalFrames": 2,
+                    "moveSpeedMultiplier": 0.5
+                },
                 "meleeArc": {
                     "reach": 140.0,
                     "hitBoxWidth": 64.0,
@@ -53,6 +78,12 @@
         "ranged": {
             "characterType": "Ranged",
             "hasDash": false,
+            "deathOverwrite": {
+                "texturePath": "",
+                "frameDuration": 0.16,
+                "totalFrames": 2,
+                "moveSpeedMultiplier": 0.0
+            },
             "stats": {
                 "maxHealth": 100.0,
                 "attackPower": 10.0,
@@ -68,6 +99,12 @@
                 "isMultiHit": false,
                 "pushBackForce": 0.0,
                 "stunChance": 0.0,
+                "animationOverwrite": {
+                    "texturePath": "",
+                    "frameDuration": 0.16,
+                    "totalFrames": 2,
+                    "moveSpeedMultiplier": 1.0
+                },
                 "projectile": {
                     "velocityScale": 10.0,
                     "spriteWidth": 16.0,
@@ -109,6 +146,12 @@
                 "combatScaleMultiplier": 1.0,
                 "moveSpeedRatioOfPlayer": 0.9,
                 "baseTexturePath": "assets/characters/blob_enemy/blob_",
+                "deathOverwrite": {
+                    "texturePath": "",
+                    "frameDuration": 0.16,
+                    "totalFrames": 2,
+                    "moveSpeedMultiplier": 0.0
+                },
                 "stats": {
                     "maxHealth": 10.0,
                     "attackPower": 2.0,
@@ -124,6 +167,12 @@
                     "isMultiHit": false,
                     "pushBackForce": 0.0,
                     "stunChance": 0.0,
+                    "animationOverwrite": {
+                        "texturePath": "",
+                        "frameDuration": 0.16,
+                        "totalFrames": 2,
+                        "moveSpeedMultiplier": 1.0
+                    },
                     "meleeArc": {
                         "reach": 45.0,
                         "hitBoxWidth": 64.0,
@@ -144,6 +193,12 @@
                 "combatScaleMultiplier": 4.0,
                 "moveSpeedRatioOfPlayer": 0.5,
                 "baseTexturePath": "assets/characters/boss_1_",
+                "deathOverwrite": {
+                    "texturePath": "",
+                    "frameDuration": 0.16,
+                    "totalFrames": 2,
+                    "moveSpeedMultiplier": 0.0
+                },
                 "stats": {
                     "maxHealth": 10.0,
                     "attackPower": 2.0,
@@ -159,6 +214,12 @@
                     "isMultiHit": false,
                     "pushBackForce": 0.0,
                     "stunChance": 0.0,
+                    "animationOverwrite": {
+                        "texturePath": "",
+                        "frameDuration": 0.16,
+                        "totalFrames": 2,
+                        "moveSpeedMultiplier": 1.0
+                    },
                     "meleeArc": {
                         "reach": 80.0,
                         "hitBoxWidth": 96.0,

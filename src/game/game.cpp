@@ -42,6 +42,15 @@ void applyClassStats(const controller::PlayerClassConfig &classConfig, PlayerSta
     playerStats.characterType = classConfig.characterType;
 }
 
+void applyAnimationOverwrite(const controller::AnimationOverwriteConfig &overwrite, std::string &texturePath,
+                             float &frameDuration, int &totalFrames, float &moveSpeedMultiplier)
+{
+    texturePath = overwrite.texturePath;
+    frameDuration = overwrite.frameDuration;
+    totalFrames = overwrite.totalFrames;
+    moveSpeedMultiplier = overwrite.moveSpeedMultiplier;
+}
+
 } // namespace
 
 Game::Game(int wave, CharacterType characterType)
@@ -118,11 +127,16 @@ void Game::initPlayer(CharacterType characterType)
 
     if (characterType == CharacterType::Melee) {
         playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePath};
-        playerAnimation.attackTexturePath = config_.assetConfig.meleeTexturePath + "atk_";
-        playerAnimation.attackMoveSpeedMultiplier = 0.5f;
     } else {
         playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePath};
     }
+
+    applyAnimationOverwrite(classConfig.attack.animationOverwrite, playerAnimation.attackTexturePath,
+                            playerAnimation.attackFrameDuration, playerAnimation.attackTotalFrames,
+                            playerAnimation.attackMoveSpeedMultiplier);
+    applyAnimationOverwrite(classConfig.deathOverwrite, playerAnimation.deathTexturePath,
+                            playerAnimation.deathFrameDuration, playerAnimation.deathTotalFrames,
+                            playerAnimation.deathMoveSpeedMultiplier);
 
     registry_.addComponent<PlayerStats>(player, playerStats);
 
@@ -139,12 +153,19 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
     Animation playerAnimation;
     if (playerStats.characterType == CharacterType::Melee) {
         playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePath};
-        playerAnimation.attackTexturePath = config_.assetConfig.meleeTexturePath + "atk_";
-        playerAnimation.attackMoveSpeedMultiplier = 0.5f;
     } else {
         playerStats.characterType = CharacterType::Ranged;
         playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePath};
     }
+
+    const controller::PlayerClassConfig &classConfig = getClassConfig(config_.playerClasses, playerStats.characterType);
+    applyAnimationOverwrite(classConfig.attack.animationOverwrite, playerAnimation.attackTexturePath,
+                            playerAnimation.attackFrameDuration, playerAnimation.attackTotalFrames,
+                            playerAnimation.attackMoveSpeedMultiplier);
+    applyAnimationOverwrite(classConfig.deathOverwrite, playerAnimation.deathTexturePath,
+                            playerAnimation.deathFrameDuration, playerAnimation.deathTotalFrames,
+                            playerAnimation.deathMoveSpeedMultiplier);
+
     registry_.addComponent<PlayerStats>(player, playerStats);
     registry_.addComponent<Position>(player, position);
     registry_.addComponent<Velocity>(player, {0.0f, 0.0f});

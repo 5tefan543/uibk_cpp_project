@@ -269,9 +269,21 @@ void DebugUI::renderComponent(game::Animation &c)
     ImGui::InputFloat("attackFrameDuration", &c.attackFrameDuration);
     ImGui::InputInt("attackTotalFrames", &c.attackTotalFrames);
     ImGui::InputFloat("attackMoveSpeedMultiplier", &c.attackMoveSpeedMultiplier);
-    ImGui::Text("overrideState: %s", c.overrideState == game::AnimationOverrideState::Attack ? "Attack" : "None");
+    ImGui::InputFloat("deathFrameDuration", &c.deathFrameDuration);
+    ImGui::InputInt("deathTotalFrames", &c.deathTotalFrames);
+    ImGui::InputFloat("deathMoveSpeedMultiplier", &c.deathMoveSpeedMultiplier);
+    const char *overrideStateText = "None";
+    if (c.overrideState == game::AnimationOverrideState::Attack) {
+        overrideStateText = "Attack";
+    } else if (c.overrideState == game::AnimationOverrideState::Death) {
+        overrideStateText = "Death";
+    } else if (c.overrideState == game::AnimationOverrideState::TakingDamage) {
+        overrideStateText = "TakingDamage";
+    }
+    ImGui::Text("overrideState: %s", overrideStateText);
     ImGui::Text("overrideDirection: %s", c.overrideDirection == game::Direction::Left ? "Left" : "Right");
     ImGui::Text("attackTexturePath: %s", c.attackTexturePath.c_str());
+    ImGui::Text("deathTexturePath: %s", c.deathTexturePath.c_str());
 
     ImGui::PopID();
 }

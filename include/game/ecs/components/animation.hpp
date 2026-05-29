@@ -6,7 +6,7 @@ namespace game {
 
 enum class Direction { Left, Right, Up, Down };
 
-enum class AnimationOverrideState { None, Attack, TakingDamage };
+enum class AnimationOverrideState { None, Attack, Death, TakingDamage };
 
 struct Animation {
     Direction direction = Direction::Right;
@@ -23,6 +23,10 @@ struct Animation {
     float attackFrameDuration = 0.16f;
     int attackTotalFrames = 2;
     float attackMoveSpeedMultiplier = 0.5f;
+    std::string deathTexturePath = "";
+    float deathFrameDuration = 0.16f;
+    int deathTotalFrames = 2;
+    float deathMoveSpeedMultiplier = 0.0f;
 };
 
 } // namespace game

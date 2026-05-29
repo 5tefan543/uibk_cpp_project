@@ -19,7 +19,19 @@ struct AssetConfig {
     std::string mapTexturePath;
     std::string fontPath;
     std::string projectilePath;
-    std::string meleePath;
+    struct DroppableItemAssetConfig {
+        std::string id;
+        std::string spritePath;
+    };
+
+    std::vector<DroppableItemAssetConfig> droppableItems;
+};
+
+struct AnimationOverwriteConfig {
+    std::string texturePath;
+    float frameDuration = 0.16f;
+    int totalFrames = 2;
+    float moveSpeedMultiplier = 1.0f;
 };
 
 struct CombatStatsConfig {
@@ -62,6 +74,7 @@ struct AttackProfileConfig {
     bool isMultiHit = false;
     float pushBackForce = 0.0f;
     float stunChance = 0.0f;
+    AnimationOverwriteConfig animationOverwrite;
     ProjectileAttackConfig projectile;
     MeleeArcAttackConfig meleeArc;
     BeamAttackConfig beam;
@@ -71,6 +84,7 @@ struct AttackProfileConfig {
 struct PlayerClassConfig {
     game::CharacterType characterType = game::CharacterType::Melee;
     bool hasDash = false;
+    AnimationOverwriteConfig deathOverwrite;
     CombatStatsConfig stats;
     AttackProfileConfig attack;
 };
@@ -87,6 +101,7 @@ struct EnemyArchetypeConfig {
     float combatScaleMultiplier = 1.0f;
     float moveSpeedRatioOfPlayer = 0.9f;
     std::string baseTexturePath;
+    AnimationOverwriteConfig deathOverwrite;
     CombatStatsConfig stats;
     AttackProfileConfig attack;
     int scoreReward = 1;

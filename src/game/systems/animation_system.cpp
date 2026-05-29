@@ -10,25 +10,48 @@
 
 namespace game {
 
+namespace {
+
+struct OverwriteRenderConfig {
+    const std::string *texturePath;
+    float frameDuration;
+    int totalFrames;
+};
+
+OverwriteRenderConfig getOverwriteRenderConfig(const Animation &animation)
+{
+    switch (animation.overrideState) {
+    case AnimationOverrideState::Attack:
+        return {&animation.attackTexturePath, animation.attackFrameDuration, animation.attackTotalFrames};
+    case AnimationOverrideState::Death:
+        return {&animation.deathTexturePath, animation.deathFrameDuration, animation.deathTotalFrames};
+    default:
+        return {nullptr, 0.0f, 0};
+    }
+}
+
+} // namespace
+
 void AnimationSystem::update(Registry &registry, float dt)
 {
     for (auto entity : registry.view<Animation, view::Sprite>()) {
         Animation &animation = registry.getComponent<Animation>(entity);
         view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
 
-        if (animation.overrideState == AnimationOverrideState::Attack && !animation.attackTexturePath.empty()) {
+        const OverwriteRenderConfig overwriteConfig = getOverwriteRenderConfig(animation);
+        if (overwriteConfig.texturePath != nullptr && !overwriteConfig.texturePath->empty()) {
             animation.overrideTimeRemaining = std::max(0.0f, animation.overrideTimeRemaining - dt);
             animation.direction = animation.overrideDirection;
 
             animation.frameTimer += dt;
-            if (animation.frameTimer >= animation.attackFrameDuration) {
-                animation.frameTimer -= animation.attackFrameDuration;
-                animation.currentFrame = (animation.currentFrame + 1) % animation.attackTotalFrames;
+            if (animation.frameTimer >= overwriteConfig.frameDuration) {
+                animation.frameTimer -= overwriteConfig.frameDuration;
+                animation.currentFrame = (animation.currentFrame + 1) % std::max(1, overwriteConfig.totalFrames);
             }
 
             std::string directionStr = (animation.overrideDirection == Direction::Left) ? "left" : "right";
             int frameNum = animation.currentFrame + 1;
-            sprite.imagePath = animation.attackTexturePath + directionStr + "_" + std::to_string(frameNum) + ".png";
+            sprite.imagePath = *overwriteConfig.texturePath + directionStr + "_" + std::to_string(frameNum) + ".png";
 
             if (animation.overrideTimeRemaining <= 0.0f) {
                 animation.overrideState = AnimationOverrideState::None;

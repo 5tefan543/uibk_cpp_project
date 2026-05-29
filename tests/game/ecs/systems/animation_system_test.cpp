@@ -139,6 +139,38 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem prioritizes attack override sprit
     REQUIRE(sprite.imagePath == "assets/characters/atk_left_2.png");
 }
 
+TEST_CASE_METHOD(TestFixture, "AnimationSystem prioritizes death override sprite and direction")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+
+    game::Entity e = registry.createEntity();
+    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
+                                               .currentFrame = 0,
+                                               .frameTimer = 0.0f,
+                                               .frameDuration = 0.5f,
+                                               .totalFrames = 4,
+                                               .baseTexturePath = "assets/characters/",
+                                               .overrideState = game::AnimationOverrideState::Death,
+                                               .overrideTimeRemaining = 0.6f,
+                                               .overrideDirection = game::Direction::Left,
+                                               .deathTexturePath = "assets/characters/death_",
+                                               .deathFrameDuration = 0.3f,
+                                               .deathTotalFrames = 2});
+    registry.addComponent<view::Sprite>(e, {});
+    registry.addComponent<game::Velocity>(e, {100.0f, 0.0f});
+
+    system.update(registry, 0.3f);
+
+    const auto &animation = registry.getComponent<game::Animation>(e);
+    const auto &sprite = registry.getComponent<view::Sprite>(e);
+
+    REQUIRE(animation.currentFrame == 1);
+    REQUIRE(animation.overrideState == game::AnimationOverrideState::Death);
+    REQUIRE(animation.direction == game::Direction::Left);
+    REQUIRE(sprite.imagePath == "assets/characters/death_left_2.png");
+}
+
 TEST_CASE_METHOD(TestFixture, "AnimationSystem clears attack override after timer expires")
 {
     game::Registry registry;
