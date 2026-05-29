@@ -1,8 +1,8 @@
 #include "ui/renderer.hpp"
 #include "controller/debug/debug_context.hpp"
 #include "controller/persistence/persistence_manager.hpp"
+#include "logging/log.hpp"
 #include <SFML/Graphics.hpp>
-#include <iostream>
 
 namespace ui {
 
@@ -10,16 +10,12 @@ Renderer::Renderer()
 {
     // Load all fonts from disk once upon instantiation
     fonts_ = std::vector<sf::Font>({sf::Font(controller::PersistenceManager::getConfig().assetConfig.fontPath)});
-#ifdef LOG_STDOUT
-    std::cout << "Renderer constructed" << std::endl;
-#endif
+    logger::log(logger::DEBUG, "Renderer constructed");
 }
 
 Renderer::~Renderer()
 {
-#ifdef LOG_STDOUT
-    std::cout << "Renderer destructed" << std::endl;
-#endif
+    logger::log(logger::DEBUG, "Renderer destructed");
 }
 
 sf::Color Renderer::toSfColor(const view::Color &color)
@@ -54,9 +50,7 @@ sf::Texture &Renderer::getTexture(const std::string &imagePath)
         if (texturePath == fallbackTexturePath) {
             throw std::runtime_error("Failed to load fallback texture: " + fallbackTexturePath);
         }
-#ifdef LOG_STDOUT
-        std::cerr << "Failed to load texture: " << texturePath << ". Using fallback texture.\n";
-#endif
+        logger::log(logger::ERROR, std::format("Failed to load texture: {}. Using fallback texture.", texturePath));
 
         return getTexture(fallbackTexturePath);
     }

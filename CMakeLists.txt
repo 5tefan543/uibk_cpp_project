@@ -30,6 +30,13 @@ IF (DEFINED LOG_STDOUT)
 ENDIF()
 
 
+# Loggin library
+add_library(roguelike_logger
+  src/logging/log.cpp
+)
+roguelike_cxx_flags(roguelike_logger)
+target_include_directories(roguelike_logger PUBLIC include)
+
 # Game library
 add_library(roguelike_game
   src/game/game.cpp
@@ -59,6 +66,7 @@ target_include_directories(roguelike_controller PUBLIC include)
 target_link_libraries(roguelike_controller
   PUBLIC
     roguelike_game
+    roguelike_logger
     glaze::glaze
 )
 
@@ -77,6 +85,7 @@ target_link_libraries(roguelike_ui
     SFML::Graphics
     SFML::Audio
     roguelike_controller
+    roguelike_logger
     ImGui-SFML::ImGui-SFML
 )
 
@@ -91,6 +100,7 @@ target_link_libraries(roguelike_app
   PRIVATE
     roguelike_controller
     roguelike_ui
+    roguelike_logger
 )
 
 add_custom_command(TARGET roguelike_app POST_BUILD
@@ -133,6 +143,7 @@ target_link_libraries(roguelike_test_runner
   PRIVATE
     roguelike_game
     roguelike_controller
+    roguelike_logger
     Catch2::Catch2WithMain
 )
 

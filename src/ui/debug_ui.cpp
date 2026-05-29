@@ -1,23 +1,19 @@
 #include "ui/debug_ui.hpp"
 #include "controller/persistence/persistence_manager.hpp"
+#include "logging/log.hpp"
 #include <imgui.h>
-#include <iostream>
 #include <vector>
 
 namespace ui {
 
 DebugUI::DebugUI()
 {
-#ifdef LOG_STDOUT
-    std::cout << "DebugUI constructed" << std::endl;
-#endif
+    logger::log(logger::DEBUG, "DebugUI constructed");
 }
 
 DebugUI::~DebugUI()
 {
-#ifdef LOG_STDOUT
-    std::cout << "DebugUI destructed" << std::endl;
-#endif
+    logger::log(logger::DEBUG, "DebugUI destructed");
 }
 
 void DebugUI::render(const controller::InputState &input, float fps)

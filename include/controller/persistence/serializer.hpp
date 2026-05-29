@@ -1,6 +1,7 @@
 #pragma once
 #include "config_game.hpp"
 #include "leaderboard.hpp"
+#include "logging/log.hpp"
 #include "persisted_game.hpp"
 #include <algorithm>
 #include <filesystem>
@@ -27,9 +28,8 @@ class Serializer {
     {
         std::string json;
         if (const auto err = glz::write_json(value, json)) {
-#ifdef LOG_STDOUT
-            std::cerr << "Failed to serialize JSON for " << path << ": " << glz::format_error(err, json) << '\n';
-#endif
+            logger::log(logger::ERROR,
+                        std::format("Failed to serialize JSON for {}: {}", path.c_str(), glz::format_error(err, json)));
             return false;
         }
 
@@ -39,27 +39,22 @@ class Serializer {
             std::filesystem::create_directories(parentPath, ec);
 
             if (ec) {
-#ifdef LOG_STDOUT
-                std::cerr << "Failed to create directories for " << path << ": " << ec.message() << '\n';
-#endif
+                logger::log(logger::ERROR,
+                            std::format("Failed to create directories for {}: {}", path.c_str(), ec.message()));
                 return false;
             }
         }
 
         std::ofstream out(path);
         if (!out) {
-#ifdef LOG_STDOUT
-            std::cerr << "Failed to open file for writing: " << path << std::endl;
-#endif
+            logger::log(logger::ERROR, std::format("Failed to open file for writing: {}", path.c_str()));
             return false;
         }
 
         out << json;
 
         if (!out) {
-#ifdef LOG_STDOUT
-            std::cerr << "Failed to write JSON to file: " << path << '\n';
-#endif
+            logger::log(logger::ERROR, std::format("Failed to write JSON to file: {}", path.c_str()));
             return false;
         }
         return true;
@@ -77,10 +72,8 @@ class Serializer {
         buffer << in.rdbuf();
 
         if (const auto err = glz::read_json(value, buffer.str())) {
-#ifdef LOG_STDOUT
-            std::cerr << "Failed to deserialize JSON for " << path << ": " << glz::format_error(err, buffer.str())
-                      << '\n';
-#endif
+            logger::log(logger::ERROR, std::format("Failed to deserialize JSON for {}: {}", path.c_str(),
+                                                   glz::format_error(err, buffer.str())));
             return false;
         }
 

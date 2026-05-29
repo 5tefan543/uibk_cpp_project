@@ -11,9 +11,10 @@
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
+#include "logging/log.hpp"
 #include "view/sprite.hpp"
-#include <iostream>
 #include <view/text.hpp>
+
 namespace game {
 
 Game::Game(int wave) : locationTable_({40, 40}) // 1920/40 = 48 buckets; 1080/40 = 27 buckets
@@ -27,16 +28,12 @@ Game::Game(int wave) : locationTable_({40, 40}) // 1920/40 = 48 buckets; 1080/40
 
 Game::Game() : Game(1)
 {
-#ifdef LOG_STDOUT
-    std::cout << "New game constructed" << std::endl;
-#endif
+    logger::log(logger::DEBUG, "New game constructed");
 }
 
 Game::Game(const controller::PersistedGame &persistedGame) : Game(persistedGame.wave)
 {
-#ifdef LOG_STDOUT
-    std::cout << "Game constructed from persisted game" << std::endl;
-#endif
+    logger::log(logger::DEBUG, "Game constructed from persisted game");
 
     score_ = persistedGame.score;
     currency_ = persistedGame.currency;
@@ -61,9 +58,7 @@ Game::Game(const controller::PersistedGame &persistedGame) : Game(persistedGame.
 
 Game::~Game()
 {
-#ifdef LOG_STDOUT
-    std::cout << "Game destructed" << std::endl;
-#endif
+    logger::log(logger::DEBUG, "Game destructed");
 }
 
 void Game::initMap()
@@ -129,9 +124,7 @@ void Game::initWave(int waveNumber)
     }
 
     spawnEnemySystem_.update(registry_, wave_, config_);
-#ifdef LOG_STDOUT
-    std::cout << "Starting wave " << wave_ << " of stage " << stage_ << std::endl;
-#endif
+    logger::log(logger::DEBUG, std::format("Starting wave {} of stage {}", wave_, stage_));
 }
 
 GameDebugSession &Game::getDebugSession()
@@ -214,9 +207,8 @@ void Game::processDebugSession(float dt)
     // Handle player destruction request
     if (debugSession_.isPlayerDestructionRequested) {
         debugSession_.isPlayerDestructionRequested = false;
-#ifdef LOG_STDOUT
-        std::cout << "Destroying player entity!" << std::endl;
-#endif
+        logger::log(logger::DEBUG, "Destroying player entity!");
+
         for (Entity player : registry_.view<PlayerTag>()) {
             registry_.destroyEntity(player);
         }
@@ -225,9 +217,7 @@ void Game::processDebugSession(float dt)
     // Handle save game request
     if (debugSession_.isSaveGameRequested) {
         debugSession_.isSaveGameRequested = false;
-#ifdef LOG_STDOUT
-        std::cout << "Saving game!" << std::endl;
-#endif
+        logger::log(logger::DEBUG, "Saving game!");
         controller::PersistedGame persistedGame = getPersistedGame();
         controller::PersistenceManager::saveGame(persistedGame);
     }

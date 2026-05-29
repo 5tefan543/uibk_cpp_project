@@ -1,7 +1,6 @@
-#include <iostream>
-#include <utility>
-
 #include "controller/state/state_manager.hpp"
+#include "logging/log.hpp"
+#include <utility>
 
 namespace controller {
 
@@ -98,9 +97,7 @@ std::string StateManager::getDebugInfo() const
 
 void StateManager::printDebugInfo() const
 {
-#ifdef LOG_STDOUT
-    std::cout << getDebugInfo() << std::endl;
-#endif
+    logger::log(logger::DEBUG, getDebugInfo());
 }
 
 } // namespace controller

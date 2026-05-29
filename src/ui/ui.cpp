@@ -1,26 +1,21 @@
 #include "ui/ui.hpp"
+#include "logging/log.hpp"
 #include "view/grid.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <imgui-SFML.h>
-#include <iostream>
-
 namespace ui {
 
 UI::UI()
 {
-#ifdef LOG_STDOUT
-    std::cout << "UI constructed" << std::endl;
-#endif
+    logger::log(logger::DEBUG, "UI constructed");
     initSfmlWindow();
     initImGuiSfml();
 }
 
 UI::~UI()
 {
-#ifdef LOG_STDOUT
-    std::cout << "UI destructed" << std::endl;
-#endif
+    logger::log(logger::DEBUG, "UI destructed");
 }
 
 void UI::initSfmlWindow()

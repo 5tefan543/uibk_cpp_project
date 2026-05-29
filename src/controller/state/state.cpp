@@ -2,10 +2,8 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/mouse_util.hpp"
 #include "controller/persistence/persistence_manager.hpp"
+#include "logging/log.hpp"
 #include "view/text.hpp"
-#ifdef LOG_STDOUT
-#include <iostream>
-#endif
 
 namespace controller {
 
@@ -257,9 +255,8 @@ std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
     if (persistedGame.has_value()) {
         return std::unique_ptr<GameplayState>(new GameplayState(persistedGame.value()));
     }
-#ifdef LOG_STDOUT
-    std::cout << "No saved game found, starting new game instead." << std::endl;
-#endif
+    logger::log(logger::DEBUG, "No saved game found, starting new game instead.");
+
     return createNewGameplay();
 }
 
