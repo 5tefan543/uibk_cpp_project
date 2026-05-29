@@ -24,11 +24,6 @@ struct glz::meta<game::DamageKind> {
 };
 
 template <>
-struct glz::meta<game::Position> {
-    static constexpr auto value = glz::object("x", &game::Position::x, "y", &game::Position::y);
-};
-
-template <>
 struct glz::meta<game::PlayerStats> {
     static constexpr auto value =
         glz::object("maxHealth", &game::PlayerStats::maxHealth, "health", &game::PlayerStats::health, "attackPower",
@@ -38,46 +33,6 @@ struct glz::meta<game::PlayerStats> {
                     &game::PlayerStats::hasDash, "dmgKind", &game::PlayerStats::dmgKind, "enemiesPierced",
                     &game::PlayerStats::enemiesPierced, "score", &game::PlayerStats::score, "currency",
                     &game::PlayerStats::currency, "characterType", &game::PlayerStats::characterType);
-};
-
-template <>
-struct glz::meta<game::PersistedGame> {
-    static constexpr auto value =
-        glz::object("wave", &game::PersistedGame::wave, "position", &game::PersistedGame::position, "playerStats",
-                    &game::PersistedGame::playerStats);
-};
-
-template <>
-struct glz::meta<controller::WindowConfig> {
-    static constexpr auto value =
-        glz::object("width", &controller::WindowConfig::width, "height", &controller::WindowConfig::height, "title",
-                    &controller::WindowConfig::title);
-};
-
-template <>
-struct glz::meta<controller::AssetConfig> {
-    static constexpr auto value = glz::object(
-        "meleeTexturePath", &controller::AssetConfig::meleeTexturePath, "rangedTexturePath",
-        &controller::AssetConfig::rangedTexturePath, "enemyTexturePath", &controller::AssetConfig::enemyTexturePath,
-        "mapTexturePath", &controller::AssetConfig::mapTexturePath, "fontPath", &controller::AssetConfig::fontPath,
-        "projectilePath", &controller::AssetConfig::projectilePath, "meleePath", &controller::AssetConfig::meleePath);
-};
-
-template <>
-struct glz::meta<controller::GameConfig> {
-    static constexpr auto value = glz::object(
-        "initialStage", &controller::GameConfig::initialStage, "initialWave", &controller::GameConfig::initialWave,
-        "initialCurrency", &controller::GameConfig::initialCurrency, "waveDurationSeconds",
-        &controller::GameConfig::waveDurationSeconds, "wavesPerStage", &controller::GameConfig::wavesPerStage,
-        "maxEnemyCount", &controller::GameConfig::maxEnemyCount, "windowConfig", &controller::GameConfig::windowConfig,
-        "assetConfig", &controller::GameConfig::assetConfig);
-};
-
-template <>
-struct glz::meta<controller::LeaderboardEntry> {
-    static constexpr auto value =
-        glz::object("playerName", &controller::LeaderboardEntry::playerName, "score",
-                    &controller::LeaderboardEntry::score, "wave", &controller::LeaderboardEntry::wave);
 };
 
 namespace controller {
