@@ -13,10 +13,10 @@ namespace game {
 LocationTable::LocationTable(const Vec2<unsigned> numBuckets)
     : numBuckets(numBuckets), bucketSize(Vec2{view::gridWidth, view::gridHeight} / numBuckets.into<float>())
 {
-    bucketGrid_ = std::vector<std::unique_ptr<std::vector<Entity>>>();
+    bucketGrid_ = std::vector<std::vector<Entity>>();
     bucketGrid_.reserve(numBuckets.x * numBuckets.y);
     for (size_t i = 0; i < numBuckets.x * numBuckets.y; i++) {
-        bucketGrid_.emplace_back(std::make_unique<std::vector<Entity>>());
+        bucketGrid_.emplace_back(std::vector<Entity>());
     }
 }
 
@@ -34,7 +34,7 @@ std::tuple<Vec2<unsigned>, Vec2<unsigned>> LocationTable::getBucketIndices(Vec2<
 void LocationTable::update(const Registry &registry)
 {
     for (auto &bucket : bucketGrid_) {
-        bucket->clear(); // Leaves the capacity() of the vector unchanged
+        bucket.clear(); // Leaves the capacity() of the vector unchanged
     }
 
     // bool cleanup = false;
@@ -53,7 +53,7 @@ void LocationTable::update(const Registry &registry)
 
         for (unsigned buckY = firstBuck.y; buckY <= lastBuck.y; buckY++) {
             for (unsigned buckX = firstBuck.x; buckX <= lastBuck.x; buckX++) {
-                getBucket(buckX, buckY)->emplace_back(entity);
+                getBucket(buckX, buckY).emplace_back(entity);
             }
         }
         // Not-thought-through idea how to figure out if we want to free up memory.
@@ -95,7 +95,7 @@ std::unordered_set<Entity> LocationTable::getEntitiesNear(const Vec2<float> posi
 
     for (unsigned buckY = firstBuck.y; buckY <= lastBuck.y; buckY++) {
         for (unsigned buckX = firstBuck.x; buckX <= lastBuck.x; buckX++) {
-            const std::vector<Entity> &near = *cgetBucket(buckX, buckY);
+            const auto &near = cgetBucket(buckX, buckY);
             inRange.insert(near.cbegin(), near.cend());
         }
     }

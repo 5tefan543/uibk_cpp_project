@@ -18,17 +18,18 @@ struct LocationTable {
     std::unordered_set<Entity> getEntitiesNear(const Vec2<float> position, const float radius);
     std::vector<std::tuple<Entity, Position>> getEntitiesInRange(const Vec2<float> position, const float radius,
                                                                  const Registry &registry);
-    const std::vector<Entity> *cgetBucket(const unsigned buckIx, const unsigned buckIy) const
+    const std::vector<Entity> &cgetBucket(const unsigned buckIx, const unsigned buckIy) const
     {
-        return bucketGrid_[buckIy * numBuckets.x + buckIx].get();
+        return bucketGrid_[buckIy * numBuckets.x + buckIx];
     }
-    const std::vector<std::unique_ptr<std::vector<Entity>>> &cgetGrid() { return bucketGrid_; }
+    const std::vector<std::vector<Entity>> &cgetGrid() { return bucketGrid_; }
 
   private:
-    std::vector<std::unique_ptr<std::vector<Entity>>> bucketGrid_;
-    std::vector<Entity> *getBucket(const unsigned buckIx, const unsigned buckIy)
+    std::vector<std::vector<Entity>> bucketGrid_;
+
+    std::vector<Entity> &getBucket(const unsigned buckIx, const unsigned buckIy)
     {
-        return bucketGrid_[buckIy * numBuckets.x + buckIx].get();
+        return bucketGrid_[buckIy * numBuckets.x + buckIx];
     }
     std::tuple<Vec2<unsigned>, Vec2<unsigned>> getBucketIndices(Vec2<float> startGrid, Vec2<float> stopGrid);
 };

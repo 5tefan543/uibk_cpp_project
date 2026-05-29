@@ -157,7 +157,7 @@ void Renderer::renderDebugLocationTable(sf::RenderWindow &window)
             bucket.setOutlineThickness(1.0f);
             window.draw(bucket);
 
-            sf::Text t(toSfFont(view::Font::Default), std::format("{}", lt.cgetBucket(x, y)->size()));
+            sf::Text t(toSfFont(view::Font::Default), std::format("{}", lt.cgetBucket(x, y).size()));
             t.setOrigin(t.getLocalBounds().getCenter());
             t.setPosition({bucket.getPosition() + bucket.getGeometricCenter()});
             t.setFillColor(sf::Color::Black);

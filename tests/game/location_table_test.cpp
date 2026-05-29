@@ -88,13 +88,13 @@ TEST_CASE("test location table", "[location-table]")
     {
         std::vector<Entity> before;
         for (auto &row : lt.cgetGrid()) {
-            auto &r = *row.get();
+            auto &r = row;
             before.insert(before.cend(), r.cbegin(), r.cend());
         }
         lt.update(registry);
         std::vector<Entity> after;
         for (auto &row : lt.cgetGrid()) {
-            auto &r = *row.get();
+            auto &r = row;
             after.insert(after.cend(), r.cbegin(), r.cend());
         }
         REQUIRE(before == after);
@@ -120,7 +120,8 @@ TEST_CASE("test location table", "[location-table]")
 
         for (unsigned x = 0; x < numCells.x; x++) {
             for (unsigned y = 0; y < numCells.y; y++) {
-                auto ents = lt.getEntitiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
+                const auto ents =
+                    lt.getEntitiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
                 if (x == 0 && y == 0) {
                     REQUIRE(ents.size() == 2);
                     REQUIRE(ents.contains(eLookup[x][y]));
@@ -139,7 +140,8 @@ TEST_CASE("test location table", "[location-table]")
 
         for (unsigned x = 0; x < numCells.x; x++) {
             for (unsigned y = 0; y < numCells.y; y++) {
-                auto ents = lt.getEntitiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
+                const auto ents =
+                    lt.getEntitiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
                 if (x == numCells.x - 1 && y == numCells.y - 1) {
                     REQUIRE(ents.size() == 2);
                     REQUIRE(ents.contains(eLookup[x][y]));
@@ -160,8 +162,8 @@ TEST_CASE("test location table", "[location-table]")
         // Check internal state
         for (unsigned x = 0; x < numCells.x; x++) {
             for (unsigned y = 0; y < numCells.y; y++) {
-                auto b = lt.cgetBucket(x, y);
-                auto numB = std::count(b->cbegin(), b->cend(), e);
+                const auto b = lt.cgetBucket(x, y);
+                auto numB = std::count(b.cbegin(), b.cend(), e);
                 if (x >= 1 && x <= 2 && y >= 1 && y <= 2) {
                     REQUIRE(numB == 1);
                 } else {
@@ -192,7 +194,7 @@ TEST_CASE("test location table", "[location-table]")
         for (unsigned x = 0; x < numCells.x; x++) {
             for (unsigned y = 0; y < numCells.y; y++) {
                 auto b = lt.cgetBucket(x, y);
-                auto numB = std::count(b->cbegin(), b->cend(), e);
+                auto numB = std::count(b.cbegin(), b.cend(), e);
                 if (x <= 2 && y == 0) {
                     REQUIRE(numB == 1);
                 } else {
@@ -223,7 +225,7 @@ TEST_CASE("test location table", "[location-table]")
         for (unsigned x = 0; x < numCells.x; x++) {
             for (unsigned y = 0; y < numCells.y; y++) {
                 auto b = lt.cgetBucket(x, y);
-                auto numB = std::count(b->cbegin(), b->cend(), e);
+                auto numB = std::count(b.cbegin(), b.cend(), e);
                 if (x == 0 && y <= 2) {
                     REQUIRE(numB == 1);
                 } else {
