@@ -35,7 +35,7 @@ void PersistenceManager::deleteSave()
     std::error_code ec;
     fs::remove(Serializer::saveFilePath, ec);
     if (ec) {
-        logger::log(logger::DEBUG, std::format("Failed to delete save file: {}", Serializer::saveFilePath.c_str()));
+        logger::log(logger::DEBUG, std::format("Failed to delete save file: {}", Serializer::saveFilePath.string()));
     }
 }
 

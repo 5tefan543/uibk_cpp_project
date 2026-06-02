@@ -3,6 +3,7 @@
 #include "ui/ui.hpp"
 #include "view/view.hpp"
 #include <atomic>
+#include <controller/persistence/persistence_manager.hpp>
 #include <csignal>
 #include <cstdlib>
 #include <exception>
@@ -21,6 +22,9 @@ int main()
     try {
         std::signal(SIGTERM, signalHandler);
         std::signal(SIGINT, signalHandler);
+
+        controller::GameConfig config = controller::PersistenceManager::getConfig();
+        logger::configure({config.logLevel, config.logColor});
 
         controller::Controller controller;
         ui::UI ui;

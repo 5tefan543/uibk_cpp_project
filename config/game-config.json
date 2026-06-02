@@ -1,4 +1,6 @@
 {
+    "logLevel": 4,
+    "logColor": true,
     "initialStage": 1,
     "initialWave": 1,
     "initialCurrency": 0,

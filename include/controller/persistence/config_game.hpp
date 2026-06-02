@@ -1,4 +1,5 @@
 #pragma once
+#include "logging/log.hpp"
 #include <string>
 
 namespace controller {
@@ -17,12 +18,16 @@ struct AssetConfig {
 };
 
 struct GameConfig {
+    logger::LogLevel logLevel;
+    bool logColor = true;
+
     int initialStage;
     int initialWave;
     int initialCurrency;
     int waveDurationSeconds;
     int wavesPerStage;
     int maxEnemyCount;
+
     WindowConfig windowConfig;
     AssetConfig assetConfig;
 };

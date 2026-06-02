@@ -1,14 +1,25 @@
 #pragma once
+
 #include <string>
 
 namespace logger {
 
-// Enum order is important for level hirachy comparison. Higher verbosity (higher enum value) includes all lower
-// verbosity (lower enum values <-> more severe) levels. SILENT guarantes no logging output.
-//
-// Verbosity high to low: DEBUG > INFO > WARNING > ERROR > SILENT
-enum Level { SILENT, ERROR, WARNING, INFO, DEBUG };
+// Log levels in increasing order of verbosity: SILENT < ERROR < WARNING < INFO < DEBUG
+enum LogLevel { SILENT, ERROR, WARNING, INFO, DEBUG };
 
-void log(Level l, const std::string &msg);
+class LogSettings {
+    LogLevel level = LogLevel::ERROR;
+    bool useColor = true;
+
+  public:
+    LogSettings(LogLevel level = LogLevel::ERROR, bool useColor = true);
+    bool shouldLog(LogLevel messageLevel) const;
+    const char *getLogLevelColor(LogLevel messageLevel) const;
+    const char *getLogLevelLabel(LogLevel messageLevel) const;
+    const char *getClearColor() const;
+};
+
+void configure(LogSettings settings);
+void log(LogLevel level, const std::string &msg);
 
 } // namespace logger
