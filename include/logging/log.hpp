@@ -8,8 +8,8 @@ namespace logger {
 enum LogLevel { SILENT, ERROR, WARNING, INFO, DEBUG };
 
 class LogSettings {
-    LogLevel level = LogLevel::ERROR;
-    bool useColor = true;
+    LogLevel level_ = LogLevel::ERROR;
+    bool useColor_ = true;
 
   public:
     LogSettings(LogLevel level = LogLevel::ERROR, bool useColor = true);

@@ -4,16 +4,16 @@
 
 namespace logger {
 
-LogSettings::LogSettings(LogLevel level, bool useColor) : level(level), useColor(useColor) {}
+LogSettings::LogSettings(LogLevel level, bool useColor) : level_(level), useColor_(useColor) {}
 
 bool LogSettings::shouldLog(LogLevel messageLevel) const
 {
-    return messageLevel != LogLevel::SILENT && messageLevel <= level;
+    return messageLevel != LogLevel::SILENT && messageLevel <= level_;
 }
 
 const char *LogSettings::getLogLevelColor(LogLevel messageLevel) const
 {
-    if (!useColor) {
+    if (!useColor_) {
         return "";
     }
 
@@ -52,7 +52,7 @@ const char *LogSettings::getLogLevelLabel(LogLevel messageLevel) const
 
 const char *LogSettings::getClearColor() const
 {
-    return useColor ? "\033[0m" : "";
+    return useColor_ ? "\033[0m" : "";
 }
 
 static LogSettings settings;
