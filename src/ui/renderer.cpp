@@ -137,7 +137,7 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Sprite &sprit
 void Renderer::renderDebugLocationTable(sf::RenderWindow &window)
 {
     auto &context = controller::DebugContext::get();
-    if (!context.gameSettings.showLocationTable) {
+    if (!context.gameSettings.showLocationTable || context.gameSession == nullptr) {
         return;
     }
     game::LocationTable &lt = context.gameSession->locationTable;
