@@ -10,7 +10,7 @@
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects sprite under mouse when ctrl-clicked")
 {
-    game::LocationTable unused({0, 0});
+    game::LocationTable unused({0, 0}, {0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
     game::GameDebugSession debugSession(registry, unused);
@@ -36,7 +36,7 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects sprite under mouse w
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects map when only map is under mouse")
 {
-    game::LocationTable unused({0, 0});
+    game::LocationTable unused({0, 0}, {0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
     game::GameDebugSession debugSession(registry, unused);
@@ -63,7 +63,7 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem selects map when only map is
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem prefers non-map sprite over map when both are under mouse")
 {
-    game::LocationTable unused({0, 0});
+    game::LocationTable unused({0, 0}, {0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
     game::GameDebugSession debugSession(registry, unused);
@@ -92,7 +92,7 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem prefers non-map sprite over 
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select entity when ctrl is not held")
 {
-    game::LocationTable unused({0, 0});
+    game::LocationTable unused({0, 0}, {0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
     game::GameDebugSession debugSession(registry, unused);
@@ -118,7 +118,7 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select entity when 
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select entity when mouse is outside entity")
 {
-    game::LocationTable unused({0, 0});
+    game::LocationTable unused({0, 0}, {0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
     game::GameDebugSession debugSession(registry, unused);
@@ -144,7 +144,7 @@ TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem does not select entity when 
 
 TEST_CASE_METHOD(TestFixture, "DebugSelectionSystem clears selected sprite when debug is disabled")
 {
-    game::LocationTable unused({0, 0});
+    game::LocationTable unused({0, 0}, {0, 0});
     game::Registry registry;
     game::DebugSelectionSystem system;
     game::GameDebugSession debugSession(registry, unused);

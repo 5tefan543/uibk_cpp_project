@@ -20,7 +20,7 @@ namespace game {
 class Game {
   private:
     Registry registry_;
-    const Vec2<unsigned> locTabNumBuckets = {40, 40};
+    const Vec2<unsigned> locTabNumBuckets = {20, 20};
     LocationTable locationTable_;
     GameDebugSession debugSession_{registry_, locationTable_};
     controller::GameConfig config_;
@@ -54,7 +54,7 @@ class Game {
 
     explicit Game(int wave);
 
-    void initMap();
+    Vec2<float> initMap();
     void initCamera();
     void initPlayer();
     void initWave(int waveNumber);

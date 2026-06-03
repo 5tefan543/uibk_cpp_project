@@ -32,14 +32,15 @@ TEST_CASE("test location table", "[location-table]")
     using namespace game;
     using Sprite = view::Sprite;
     // Tests assume grid dims are integers and dividable by 2
-    REQUIRE(std::fmod(view::gridWidth, 2) == 0.0f);
-    REQUIRE(std::fmod(view::gridHeight, 2) == 0.0f);
+    const Vec2<float> gridSize = {1920, 1080};
+    REQUIRE(std::fmod(gridSize.x, 2) == 0.0f);
+    REQUIRE(std::fmod(gridSize.y, 2) == 0.0f);
 
     constexpr const Vec2<unsigned> numCells = {4, 4};
     assert(numCells.x % 2 == 0); // assumed by sections
     assert(numCells.y % 2 == 0); // assumed by sections
 
-    LocationTable lt(numCells);
+    LocationTable lt(numCells, gridSize);
     REQUIRE(lt.numBuckets == numCells);
 
     // Sprite dimension such that they can fit in only one bucket

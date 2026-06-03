@@ -18,10 +18,14 @@
 
 namespace game {
 
-Game::Game(int wave) : locationTable_(locTabNumBuckets)
+Game::Game(int wave) : locationTable_({0, 0}, {0, 0})
 {
     config_ = controller::PersistenceManager::getConfig();
-    initMap();
+    auto mapSize = initMap();
+    // Copy assignment operator of 'LocationTable' is implicitly deleted because field 'numBuckets' has no copy
+    // assignment operator since they are const
+    std::destroy_at(&locationTable_);
+    std::construct_at(&locationTable_, LocationTable(locTabNumBuckets, mapSize));
     initCamera();
     initPlayer();
     initWave(wave);
@@ -62,18 +66,20 @@ Game::~Game()
     logger::log(logger::DEBUG, "Game destructed");
 }
 
-void Game::initMap()
+Vec2<float> Game::initMap()
 {
     // Initialize map and camera
     Entity map = registry_.createEntity();
     registry_.addComponent<MapTag>(map, {});
     registry_.addComponent<Position>(map, {0.0f, 0.0f});
+    Vec2<float> mapSize = {1920 * 2, 1080 * 2};
     view::Sprite mapSprite = {
         .imagePath = "assets/maps/map.bmp",
-        .width = 1920.0f * 2.0f,
-        .height = 1080.0f * 2.0f,
+        .width = mapSize.x,
+        .height = mapSize.y,
     };
     registry_.addComponent<view::Sprite>(map, mapSprite);
+    return mapSize;
 }
 
 void Game::initCamera()

@@ -20,7 +20,7 @@ class LocationTable {
     const Vec2<unsigned> numBuckets;
     const Vec2<float> bucketSize;
 
-    LocationTable(const Vec2<unsigned> numBuckets);
+    LocationTable(const Vec2<unsigned> numBuckets, const Vec2<float> totalGridSize);
     void update(const Registry &registry);
     std::unordered_set<Entity> getEntitiesNear(const Vec2<float> position, const float radius);
     std::vector<std::tuple<Entity, Position>> getEntitiesInRange(const Vec2<float> position, const float radius,

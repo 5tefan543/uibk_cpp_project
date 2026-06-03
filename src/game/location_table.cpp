@@ -10,8 +10,8 @@
 
 namespace game {
 
-LocationTable::LocationTable(const Vec2<unsigned> numBuckets)
-    : numBuckets(numBuckets), bucketSize(Vec2{view::gridWidth, view::gridHeight} / numBuckets.into<float>())
+LocationTable::LocationTable(const Vec2<unsigned> numBuckets, const Vec2<float> totalGridSize)
+    : numBuckets(numBuckets), bucketSize(totalGridSize / numBuckets.into<float>())
 {
     bucketGrid_ = std::vector<std::vector<Entity>>();
     bucketGrid_.reserve(numBuckets.x * numBuckets.y);
