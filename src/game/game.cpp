@@ -18,7 +18,7 @@
 
 namespace game {
 
-Game::Game(int wave) : locationTable_({40, 40}) // 1920/40 = 48 buckets; 1080/40 = 27 buckets
+Game::Game(int wave) : locationTable_(locTabNumBuckets)
 {
     config_ = controller::PersistenceManager::getConfig();
     initMap();

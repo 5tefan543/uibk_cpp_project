@@ -20,6 +20,7 @@ namespace game {
 class Game {
   private:
     Registry registry_;
+    const Vec2<unsigned> locTabNumBuckets = {40, 40};
     LocationTable locationTable_;
     GameDebugSession debugSession_{registry_, locationTable_};
     controller::GameConfig config_;
