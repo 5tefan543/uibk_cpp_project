@@ -13,6 +13,7 @@
 #include "game/ecs/components/velocity.hpp"
 #include "logging/log.hpp"
 #include "view/sprite.hpp"
+#include <format>
 #include <view/text.hpp>
 
 namespace game {
