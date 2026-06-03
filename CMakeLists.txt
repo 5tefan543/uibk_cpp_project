@@ -25,11 +25,6 @@ find_package(ImGui-SFML CONFIG REQUIRED)
 
 find_package(glaze CONFIG REQUIRED)
 
-IF (DEFINED LOG_STDOUT)
-    add_compile_definitions(LOG_STDOUT)
-ENDIF()
-
-
 # Loggin library
 add_library(roguelike_logger
   src/logging/log.cpp
