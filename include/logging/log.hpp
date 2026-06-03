@@ -3,7 +3,7 @@
 
 namespace logger {
 
-// Enum order is important for level hirachy comparison. Higher verbosity (higher enum value) includes all lower
+// Enum order is important for level hierachy comparison. Higher verbosity (higher enum value) includes all lower
 // verbosity (lower enum values <-> more severe) levels. SILENT guarantes no logging output.
 //
 // Verbosity high to low: DEBUG > INFO > WARNING > ERROR > SILENT
