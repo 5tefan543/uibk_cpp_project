@@ -26,8 +26,8 @@ void InputSystem::update(Registry &registry, const controller::InputState &input
             v.y += playerStats.moveSpeed;
         }
         v.setLenght(playerStats.moveSpeed);
-        velocity.dx = v.x;
-        velocity.dy = v.y; // TODO: into Vec2
+        velocity.x = v.x;
+        velocity.y = v.y; // TODO: into Vec2
     }
 }
 

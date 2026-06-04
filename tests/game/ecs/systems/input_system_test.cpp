@@ -28,7 +28,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem sets player velocity from input")
 
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(player);
-    auto speed = std::sqrt(std::pow(velocity.dx, 2) + std::pow(velocity.dx, 2));
+    auto speed = std::sqrt(std::pow(velocity.x, 2) + std::pow(velocity.x, 2));
     REQUIRE(std::abs(speed) - playerStats.moveSpeed < 0.001f);
 }
 
@@ -51,8 +51,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem resets old velocity before applying n
 
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(player);
-    REQUIRE(velocity.dx == 0.0f);
-    REQUIRE(velocity.dy == 0.0f);
+    REQUIRE(velocity.x == 0.0f);
+    REQUIRE(velocity.y == 0.0f);
 }
 
 TEST_CASE_METHOD(TestFixture, "InputSystem does not update entity without PlayerStats")
@@ -73,8 +73,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem does not update entity without Player
 
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(notPlayer);
-    REQUIRE(velocity.dx == 5.0f);
-    REQUIRE(velocity.dy == 6.0f);
+    REQUIRE(velocity.x == 5.0f);
+    REQUIRE(velocity.y == 6.0f);
 }
 
 TEST_CASE_METHOD(TestFixture, "InputSystem opposing directions cancel each other")
@@ -100,6 +100,6 @@ TEST_CASE_METHOD(TestFixture, "InputSystem opposing directions cancel each other
 
     // ASSERT
     const auto &velocity = registry.getComponent<game::Velocity>(player);
-    REQUIRE(velocity.dx == 0.0f);
-    REQUIRE(velocity.dy == 0.0f);
+    REQUIRE(velocity.x == 0.0f);
+    REQUIRE(velocity.y == 0.0f);
 }

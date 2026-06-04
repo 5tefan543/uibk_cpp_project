@@ -9,7 +9,7 @@
 
 namespace game {
 
-void EnemyAI::update(Registry &registry, LocationTable &locationTable)
+void EnemyAI::update(Registry &registry, LocationTable &locationTable, float dt)
 {
     const auto players = registry.view<Velocity, PlayerStats>();
     if (players.empty()) {
@@ -20,11 +20,10 @@ void EnemyAI::update(Registry &registry, LocationTable &locationTable)
     const Vec2 posP{playerPos.x, playerPos.y};
 
     for (auto enemy : registry.view<Velocity, view::Sprite, Position, EnemyTag, EnemyStats>()) {
-        // EnemyTag &enemyTag = registry.getComponent<EnemyTag>(enemy);
-        Velocity &velocity = registry.getComponent<Velocity>(enemy);
-        Position &enemyPos = registry.getComponent<Position>(enemy);
+        auto &[vx, vy] = registry.getComponent<Velocity>(enemy);
+        auto &[px, py] = registry.getComponent<Position>(enemy);
         EnemyStats &enemyStats = registry.getComponent<EnemyStats>(enemy);
-        Vec2 posE{enemyPos.x, enemyPos.y};
+        Vec2 posE{px, py};
 
         // Set movement direction exactly towards player
         Vec2 v = posP - posE;
@@ -40,12 +39,33 @@ void EnemyAI::update(Registry &registry, LocationTable &locationTable)
             const auto pToOther = (posE - p);
             repelOffset += pToOther / (std::pow(pToOther.length(), 1.5)); // increase repelling with proximity
         }
+
+        // Divert straight forwards movement to player with repelling offset
         v.normalize();
         v += repelOffset;
+        v *= enemyStats.moveSpeed;
+        v.setLenght(std::min(v.length(), enemyStats.moveSpeed));
 
-        v.setLenght(enemyStats.moveSpeed);
-        velocity.dx = v.x; // TODO: into Vec2
-        velocity.dy = v.y; // TODO: into Vec2
+        auto posEBefore = posE;
+        posE += v * dt;
+        if ((posE - posP).length() < 5) {
+            // Prevent shooting over (player) target position
+            vx = 0; // TODO: into Vec2
+            vy = 0; // TODO: into Vec2
+            continue;
+        }
+        if ((posE - posEBefore).length() < 5) {
+            // Prevent jittery movement inside bunched up crowd
+            v /= 5;
+            posE = posEBefore + (v * dt);
+            vx = 0; // TODO: into Vec2
+            vy = 0; // TODO: into Vec2
+        } else {
+            vx = v.x; // TODO: into Vec2
+            vy = v.y; // TODO: into Vec2
+        }
+        px = posE.x;
+        py = posE.y;
     }
 }
 

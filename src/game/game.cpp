@@ -242,7 +242,7 @@ void Game::updateSystems(const controller::InputState &input, float dt)
     }
 
     locationTable_.update(registry_);
-    enemyAI_.update(registry_, locationTable_);
+    enemyAI_.update(registry_, locationTable_, dt);
     inputSystem_.update(registry_, input);
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, dt);

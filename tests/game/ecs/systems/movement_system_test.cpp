@@ -1,3 +1,4 @@
+#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/ecs/registry.hpp"
@@ -15,6 +16,7 @@ TEST_CASE_METHOD(TestFixture, "MovementSystem updates position using velocity an
     game::Entity e = registry.createEntity();
     registry.addComponent<game::Position>(e, {10.0f, 20.0f});
     registry.addComponent<game::Velocity>(e, {4.0f, -6.0f});
+    registry.addComponent(e, game::PlayerTag{});
 
     // ACT
     float dt = 0.5f;
@@ -68,10 +70,12 @@ TEST_CASE_METHOD(TestFixture, "MovementSystem updates multiple matching entities
     game::Entity e1 = registry.createEntity();
     registry.addComponent<game::Position>(e1, {0.0f, 0.0f});
     registry.addComponent<game::Velocity>(e1, {1.0f, 2.0f});
+    registry.addComponent(e1, game::PlayerTag{});
 
     game::Entity e2 = registry.createEntity();
     registry.addComponent<game::Position>(e2, {10.0f, 10.0f});
     registry.addComponent<game::Velocity>(e2, {-3.0f, 4.0f});
+    registry.addComponent(e2, game::PlayerTag{});
 
     // ACT
     float dt = 2.0f;

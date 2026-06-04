@@ -6,7 +6,7 @@
 namespace game {
 
 struct EnemyAI {
-    void update(Registry &registry, LocationTable &locationTable);
+    void update(Registry &registry, LocationTable &locationTable, float dt);
 };
 
 } // namespace game

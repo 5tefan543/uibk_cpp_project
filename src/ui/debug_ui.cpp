@@ -249,8 +249,8 @@ void DebugUI::renderComponent(game::Velocity &c)
     ImGui::PushID("VelocityComponent");
 
     ImGui::SeparatorText("Velocity");
-    ImGui::InputFloat("dx", &c.dx);
-    ImGui::InputFloat("dy", &c.dy);
+    ImGui::InputFloat("dx", &c.x);
+    ImGui::InputFloat("dy", &c.y);
 
     ImGui::PopID();
 }
