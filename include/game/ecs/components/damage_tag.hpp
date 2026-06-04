@@ -1,10 +1,12 @@
 #pragma once
 #include "game/ecs/entity.hpp"
+#include <set>
 
 namespace game {
 
 struct DamageTag {
-    Entity target;
+    std::set<Entity> targets = {};
+    std::set<Entity> targetsHit = {};
 };
 
 } // namespace game

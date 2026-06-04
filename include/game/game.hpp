@@ -52,6 +52,7 @@ class Game {
     explicit Game(int wave, CharacterType characterType);
 
     void initMap();
+    void cleanup();
     void initCamera();
     void initCamera(Position position);
     void initPlayer(CharacterType characterType);

@@ -1,4 +1,5 @@
 #include "game/ecs/components/damage.hpp"
+#include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/map_tag.hpp"
@@ -73,7 +74,6 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem activates player damage 
     registry.addComponent<view::Sprite>(player, {.width = 10.0f, .height = 10.0f});
     registry.addComponent<game::Damage>(
         player, game::Damage{.amount = 12.0f,
-                             .isColliding = false,
                              .isMultiHit = false,
                              .pushBackForce = 0.0f,
                              .stunChance = 0.0f,
@@ -89,14 +89,16 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem activates player damage 
     registry.addComponent<game::EnemyStats>(enemy, enemyStats);
     registry.addComponent<game::Position>(enemy, {5.0f, 5.0f});
     registry.addComponent<view::Sprite>(enemy, {.width = 10.0f, .height = 10.0f});
-    REQUIRE_FALSE(registry.getComponent<game::Damage>(player).isColliding);
+    REQUIRE_FALSE(registry.hasComponent<game::DamageTag>(player));
 
     system.update(registry, 1);
     system.update(registry, 1);
 
     const auto &updatedEnemyStats = registry.getComponent<game::EnemyStats>(enemy);
     REQUIRE(updatedEnemyStats.health == 50.0f);
-    REQUIRE(registry.getComponent<game::Damage>(player).isColliding);
+    REQUIRE(registry.hasComponent<game::DamageTag>(player));
+    const auto &damageTag = registry.getComponent<game::DamageTag>(player);
+    REQUIRE(damageTag.targets.contains(enemy));
 }
 
 TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem activatesto enemy damage on player on collision")
@@ -118,20 +120,21 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem activatesto enemy damage
     registry.addComponent<view::Sprite>(enemy, {.width = 10.0f, .height = 10.0f});
     registry.addComponent<game::Damage>(
         enemy, game::Damage{.amount = 7.0f,
-                            .isColliding = false,
                             .isMultiHit = false,
                             .pushBackForce = 0.0f,
                             .stunChance = 0.0f,
                             .kind = game::DamageKind::MeleeArc,
                             .params = game::MeleeArcDamage{.reach = 20.0f, .activeTimeSec = 0.2f, .elapsedSec = 0.0f}});
-    REQUIRE_FALSE(registry.getComponent<game::Damage>(enemy).isColliding);
+    REQUIRE_FALSE(registry.hasComponent<game::DamageTag>(enemy));
 
     system.update(registry, 1);
     system.update(registry, 1);
 
     const auto &updatedPlayerStats = registry.getComponent<game::PlayerStats>(player);
     REQUIRE(updatedPlayerStats.health == 30.0f);
-    REQUIRE(registry.getComponent<game::Damage>(enemy).isColliding);
+    REQUIRE(registry.hasComponent<game::DamageTag>(enemy));
+    const auto &damageTag = registry.getComponent<game::DamageTag>(enemy);
+    REQUIRE(damageTag.targets.contains(player));
 }
 
 TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem keeps entities inside map bounds")

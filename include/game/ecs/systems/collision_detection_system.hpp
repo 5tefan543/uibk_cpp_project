@@ -13,6 +13,7 @@ class CollisionDetectionSystem {
     void enforceMapBound(const Entity &entity, Registry &registry);
     void activateDamage(const Entity &source, const Entity &target, Registry &registry);
     void initializeHitBoxes(Registry &registry);
+    void addTarget(const Entity &target, const Entity &source, Registry &registry);
 
   public:
     CollisionDetectionSystem();

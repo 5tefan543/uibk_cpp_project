@@ -215,6 +215,17 @@ PersistedGame Game::getPersistedGame() const
 
     return persistedGame;
 }
+void Game::cleanup()
+{
+    std::vector<Entity> enemyEntities = registry_.view<EnemyTag>();
+    for (Entity enemy : enemyEntities) {
+        registry_.destroyEntity(enemy);
+    }
+    std::vector<Entity> damageEntities = registry_.view<Damage>();
+    for (Entity damage : damageEntities) {
+        registry_.destroyEntity(damage);
+    }
+}
 
 controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
 {
@@ -225,6 +236,7 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
     currentWaveDuration_ += dt;
 
     if (isWaveFinished()) {
+        cleanup();
         addScore(config_.waveDurationSeconds - (int)currentWaveDuration_);
 
         bool shouldOpenStore = (wave_ % config_.wavesPerStage) == 0;

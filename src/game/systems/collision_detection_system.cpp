@@ -87,25 +87,26 @@ void CollisionDetectionSystem::activateDamage(const Entity &source, const Entity
         return; // Damage instances do not interact with each other
     }
 
-    Damage &damage = registry.getComponent<Damage>(source);
-
-    if (damage.isColliding) {
-        return;
-    }
-
     if (registry.hasComponent<PlayerTag>(source) && registry.hasComponent<EnemyStats>(target)) {
-        damage.isColliding = true;
-
-        DamageTag damageTag = {target};
-        registry.addComponent<DamageTag>(source, damageTag);
+        addTarget(source, target, registry);
         return;
     } else if (registry.hasComponent<EnemyTag>(source) && registry.hasComponent<PlayerStats>(target)) {
-        damage.isColliding = true;
-        DamageTag damageTag = {target};
-        registry.addComponent<DamageTag>(source, damageTag);
+        addTarget(source, target, registry);
         return;
     } else {
         return;
+    }
+}
+
+void CollisionDetectionSystem::addTarget(const Entity &source, const Entity &target, Registry &registry)
+{
+    if (!registry.hasComponent<DamageTag>(source)) {
+        DamageTag damage{};
+        damage.targets.insert(target);
+        registry.addComponent<DamageTag>(source, damage);
+    } else {
+        DamageTag &damage = registry.getComponent<DamageTag>(source);
+        damage.targets.insert(target);
     }
 }
 

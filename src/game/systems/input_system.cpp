@@ -43,8 +43,6 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
     Position playerPosition = registry.getComponent<Position>(playerEntity);
     Damage damageComponent{
         .amount = attackProfile.amount,
-        .isColliding = false,
-        .isMultiHit = attackProfile.isMultiHit,
         .pushBackForce = attackProfile.pushBackForce,
         .stunChance = attackProfile.stunChance,
         .kind = attackProfile.kind,
@@ -100,8 +98,6 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
 
     Damage damageComponent{
         .amount = attackProfile.amount,
-        .isColliding = false,
-        .isMultiHit = attackProfile.isMultiHit,
         .pushBackForce = attackProfile.pushBackForce,
         .stunChance = attackProfile.stunChance,
         .kind = attackProfile.kind,

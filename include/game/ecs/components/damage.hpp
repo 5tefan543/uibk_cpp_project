@@ -36,8 +36,7 @@ struct AreaDamage {
 };
 
 struct Damage {
-    float amount;     // shared damage value
-    bool isColliding; // shared enable flag
+    float amount; // shared damage value
     bool isMultiHit;
     float pushBackForce; // e.g. for knockback
     float stunChance;

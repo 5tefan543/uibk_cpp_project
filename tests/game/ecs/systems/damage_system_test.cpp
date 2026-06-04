@@ -17,13 +17,18 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem destroys projectile after max range"
     registry.addComponent<game::Velocity>(projectile, {6.0f, 8.0f}); // speed magnitude = 10
     registry.addComponent<game::Damage>(
         projectile, {.amount = 5.0f,
-                     .isColliding = false,
                      .isMultiHit = false,
                      .pushBackForce = 0.0f,
                      .stunChance = 0.0f,
                      .kind = game::DamageKind::Projectile,
                      .params = game::ProjectileDamage{
                          .speed = 10.0f, .maxRange = 5.0f, .distanceTraveled = 0.0f, .targetsHit = 0}});
+    const game::Entity enemy = registry.createEntity();
+    game::EnemyStats enemyStats;
+    enemyStats.health = 100.0f;
+    enemyStats.scoreReward = 1;
+    registry.addComponent<game::EnemyStats>(enemy, enemyStats);
+    registry.addComponent<game::DamageTag>(projectile, {.targets = {enemy}});
 
     system.update(registry, 1.0f);
 
@@ -39,13 +44,18 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem tracks projectile traveled distance"
     registry.addComponent<game::Velocity>(projectile, {3.0f, 4.0f}); // speed magnitude = 5
     registry.addComponent<game::Damage>(
         projectile, {.amount = 5.0f,
-                     .isColliding = false,
                      .isMultiHit = false,
                      .pushBackForce = 0.0f,
                      .stunChance = 0.0f,
                      .kind = game::DamageKind::Projectile,
                      .params = game::ProjectileDamage{
                          .speed = 5.0f, .maxRange = 25.0f, .distanceTraveled = 0.0f, .targetsHit = 0}});
+    const game::Entity enemy = registry.createEntity();
+    game::EnemyStats enemyStats;
+    enemyStats.health = 100.0f;
+    enemyStats.scoreReward = 1;
+    registry.addComponent<game::EnemyStats>(enemy, enemyStats);
+    registry.addComponent<game::DamageTag>(projectile, {.targets = {enemy}});
 
     system.update(registry, 2.0f);
 
@@ -64,12 +74,12 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem destroys melee damage entity after a
     const game::Entity meleeDamage = registry.createEntity();
     registry.addComponent<game::Damage>(
         meleeDamage, {.amount = 7.0f,
-                      .isColliding = false,
                       .isMultiHit = false,
                       .pushBackForce = 0.0f,
                       .stunChance = 0.0f,
                       .kind = game::DamageKind::MeleeArc,
                       .params = game::MeleeArcDamage{.reach = 40.0f, .activeTimeSec = 0.2f, .elapsedSec = 0.0f}});
+    registry.addComponent<game::DamageTag>(meleeDamage, {});
 
     system.update(registry, 0.1f);
     REQUIRE(registry.isEntityAlive(meleeDamage));
@@ -97,14 +107,13 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem applies damage on collision and dest
     const game::Entity projectile = registry.createEntity();
     registry.addComponent<game::Damage>(
         projectile, {.amount = 10.0f,
-                     .isColliding = true,
                      .isMultiHit = false,
                      .pushBackForce = 0.0f,
                      .stunChance = 0.0f,
                      .kind = game::DamageKind::Projectile,
                      .params = game::ProjectileDamage{
-                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .targetsHit = 0}});
-    registry.addComponent<game::DamageTag>(projectile, {.target = enemy});
+                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .targetsHit = 1}});
+    registry.addComponent<game::DamageTag>(projectile, {.targets = {enemy}});
 
     system.update(registry, 0.016f);
 
@@ -124,13 +133,18 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem projectile uses configured speed whe
     const game::Entity projectile = registry.createEntity();
     registry.addComponent<game::Damage>(
         projectile, {.amount = 5.0f,
-                     .isColliding = false,
                      .isMultiHit = false,
                      .pushBackForce = 0.0f,
                      .stunChance = 0.0f,
                      .kind = game::DamageKind::Projectile,
                      .params = game::ProjectileDamage{
                          .speed = 7.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .targetsHit = 0}});
+    const game::Entity enemy = registry.createEntity();
+    game::EnemyStats enemyStats;
+    enemyStats.health = 100.0f;
+    enemyStats.scoreReward = 1;
+    registry.addComponent<game::EnemyStats>(enemy, enemyStats);
+    registry.addComponent<game::DamageTag>(projectile, {.targets = {enemy}});
 
     system.update(registry, 3.0f);
 
@@ -141,7 +155,7 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem projectile uses configured speed whe
     REQUIRE(projectileParams->distanceTraveled == 21.0f);
 }
 
-TEST_CASE_METHOD(TestFixture, "DamageSystem removes DamageTag when target is already dead")
+TEST_CASE_METHOD(TestFixture, "DamageSystem destroys projectile when all tagged targets are dead")
 {
     game::Registry registry;
     game::DamageSystem system;
@@ -149,7 +163,6 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem removes DamageTag when target is alr
     const game::Entity projectile = registry.createEntity();
     registry.addComponent<game::Damage>(
         projectile, {.amount = 1.0f,
-                     .isColliding = true,
                      .isMultiHit = false,
                      .pushBackForce = 0.0f,
                      .stunChance = 0.0f,
@@ -163,13 +176,12 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem removes DamageTag when target is alr
     enemyStats.scoreReward = 1;
     registry.addComponent<game::EnemyStats>(deadTarget, enemyStats);
 
-    registry.addComponent<game::DamageTag>(projectile, {.target = deadTarget});
+    registry.addComponent<game::DamageTag>(projectile, {.targets = {deadTarget}});
     registry.destroyEntity(deadTarget);
 
     system.update(registry, 0.016f);
 
-    REQUIRE(registry.isEntityAlive(projectile));
-    REQUIRE_FALSE(registry.hasComponent<game::DamageTag>(projectile));
+    REQUIRE_FALSE(registry.isEntityAlive(projectile));
 }
 
 TEST_CASE_METHOD(TestFixture, "DamageSystem destroys beam and area damage entities after active time")
@@ -180,22 +192,22 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem destroys beam and area damage entiti
     const game::Entity beam = registry.createEntity();
     registry.addComponent<game::Damage>(
         beam, {.amount = 3.0f,
-               .isColliding = false,
                .isMultiHit = false,
                .pushBackForce = 0.0f,
                .stunChance = 0.0f,
                .kind = game::DamageKind::Beam,
                .params = game::BeamDamage{.length = 80.0f, .width = 12.0f, .activeTimeSec = 0.2f, .elapsedSec = 0.0f}});
+    registry.addComponent<game::DamageTag>(beam, {});
 
     const game::Entity area = registry.createEntity();
     registry.addComponent<game::Damage>(
         area, {.amount = 3.0f,
-               .isColliding = false,
                .isMultiHit = false,
                .pushBackForce = 0.0f,
                .stunChance = 0.0f,
                .kind = game::DamageKind::Area,
                .params = game::AreaDamage{.radius = 40.0f, .activeTimeSec = 0.4f, .elapsedSec = 0.0f}});
+    registry.addComponent<game::DamageTag>(area, {});
 
     system.update(registry, 0.21f);
     REQUIRE_FALSE(registry.isEntityAlive(beam));
