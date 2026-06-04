@@ -2,7 +2,7 @@
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/entity.hpp"
 #include "game/ecs/registry.hpp"
-#include "utils/vector.hpp"
+#include "geometry/vector.hpp"
 #include <unordered_set>
 
 namespace game {

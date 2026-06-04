@@ -2,7 +2,7 @@
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/velocity.hpp"
-#include "utils/vector.hpp"
+#include "geometry/vector.hpp"
 #include "view/sprite.hpp"
 
 #include <cmath>

@@ -41,7 +41,7 @@ add_library(roguelike_game
   src/game/systems/camera_system.cpp
   src/game/systems/debug_selection_system.cpp
   src/game/systems/spawn_enemy_system.cpp
-  src/game/systems/enemy_ai.cpp
+  src/game/systems/enemy_ai_system.cpp
   src/game/location_table.cpp
 )
 

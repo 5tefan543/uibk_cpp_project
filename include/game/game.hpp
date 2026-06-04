@@ -8,7 +8,7 @@
 #include "game/ecs/systems/animation_system.hpp"
 #include "game/ecs/systems/camera_system.hpp"
 #include "game/ecs/systems/debug_selection_system.hpp"
-#include "game/ecs/systems/enemy_ai.hpp"
+#include "game/ecs/systems/enemy_ai_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
 #include "game/ecs/systems/spawn_enemy_system.hpp"
