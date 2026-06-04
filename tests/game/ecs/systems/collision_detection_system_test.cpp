@@ -74,12 +74,11 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem activates player damage 
     registry.addComponent<view::Sprite>(player, {.width = 10.0f, .height = 10.0f});
     registry.addComponent<game::Damage>(
         player, game::Damage{.amount = 12.0f,
-                             .isMultiHit = false,
                              .pushBackForce = 0.0f,
                              .stunChance = 0.0f,
                              .kind = game::DamageKind::Projectile,
                              .params = game::ProjectileDamage{
-                                 .speed = 0.0f, .maxRange = 0.0f, .distanceTraveled = 0.0f, .targetsHit = 0}});
+                                 .speed = 0.0f, .maxRange = 0.0f, .distanceTraveled = 0.0f, .maxTargets = 1}});
 
     game::Entity enemy = registry.createEntity();
     registry.addComponent<game::EnemyTag>(enemy, {});
@@ -120,7 +119,6 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem activatesto enemy damage
     registry.addComponent<view::Sprite>(enemy, {.width = 10.0f, .height = 10.0f});
     registry.addComponent<game::Damage>(
         enemy, game::Damage{.amount = 7.0f,
-                            .isMultiHit = false,
                             .pushBackForce = 0.0f,
                             .stunChance = 0.0f,
                             .kind = game::DamageKind::MeleeArc,

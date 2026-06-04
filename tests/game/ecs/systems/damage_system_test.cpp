@@ -17,12 +17,11 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem destroys projectile after max range"
     registry.addComponent<game::Velocity>(projectile, {6.0f, 8.0f}); // speed magnitude = 10
     registry.addComponent<game::Damage>(
         projectile, {.amount = 5.0f,
-                     .isMultiHit = false,
                      .pushBackForce = 0.0f,
                      .stunChance = 0.0f,
                      .kind = game::DamageKind::Projectile,
                      .params = game::ProjectileDamage{
-                         .speed = 10.0f, .maxRange = 5.0f, .distanceTraveled = 0.0f, .targetsHit = 0}});
+                         .speed = 10.0f, .maxRange = 5.0f, .distanceTraveled = 0.0f, .maxTargets = 1}});
     const game::Entity enemy = registry.createEntity();
     game::EnemyStats enemyStats;
     enemyStats.health = 100.0f;
@@ -44,12 +43,11 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem tracks projectile traveled distance"
     registry.addComponent<game::Velocity>(projectile, {3.0f, 4.0f}); // speed magnitude = 5
     registry.addComponent<game::Damage>(
         projectile, {.amount = 5.0f,
-                     .isMultiHit = false,
                      .pushBackForce = 0.0f,
                      .stunChance = 0.0f,
                      .kind = game::DamageKind::Projectile,
                      .params = game::ProjectileDamage{
-                         .speed = 5.0f, .maxRange = 25.0f, .distanceTraveled = 0.0f, .targetsHit = 0}});
+                         .speed = 5.0f, .maxRange = 25.0f, .distanceTraveled = 0.0f, .maxTargets = 2}});
     const game::Entity enemy = registry.createEntity();
     game::EnemyStats enemyStats;
     enemyStats.health = 100.0f;
@@ -74,7 +72,6 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem destroys melee damage entity after a
     const game::Entity meleeDamage = registry.createEntity();
     registry.addComponent<game::Damage>(
         meleeDamage, {.amount = 7.0f,
-                      .isMultiHit = false,
                       .pushBackForce = 0.0f,
                       .stunChance = 0.0f,
                       .kind = game::DamageKind::MeleeArc,
@@ -107,12 +104,11 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem applies damage on collision and dest
     const game::Entity projectile = registry.createEntity();
     registry.addComponent<game::Damage>(
         projectile, {.amount = 10.0f,
-                     .isMultiHit = false,
                      .pushBackForce = 0.0f,
                      .stunChance = 0.0f,
                      .kind = game::DamageKind::Projectile,
                      .params = game::ProjectileDamage{
-                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .targetsHit = 1}});
+                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .maxTargets = 1}});
     registry.addComponent<game::DamageTag>(projectile, {.targets = {enemy}});
 
     system.update(registry, 0.016f);
@@ -133,12 +129,11 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem projectile uses configured speed whe
     const game::Entity projectile = registry.createEntity();
     registry.addComponent<game::Damage>(
         projectile, {.amount = 5.0f,
-                     .isMultiHit = false,
                      .pushBackForce = 0.0f,
                      .stunChance = 0.0f,
                      .kind = game::DamageKind::Projectile,
                      .params = game::ProjectileDamage{
-                         .speed = 7.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .targetsHit = 0}});
+                         .speed = 7.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .maxTargets = 2}});
     const game::Entity enemy = registry.createEntity();
     game::EnemyStats enemyStats;
     enemyStats.health = 100.0f;
@@ -163,12 +158,11 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem destroys projectile when all tagged 
     const game::Entity projectile = registry.createEntity();
     registry.addComponent<game::Damage>(
         projectile, {.amount = 1.0f,
-                     .isMultiHit = false,
                      .pushBackForce = 0.0f,
                      .stunChance = 0.0f,
                      .kind = game::DamageKind::Projectile,
                      .params = game::ProjectileDamage{
-                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .targetsHit = 0}});
+                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .maxTargets = 1}});
 
     const game::Entity deadTarget = registry.createEntity();
     game::EnemyStats enemyStats;
@@ -192,7 +186,6 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem destroys beam and area damage entiti
     const game::Entity beam = registry.createEntity();
     registry.addComponent<game::Damage>(
         beam, {.amount = 3.0f,
-               .isMultiHit = false,
                .pushBackForce = 0.0f,
                .stunChance = 0.0f,
                .kind = game::DamageKind::Beam,
@@ -202,7 +195,6 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem destroys beam and area damage entiti
     const game::Entity area = registry.createEntity();
     registry.addComponent<game::Damage>(
         area, {.amount = 3.0f,
-               .isMultiHit = false,
                .pushBackForce = 0.0f,
                .stunChance = 0.0f,
                .kind = game::DamageKind::Area,

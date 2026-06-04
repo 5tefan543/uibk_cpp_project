@@ -213,6 +213,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem ranged attack spawns projectile with 
     const auto *projectileParams = std::get_if<game::ProjectileDamage>(&damage.params);
     REQUIRE(projectileParams != nullptr);
     REQUIRE(projectileParams->maxRange == 120.0f);
+    REQUIRE(projectileParams->maxTargets == 1);
 
     const auto &velocity = registry.getComponent<game::Velocity>(projectile);
     REQUIRE(std::abs(velocity.dx - 30.0f) < 0.001f);

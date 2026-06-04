@@ -26,6 +26,8 @@ const controller::AttackProfileConfig &InputSystem::getAttackProfile(const contr
 void InputSystem::updateCooldown(float dt)
 {
     timeSinceLastAttack_ += dt;
+    timeSinceLastSpecialMove_ += dt;
+    timeSinceLastDash_ += dt;
 }
 
 void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Entity playerEntity,
@@ -47,7 +49,7 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
         .stunChance = attackProfile.stunChance,
         .kind = attackProfile.kind,
         .params = ProjectileDamage{
-            .speed = stats.speedOfAttack, .maxRange = stats.attackRange, .distanceTraveled = 0.0f, .targetsHit = 0}};
+            .speed = stats.speedOfAttack, .maxRange = stats.attackRange, .distanceTraveled = 0.0f, .maxTargets = 1}};
 
     Position position{.x = playerPosition.x, .y = playerPosition.y};
 

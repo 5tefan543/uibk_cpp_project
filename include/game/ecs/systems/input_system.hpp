@@ -18,6 +18,8 @@ class InputSystem {
                      const controller::InputState &input, const controller::AttackProfileConfig &attackProfile);
     void updateCooldown(float dt);
     float timeSinceLastAttack_ = 0.0f;
+    float timeSinceLastSpecialMove_ = 0.0f;
+    float timeSinceLastDash_ = 0.0f;
 
   public:
     void update(Registry &registry, const controller::GameConfig &config, const controller::InputState &input,

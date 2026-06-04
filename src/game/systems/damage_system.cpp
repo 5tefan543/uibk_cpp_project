@@ -18,19 +18,59 @@ void DamageSystem::update(Registry &registry, float dt)
 
         Damage &damage = registry.getComponent<Damage>(damageEntity);
         DamageTag &damageTag = registry.getComponent<DamageTag>(damageEntity);
+        bool shouldDestroyDamage = false;
 
-        for (Entity targetEntity : damageTag.targets) {
+        if (damage.kind == DamageKind::Projectile) {
+            if (auto *projectile = std::get_if<ProjectileDamage>(&damage.params)) {
+                float distanceThisFrame = projectile->speed * dt;
+                if (registry.hasComponent<Velocity>(damageEntity)) {
+                    const Velocity &velocity = registry.getComponent<Velocity>(damageEntity);
+                    distanceThisFrame = std::sqrt(velocity.dx * velocity.dx + velocity.dy * velocity.dy) * dt;
+                }
+                projectile->distanceTraveled += distanceThisFrame;
 
-            bool shouldDestroyTarget = false;
-            bool shouldDestroyDamage = false;
-
-            if (!registry.isEntityAlive(targetEntity)) {
-                // removing the entity from the set during iterating makes problems, finding another way
-                continue; // Skip if target entity is no longer alive, and remove the damage tag to find new target
+                if (projectile->distanceTraveled >= projectile->maxRange) {
+                    shouldDestroyDamage = true;
+                }
             }
+        } else if (damage.kind == DamageKind::MeleeArc) {
+            if (auto *melee = std::get_if<MeleeArcDamage>(&damage.params)) {
+                melee->elapsedSec += dt;
+                if (melee->elapsedSec >= melee->activeTimeSec) {
+                    shouldDestroyDamage = true;
+                }
+            }
+        } else if (damage.kind == DamageKind::Beam) {
+            if (auto *beam = std::get_if<BeamDamage>(&damage.params)) {
+                beam->elapsedSec += dt;
+                if (beam->elapsedSec >= beam->activeTimeSec) {
+                    shouldDestroyDamage = true;
+                }
+            }
+        } else if (damage.kind == DamageKind::Area) {
+            if (auto *area = std::get_if<AreaDamage>(&damage.params)) {
+                area->elapsedSec += dt;
+                if (area->elapsedSec >= area->activeTimeSec) {
+                    shouldDestroyDamage = true;
+                }
+            }
+        }
+
+        const bool hadTaggedTargets = !damageTag.targets.empty();
+        bool hasAliveTarget = false;
+        const auto taggedTargets = damageTag.targets;
+
+        for (Entity targetEntity : taggedTargets) {
             if (damageTag.targetsHit.contains(targetEntity)) {
                 continue; // Already hit
             }
+
+            if (!registry.isEntityAlive(targetEntity)) {
+                damageTag.targets.erase(targetEntity);
+                continue; // Skip if target entity is no longer alive, and remove the damage tag to find new target
+            }
+
+            hasAliveTarget = true;
 
             if (registry.hasComponent<PlayerStats>(targetEntity)) {
                 PlayerStats &playerStats = registry.getComponent<PlayerStats>(targetEntity);
@@ -41,7 +81,6 @@ void DamageSystem::update(Registry &registry, float dt)
             } else if (registry.hasComponent<EnemyStats>(targetEntity)) {
                 EnemyStats &enemyStats = registry.getComponent<EnemyStats>(targetEntity);
                 enemyStats.health -= damage.amount;
-                damageTag.targetsHit.insert(targetEntity);
                 if (enemyStats.health <= 0.0f) {
                     auto players = registry.view<PlayerStats>();
                     if (!players.empty()) {
@@ -53,48 +92,28 @@ void DamageSystem::update(Registry &registry, float dt)
                 }
             }
 
+            damageTag.targetsHit.insert(targetEntity);
+
             if (damage.kind == DamageKind::Projectile) {
                 if (auto *projectile = std::get_if<ProjectileDamage>(&damage.params)) {
-                    float distanceThisFrame = projectile->speed * dt;
-                    if (registry.hasComponent<Velocity>(damageEntity)) {
-                        const Velocity &velocity = registry.getComponent<Velocity>(damageEntity);
-                        distanceThisFrame = std::sqrt(velocity.dx * velocity.dx + velocity.dy * velocity.dy) * dt;
-                    }
-                    projectile->distanceTraveled += distanceThisFrame;
-
-                    if (projectile->distanceTraveled >= projectile->maxRange) {
-                        shouldDestroyDamage = true;
-                    }
-                    if (static_cast<std::size_t>(projectile->targetsHit) >= damageTag.targetsHit.size()) {
-                        shouldDestroyDamage = true;
-                    }
-                }
-            } else if (damage.kind == DamageKind::MeleeArc) {
-                if (auto *melee = std::get_if<MeleeArcDamage>(&damage.params)) {
-                    melee->elapsedSec += dt;
-                    if (melee->elapsedSec >= melee->activeTimeSec) {
-                        shouldDestroyDamage = true;
-                    }
-                }
-            } else if (damage.kind == DamageKind::Beam) {
-                if (auto *beam = std::get_if<BeamDamage>(&damage.params)) {
-                    beam->elapsedSec += dt;
-                    if (beam->elapsedSec >= beam->activeTimeSec) {
-                        shouldDestroyDamage = true;
-                    }
-                }
-            } else if (damage.kind == DamageKind::Area) {
-                if (auto *area = std::get_if<AreaDamage>(&damage.params)) {
-                    area->elapsedSec += dt;
-                    if (area->elapsedSec >= area->activeTimeSec) {
+                    if (projectile->maxTargets <= 0
+                        || static_cast<std::size_t>(projectile->maxTargets) <= damageTag.targetsHit.size()) {
                         shouldDestroyDamage = true;
                     }
                 }
             }
 
             if (shouldDestroyDamage) {
-                registry.destroyEntity(damageEntity);
+                break;
             }
+        }
+
+        if (damage.kind == DamageKind::Projectile && hadTaggedTargets && !hasAliveTarget) {
+            shouldDestroyDamage = true;
+        }
+
+        if (shouldDestroyDamage) {
+            registry.destroyEntity(damageEntity);
         }
     }
 }

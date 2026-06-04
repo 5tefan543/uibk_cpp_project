@@ -13,7 +13,7 @@ struct ProjectileDamage {
     float speed;            // units/sec
     float maxRange;         // projectile lifetime distance
     float distanceTraveled; // runtime state
-    int targetsHit;
+    int maxTargets;
 };
 
 struct MeleeArcDamage {
@@ -36,8 +36,7 @@ struct AreaDamage {
 };
 
 struct Damage {
-    float amount; // shared damage value
-    bool isMultiHit;
+    float amount;        // shared damage value
     float pushBackForce; // e.g. for knockback
     float stunChance;
     DamageKind kind;
