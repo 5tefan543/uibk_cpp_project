@@ -40,6 +40,8 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
         return; // Attack is still on cooldown
     }
 
+    const view::Sprite playerSprite = registry.getComponent<view::Sprite>(playerEntity);
+
     timeSinceLastAttack_ = 0.0f;
     Entity attackEntity = registry.createEntity();
     Position playerPosition = registry.getComponent<Position>(playerEntity);
@@ -50,15 +52,31 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
         .kind = attackProfile.kind,
         .params = ProjectileDamage{
             .speed = stats.speedOfAttack, .maxRange = stats.attackRange, .distanceTraveled = 0.0f, .maxTargets = 1}};
+    float attackDurationSec = 0.32f;
 
-    Position position{.x = playerPosition.x, .y = playerPosition.y};
+    Direction attackDirection = input.mouseGridX >= playerPosition.x ? Direction::Right : Direction::Left;
+    float offsetX = attackDirection == Direction::Right ? playerSprite.width : -attackProfile.projectile.spriteWidth;
+    Position position{.x = playerPosition.x + offsetX,
+                      .y = playerPosition.y + (playerSprite.height / 2) - (attackProfile.projectile.spriteHeight / 2)};
+    if (registry.hasComponent<Animation>(playerEntity)) {
+        Animation &playerAnimation = registry.getComponent<Animation>(playerEntity);
+        playerAnimation.overrideState = AnimationOverrideState::Attack;
+        playerAnimation.overrideTimeRemaining =
+            static_cast<float>(playerAnimation.attackTotalFrames) * playerAnimation.attackFrameDuration;
+        playerAnimation.overrideDirection = attackDirection;
+        playerAnimation.direction = attackDirection;
+        playerAnimation.currentFrame = 0;
+        playerAnimation.frameTimer = 0.0f;
 
-    view::Sprite sprite{.x = playerPosition.x,
-                        .y = playerPosition.y,
+        attackDurationSec = playerAnimation.overrideTimeRemaining;
+    }
+
+    view::Sprite sprite{.x = position.x,
+                        .y = position.y,
                         .imagePath = config.assetConfig.projectilePath,
                         .width = attackProfile.projectile.spriteWidth,
                         .height = attackProfile.projectile.spriteHeight};
-    HitBox hitBox{.rect = {position.x, position.y, sprite.width, sprite.height}};
+    HitBox hitBox{.rect = {sprite.x, sprite.y, sprite.width, sprite.height}};
     float angle = std::atan2(input.mouseGridY - playerPosition.y, input.mouseGridX - playerPosition.x);
     Velocity velocity{.dx = stats.speedOfAttack * attackProfile.projectile.velocityScale * std::cos(angle),
                       .dy = stats.speedOfAttack * attackProfile.projectile.velocityScale * std::sin(angle)};
@@ -67,7 +85,7 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
     registry.addComponent<Position>(attackEntity, position);
     registry.addComponent<Velocity>(attackEntity, velocity);
     registry.addComponent<HitBox>(attackEntity, hitBox);
-    registry.addComponent<PlayerTag>(attackEntity, {}); // Mark as player's attack for collision detection
+    registry.addComponent<PlayerTag>(attackEntity, {});
 }
 
 void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Entity playerEntity,
@@ -77,7 +95,7 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
     if (timeSinceLastAttack_ <= 1.0f / stats.attackSpeed) {
         return; // Attack is still on cooldown
     }
-
+    view::Sprite playerSprite = registry.getComponent<view::Sprite>(playerEntity);
     Position playerPosition = registry.getComponent<Position>(playerEntity);
     Direction attackDirection = input.mouseGridX >= playerPosition.x ? Direction::Right : Direction::Left;
 
@@ -97,7 +115,7 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
 
     timeSinceLastAttack_ = 0.0f;
     Entity attackEntity = registry.createEntity();
-
+    float offsetX = attackDirection == Direction::Right ? playerSprite.width / 2 : -playerSprite.width / 2;
     Damage damageComponent{
         .amount = attackProfile.amount,
         .pushBackForce = attackProfile.pushBackForce,
@@ -107,12 +125,15 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
                                  .activeTimeSec = attackDurationSec + attackProfile.meleeArc.activeTimePaddingSec,
                                  .elapsedSec = 0.0f}};
 
-    Position position{.x = playerPosition.x, .y = playerPosition.y};
+    Position position{.x = playerPosition.x + offsetX, .y = playerPosition.y};
+    DamageTag damageTag{};
 
-    HitBox hitBox{
-        .rect = {position.x, position.y, attackProfile.meleeArc.hitBoxWidth, attackProfile.meleeArc.hitBoxHeight}};
+    HitBox hitBox{.rect = {position.x + offsetX, position.y - (attackProfile.meleeArc.reach) * stats.attackRange,
+                           attackProfile.meleeArc.hitBoxWidth + 2 * attackProfile.meleeArc.reach * stats.attackRange,
+                           attackProfile.meleeArc.hitBoxHeight + 2 * attackProfile.meleeArc.reach * stats.attackRange}};
 
     registry.addComponent<Damage>(attackEntity, damageComponent);
+    registry.addComponent<DamageTag>(attackEntity, damageTag);
     registry.addComponent<Position>(attackEntity, position);
     registry.addComponent<HitBox>(attackEntity, hitBox);
     registry.addComponent<PlayerTag>(attackEntity, {}); // Mark as player's attack for collision detection

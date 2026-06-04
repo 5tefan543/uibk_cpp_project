@@ -13,7 +13,7 @@
     "assetConfig": {
         "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf",
         "meleeTexturePath": "assets/characters/melee/character_melee_",
-        "rangedTexturePath": "assets/characters/ranged/character_ranged_",
+        "rangedTexturePath": "assets/characters/ranged/ranged_character_",
         "enemyTexturePath": "assets/characters/enemy_blob/blob_",
         "mapTexturePath": "assets/map/map_1.png",
         "projectilePath": "assets/effects/base_projectile_1.png",
@@ -49,7 +49,7 @@
                 "defense": 0.0,
                 "moveSpeed": 700.0,
                 "speedOfAttack": 220.0,
-                "attackRange": 140.0
+                "attackRange": 1
             },
             "attack": {
                 "kind": "MeleeArc",
@@ -64,9 +64,9 @@
                     "moveSpeedMultiplier": 0.5
                 },
                 "meleeArc": {
-                    "reach": 140.0,
-                    "hitBoxWidth": 64.0,
-                    "hitBoxHeight": 64.0,
+                    "reach": 10.0,
+                    "hitBoxWidth": 96.0,
+                    "hitBoxHeight": 128.0,
                     "activeTimePaddingSec": 0.1
                 },
                 "area": {
@@ -100,7 +100,7 @@
                 "pushBackForce": 0.0,
                 "stunChance": 0.0,
                 "animationOverwrite": {
-                    "texturePath": "",
+                    "texturePath": "assets/characters/ranged/ranged_character_atk_",
                     "frameDuration": 0.16,
                     "totalFrames": 2,
                     "moveSpeedMultiplier": 1.0
