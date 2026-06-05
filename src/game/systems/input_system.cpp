@@ -77,7 +77,7 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
                         .width = attackProfile.projectile.spriteWidth,
                         .height = attackProfile.projectile.spriteHeight};
     HitBox hitBox{.rect = {sprite.x, sprite.y, sprite.width, sprite.height}};
-    float angle = std::atan2(input.mouseGridY - playerPosition.y, input.mouseGridX - playerPosition.x);
+    float angle = std::atan2(input.mouseGridY - position.y, input.mouseGridX - position.x);
     Velocity velocity{.dx = stats.speedOfAttack * attackProfile.projectile.velocityScale * std::cos(angle),
                       .dy = stats.speedOfAttack * attackProfile.projectile.velocityScale * std::sin(angle)};
     registry.addComponent<Damage>(attackEntity, damageComponent);
