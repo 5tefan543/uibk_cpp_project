@@ -21,9 +21,9 @@ class Game {
   private:
     Registry registry_;
     const Vec2<unsigned> locTabNumBuckets = {20, 20};
+    controller::GameConfig config_;
     LocationTable locationTable_;
     GameDebugSession debugSession_{registry_, locationTable_};
-    controller::GameConfig config_;
     float currentWaveDuration_;
 
     AnimationSystem animationSystem_;
@@ -54,7 +54,7 @@ class Game {
 
     explicit Game(int wave);
 
-    Vec2<float> initMap();
+    void initMap();
     void initCamera();
     void initPlayer();
     void initWave(int waveNumber);

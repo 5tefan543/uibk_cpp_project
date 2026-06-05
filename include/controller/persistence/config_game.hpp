@@ -1,4 +1,5 @@
 #pragma once
+#include "geometry/vector.hpp"
 #include <string>
 
 namespace controller {
@@ -25,6 +26,8 @@ struct GameConfig {
     int maxEnemyCount;
     WindowConfig windowConfig;
     AssetConfig assetConfig;
+    Vec2<unsigned> locTabNumBuckets = {20, 20};
+    Vec2<float> mapSize = {1920.0f * 2.0f, 1080.0f * 2.0f};
 };
 
 } // namespace controller
