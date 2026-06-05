@@ -98,7 +98,7 @@ struct Vec2 {
 
     Vec2<T> clamp(Vec2<T> low, Vec2<T> high) const
     {
-        return {std::clamp(x, low.x, high.x), std::clamp(y, low.y, high.y)};
+        return Vec2<T>{std::clamp(x, low.x, high.x), std::clamp(y, low.y, high.y)};
     }
     template <typename Into>
     Vec2<Into> into() const
