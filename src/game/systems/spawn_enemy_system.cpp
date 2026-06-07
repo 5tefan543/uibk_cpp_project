@@ -124,7 +124,6 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, bool isBoss, con
 
     Position spawnPosition = generateSpawnPosition(context, enemySprite, isBoss);
     EnemyStats enemyStats = createEnemyStats(wave, isBoss, context);
-
     Entity enemy = registry.createEntity();
     registry.addComponent<EnemyTag>(enemy, {});
     registry.addComponent<Position>(enemy, spawnPosition);

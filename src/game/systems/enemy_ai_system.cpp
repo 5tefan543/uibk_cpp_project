@@ -9,7 +9,7 @@
 
 namespace game {
 
-void EnemyAI::update(Registry &registry, LocationTable &locationTable, float dt)
+void EnemyAI::update(Registry &registry, LocationTable &locationTable)
 {
     const auto players = registry.view<Velocity, PlayerStats>();
     if (players.empty()) {
@@ -27,7 +27,16 @@ void EnemyAI::update(Registry &registry, LocationTable &locationTable, float dt)
 
         // Set movement direction exactly towards player
         Vec2 v = posP - posE;
-        // if (v.length() < 30) {attack_player();} // TODO: add player attack
+
+        // TODO: add player attack:
+        // if (v.length() < 30) {attack_player();}
+
+        // Prevent shooting over target (player) position
+        if (v.length() < 5) {
+            vx = 0; // TODO: into Vec2
+            vy = 0; // TODO: into Vec2
+            continue;
+        }
 
         // Calc. repelling force between enemies
         auto enemiesInRange = locationTable.getEntitiesInRange(posE, 50, registry);
@@ -45,28 +54,23 @@ void EnemyAI::update(Registry &registry, LocationTable &locationTable, float dt)
         v.normalize();
         v += repelOffset;
         v *= enemyStats.moveSpeed;
-        v.setLenght(std::min(v.length(), enemyStats.moveSpeed));
 
-        auto posEBefore = posE;
-        posE += v * dt;
-        if ((posE - posP).length() < 5) {
-            // Prevent shooting over (player) target position
+        // Enforce enemy speed limit if repelling force would boost it over max
+        auto l = std::min(v.length(), enemyStats.moveSpeed);
+
+        // Prevents jittery movement in enemy heaps by
+        // - decreasing speed inverse propotional to max speed
+        // - and stopping movement below a certaing percentage
+        l *= std::pow(l / enemyStats.moveSpeed, 2);
+        if (l / enemyStats.moveSpeed < 0.02) {
             vx = 0; // TODO: into Vec2
             vy = 0; // TODO: into Vec2
             continue;
         }
-        if ((posE - posEBefore).length() < 5) {
-            // Prevent jittery movement inside bunched up crowd
-            v /= 5;
-            posE = posEBefore + (v * dt);
-            vx = 0; // TODO: into Vec2
-            vy = 0; // TODO: into Vec2
-        } else {
-            vx = v.x; // TODO: into Vec2
-            vy = v.y; // TODO: into Vec2
-        }
-        px = posE.x;
-        py = posE.y;
+        v.setLenght(l);
+
+        vx = v.x; // TODO: into Vec2
+        vy = v.y; // TODO: into Vec2
     }
 }
 
