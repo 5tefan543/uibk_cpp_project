@@ -26,8 +26,8 @@ struct GameConfig {
     int maxEnemyCount;
     WindowConfig windowConfig;
     AssetConfig assetConfig;
-    Vec2<unsigned> locTabNumBuckets = {20, 20};
-    Vec2<float> mapSize = {1920.0f * 2.0f, 1080.0f * 2.0f};
+    Vec2<unsigned> locTabNumBuckets;
+    Vec2<float> mapSize;
 };
 
 } // namespace controller
