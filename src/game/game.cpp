@@ -21,7 +21,6 @@ namespace game {
 Game::Game(int wave)
     : config_(controller::PersistenceManager::getConfig()), locationTable_(config_.locTabNumBuckets, config_.mapSize)
 {
-    config_ = controller::PersistenceManager::getConfig();
     initMap();
     initCamera();
     initPlayer();

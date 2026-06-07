@@ -7,8 +7,7 @@
 
 namespace game {
 
-// Lookup 2D Table for finding entities based on their location in the world grid with dimensions view::gridWidth X
-// view::gridHeight.
+// Lookup 2D Table for finding entities based on their location in the world grid
 class LocationTable {
   private:
     std::vector<std::vector<Entity>> bucketGrid_;
