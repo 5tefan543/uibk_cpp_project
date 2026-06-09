@@ -73,7 +73,7 @@ struct Vec2 {
             y /= l;
         }
     }
-    void setLenght(T len)
+    void setLength(T len)
     {
         const auto l = length();
         if (l != 0) {

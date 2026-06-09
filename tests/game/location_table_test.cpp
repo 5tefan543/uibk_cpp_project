@@ -3,28 +3,11 @@
 #include "game/ecs/components/velocity.hpp"
 #include "game/location_table.hpp"
 #include "view/grid.hpp"
-
 #include "view/sprite.hpp"
-#include <SFML/Graphics/Rect.hpp>
 
 #include <algorithm>
 #include <catch2/catch_test_macros.hpp>
 #include <cmath>
-
-// #include <iostream>
-// void printLTtable(game::LocationTableTester &ltSpy)
-// {
-//     for (size_t l = 0; l < ltSpy.getNumBuckH(); l++) {
-//         for (size_t i = 0; i < ltSpy.getNumBuckW(); i++) {
-//             std::cout << "(" << l << ", " << i << "): ";
-//             for (auto e : *ltSpy.getBucket(i, l)) {
-//                 std::cout << e << " ";
-//             }
-//             std::cout << std::endl;
-//         }
-//     }
-//     fflush(stdout);
-// }
 
 // Use tags to only test this TEST_CASE: ./roguelike_test_runner "[location-table]"
 TEST_CASE("test location table", "[location-table]")

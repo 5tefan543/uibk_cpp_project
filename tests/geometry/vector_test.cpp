@@ -67,7 +67,7 @@ TEST_CASE("Vector length and normalization")
     Vec2<float> b = a;
     b.normalize();
     REQUIRE(std::abs((a / aLen).length() - b.length()) < 0.001);
-    b.setLenght(aLen);
+    b.setLength(aLen);
     REQUIRE(std::abs(a.length() - b.length()) < 0.001);
 }
 

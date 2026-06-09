@@ -9,6 +9,11 @@
 
 namespace game {
 
+const float minDistanceEnemyPlayer = 5;
+const float enemyRepelRadius = 50;
+const float enemyRepelProximityRampParam = 1.5;
+const float enemyRelSpeedCutoffPercentage = 0.02;
+
 void EnemyAI::update(Registry &registry, LocationTable &locationTable)
 {
     const auto players = registry.view<Velocity, PlayerStats>();
@@ -23,6 +28,9 @@ void EnemyAI::update(Registry &registry, LocationTable &locationTable)
         auto &[vx, vy] = registry.getComponent<Velocity>(enemy);
         auto &[px, py] = registry.getComponent<Position>(enemy);
         EnemyStats &enemyStats = registry.getComponent<EnemyStats>(enemy);
+        if (enemyStats.moveSpeed == 0) {
+            continue;
+        }
         Vec2 posE{px, py};
 
         // Set movement direction exactly towards player
@@ -32,14 +40,14 @@ void EnemyAI::update(Registry &registry, LocationTable &locationTable)
         // if (v.length() < 30) {attack_player();}
 
         // Prevent shooting over target (player) position
-        if (v.length() < 5) {
+        if (v.length() < minDistanceEnemyPlayer) {
             vx = 0; // TODO: into Vec2
             vy = 0; // TODO: into Vec2
             continue;
         }
 
         // Calc. repelling force between enemies
-        auto enemiesInRange = locationTable.getEntitiesInRange(posE, 50, registry);
+        auto enemiesInRange = locationTable.getEntitiesInRange(posE, enemyRepelRadius, registry);
         Vec2<float> repelOffset = {0, 0};
         for (auto [e, position] : enemiesInRange) {
             if (e == enemy) {
@@ -47,7 +55,10 @@ void EnemyAI::update(Registry &registry, LocationTable &locationTable)
             }
             const auto p = Vec2{position.x, position.y}; // TODO: into Vec2
             const auto pToOther = (posE - p);
-            repelOffset += pToOther / (std::pow(pToOther.length(), 1.5)); // increase repelling with proximity
+            const auto b = (std::pow(pToOther.length(), enemyRepelProximityRampParam));
+            if (b != 0) {
+                repelOffset += pToOther / b; // increase repelling with proximity
+            }
         }
 
         // Divert straight forwards movement to player with repelling offset
@@ -62,12 +73,12 @@ void EnemyAI::update(Registry &registry, LocationTable &locationTable)
         // - decreasing speed inverse propotional to max speed
         // - and stopping movement below a certaing percentage
         l *= std::pow(l / enemyStats.moveSpeed, 2);
-        if (l / enemyStats.moveSpeed < 0.02) {
+        if (l / enemyStats.moveSpeed < enemyRelSpeedCutoffPercentage) {
             vx = 0; // TODO: into Vec2
             vy = 0; // TODO: into Vec2
             continue;
         }
-        v.setLenght(l);
+        v.setLength(l);
 
         vx = v.x; // TODO: into Vec2
         vy = v.y; // TODO: into Vec2
