@@ -86,8 +86,8 @@
             },
             "stats": {
                 "maxHealth": 100.0,
-                "attackPower": 10.0,
-                "attackSpeed": 1.0,
+                "attackPower": 100.0,
+                "attackSpeed": 3.0,
                 "defense": 0.0,
                 "moveSpeed": 750.0,
                 "speedOfAttack": 240.0,
