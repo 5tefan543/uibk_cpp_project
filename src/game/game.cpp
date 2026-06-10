@@ -191,7 +191,7 @@ void Game::initWave(int waveNumber)
     wave_ = waveNumber;
     debugSession_.wave = waveNumber;
 
-    int stageOld_ = stage_;
+    int stageOld = stage_;
     stage_ = ((wave_ - 1) / config_.wavesPerStage) + 1;
 
     debugSession_.stage = stage_;
@@ -204,7 +204,7 @@ void Game::initWave(int waveNumber)
             // TODO error via gui not console
         }
 
-        if (stage_ != stageOld_) {
+        if (stage_ != stageOld) {
             switchMap(gameSave);
         }
     }
