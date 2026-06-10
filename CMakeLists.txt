@@ -129,6 +129,7 @@ add_executable(roguelike_test_runner
   tests/game/ecs/systems/animation_system_test.cpp
   tests/game/ecs/systems/camera_system_test.cpp
   tests/game/ecs/systems/debug_selection_system_test.cpp
+  tests/game/ecs/systems/enemy_ai_system_test.cpp
   tests/game/location_table_test.cpp
   tests/geometry/vector_test.cpp
   tests/logging/log_test.cpp
