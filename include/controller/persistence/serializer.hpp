@@ -1,6 +1,7 @@
 #pragma once
 #include "config_game.hpp"
 #include "game/persisted_game.hpp"
+#include "glaze_meta.hpp"
 #include "leaderboard.hpp"
 #include <algorithm>
 #include <filesystem>

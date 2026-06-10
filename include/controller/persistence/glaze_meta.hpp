@@ -1,3 +1,8 @@
+#pragma once
+#include "config_game.hpp"
+#include "game/persisted_game.hpp"
+#include <glaze/glaze.hpp>
+
 template <>
 struct glz::meta<game::CharacterType> {
     static constexpr auto value =
