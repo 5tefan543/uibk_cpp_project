@@ -94,12 +94,24 @@ void Game::initMap()
     Entity map = registry_.createEntity();
     registry_.addComponent<MapTag>(map, {});
     registry_.addComponent<Position>(map, {0.0f, 0.0f});
+
+    int mapCounter = stage_ % 4;
     view::Sprite mapSprite = {
-        .imagePath = "assets/maps/map.bmp",
+        .imagePath = config_.assetConfig.mapTexturePath + std::to_string(mapCounter) + ".png",
         .width = 1920.0f * 2.0f,
         .height = 1080.0f * 2.0f,
     };
     registry_.addComponent<view::Sprite>(map, mapSprite);
+}
+
+void Game::switchMap(PersistedGame persistedGame)
+{
+    Entity mapEntity = registry_.view<MapTag>().front();
+    Entity playerEntity = registry_.view<PlayerStats>().front();
+    registry_.destroyEntity(mapEntity);
+    registry_.destroyEntity(playerEntity);
+    initMap();
+    initPlayer(persistedGame.position, persistedGame.playerStats);
 }
 
 void Game::initCamera()
@@ -179,14 +191,21 @@ void Game::initWave(int waveNumber)
     wave_ = waveNumber;
     debugSession_.wave = waveNumber;
 
+    int stageOld_ = stage_;
     stage_ = ((wave_ - 1) / config_.wavesPerStage) + 1;
+
     debugSession_.stage = stage_;
 
     if (wave_ > 1) {
         auto gameSave = getPersistedGame();
+
         if (!controller::PersistenceManager::saveGame(gameSave)) {
 
             // TODO error via gui not console
+        }
+
+        if (stage_ != stageOld_) {
+            switchMap(gameSave);
         }
     }
 
