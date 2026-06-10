@@ -104,7 +104,7 @@ void Game::initMap()
     registry_.addComponent<view::Sprite>(map, mapSprite);
 }
 
-void Game::switchMap(PersistedGame persistedGame)
+void Game::switchMap()
 {
     Entity mapEntity = registry_.view<MapTag>().front();
     if (registry_.hasComponent<view::Sprite>(mapEntity)) {
