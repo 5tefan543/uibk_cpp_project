@@ -40,7 +40,9 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
         return; // Attack is still on cooldown
     }
 
-    const view::Sprite playerSprite = registry.getComponent<view::Sprite>(playerEntity);
+    const view::Sprite playerSprite = registry.hasComponent<view::Sprite>(playerEntity)
+                                          ? registry.getComponent<view::Sprite>(playerEntity)
+                                          : view::Sprite{};
 
     timeSinceLastAttack_ = 0.0f;
     Entity attackEntity = registry.createEntity();
@@ -95,7 +97,9 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
     if (timeSinceLastAttack_ <= 1.0f / stats.attackSpeed) {
         return; // Attack is still on cooldown
     }
-    view::Sprite playerSprite = registry.getComponent<view::Sprite>(playerEntity);
+    const view::Sprite playerSprite = registry.hasComponent<view::Sprite>(playerEntity)
+                                          ? registry.getComponent<view::Sprite>(playerEntity)
+                                          : view::Sprite{};
     Position playerPosition = registry.getComponent<Position>(playerEntity);
     Direction attackDirection = input.mouseGridX >= playerPosition.x ? Direction::Right : Direction::Left;
 
