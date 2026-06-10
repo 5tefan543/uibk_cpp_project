@@ -112,6 +112,11 @@ void CollisionDetectionSystem::addTarget(const Entity &source, const Entity &tar
 
 void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &registry)
 {
+
+    if (registry.hasComponent<Damage>(entity)) {
+        return;
+    }
+
     if (!registry.hasComponent<Position>(entity) || !registry.hasComponent<HitBox>(entity)) {
         return;
     }

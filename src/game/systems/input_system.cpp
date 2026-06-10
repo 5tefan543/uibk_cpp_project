@@ -88,6 +88,7 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
     registry.addComponent<Velocity>(attackEntity, velocity);
     registry.addComponent<HitBox>(attackEntity, hitBox);
     registry.addComponent<PlayerTag>(attackEntity, {});
+    registry.addComponent<DamageTag>(attackEntity, {});
 }
 
 void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Entity playerEntity,

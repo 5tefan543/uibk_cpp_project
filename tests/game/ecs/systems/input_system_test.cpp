@@ -193,13 +193,13 @@ TEST_CASE_METHOD(TestFixture, "InputSystem ranged attack spawns projectile with 
     playerStats.speedOfAttack = 5.0f;
     playerStats.characterType = game::CharacterType::Ranged;
     registry.addComponent<game::PlayerStats>(player, playerStats);
-    registry.addComponent<game::Position>(player, {10.0f, 20.0f});
+    registry.addComponent<game::Position>(player, {0.0f, 0.0f});
     registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
 
     controller::InputState input;
     input.mouseLeftPressed = true;
-    input.mouseGridX = 13.0f;
-    input.mouseGridY = 24.0f;
+    input.mouseGridX = 100.0f;
+    input.mouseGridY = 100.0f;
 
     const auto config = controller::PersistenceManager::getConfig();
     system.update(registry, config, input, 1.1f);
@@ -216,8 +216,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem ranged attack spawns projectile with 
     REQUIRE(projectileParams->maxTargets == 1);
 
     const auto &velocity = registry.getComponent<game::Velocity>(projectile);
-    REQUIRE(std::abs(velocity.dx - 30.0f) < 0.001f);
-    REQUIRE(std::abs(velocity.dy - 40.0f) < 0.001f);
+    REQUIRE(std::abs(velocity.dx + 26.843f) < 0.001f);
+    REQUIRE(std::abs(velocity.dy - 42.183f) < 0.001f);
 }
 
 TEST_CASE_METHOD(TestFixture, "InputSystem attack cooldown is strict on boundary and blocks rapid second attack")
