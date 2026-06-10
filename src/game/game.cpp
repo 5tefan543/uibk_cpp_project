@@ -107,11 +107,11 @@ void Game::initMap()
 void Game::switchMap(PersistedGame persistedGame)
 {
     Entity mapEntity = registry_.view<MapTag>().front();
-    Entity playerEntity = registry_.view<PlayerStats>().front();
-    registry_.destroyEntity(mapEntity);
-    registry_.destroyEntity(playerEntity);
-    initMap();
-    initPlayer(persistedGame.position, persistedGame.playerStats);
+    if (registry_.hasComponent<view::Sprite>(mapEntity)) {
+        int mapCounter = stage_ % 4;
+        view::Sprite &mapSprite = registry_.getComponent<view::Sprite>(mapEntity);
+        mapSprite.imagePath = config_.assetConfig.mapTexturePath + std::to_string(mapCounter) + ".png";
+    }
 }
 
 void Game::initCamera()

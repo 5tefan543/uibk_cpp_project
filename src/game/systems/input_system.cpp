@@ -54,7 +54,6 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
         .kind = attackProfile.kind,
         .params = ProjectileDamage{
             .speed = stats.speedOfAttack, .maxRange = stats.attackRange, .distanceTraveled = 0.0f, .maxTargets = 1}};
-    float attackDurationSec = 0.32f;
 
     Direction attackDirection = input.mouseGridX >= playerPosition.x ? Direction::Right : Direction::Left;
     float offsetX = attackDirection == Direction::Right ? playerSprite.width : -attackProfile.projectile.spriteWidth;
@@ -69,8 +68,6 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
         playerAnimation.direction = attackDirection;
         playerAnimation.currentFrame = 0;
         playerAnimation.frameTimer = 0.0f;
-
-        attackDurationSec = playerAnimation.overrideTimeRemaining;
     }
 
     view::Sprite sprite{.x = position.x,
@@ -104,7 +101,7 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
     Position playerPosition = registry.getComponent<Position>(playerEntity);
     Direction attackDirection = input.mouseGridX >= playerPosition.x ? Direction::Right : Direction::Left;
 
-    float attackDurationSec = 0.65f;
+    float attackDurationSec;
     if (registry.hasComponent<Animation>(playerEntity)) {
         Animation &playerAnimation = registry.getComponent<Animation>(playerEntity);
         playerAnimation.overrideState = AnimationOverrideState::Attack;
