@@ -131,6 +131,7 @@ add_executable(roguelike_test_runner
   tests/game/ecs/systems/debug_selection_system_test.cpp
   tests/game/location_table_test.cpp
   tests/geometry/vector_test.cpp
+  tests/logging/log_test.cpp
 )
 
 roguelike_cxx_flags(roguelike_test_runner)
