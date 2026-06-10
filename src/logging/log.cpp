@@ -9,7 +9,7 @@ struct LogSettings {
     Level level = ERROR;
     bool useColor = true;
 
-    LogSettings()
+    LogSettings() : useColor(true)
     {
         if (const char *envLevl = std::getenv("ROUGL_LOG_LEVEL")) {
             if (std::string("Error").compare(envLevl) == 0) {
@@ -47,7 +47,7 @@ void log(Level l, const std::string &msg)
     const char *colWarning = settings.useColor ? "\033[1;33m" : "";
     const char *colInfo = settings.useColor ? "\033[1m" : "";
     const char *colDebug = settings.useColor ? "\033[1m" : "";
-    const char *colClear = "\033[0m";
+    const char *colClear = settings.useColor ? "\033[0m" : "";
 
     if (l <= settings.level) {
         switch (l) {
