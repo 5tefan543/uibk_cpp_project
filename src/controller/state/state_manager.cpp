@@ -86,7 +86,7 @@ void StateManager::applyAction(StateTransitionAction action)
         push(ExitState::createExitState());
         break;
     case StateTransitionAction::ReplaceCurrentWithCharacterSelection:
-        push(MenuState::createMenu(MenuType::CharacterSelection));
+        replaceCurrent(MenuState::createMenu(MenuType::CharacterSelection));
         break;
     }
 }
