@@ -205,7 +205,7 @@ void Game::initWave(int waveNumber)
         }
 
         if (stage_ != stageOld) {
-            switchMap(gameSave);
+            switchMap();
         }
     }
 
