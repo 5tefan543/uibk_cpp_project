@@ -20,7 +20,7 @@ const std::string texturePathSuffix = "right_1.png";
 void applyAnimationOverwrite(const controller::AnimationOverwriteConfig &overwrite, std::string &texturePath,
                              float &frameDuration, int &totalFrames, float &moveSpeedMultiplier)
 {
-    texturePath = overwrite.texturePath;
+    texturePath = overwrite.texturePathPrefix;
     frameDuration = overwrite.frameDuration;
     totalFrames = overwrite.totalFrames;
     moveSpeedMultiplier = overwrite.moveSpeedMultiplier;

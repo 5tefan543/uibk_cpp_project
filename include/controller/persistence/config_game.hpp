@@ -14,10 +14,10 @@ struct WindowConfig {
 };
 
 struct AssetConfig {
-    std::string meleeTexturePath;
-    std::string rangedTexturePath;
-    std::string enemyTexturePath;
-    std::string mapTexturePath;
+    std::string meleeTexturePathPrefix;
+    std::string rangedTexturePathPrefix;
+    std::string enemyTexturePathPrefix;
+    std::string mapTexturePathPrefix;
     std::string fontPath;
     std::string projectilePath;
     struct DroppableItemAssetConfig {
@@ -29,7 +29,7 @@ struct AssetConfig {
 };
 
 struct AnimationOverwriteConfig {
-    std::string texturePath;
+    std::string texturePathPrefix;
     float frameDuration = 0.16f;
     int totalFrames = 2;
     float moveSpeedMultiplier = 1.0f;

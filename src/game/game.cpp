@@ -47,7 +47,7 @@ void applyClassStats(const controller::PlayerClassConfig &classConfig, PlayerSta
 void applyAnimationOverwrite(const controller::AnimationOverwriteConfig &overwrite, std::string &texturePath,
                              float &frameDuration, int &totalFrames, float &moveSpeedMultiplier)
 {
-    texturePath = overwrite.texturePath;
+    texturePath = overwrite.texturePathPrefix;
     frameDuration = overwrite.frameDuration;
     totalFrames = overwrite.totalFrames;
     moveSpeedMultiplier = overwrite.moveSpeedMultiplier;
@@ -99,7 +99,7 @@ void Game::initMap()
 
     int mapCounter = stage_ % 4;
     view::Sprite mapSprite = {
-        .imagePath = config_.assetConfig.mapTexturePath + std::to_string(mapCounter) + ".png",
+        .imagePath = config_.assetConfig.mapTexturePathPrefix + std::to_string(mapCounter) + ".png",
         .width = config_.mapSize.x,
         .height = config_.mapSize.y,
     };
@@ -112,7 +112,7 @@ void Game::switchMap()
     if (registry_.hasComponent<view::Sprite>(mapEntity)) {
         int mapCounter = stage_ % 4;
         view::Sprite &mapSprite = registry_.getComponent<view::Sprite>(mapEntity);
-        mapSprite.imagePath = config_.assetConfig.mapTexturePath + std::to_string(mapCounter) + ".png";
+        mapSprite.imagePath = config_.assetConfig.mapTexturePathPrefix + std::to_string(mapCounter) + ".png";
     }
 }
 
@@ -139,10 +139,10 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
     registry_.addComponent<PlayerTag>(player, {});
     Animation playerAnimation;
     if (playerStats.characterType == CharacterType::Melee) {
-        playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePath};
+        playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePathPrefix};
     } else {
         playerStats.characterType = CharacterType::Ranged;
-        playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePath};
+        playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePathPrefix};
     }
 
     const controller::PlayerClassConfig &classConfig = getClassConfig(config_.playerClasses, playerStats.characterType);

@@ -99,13 +99,14 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk whe
     input.windowConfig.width = 1024;
     input.windowConfig.height = 768;
     input.windowConfig.title = "Disk Config";
-    input.assetConfig.meleeTexturePath = "assets/player.png";
-    input.assetConfig.enemyTexturePath = "assets/enemy.png";
-    input.assetConfig.mapTexturePath = "assets/map.png";
+    input.assetConfig.meleeTexturePathPrefix = "assets/player.png";
+    input.assetConfig.enemyTexturePathPrefix = "assets/enemy.png";
+    input.assetConfig.mapTexturePathPrefix = "assets/map.png";
     input.assetConfig.fontPath = "assets/font.ttf";
     input.assetConfig.droppableItems = {{"common", "assets/icons/store/icons-common_1.png"}};
-    input.playerClasses.melee.attack.animationOverwrite.texturePath = "assets/characters/melee/character_melee_atk_";
-    input.playerClasses.melee.deathOverwrite.texturePath = "assets/characters/melee/death_";
+    input.playerClasses.melee.attack.animationOverwrite.texturePathPrefix =
+        "assets/characters/melee/character_melee_atk_";
+    input.playerClasses.melee.deathOverwrite.texturePathPrefix = "assets/characters/melee/death_";
 
     REQUIRE(Serializer::writeJsonToFile(input, Serializer::configFilePath));
 
@@ -117,16 +118,16 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk whe
     REQUIRE(output.windowConfig.width == 1024);
     REQUIRE(output.windowConfig.height == 768);
     REQUIRE(output.windowConfig.title == "Disk Config");
-    REQUIRE(output.assetConfig.meleeTexturePath == "assets/player.png");
-    REQUIRE(output.assetConfig.enemyTexturePath == "assets/enemy.png");
-    REQUIRE(output.assetConfig.mapTexturePath == "assets/map.png");
+    REQUIRE(output.assetConfig.meleeTexturePathPrefix == "assets/player.png");
+    REQUIRE(output.assetConfig.enemyTexturePathPrefix == "assets/enemy.png");
+    REQUIRE(output.assetConfig.mapTexturePathPrefix == "assets/map.png");
     REQUIRE(output.assetConfig.fontPath == "assets/font.ttf");
     REQUIRE(output.assetConfig.droppableItems.size() == 1);
     REQUIRE(output.assetConfig.droppableItems[0].id == "common");
     REQUIRE(output.assetConfig.droppableItems[0].spritePath == "assets/icons/store/icons-common_1.png");
-    REQUIRE(output.playerClasses.melee.attack.animationOverwrite.texturePath
+    REQUIRE(output.playerClasses.melee.attack.animationOverwrite.texturePathPrefix
             == "assets/characters/melee/character_melee_atk_");
-    REQUIRE(output.playerClasses.melee.deathOverwrite.texturePath == "assets/characters/melee/death_");
+    REQUIRE(output.playerClasses.melee.deathOverwrite.texturePathPrefix == "assets/characters/melee/death_");
 }
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig throws when config is missing and cache is empty")
@@ -167,13 +168,13 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads config")
     input.windowConfig.width = 1280;
     input.windowConfig.height = 720;
     input.windowConfig.title = "Test Window";
-    input.assetConfig.meleeTexturePath = "assets/players/test_player.png";
-    input.assetConfig.enemyTexturePath = "assets/enemies/test_enemy.png";
-    input.assetConfig.mapTexturePath = "assets/maps/test_map.png";
+    input.assetConfig.meleeTexturePathPrefix = "assets/players/test_player.png";
+    input.assetConfig.enemyTexturePathPrefix = "assets/enemies/test_enemy.png";
+    input.assetConfig.mapTexturePathPrefix = "assets/maps/test_map.png";
     input.assetConfig.fontPath = "assets/fonts/test_font.ttf";
     input.assetConfig.droppableItems = {{"rare", "assets/icons/store/icons-rare_1.png"}};
-    input.playerClasses.ranged.attack.animationOverwrite.texturePath = "assets/characters/ranged/atk_";
-    input.playerClasses.ranged.deathOverwrite.texturePath = "assets/characters/ranged/death_";
+    input.playerClasses.ranged.attack.animationOverwrite.texturePathPrefix = "assets/characters/ranged/atk_";
+    input.playerClasses.ranged.deathOverwrite.texturePathPrefix = "assets/characters/ranged/death_";
 
     PersistenceManager::saveConfig(input);
 
@@ -186,15 +187,15 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads config")
     REQUIRE(output.windowConfig.width == 1280);
     REQUIRE(output.windowConfig.height == 720);
     REQUIRE(output.windowConfig.title == "Test Window");
-    REQUIRE(output.assetConfig.meleeTexturePath == "assets/players/test_player.png");
-    REQUIRE(output.assetConfig.enemyTexturePath == "assets/enemies/test_enemy.png");
-    REQUIRE(output.assetConfig.mapTexturePath == "assets/maps/test_map.png");
+    REQUIRE(output.assetConfig.meleeTexturePathPrefix == "assets/players/test_player.png");
+    REQUIRE(output.assetConfig.enemyTexturePathPrefix == "assets/enemies/test_enemy.png");
+    REQUIRE(output.assetConfig.mapTexturePathPrefix == "assets/maps/test_map.png");
     REQUIRE(output.assetConfig.fontPath == "assets/fonts/test_font.ttf");
     REQUIRE(output.assetConfig.droppableItems.size() == 1);
     REQUIRE(output.assetConfig.droppableItems[0].id == "rare");
     REQUIRE(output.assetConfig.droppableItems[0].spritePath == "assets/icons/store/icons-rare_1.png");
-    REQUIRE(output.playerClasses.ranged.attack.animationOverwrite.texturePath == "assets/characters/ranged/atk_");
-    REQUIRE(output.playerClasses.ranged.deathOverwrite.texturePath == "assets/characters/ranged/death_");
+    REQUIRE(output.playerClasses.ranged.attack.animationOverwrite.texturePathPrefix == "assets/characters/ranged/atk_");
+    REQUIRE(output.playerClasses.ranged.deathOverwrite.texturePathPrefix == "assets/characters/ranged/death_");
 }
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig prefers cached config after save")

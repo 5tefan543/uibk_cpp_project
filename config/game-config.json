@@ -12,10 +12,10 @@
     },
     "assetConfig": {
         "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf",
-        "meleeTexturePath": "assets/characters/melee/character_melee_",
-        "rangedTexturePath": "assets/characters/ranged/ranged_character_",
-        "enemyTexturePath": "assets/characters/enemy_blob/blob_",
-        "mapTexturePath": "assets/maps/map",
+        "meleeTexturePathPrefix": "assets/characters/melee/character_melee_",
+        "rangedTexturePathPrefix": "assets/characters/ranged/ranged_character_",
+        "enemyTexturePathPrefix": "assets/characters/enemy_blob/blob_",
+        "mapTexturePathPrefix": "assets/maps/map",
         "projectilePath": "assets/effects/base_projectile_1.png",
         "droppableItems": [
             {
@@ -37,7 +37,7 @@
             "characterType": "Melee",
             "hasDash": true,
             "deathOverwrite": {
-                "texturePath": "",
+                "texturePathPrefix": "",
                 "frameDuration": 0.16,
                 "totalFrames": 2,
                 "moveSpeedMultiplier": 0.0
@@ -58,7 +58,7 @@
                 "pushBackForce": 0.0,
                 "stunChance": 0.0,
                 "animationOverwrite": {
-                    "texturePath": "assets/characters/melee/character_melee_atk_",
+                    "texturePathPrefix": "assets/characters/melee/character_melee_atk_",
                     "frameDuration": 0.16,
                     "totalFrames": 2,
                     "moveSpeedMultiplier": 0.5
@@ -79,7 +79,7 @@
             "characterType": "Ranged",
             "hasDash": false,
             "deathOverwrite": {
-                "texturePath": "",
+                "texturePathPrefix": "",
                 "frameDuration": 0.16,
                 "totalFrames": 2,
                 "moveSpeedMultiplier": 0.0
@@ -100,7 +100,7 @@
                 "pushBackForce": 0.0,
                 "stunChance": 0.0,
                 "animationOverwrite": {
-                    "texturePath": "assets/characters/ranged/ranged_character_atk_",
+                    "texturePathPrefix": "assets/characters/ranged/ranged_character_atk_",
                     "frameDuration": 0.16,
                     "totalFrames": 2,
                     "moveSpeedMultiplier": 1.0
@@ -147,7 +147,7 @@
                 "moveSpeedRatioOfPlayer": 0.9,
                 "baseTexturePath": "assets/characters/blob_enemy/blob_",
                 "deathOverwrite": {
-                    "texturePath": "",
+                    "texturePathPrefix": "",
                     "frameDuration": 0.16,
                     "totalFrames": 2,
                     "moveSpeedMultiplier": 0.0
@@ -168,7 +168,7 @@
                     "pushBackForce": 0.0,
                     "stunChance": 0.0,
                     "animationOverwrite": {
-                        "texturePath": "",
+                        "texturePathPrefix": "",
                         "frameDuration": 0.16,
                         "totalFrames": 2,
                         "moveSpeedMultiplier": 1.0
@@ -194,7 +194,7 @@
                 "moveSpeedRatioOfPlayer": 0.5,
                 "baseTexturePath": "assets/characters/boss_1_",
                 "deathOverwrite": {
-                    "texturePath": "",
+                    "texturePathPrefix": "",
                     "frameDuration": 0.16,
                     "totalFrames": 2,
                     "moveSpeedMultiplier": 0.0
@@ -215,7 +215,7 @@
                     "pushBackForce": 0.0,
                     "stunChance": 0.0,
                     "animationOverwrite": {
-                        "texturePath": "",
+                        "texturePathPrefix": "",
                         "frameDuration": 0.16,
                         "totalFrames": 2,
                         "moveSpeedMultiplier": 1.0
