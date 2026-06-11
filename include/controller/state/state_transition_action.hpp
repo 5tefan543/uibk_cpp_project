@@ -7,7 +7,6 @@ enum class StateTransitionAction {
     ReplaceCurrentWithCharacterSelection,
     StartNewGameRanged,
     StartNewGameMelee,
-    ReplaceCurrentWithGameplay,
     ReplaceCurrentWithLoadedGameplay,
     PushPauseMenu,
     PushProgressionStore,

@@ -36,7 +36,7 @@ TEST_CASE_METHOD(TestFixture, "push multiple states and getCurrent returns top")
 
     // ACT
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
-    stateManager.push(GameplayState::createNewGameplay());
+    stateManager.push(GameplayState::createNewGameplay(game::CharacterType::Melee));
 
     // ASSERT
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
@@ -56,7 +56,7 @@ TEST_CASE_METHOD(TestFixture, "pop removes the top state")
     // ARRANGE
     StateManager stateManager;
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
-    stateManager.push(GameplayState::createNewGameplay());
+    stateManager.push(GameplayState::createNewGameplay(game::CharacterType::Melee));
 
     // ACT
     stateManager.pop();
@@ -109,7 +109,7 @@ TEST_CASE_METHOD(TestFixture, "replaceCurrent replaces the top state")
     stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
 
     // ACT
-    stateManager.replaceCurrent(GameplayState::createNewGameplay());
+    stateManager.replaceCurrent(GameplayState::createNewGameplay(game::CharacterType::Melee));
 
     // ASSERT
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
@@ -148,7 +148,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithGameplay replaces c
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
 
     // ACT
-    stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithGameplay);
+    stateManager.applyAction(StateTransitionAction::StartNewGameRanged);
 
     // ASSERT
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
@@ -214,7 +214,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction PushPauseMenu pushes cancelPressed me
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(GameplayState::createNewGameplay());
+    stateManager.push(GameplayState::createNewGameplay(game::CharacterType::Melee));
 
     // ACT
     stateManager.applyAction(StateTransitionAction::PushPauseMenu);
@@ -227,7 +227,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction PushProgressionStore pushes progressi
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(GameplayState::createNewGameplay());
+    stateManager.push(GameplayState::createNewGameplay(game::CharacterType::Melee));
 
     // ACT
     stateManager.applyAction(StateTransitionAction::PushProgressionStore);
@@ -240,7 +240,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithGameOverMenu replac
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(GameplayState::createNewGameplay());
+    stateManager.push(GameplayState::createNewGameplay(game::CharacterType::Melee));
 
     // ACT
     stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithGameOverMenu);

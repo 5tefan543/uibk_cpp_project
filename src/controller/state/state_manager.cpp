@@ -54,9 +54,6 @@ void StateManager::applyAction(StateTransitionAction action)
     case StateTransitionAction::None:
         // No state change
         break;
-    case StateTransitionAction::ReplaceCurrentWithGameplay:
-        replaceCurrent(GameplayState::createNewGameplay());
-        break;
     case StateTransitionAction::StartNewGameMelee:
         replaceCurrent(GameplayState::createNewGameplay(game::CharacterType::Melee));
         break;

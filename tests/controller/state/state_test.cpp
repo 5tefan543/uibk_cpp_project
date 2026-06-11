@@ -59,7 +59,7 @@ TEST_CASE_METHOD(TestFixture,
 TEST_CASE_METHOD(TestFixture, "GameplayState::createNewGameplay constructs gameplay state with expected properties")
 {
     // ACT
-    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay(game::CharacterType::Melee);
 
     // ASSERT
     REQUIRE(state != nullptr);
@@ -307,7 +307,7 @@ TEST_CASE_METHOD(TestFixture, "Game over menu mouse input returns correct action
 TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
 {
     // ARRANGE
-    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay(game::CharacterType::Melee);
     InputState input;
     DebugContext &debug = DebugContext::get();
 
@@ -496,7 +496,7 @@ TEST_CASE_METHOD(TestFixture, "MenuState::toString returns expected string")
 
 TEST_CASE_METHOD(TestFixture, "GameplayState::toString returns expected string")
 {
-    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay(game::CharacterType::Melee);
     REQUIRE(state->toString() == "Gameplay");
 }
 
@@ -610,7 +610,7 @@ TEST_CASE_METHOD(TestFixture, "MenuState::getView returns expected view")
 
 TEST_CASE_METHOD(TestFixture, "GameplayState::getView returns expected view")
 {
-    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay(game::CharacterType::Melee);
 
     const view::View &view = state->getView();
 

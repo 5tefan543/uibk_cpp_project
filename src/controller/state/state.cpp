@@ -289,11 +289,6 @@ std::string MenuState::toString() const
     }
 }
 
-std::unique_ptr<GameplayState> GameplayState::createNewGameplay()
-{
-    return std::unique_ptr<GameplayState>(new GameplayState());
-}
-
 std::unique_ptr<GameplayState> GameplayState::createNewGameplay(const game::CharacterType characterType)
 {
     return std::unique_ptr<GameplayState>(new GameplayState(characterType));
@@ -310,8 +305,8 @@ std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
         return std::unique_ptr<GameplayState>(new GameplayState(persistedGame.value()));
     }
 
-    std::cout << "No saved game found, starting new game instead." << std::endl;
-    return createNewGameplay();
+    std::cerr << "No saved game found, starting new game instead." << std::endl;
+    return std::unique_ptr<GameplayState>(new GameplayState(game::CharacterType::Melee));
 }
 
 GameplayState::GameplayState() : game() {}

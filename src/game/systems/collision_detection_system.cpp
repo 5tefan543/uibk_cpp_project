@@ -1,7 +1,4 @@
 #include "game/ecs/systems/collision_detection_system.hpp"
-#include "SFML/Graphics/Image.hpp"
-#include "SFML/Graphics/RectangleShape.hpp"
-#include "SFML/Graphics/Texture.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"

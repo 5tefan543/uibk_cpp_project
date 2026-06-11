@@ -57,7 +57,7 @@ Game::Game(int wave, CharacterType characterType)
 {
     config_ = controller::PersistenceManager::getConfig();
     initMap();
-    initCamera();
+    initCamera({0.0f, 0.0f});
     initPlayer(characterType);
     initWave(wave);
 }
@@ -114,12 +114,6 @@ void Game::switchMap()
     }
 }
 
-void Game::initCamera()
-{
-    Entity camera = registry_.createEntity();
-    registry_.addComponent<CameraTag>(camera, {});
-    registry_.addComponent<Position>(camera, {0.0f, 0.0f});
-}
 void Game::initCamera(Position position)
 {
     Entity camera = registry_.createEntity();
@@ -129,33 +123,12 @@ void Game::initCamera(Position position)
 
 void Game::initPlayer(CharacterType characterType)
 {
-    Entity player = registry_.createEntity();
-    registry_.addComponent<PlayerTag>(player, {});
-    Animation playerAnimation;
     PlayerStats playerStats;
+    Position position = {100.0f, 100.0f};
 
     const controller::PlayerClassConfig &classConfig = getClassConfig(config_.playerClasses, characterType);
     applyClassStats(classConfig, playerStats);
-
-    if (characterType == CharacterType::Melee) {
-        playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePath};
-    } else {
-        playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePath};
-    }
-
-    applyAnimationOverwrite(classConfig.attack.animationOverwrite, playerAnimation.attackTexturePath,
-                            playerAnimation.attackFrameDuration, playerAnimation.attackTotalFrames,
-                            playerAnimation.attackMoveSpeedMultiplier);
-    applyAnimationOverwrite(classConfig.deathOverwrite, playerAnimation.deathTexturePath,
-                            playerAnimation.deathFrameDuration, playerAnimation.deathTotalFrames,
-                            playerAnimation.deathMoveSpeedMultiplier);
-
-    registry_.addComponent<PlayerStats>(player, playerStats);
-
-    registry_.addComponent<Position>(player, {100.0f, 100.0f});
-    registry_.addComponent<Velocity>(player, {0.0f, 0.0f});
-    registry_.addComponent<Animation>(player, playerAnimation);
-    registry_.addComponent<view::Sprite>(player, {.imagePath = playerAnimation.baseTexturePath + "right_1.png"});
+    initPlayer(position, playerStats);
 }
 
 void Game::initPlayer(Position position, PlayerStats playerStats)

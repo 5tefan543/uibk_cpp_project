@@ -101,7 +101,7 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
     Position playerPosition = registry.getComponent<Position>(playerEntity);
     Direction attackDirection = input.mouseGridX >= playerPosition.x ? Direction::Right : Direction::Left;
 
-    float attackDurationSec;
+    float attackDurationSec = 0.32f;
     if (registry.hasComponent<Animation>(playerEntity)) {
         Animation &playerAnimation = registry.getComponent<Animation>(playerEntity);
         playerAnimation.overrideState = AnimationOverrideState::Attack;
