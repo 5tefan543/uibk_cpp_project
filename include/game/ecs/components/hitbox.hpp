@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shapes/rectangle.hpp"
+#include "geometry/rectangle.hpp"
 
 namespace game {
 struct HitBox {

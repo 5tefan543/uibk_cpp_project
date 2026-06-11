@@ -361,10 +361,10 @@ void Game::updateView(view::View &view)
         for (auto entity : registry_.view<Position, HitBox>()) {
             const HitBox &hitbox = registry_.getComponent<HitBox>(entity);
             view::Rectangle hitboxRect = {
-                .width = hitbox.rect.width,
-                .height = hitbox.rect.height,
-                .gridX = hitbox.rect.x,
-                .gridY = hitbox.rect.y,
+                .width = hitbox.rect.size.x,
+                .height = hitbox.rect.size.y,
+                .gridX = hitbox.rect.position.x,
+                .gridY = hitbox.rect.position.y,
                 .borderColor = {255, 0, 0},
                 .thickness = 6.0f,
 

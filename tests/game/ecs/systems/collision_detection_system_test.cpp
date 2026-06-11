@@ -26,10 +26,10 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem initializes hitboxes on 
 
     REQUIRE(registry.hasComponent<game::HitBox>(entity));
     const auto &hitBox = registry.getComponent<game::HitBox>(entity);
-    REQUIRE(hitBox.rect.x == 3.0f);
-    REQUIRE(hitBox.rect.y == 7.0f);
-    REQUIRE(hitBox.rect.width == 16.0f);
-    REQUIRE(hitBox.rect.height == 20.0f);
+    REQUIRE(hitBox.rect.position.x == 3.0f);
+    REQUIRE(hitBox.rect.position.y == 7.0f);
+    REQUIRE(hitBox.rect.size.x == 16.0f);
+    REQUIRE(hitBox.rect.size.y == 20.0f);
 }
 
 TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does nothing when entity has no Position")
@@ -38,15 +38,15 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does nothing when
     game::CollisionDetectionSystem system;
 
     game::Entity entity = registry.createEntity();
-    registry.addComponent<game::HitBox>(entity, {.rect = {1.0f, 2.0f, 3.0f, 4.0f}});
+    registry.addComponent<game::HitBox>(entity, {.rect = {{1.0f, 2.0f}, {3.0f, 4.0f}}});
 
     system.update(registry, 1);
 
     const auto &hitBox = registry.getComponent<game::HitBox>(entity);
-    REQUIRE(hitBox.rect.x == 1.0f);
-    REQUIRE(hitBox.rect.y == 2.0f);
-    REQUIRE(hitBox.rect.width == 3.0f);
-    REQUIRE(hitBox.rect.height == 4.0f);
+    REQUIRE(hitBox.rect.position.x == 1.0f);
+    REQUIRE(hitBox.rect.position.y == 2.0f);
+    REQUIRE(hitBox.rect.size.x == 3.0f);
+    REQUIRE(hitBox.rect.size.y == 4.0f);
 }
 
 TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not update when entity has no hitbox")
@@ -178,10 +178,10 @@ TEST_CASE_METHOD(TestFixture, "Hitboxes are re-initialized when wave changes")
 
     REQUIRE(registry.hasComponent<game::HitBox>(entity));
     const auto &hitBox = registry.getComponent<game::HitBox>(entity);
-    REQUIRE(hitBox.rect.x == 3.0f);
-    REQUIRE(hitBox.rect.y == 7.0f);
-    REQUIRE(hitBox.rect.width == 16.0f);
-    REQUIRE(hitBox.rect.height == 20.0f);
+    REQUIRE(hitBox.rect.position.x == 3.0f);
+    REQUIRE(hitBox.rect.position.y == 7.0f);
+    REQUIRE(hitBox.rect.size.x == 16.0f);
+    REQUIRE(hitBox.rect.size.y == 20.0f);
 
     game::Entity entity2 = registry.createEntity();
     registry.addComponent<game::Position>(entity2, {10.0f, 20.0f});
@@ -190,10 +190,10 @@ TEST_CASE_METHOD(TestFixture, "Hitboxes are re-initialized when wave changes")
     system.update(registry, 2);
     REQUIRE(registry.hasComponent<game::HitBox>(entity2));
     const auto &hitBox2 = registry.getComponent<game::HitBox>(entity2);
-    REQUIRE(hitBox2.rect.x == 10.0f);
-    REQUIRE(hitBox2.rect.y == 20.0f);
-    REQUIRE(hitBox2.rect.width == 16.0f);
-    REQUIRE(hitBox2.rect.height == 20.0f);
+    REQUIRE(hitBox2.rect.position.x == 10.0f);
+    REQUIRE(hitBox2.rect.position.y == 20.0f);
+    REQUIRE(hitBox2.rect.size.x == 16.0f);
+    REQUIRE(hitBox2.rect.size.y == 20.0f);
 }
 
 TEST_CASE_METHOD(TestFixture, "Hitboxes are not re-initialized when wave does not change")
@@ -209,10 +209,10 @@ TEST_CASE_METHOD(TestFixture, "Hitboxes are not re-initialized when wave does no
 
     REQUIRE(registry.hasComponent<game::HitBox>(entity));
     const auto &hitBox = registry.getComponent<game::HitBox>(entity);
-    REQUIRE(hitBox.rect.x == 3.0f);
-    REQUIRE(hitBox.rect.y == 7.0f);
-    REQUIRE(hitBox.rect.width == 16.0f);
-    REQUIRE(hitBox.rect.height == 20.0f);
+    REQUIRE(hitBox.rect.position.x == 3.0f);
+    REQUIRE(hitBox.rect.position.y == 7.0f);
+    REQUIRE(hitBox.rect.size.x == 16.0f);
+    REQUIRE(hitBox.rect.size.y == 20.0f);
 
     game::Entity entity2 = registry.createEntity();
     registry.addComponent<game::Position>(entity2, {10.0f, 20.0f});

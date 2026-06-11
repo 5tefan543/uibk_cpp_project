@@ -26,8 +26,8 @@ void CollisionDetectionSystem::updateHitBoxPosition(const Entity &entity, Regist
     HitBox &hitBox = registry.getComponent<HitBox>(entity);
     Position &position = registry.getComponent<Position>(entity);
 
-    hitBox.rect.x = position.x;
-    hitBox.rect.y = position.y;
+    hitBox.rect.position.x = position.x;
+    hitBox.rect.position.y = position.y;
 }
 
 bool CollisionDetectionSystem::checkCollision(const Entity &entityA, const Entity &entityB, Registry &registry)
@@ -71,7 +71,7 @@ void CollisionDetectionSystem::initializeHitBoxes(Registry &registry)
         Position &position = registry.getComponent<Position>(entitiesWithHitBoxes[i]);
         registry.addComponent<HitBox>(entitiesWithHitBoxes[i],
                                       {
-                                          .rect = {position.x, position.y, sprite.width, sprite.height},
+                                          .rect = {{position.x, position.y}, {sprite.width, sprite.height}},
                                       });
     }
 }
@@ -128,11 +128,11 @@ void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &r
     }
 
     const HitBox &mapHitBox = registry.getComponent<HitBox>(mapEntities[0]);
-    Rectangle<float> entityRect{position.x, position.y, hitBox.rect.width, hitBox.rect.height};
+    Rectangle<float> entityRect{{position.x, position.y}, {hitBox.rect.size.x, hitBox.rect.size.y}};
     entityRect.snapBack(mapHitBox.rect);
 
-    position.x = entityRect.x;
-    position.y = entityRect.y;
+    position.x = entityRect.position.x;
+    position.y = entityRect.position.y;
 }
 
 void CollisionDetectionSystem::update(Registry &registry, int wave)
