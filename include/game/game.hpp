@@ -58,7 +58,6 @@ class Game {
     void initMap();
     void switchMap();
     void cleanup();
-    void initCamera();
     void initCamera(Position position);
     void initPlayer(CharacterType characterType);
     void initPlayer(Position position, PlayerStats playerStats);

@@ -74,11 +74,11 @@ Game::Game(CharacterType characterType) : Game(1, characterType)
     logger::log(logger::DEBUG, "New game constructed");
 }
 
-Game::Game(const PersistedGame &persistedGame) :
+Game::Game(const PersistedGame &persistedGame)
+    : config_(controller::PersistenceManager::getConfig()), locationTable_(config_.locTabNumBuckets, config_.mapSize)
 {
     logger::log(logger::DEBUG, "Game constructed from persisted game");
 
-    config_ = controller::PersistenceManager::getConfig();
     initMap();
     initCamera(persistedGame.position);
     initPlayer(persistedGame.position, persistedGame.playerStats);

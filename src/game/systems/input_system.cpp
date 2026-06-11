@@ -3,6 +3,7 @@
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
@@ -77,8 +78,8 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
                         .height = attackProfile.projectile.spriteHeight};
     HitBox hitBox{.rect = {sprite.x, sprite.y, sprite.width, sprite.height}};
     float angle = std::atan2(input.mouseGridY - position.y, input.mouseGridX - position.x);
-    Velocity velocity{.dx = stats.speedOfAttack * attackProfile.projectile.velocityScale * std::cos(angle),
-                      .dy = stats.speedOfAttack * attackProfile.projectile.velocityScale * std::sin(angle)};
+    Velocity velocity{.x = stats.speedOfAttack * attackProfile.projectile.velocityScale * std::cos(angle),
+                      .y = stats.speedOfAttack * attackProfile.projectile.velocityScale * std::sin(angle)};
     registry.addComponent<Damage>(attackEntity, damageComponent);
     registry.addComponent<view::Sprite>(attackEntity, sprite);
     registry.addComponent<Position>(attackEntity, position);
@@ -189,8 +190,8 @@ void InputSystem::update(Registry &registry, const controller::GameConfig &confi
         if (registry.hasComponent<Animation>(entity)) {
             const Animation &animation = registry.getComponent<Animation>(entity);
             if (animation.overrideState == AnimationOverrideState::Attack) {
-                velocity.dx *= animation.attackMoveSpeedMultiplier;
-                velocity.dy *= animation.attackMoveSpeedMultiplier;
+                velocity.x *= animation.attackMoveSpeedMultiplier;
+                velocity.y *= animation.attackMoveSpeedMultiplier;
             }
         }
     }

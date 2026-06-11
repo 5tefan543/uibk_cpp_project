@@ -216,8 +216,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem ranged attack spawns projectile with 
     REQUIRE(projectileParams->maxTargets == 1);
 
     const auto &velocity = registry.getComponent<game::Velocity>(projectile);
-    REQUIRE(std::abs(velocity.dx + 26.843f) < 0.001f);
-    REQUIRE(std::abs(velocity.dy - 42.183f) < 0.001f);
+    REQUIRE(std::abs(velocity.x + 26.843f) < 0.001f);
+    REQUIRE(std::abs(velocity.y - 42.183f) < 0.001f);
 }
 
 TEST_CASE_METHOD(TestFixture, "InputSystem attack cooldown is strict on boundary and blocks rapid second attack")
