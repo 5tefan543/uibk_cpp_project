@@ -308,8 +308,6 @@ std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
     return std::unique_ptr<GameplayState>(new GameplayState(game::CharacterType::Melee));
 }
 
-GameplayState::GameplayState() : game() {}
-
 GameplayState::GameplayState(const game::CharacterType characterType) : game(characterType) {}
 
 GameplayState::GameplayState(const game::PersistedGame &persistedGame) : game(persistedGame)

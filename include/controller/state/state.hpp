@@ -47,7 +47,6 @@ class MenuState : public BaseState {
 class GameplayState : public BaseState {
     bool loadedFromSave_ = false;
 
-    GameplayState();
     explicit GameplayState(game::CharacterType characterType);
     explicit GameplayState(const game::PersistedGame &persistedGame);
 

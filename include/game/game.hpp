@@ -70,7 +70,7 @@ class Game {
   public:
     Game();
     explicit Game(CharacterType characterType);
-    Game(const PersistedGame &persistedGame);
+    explicit Game(const PersistedGame &persistedGame);
     Game(const Game &) = delete;
     Game(Game &&) = delete;
     ~Game();
