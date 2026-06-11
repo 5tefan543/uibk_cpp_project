@@ -21,6 +21,7 @@ class Renderer {
     void renderElement(sf::RenderWindow &window, const view::Text &text);
     void renderElement(sf::RenderWindow &window, const view::Sprite &sprite);
     void renderElement(sf::RenderWindow &window, const view::Rectangle &rectangle);
+    void renderDebugLocationTable(sf::RenderWindow &window);
 
   public:
     Renderer();
@@ -29,6 +30,7 @@ class Renderer {
     void renderViewElement(sf::RenderWindow &window, const view::ViewElement &element);
     void renderViewElements(sf::RenderWindow &window, const std::vector<view::ViewElement> &elements);
     sf::Color toSfColor(const view::Color &color);
+    void renderDebugContext(sf::RenderWindow &window);
 };
 
 } // namespace ui

@@ -1,20 +1,20 @@
 #include "ui/input_handler.hpp"
 #include "controller/input/input_state.hpp"
+#include "logging/log.hpp"
 #include <SFML/Graphics.hpp>
 #include <imgui-SFML.h>
 #include <imgui.h>
-#include <iostream>
 
 namespace ui {
 
 InputHandler::InputHandler()
 {
-    std::cout << "InputHandler constructed" << std::endl;
+    logger::log(logger::DEBUG, "InputHandler constructed");
 }
 
 InputHandler::~InputHandler()
 {
-    std::cout << "InputHandler destructed" << std::endl;
+    logger::log(logger::DEBUG, "InputHandler destructed");
 }
 
 controller::InputState InputHandler::pollInput(sf::RenderWindow &window)

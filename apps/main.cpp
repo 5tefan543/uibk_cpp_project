@@ -1,11 +1,11 @@
 #include "controller/controller.hpp"
+#include "logging/log.hpp"
 #include "ui/ui.hpp"
 #include "view/view.hpp"
 #include <atomic>
 #include <csignal>
 #include <cstdlib>
 #include <exception>
-#include <iostream>
 
 std::atomic<bool> shutdownRequested(false);
 
@@ -40,7 +40,7 @@ int main()
         }
         return EXIT_SUCCESS;
     } catch (const std::exception &e) {
-        std::cerr << "Fatal error: " << e.what() << std::endl;
+        logger::log(logger::ERROR, std::format("Fatal error: {}", e.what()));
         return EXIT_FAILURE;
     }
 }

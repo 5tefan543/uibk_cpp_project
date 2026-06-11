@@ -3,10 +3,10 @@
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
-#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
+#include "game/location_table.hpp"
 #include "view/sprite.hpp"
 #include <cmath>
 #include <iostream>
@@ -151,21 +151,23 @@ void InputSystem::update(Registry &registry, const controller::GameConfig &confi
         PlayerStats &playerStats = registry.getComponent<PlayerStats>(entity);
         const controller::AttackProfileConfig &attackProfile = getAttackProfile(config, playerStats.characterType);
 
-        velocity.dx = 0.0F;
-        velocity.dy = 0.0F;
+        Vec2<float> v = {0, 0};
 
         if (input.leftHeld) {
-            velocity.dx -= playerStats.moveSpeed;
+            v.x -= playerStats.moveSpeed;
         }
         if (input.rightHeld) {
-            velocity.dx += playerStats.moveSpeed;
+            v.x += playerStats.moveSpeed;
         }
         if (input.upHeld) {
-            velocity.dy -= playerStats.moveSpeed;
+            v.y -= playerStats.moveSpeed;
         }
         if (input.downHeld) {
-            velocity.dy += playerStats.moveSpeed;
+            v.y += playerStats.moveSpeed;
         }
+        v.setLength(playerStats.moveSpeed);
+        velocity.x = v.x;
+        velocity.y = v.y; // TODO: into Vec2
 
         if (input.mouseLeftPressed) {
             if (attackProfile.kind == DamageKind::MeleeArc) {

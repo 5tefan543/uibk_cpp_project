@@ -61,12 +61,11 @@ SpawnEnemySystem::SpawnContext SpawnEnemySystem::createSpawnContext(Registry &re
     const Entity map = mapEntities.front();
     const Entity player = playerEntities.front();
 
-    return SpawnContext{
-        .mapSprite = registry.getComponent<view::Sprite>(map),
-        .playerPosition = registry.getComponent<Position>(player),
-        .playerSprite = registry.getComponent<view::Sprite>(player),
-        .playerStats = registry.getComponent<PlayerStats>(player),
-    };
+    return SpawnContext{.mapSprite = registry.getComponent<view::Sprite>(map),
+                        .playerPosition = registry.getComponent<Position>(player),
+                        .playerSprite = registry.getComponent<view::Sprite>(player),
+                        .playerStats = registry.getComponent<PlayerStats>(player),
+                        .spawnID = 0};
 }
 
 void SpawnEnemySystem::clearEnemies(Registry &registry)

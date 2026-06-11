@@ -25,6 +25,13 @@ find_package(ImGui-SFML CONFIG REQUIRED)
 
 find_package(glaze CONFIG REQUIRED)
 
+# Loggin library
+add_library(roguelike_logger
+  src/logging/log.cpp
+)
+roguelike_cxx_flags(roguelike_logger)
+target_include_directories(roguelike_logger PUBLIC include)
+
 # Game library
 add_library(roguelike_game
   src/game/game.cpp
@@ -36,6 +43,8 @@ add_library(roguelike_game
   src/game/systems/spawn_enemy_system.cpp
   src/game/systems/collision_detection_system.cpp
   src/game/systems/damage_system.cpp
+  src/game/systems/enemy_ai_system.cpp
+  src/game/location_table.cpp
 )
 
 roguelike_cxx_flags(roguelike_game)
@@ -54,6 +63,7 @@ target_include_directories(roguelike_controller PUBLIC include)
 target_link_libraries(roguelike_controller
   PUBLIC
     roguelike_game
+    roguelike_logger
     glaze::glaze
 )
 
@@ -72,6 +82,7 @@ target_link_libraries(roguelike_ui
     SFML::Graphics
     SFML::Audio
     roguelike_controller
+    roguelike_logger
     ImGui-SFML::ImGui-SFML
 )
 
@@ -86,6 +97,7 @@ target_link_libraries(roguelike_app
   PRIVATE
     roguelike_controller
     roguelike_ui
+    roguelike_logger
 )
 
 add_custom_command(TARGET roguelike_app POST_BUILD
@@ -121,6 +133,10 @@ add_executable(roguelike_test_runner
   tests/game/ecs/systems/debug_selection_system_test.cpp
   tests/game/ecs/systems/collision_detection_system_test.cpp
   tests/game/ecs/systems/damage_system_test.cpp
+  tests/game/ecs/systems/enemy_ai_system_test.cpp
+  tests/game/location_table_test.cpp
+  tests/geometry/vector_test.cpp
+  tests/logging/log_test.cpp
 )
 
 roguelike_cxx_flags(roguelike_test_runner)
@@ -129,6 +145,7 @@ target_link_libraries(roguelike_test_runner
   PRIVATE
     roguelike_game
     roguelike_controller
+    roguelike_logger
     Catch2::Catch2WithMain
 )
 

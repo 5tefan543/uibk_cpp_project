@@ -18,6 +18,7 @@ class SpawnEnemySystem {
         Position playerPosition;
         view::Sprite playerSprite;
         PlayerStats playerStats;
+        int spawnID;
     };
 
     SpawnContext createSpawnContext(Registry &registry) const;

@@ -1,19 +1,19 @@
 #include "ui/debug_ui.hpp"
 #include "controller/persistence/persistence_manager.hpp"
+#include "logging/log.hpp"
 #include <imgui.h>
-#include <iostream>
 #include <vector>
 
 namespace ui {
 
 DebugUI::DebugUI()
 {
-    std::cout << "DebugUI constructed" << std::endl;
+    logger::log(logger::DEBUG, "DebugUI constructed");
 }
 
 DebugUI::~DebugUI()
 {
-    std::cout << "DebugUI destructed" << std::endl;
+    logger::log(logger::DEBUG, "DebugUI destructed");
 }
 
 void DebugUI::render(const controller::InputState &input, float fps)
@@ -54,6 +54,7 @@ void DebugUI::renderGameSettings(controller::DebugContext &debug)
 
         ImGui::SeparatorText("Collision");
         ImGui::Checkbox("Show Hitboxes", &debug.gameSettings.showHitboxes);
+        ImGui::Checkbox("Show Location Table", &debug.gameSettings.showLocationTable);
     }
 }
 
@@ -250,8 +251,8 @@ void DebugUI::renderComponent(game::Velocity &c)
     ImGui::PushID("VelocityComponent");
 
     ImGui::SeparatorText("Velocity");
-    ImGui::InputFloat("dx", &c.dx);
-    ImGui::InputFloat("dy", &c.dy);
+    ImGui::InputFloat("dx", &c.x);
+    ImGui::InputFloat("dy", &c.y);
 
     ImGui::PopID();
 }

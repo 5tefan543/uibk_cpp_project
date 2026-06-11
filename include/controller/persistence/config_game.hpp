@@ -1,6 +1,7 @@
 #pragma once
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/stats.hpp"
+#include "geometry/vector.hpp"
 #include <string>
 #include <vector>
 
@@ -146,6 +147,8 @@ struct GameConfig {
     AssetConfig assetConfig;
     PlayerClassConfigs playerClasses;
     EnemyConfig enemyConfig;
+    Vec2<unsigned> locTabNumBuckets;
+    Vec2<float> mapSize;
 };
 
 } // namespace controller

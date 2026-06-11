@@ -2,7 +2,6 @@
 #include "controller/persistence/serializer.hpp"
 #include <algorithm>
 #include <filesystem>
-#include <iostream>
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -36,7 +35,7 @@ void PersistenceManager::deleteSave()
     std::error_code ec;
     fs::remove(Serializer::saveFilePath, ec);
     if (ec) {
-        std::cerr << "Failed to delete save file: " << Serializer::saveFilePath << std::endl;
+        logger::log(logger::DEBUG, std::format("Failed to delete save file: {}", Serializer::saveFilePath.string()));
     }
 }
 

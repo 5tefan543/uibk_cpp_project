@@ -3,6 +3,7 @@
 #include "game/persisted_game.hpp"
 #include "glaze_meta.hpp"
 #include "leaderboard.hpp"
+#include "logging/log.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -28,7 +29,8 @@ class Serializer {
     {
         std::string json;
         if (const auto err = glz::write_json(value, json)) {
-            std::cerr << "Failed to serialize JSON for " << path << ": " << glz::format_error(err, json) << '\n';
+            logger::log(logger::ERROR, std::format("Failed to serialize JSON for {}: {}", path.string(),
+                                                   glz::format_error(err, json)));
             return false;
         }
 
@@ -38,21 +40,22 @@ class Serializer {
             std::filesystem::create_directories(parentPath, ec);
 
             if (ec) {
-                std::cerr << "Failed to create directories for " << path << ": " << ec.message() << '\n';
+                logger::log(logger::ERROR,
+                            std::format("Failed to create directories for {}: {}", path.string(), ec.message()));
                 return false;
             }
         }
 
         std::ofstream out(path);
         if (!out) {
-            std::cerr << "Failed to open file for writing: " << path << std::endl;
+            logger::log(logger::ERROR, std::format("Failed to open file for writing: {}", path.string()));
             return false;
         }
 
         out << json;
 
         if (!out) {
-            std::cerr << "Failed to write JSON to file: " << path << '\n';
+            logger::log(logger::ERROR, std::format("Failed to write JSON to file: {}", path.string()));
             return false;
         }
         return true;
@@ -70,8 +73,8 @@ class Serializer {
         buffer << in.rdbuf();
 
         if (const auto err = glz::read_json(value, buffer.str())) {
-            std::cerr << "Failed to deserialize JSON for " << path << ": " << glz::format_error(err, buffer.str())
-                      << '\n';
+            logger::log(logger::ERROR, std::format("Failed to deserialize JSON for {}: {}", path.string(),
+                                                   glz::format_error(err, buffer.str())));
             return false;
         }
 

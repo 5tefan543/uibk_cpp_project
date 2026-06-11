@@ -234,6 +234,13 @@
                 "scoreReward": 4
             }
         ]
+    },
+    "locTabNumBuckets": {
+        "x": 20,
+        "y": 20
+    },
+    "mapSize": {
+        "x": 3840.0,
+        "y": 2160.0
     }
-
 }

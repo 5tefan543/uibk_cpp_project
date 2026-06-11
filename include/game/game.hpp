@@ -9,9 +9,11 @@
 #include "game/ecs/systems/collision_detection_system.hpp"
 #include "game/ecs/systems/damage_system.hpp"
 #include "game/ecs/systems/debug_selection_system.hpp"
+#include "game/ecs/systems/enemy_ai_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
 #include "game/ecs/systems/spawn_enemy_system.hpp"
+#include "game/location_table.hpp"
 #include "game/persisted_game.hpp"
 #include "view/view.hpp"
 
@@ -20,8 +22,9 @@ namespace game {
 class Game {
   private:
     Registry registry_;
-    GameDebugSession debugSession_{registry_};
     controller::GameConfig config_;
+    LocationTable locationTable_;
+    GameDebugSession debugSession_{registry_, locationTable_};
     float currentWaveDuration_;
 
     AnimationSystem animationSystem_;
@@ -29,6 +32,7 @@ class Game {
     InputSystem inputSystem_;
     MovementSystem movementSystem_;
     DebugSelectionSystem debugSelectionSystem_;
+    EnemyAI enemyAI_;
     SpawnEnemySystem spawnEnemySystem_;
     CollisionDetectionSystem collisionDetectionSystem_;
     DamageSystem damageSystem_;

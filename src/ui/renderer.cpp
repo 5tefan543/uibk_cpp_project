@@ -1,7 +1,8 @@
 #include "ui/renderer.hpp"
+#include "controller/debug/debug_context.hpp"
 #include "controller/persistence/persistence_manager.hpp"
+#include "logging/log.hpp"
 #include <SFML/Graphics.hpp>
-#include <iostream>
 
 namespace ui {
 
@@ -9,12 +10,12 @@ Renderer::Renderer()
 {
     // Load all fonts from disk once upon instantiation
     fonts_ = std::vector<sf::Font>({sf::Font(controller::PersistenceManager::getConfig().assetConfig.fontPath)});
-    std::cout << "Renderer constructed" << std::endl;
+    logger::log(logger::DEBUG, "Renderer constructed");
 }
 
 Renderer::~Renderer()
 {
-    std::cout << "Renderer destructed" << std::endl;
+    logger::log(logger::DEBUG, "Renderer destructed");
 }
 
 sf::Color Renderer::toSfColor(const view::Color &color)
@@ -49,8 +50,7 @@ sf::Texture &Renderer::getTexture(const std::string &imagePath)
         if (texturePath == fallbackTexturePath) {
             throw std::runtime_error("Failed to load fallback texture: " + fallbackTexturePath);
         }
-
-        std::cerr << "Failed to load texture: " << texturePath << ". Using fallback texture.\n";
+        logger::log(logger::ERROR, std::format("Failed to load texture: {}. Using fallback texture.", texturePath));
 
         return getTexture(fallbackTexturePath);
     }
@@ -143,6 +143,42 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Sprite &sprit
         selectionBox.setOutlineThickness(2.0f);
         window.draw(selectionBox);
     }
+}
+
+void Renderer::renderDebugLocationTable(sf::RenderWindow &window)
+{
+    auto &context = controller::DebugContext::get();
+    if (!context.gameSettings.showLocationTable || context.gameSession == nullptr) {
+        return;
+    }
+    game::LocationTable &lt = context.gameSession->locationTable;
+    for (unsigned y = 0; y < lt.numBuckets.y; y++) {
+        for (unsigned x = 0; x < lt.numBuckets.x; x++) {
+            sf::RectangleShape bucket;
+            bucket.setPosition({(x * lt.bucketSize.x), (y * lt.bucketSize.y)});
+            bucket.setSize({lt.bucketSize.x, lt.bucketSize.y});
+            bucket.setOutlineColor(sf::Color::Blue);
+            bucket.setFillColor(sf::Color::Transparent);
+            bucket.setOutlineThickness(1.0f);
+            window.draw(bucket);
+
+            sf::Text t(toSfFont(view::Font::Default), std::format("{}", lt.cgetBucket(x, y).size()));
+            t.setOrigin(t.getLocalBounds().getCenter());
+            t.setPosition({bucket.getPosition() + bucket.getGeometricCenter()});
+            t.setFillColor(sf::Color::Black);
+            const float twscale = lt.bucketSize.x / t.getLocalBounds().size.x;
+            const float thscale = lt.bucketSize.y / t.getLocalBounds().size.y;
+            const auto tscale = std::min(twscale * 0.7f, thscale * 0.7f);
+            t.setScale({tscale, tscale});
+            window.draw(t);
+        }
+    }
+}
+
+void Renderer::renderDebugContext(sf::RenderWindow &window)
+{
+    renderDebugLocationTable(window);
+    // Add more debug related rendering here if required
 }
 
 } // namespace ui
