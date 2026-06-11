@@ -25,7 +25,7 @@ class BaseState {
     virtual std::string toString() const = 0;
 };
 
-enum class MenuType { MainMenu, PauseMenu, GameOverMenu };
+enum class MenuType { MainMenu, PauseMenu, GameOverMenu, CharacterSelection };
 
 class MenuState : public BaseState {
     std::deque<view::Button> buttons_;
@@ -47,13 +47,13 @@ class MenuState : public BaseState {
 class GameplayState : public BaseState {
     bool loadedFromSave_ = false;
 
-    GameplayState();
-    explicit GameplayState(const PersistedGame &persistedGame);
+    explicit GameplayState(game::CharacterType characterType);
+    explicit GameplayState(const game::PersistedGame &persistedGame);
 
   public:
     game::Game game;
 
-    static std::unique_ptr<GameplayState> createNewGameplay();
+    static std::unique_ptr<GameplayState> createNewGameplay(game::CharacterType characterType);
     static std::unique_ptr<GameplayState> createLoadedGameplay();
     bool isLoadedFromPersistedGame() const;
 

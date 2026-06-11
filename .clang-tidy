@@ -48,9 +48,9 @@ CheckOptions:
   # Member Variables
   # =========================
 
-  # Enforce naming for ALL member variables (class + struct, all visibilities).
+  # Enforce naming for PUBLIC member variables (class + struct).
   # Example: int selectedButtonIndex;
-  - key: readability-identifier-naming.MemberCase
+  - key: readability-identifier-naming.PublicMemberCase
     value: camelBack
 
   # Enforce trailing "_" ONLY for private and protected class members.

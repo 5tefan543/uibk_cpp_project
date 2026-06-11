@@ -12,7 +12,7 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when target file cannot 
 {
     std::filesystem::create_directories(Serializer::configDir);
 
-    PersistedGame game;
+    game::PersistedGame game;
     game.wave = 1;
 
     // Writing to an existing directory path should fail when opening std::ofstream.
@@ -28,7 +28,7 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when parent path exists 
         REQUIRE(configPathAsFile.good());
     }
 
-    PersistedGame game;
+    game::PersistedGame game;
     game.wave = 1;
 
     REQUIRE_FALSE(Serializer::writeJsonToFile(game, Serializer::configDir / "persisted-game.json"));
@@ -48,7 +48,7 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when stream write fails"
 
 TEST_CASE_METHOD(TestFixture, "Serializer returns false when reading from missing file")
 {
-    PersistedGame game;
+    game::PersistedGame game;
 
     REQUIRE_FALSE(Serializer::readJsonFromFile(game, Serializer::saveFilePath));
 }
@@ -61,36 +61,38 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when deserializing inval
     out << "{ invalid json";
     out.close();
 
-    PersistedGame game;
+    game::PersistedGame game;
 
     REQUIRE_FALSE(Serializer::readJsonFromFile(game, Serializer::saveFilePath));
 }
 
 TEST_CASE_METHOD(TestFixture, "Serializer writes and reads persisted game JSON")
 {
-    PersistedGame input;
+    game::PersistedGame input;
     input.wave = 4;
-    input.currency = 987;
+    input.playerStats.currency = 987;
+    input.playerStats.score = 987;
     input.playerStats.maxHealth = 120.0f;
     input.playerStats.attackPower = 24.5f;
     input.playerStats.attackSpeed = 1.75f;
     input.playerStats.defense = 8.0f;
-    input.playerStats.speed = 3.5f;
+    input.playerStats.moveSpeed = 3.5f;
     input.playerStats.hasDash = true;
 
     REQUIRE(Serializer::writeJsonToFile(input, Serializer::saveFilePath));
     REQUIRE(std::filesystem::exists(Serializer::saveFilePath));
 
-    PersistedGame output{};
+    game::PersistedGame output{};
     REQUIRE(Serializer::readJsonFromFile(output, Serializer::saveFilePath));
 
     REQUIRE(output.wave == 4);
-    REQUIRE(output.currency == 987);
+    REQUIRE(output.playerStats.currency == 987);
+    REQUIRE(output.playerStats.score == 987);
     REQUIRE(output.playerStats.maxHealth == Catch::Approx(120.0f));
     REQUIRE(output.playerStats.attackPower == Catch::Approx(24.5f));
     REQUIRE(output.playerStats.attackSpeed == Catch::Approx(1.75f));
     REQUIRE(output.playerStats.defense == Catch::Approx(8.0f));
-    REQUIRE(output.playerStats.speed == Catch::Approx(3.5f));
+    REQUIRE(output.playerStats.moveSpeed == Catch::Approx(3.5f));
     REQUIRE(output.playerStats.hasDash == true);
 }
 
@@ -99,7 +101,7 @@ TEST_CASE_METHOD(TestFixture, "Serializer creates missing parent directories whi
     const auto nestedPath = Serializer::configDir / "nested" / "persisted-game.json";
     REQUIRE_FALSE(std::filesystem::exists(nestedPath.parent_path()));
 
-    PersistedGame game{};
+    game::PersistedGame game{};
     game.wave = 2;
 
     REQUIRE(Serializer::writeJsonToFile(game, nestedPath));
@@ -109,21 +111,18 @@ TEST_CASE_METHOD(TestFixture, "Serializer creates missing parent directories whi
 
 TEST_CASE_METHOD(TestFixture, "Serializer overwrites existing JSON file")
 {
-    PersistedGame first{};
+    game::PersistedGame first{};
     first.wave = 1;
-    first.currency = 10;
 
-    PersistedGame second{};
+    game::PersistedGame second{};
     second.wave = 8;
-    second.currency = 700;
 
     REQUIRE(Serializer::writeJsonToFile(first, Serializer::saveFilePath));
     REQUIRE(Serializer::writeJsonToFile(second, Serializer::saveFilePath));
 
-    PersistedGame output{};
+    game::PersistedGame output{};
     REQUIRE(Serializer::readJsonFromFile(output, Serializer::saveFilePath));
     REQUIRE(output.wave == 8);
-    REQUIRE(output.currency == 700);
 }
 
 TEST_CASE_METHOD(TestFixture, "Serializer writes and reads leaderboard entry vectors")

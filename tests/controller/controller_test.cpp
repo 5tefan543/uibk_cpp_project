@@ -35,7 +35,8 @@ TEST_CASE_METHOD(TestFixture, "Controller forwards state update result to state 
     InputState input;
     input.confirmPressed = true;
 
-    // ACT
+    // ACT twice to select the character and start gameplay
+    controller.update(input, dummyDeltaTime);
     controller.update(input, dummyDeltaTime);
 
     // ASSERT

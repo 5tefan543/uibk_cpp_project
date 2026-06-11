@@ -51,7 +51,7 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
         if (buttonPressed) {
             switch (selectedButtonId_) {
             case 0:
-                stateTransitionAction = StateTransitionAction::ReplaceCurrentWithGameplay;
+                stateTransitionAction = StateTransitionAction::ReplaceCurrentWithCharacterSelection;
                 break;
             case 1:
                 if (buttons_.size() == 3) {
@@ -62,6 +62,21 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
                 break;
             case 2:
                 stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
+                break;
+            }
+        }
+        break;
+    case MenuType::CharacterSelection:
+        if (input.downPressed || input.upPressed) {
+            selectedButtonId_ ^= 1;
+        }
+        if (buttonPressed) {
+            switch (selectedButtonId_) {
+            case 0:
+                stateTransitionAction = StateTransitionAction::StartNewGameMelee;
+                break;
+            case 1:
+                stateTransitionAction = StateTransitionAction::StartNewGameRanged;
                 break;
             }
         }
@@ -157,6 +172,38 @@ void MenuState::initView()
         view_.nodes.push_back({view::ViewMode::FixedToScreen, backgroundCard});
         break;
     }
+    case MenuType::CharacterSelection: {
+        // Placeholder for textured background
+        view::Card &backgroundCard = cards_.emplace_back(view::Card());
+        backgroundCard.gridX = 0;
+        backgroundCard.gridY = 0;
+        backgroundCard.width = view::gridWidth;
+        backgroundCard.height = view::gridHeight;
+
+        view::Card &mainMenuCard = cards_.emplace_back(view::Card());
+        mainMenuCard.backgroundColor = {50, 50, 50};
+
+        view::Text &title = texts_.emplace_back(view::Text());
+        title.gridY = (mainMenuCard.gridY + mainMenuCard.height / 10);
+        title.text = std::string("Choose your character!");
+
+        view::Button &meleeButton = buttons_.emplace_back(view::Button());
+        setCenterizedY(meleeButton, getCenterY(mainMenuCard) - meleeButton.height);
+        meleeButton.text.gridY = getCenterY(meleeButton);
+        meleeButton.text.text = std::string("Melee");
+
+        view::Button &rangedButton = buttons_.emplace_back(view::Button());
+        setCenterizedY(rangedButton, getCenterY(mainMenuCard) + rangedButton.height);
+        rangedButton.text.gridY = getCenterY(rangedButton);
+        rangedButton.text.text = std::string("Ranged");
+
+        mainMenuCard.elements.push_back(title);
+        mainMenuCard.elements.push_back(meleeButton);
+        mainMenuCard.elements.push_back(rangedButton);
+        backgroundCard.elements.push_back(mainMenuCard);
+        view_.nodes.push_back({view::ViewMode::FixedToScreen, backgroundCard});
+        break;
+    }
     case MenuType::PauseMenu: {
         // Placeholder for textured background
         view::Card &backgroundCard = cards_.emplace_back(view::Card());
@@ -231,6 +278,8 @@ std::string MenuState::toString() const
     switch (type) {
     case MenuType::MainMenu:
         return "MainMenu";
+    case MenuType::CharacterSelection:
+        return "CharacterSelection";
     case MenuType::PauseMenu:
         return "PauseMenu";
     case MenuType::GameOverMenu:
@@ -240,14 +289,14 @@ std::string MenuState::toString() const
     }
 }
 
-std::unique_ptr<GameplayState> GameplayState::createNewGameplay()
+std::unique_ptr<GameplayState> GameplayState::createNewGameplay(const game::CharacterType characterType)
 {
-    return std::unique_ptr<GameplayState>(new GameplayState());
+    return std::unique_ptr<GameplayState>(new GameplayState(characterType));
 }
 
 std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
 {
-    std::optional<PersistedGame> persistedGame = std::nullopt;
+    std::optional<game::PersistedGame> persistedGame = std::nullopt;
     if (PersistenceManager::hasSavedGame()) {
         persistedGame = PersistenceManager::loadGame();
     }
@@ -255,14 +304,13 @@ std::unique_ptr<GameplayState> GameplayState::createLoadedGameplay()
     if (persistedGame.has_value()) {
         return std::unique_ptr<GameplayState>(new GameplayState(persistedGame.value()));
     }
-    logger::log(logger::DEBUG, "No saved game found, starting new game instead.");
-
-    return createNewGameplay();
+    logger::log(logger::WARNING, "No saved game found, starting new game instead.");
+    return std::unique_ptr<GameplayState>(new GameplayState(game::CharacterType::Melee));
 }
 
-GameplayState::GameplayState() : game() {}
+GameplayState::GameplayState(const game::CharacterType characterType) : game(characterType) {}
 
-GameplayState::GameplayState(const PersistedGame &persistedGame) : game(persistedGame)
+GameplayState::GameplayState(const game::PersistedGame &persistedGame) : game(persistedGame)
 {
     loadedFromSave_ = true;
 }
