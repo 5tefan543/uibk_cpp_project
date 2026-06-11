@@ -78,6 +78,21 @@ target_include_directories(roguelike_ui PUBLIC include)
 target_link_libraries(roguelike_ui
   PUBLIC
     SFML::Graphics
+    roguelike_controller
+    roguelike_logger
+    ImGui-SFML::ImGui-SFML
+)
+
+#musicLibrary
+add_library(roguelike_audio
+  src/sound/audio_manager.cpp
+
+)
+
+roguelike_cxx_flags(roguelike_audio)
+target_include_directories(roguelike_audio PUBLIC include)
+target_link_libraries(roguelike_audio
+  PUBLIC
     SFML::Audio
     roguelike_controller
     roguelike_logger
@@ -96,6 +111,7 @@ target_link_libraries(roguelike_app
     roguelike_controller
     roguelike_ui
     roguelike_logger
+    roguelike_audio
 )
 
 add_custom_command(TARGET roguelike_app POST_BUILD
