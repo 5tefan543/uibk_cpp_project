@@ -251,3 +251,34 @@ TEST_CASE_METHOD(TestFixture, "InputSystem attack cooldown is strict on boundary
     system.update(registry, config, input, 0.2f);
     REQUIRE(registry.view<game::Damage>().size() == 1);
 }
+
+TEST_CASE_METHOD(TestFixture, "InputSystem melee attack cooldown blocks boundary and rapid follow up")
+{
+    game::Registry registry;
+    game::InputSystem system;
+
+    const game::Entity player = registry.createEntity();
+    game::PlayerStats playerStats;
+    playerStats.attackSpeed = 2.0f;
+    playerStats.attackRange = 80.0f;
+    playerStats.characterType = game::CharacterType::Melee;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+    registry.addComponent<game::Position>(player, {10.0f, 10.0f});
+    registry.addComponent<game::Velocity>(player, {0.0f, 0.0f});
+
+    controller::InputState input;
+    input.mouseLeftPressed = true;
+    input.mouseGridX = 100.0f;
+    input.mouseGridY = 10.0f;
+
+    const auto config = controller::PersistenceManager::getConfig();
+
+    system.update(registry, config, input, 0.5f);
+    REQUIRE(registry.view<game::Damage>().empty());
+
+    system.update(registry, config, input, 0.01f);
+    REQUIRE(registry.view<game::Damage>().size() == 1);
+
+    system.update(registry, config, input, 0.1f);
+    REQUIRE(registry.view<game::Damage>().size() == 1);
+}
