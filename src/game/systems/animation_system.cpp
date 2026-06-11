@@ -1,8 +1,8 @@
 #include "game/ecs/systems/animation_system.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
-#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/velocity.hpp"
+#include "geometry/vector.hpp"
 #include "view/sprite.hpp"
 
 #include <cmath>
@@ -16,10 +16,12 @@ void AnimationSystem::update(Registry &registry, float dt)
         const Velocity &velocity = registry.getComponent<Velocity>(entity);
         view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
 
-        bool isMoving = std::abs(velocity.dx) > 0.1f || std::abs(velocity.dy) > 0.1f;
-
-        if (std::abs(velocity.dx) > 0.1f) {
-            animation.direction = velocity.dx > 0 ? Direction::Right : Direction::Left;
+        const bool isMoving = std::abs(velocity.x) > 0.1f || std::abs(velocity.y) > 0.1f;
+        const bool isEnemy = registry.hasComponent<EnemyTag>(entity);
+        const auto v = Vec2{velocity.x, velocity.y}.abs(); // TODO: Velocity use Vec2
+        const bool isEnemyHorizMove = isEnemy && v.x >= v.y;
+        if ((isEnemyHorizMove || !isEnemy) && std::abs(velocity.x) > 0.1f) {
+            animation.direction = velocity.x > 0 ? Direction::Right : Direction::Left;
         }
 
         // Only update animation frame if moving
@@ -35,8 +37,8 @@ void AnimationSystem::update(Registry &registry, float dt)
         }
 
         // Update sprite image path based on current animation state
-        std::string directionStr = (animation.direction == Direction::Left) ? "left" : "right";
-        int frameNum = animation.currentFrame + 1; // Frames are 1-indexed in filenames
+        const std::string directionStr = (animation.direction == Direction::Left) ? "left" : "right";
+        const int frameNum = animation.currentFrame + 1; // Frames are 1-indexed in filenames
         sprite.imagePath = animation.baseTexturePath + directionStr + "_" + std::to_string(frameNum) + ".png";
     }
 }

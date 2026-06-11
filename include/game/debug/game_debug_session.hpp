@@ -2,6 +2,7 @@
 
 #include "game/ecs/entity.hpp"
 #include "game/ecs/registry.hpp"
+#include "game/location_table.hpp"
 #include <optional>
 
 namespace game {
@@ -23,7 +24,12 @@ struct GameDebugSession {
     std::optional<Entity> selectedEntity;
     bool isSystemUpdateActive = true;
 
-    GameDebugSession(Registry &registry) : registry(registry) {}
+    LocationTable &locationTable;
+
+    GameDebugSession(Registry &registry, LocationTable &locationTable)
+        : registry(registry), locationTable(locationTable)
+    {
+    }
 };
 
 } // namespace game

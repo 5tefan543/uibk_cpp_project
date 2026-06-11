@@ -2,6 +2,7 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/persistence/persisted_game.hpp"
 #include "controller/persistence/persistence_manager.hpp"
+#include "controller/state/state_transition_action.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/camera_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
@@ -10,15 +11,16 @@
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
+#include "logging/log.hpp"
 #include "view/sprite.hpp"
-#include <iostream>
+#include <format>
 #include <view/text.hpp>
 
 namespace game {
 
 Game::Game(int wave)
+    : config_(controller::PersistenceManager::getConfig()), locationTable_(config_.locTabNumBuckets, config_.mapSize)
 {
-    config_ = controller::PersistenceManager::getConfig();
     initMap();
     initCamera();
     initPlayer();
@@ -27,12 +29,12 @@ Game::Game(int wave)
 
 Game::Game() : Game(1)
 {
-    std::cout << "New game constructed" << std::endl;
+    logger::log(logger::DEBUG, "New game constructed");
 }
 
 Game::Game(const controller::PersistedGame &persistedGame) : Game(persistedGame.wave)
 {
-    std::cout << "Game constructed from persisted game" << std::endl;
+    logger::log(logger::DEBUG, "Game constructed from persisted game");
 
     score_ = persistedGame.score;
     currency_ = persistedGame.currency;
@@ -57,7 +59,7 @@ Game::Game(const controller::PersistedGame &persistedGame) : Game(persistedGame.
 
 Game::~Game()
 {
-    std::cout << "Game destructed" << std::endl;
+    logger::log(logger::DEBUG, "Game destructed");
 }
 
 void Game::initMap()
@@ -68,8 +70,8 @@ void Game::initMap()
     registry_.addComponent<Position>(map, {0.0f, 0.0f});
     view::Sprite mapSprite = {
         .imagePath = "assets/maps/map.bmp",
-        .width = 1920.0f * 2.0f,
-        .height = 1080.0f * 2.0f,
+        .width = config_.mapSize.x,
+        .height = config_.mapSize.y,
     };
     registry_.addComponent<view::Sprite>(map, mapSprite);
 }
@@ -123,8 +125,7 @@ void Game::initWave(int waveNumber)
     }
 
     spawnEnemySystem_.update(registry_, wave_, config_);
-
-    std::cout << "Starting wave " << wave_ << " of stage " << stage_ << std::endl;
+    logger::log(logger::DEBUG, std::format("Starting wave {} of stage {}", wave_, stage_));
 }
 
 GameDebugSession &Game::getDebugSession()
@@ -207,7 +208,8 @@ void Game::processDebugSession(float dt)
     // Handle player destruction request
     if (debugSession_.isPlayerDestructionRequested) {
         debugSession_.isPlayerDestructionRequested = false;
-        std::cout << "Destroying player entity!" << std::endl;
+        logger::log(logger::DEBUG, "Destroying player entity!");
+
         for (Entity player : registry_.view<PlayerTag>()) {
             registry_.destroyEntity(player);
         }
@@ -216,7 +218,7 @@ void Game::processDebugSession(float dt)
     // Handle save game request
     if (debugSession_.isSaveGameRequested) {
         debugSession_.isSaveGameRequested = false;
-        std::cout << "Saving game!" << std::endl;
+        logger::log(logger::DEBUG, "Saving game!");
         controller::PersistedGame persistedGame = getPersistedGame();
         controller::PersistenceManager::saveGame(persistedGame);
     }
@@ -233,6 +235,8 @@ void Game::updateSystems(const controller::InputState &input, float dt)
         return;
     }
 
+    locationTable_.update(registry_);
+    enemyAI_.update(registry_, locationTable_);
     inputSystem_.update(registry_, input);
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, dt);

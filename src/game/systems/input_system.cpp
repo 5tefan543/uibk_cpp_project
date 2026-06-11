@@ -1,7 +1,7 @@
 #include "game/ecs/systems/input_system.hpp"
-#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
+#include "game/location_table.hpp"
 
 namespace game {
 
@@ -11,21 +11,23 @@ void InputSystem::update(Registry &registry, const controller::InputState &input
         Velocity &velocity = registry.getComponent<Velocity>(entity);
         PlayerStats &playerStats = registry.getComponent<PlayerStats>(entity);
 
-        velocity.dx = 0.0F;
-        velocity.dy = 0.0F;
+        Vec2<float> v = {0, 0};
 
         if (input.leftHeld) {
-            velocity.dx -= playerStats.moveSpeed;
+            v.x -= playerStats.moveSpeed;
         }
         if (input.rightHeld) {
-            velocity.dx += playerStats.moveSpeed;
+            v.x += playerStats.moveSpeed;
         }
         if (input.upHeld) {
-            velocity.dy -= playerStats.moveSpeed;
+            v.y -= playerStats.moveSpeed;
         }
         if (input.downHeld) {
-            velocity.dy += playerStats.moveSpeed;
+            v.y += playerStats.moveSpeed;
         }
+        v.setLength(playerStats.moveSpeed);
+        velocity.x = v.x;
+        velocity.y = v.y; // TODO: into Vec2
     }
 }
 

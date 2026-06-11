@@ -15,6 +15,13 @@
         "enemyTexturePath": "assets/characters/enemy_1_",
         "mapTexturePath": "assets/map/map_1.png",
         "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf"
+    },
+    "locTabNumBuckets": {
+        "x": 20,
+        "y": 20
+    },
+    "mapSize": {
+        "x": 3840.0,
+        "y": 2160.0
     }
-
 }

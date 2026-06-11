@@ -1,19 +1,19 @@
 #include "controller/controller.hpp"
 #include "controller/debug/debug_context.hpp"
-#include "controller/persistence/leaderboard.hpp"
-#include <iostream>
+#include "logging/log.hpp"
 
 namespace controller {
 
 Controller::Controller()
 {
-    std::cout << "Controller constructed" << std::endl;
+    logger::log(logger::DEBUG, "Controller constructed");
+
     stateManager_.push(MenuState::createMenu(MenuType::MainMenu));
 }
 
 Controller::~Controller()
 {
-    std::cout << "Controller destructed" << std::endl;
+    logger::log(logger::DEBUG, "Controller destructed");
 }
 
 void Controller::update(const InputState &input, float dt)

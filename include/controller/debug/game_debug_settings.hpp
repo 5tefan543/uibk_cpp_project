@@ -7,6 +7,7 @@ struct GameDebugSettings {
 
     // collision
     bool showHitboxes = false;
+    bool showLocationTable = false;
 };
 
 } // namespace controller
