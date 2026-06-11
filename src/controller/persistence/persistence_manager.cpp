@@ -10,14 +10,14 @@ namespace controller {
 
 static std::optional<GameConfig> configCache = std::nullopt;
 
-bool PersistenceManager::saveGame(const PersistedGame &persistedGame)
+bool PersistenceManager::saveGame(const game::PersistedGame &persistedGame)
 {
     return Serializer::writeJsonToFile(persistedGame, Serializer::saveFilePath);
 }
 
-PersistedGame PersistenceManager::loadGame()
+game::PersistedGame PersistenceManager::loadGame()
 {
-    PersistedGame persistedGame;
+    game::PersistedGame persistedGame;
     if (!Serializer::readJsonFromFile(persistedGame, Serializer::saveFilePath)) {
         throw std::runtime_error("Failed to load game from: " + Serializer::saveFilePath.string());
     }
@@ -26,7 +26,7 @@ PersistedGame PersistenceManager::loadGame()
 
 bool PersistenceManager::hasSavedGame()
 {
-    PersistedGame persistedGame;
+    game::PersistedGame persistedGame;
     return Serializer::readJsonFromFile(persistedGame, Serializer::saveFilePath);
 }
 

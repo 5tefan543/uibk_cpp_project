@@ -10,10 +10,11 @@ namespace {
 
 void createSavedGameFile()
 {
-    PersistedGame game;
+    game::PersistedGame game;
     game.wave = 2;
-    game.currency = 150;
-    game.playerStats.speed = 444.0f;
+    game.position = {1550.0f, 369.5f};
+    game.playerStats.score = 150;
+    game.playerStats.moveSpeed = 444.0f;
     game.playerStats.hasDash = false;
     game.playerStats.attackPower = 55.0f;
     game.playerStats.attackSpeed = 1.5f;
@@ -58,9 +59,16 @@ TEST_CASE_METHOD(TestFixture,
 TEST_CASE_METHOD(TestFixture, "GameplayState::createNewGameplay constructs gameplay state with expected properties")
 {
     // ACT
-    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay(game::CharacterType::Melee);
 
     // ASSERT
+    REQUIRE(state != nullptr);
+}
+
+TEST_CASE_METHOD(TestFixture, "GameplayState::createNewGameplay can construct a ranged gameplay state")
+{
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay(game::CharacterType::Ranged);
+
     REQUIRE(state != nullptr);
 }
 
@@ -79,7 +87,8 @@ TEST_CASE_METHOD(TestFixture, "Main menu update returns correct actions")
 
     SECTION("confirm on initial selection starts gameplay")
     {
-        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithGameplay);
+        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM)
+                == StateTransitionAction::ReplaceCurrentWithCharacterSelection);
     }
 
     SECTION("down changes selection so confirm exits")
@@ -92,12 +101,29 @@ TEST_CASE_METHOD(TestFixture, "Main menu update returns correct actions")
     {
         REQUIRE(applyInput<controller::MenuState>(state, DOWN) == StateTransitionAction::None);
         REQUIRE(applyInput<controller::MenuState>(state, UP) == StateTransitionAction::None);
-        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithGameplay);
+        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM)
+                == StateTransitionAction::ReplaceCurrentWithCharacterSelection);
     }
 
     SECTION("irrelevant input returns None")
     {
         REQUIRE(applyInput<controller::MenuState>(state, NONE) == StateTransitionAction::None);
+    }
+}
+
+TEST_CASE_METHOD(TestFixture, "Character selection update returns character specific start actions")
+{
+    auto state = MenuState::createMenu(MenuType::CharacterSelection);
+
+    SECTION("confirm on initial selection starts melee game")
+    {
+        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM) == StateTransitionAction::StartNewGameMelee);
+    }
+
+    SECTION("down changes selection so confirm starts ranged game")
+    {
+        REQUIRE(applyInput<controller::MenuState>(state, DOWN) == StateTransitionAction::None);
+        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM) == StateTransitionAction::StartNewGameRanged);
     }
 }
 
@@ -118,10 +144,10 @@ TEST_CASE_METHOD(TestFixture, "Main menu mouse input returns correct actions")
         REQUIRE(quitButton.isSelected == true);
     }
 
-    SECTION("mouse click on start game starts gameplay")
+    SECTION("mouse click on start game starts character selection")
     {
         REQUIRE(applyMouseClick<controller::MenuState>(state, getCenterX(startButton), getCenterY(startButton))
-                == StateTransitionAction::ReplaceCurrentWithGameplay);
+                == StateTransitionAction::ReplaceCurrentWithCharacterSelection);
     }
 
     SECTION("mouse click on quit exits game")
@@ -281,7 +307,7 @@ TEST_CASE_METHOD(TestFixture, "Game over menu mouse input returns correct action
 TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
 {
     // ARRANGE
-    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay(game::CharacterType::Melee);
     InputState input;
     DebugContext &debug = DebugContext::get();
 
@@ -341,7 +367,7 @@ TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
         initializeGameSession();
 
         // create dummy save to verify deletion
-        PersistenceManager::saveGame(PersistedGame{});
+        PersistenceManager::saveGame(game::PersistedGame{});
         REQUIRE(PersistenceManager::hasSavedGame());
 
         // Set player destruction request to trigger game over condition
@@ -470,7 +496,7 @@ TEST_CASE_METHOD(TestFixture, "MenuState::toString returns expected string")
 
 TEST_CASE_METHOD(TestFixture, "GameplayState::toString returns expected string")
 {
-    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay(game::CharacterType::Melee);
     REQUIRE(state->toString() == "Gameplay");
 }
 
@@ -584,7 +610,7 @@ TEST_CASE_METHOD(TestFixture, "MenuState::getView returns expected view")
 
 TEST_CASE_METHOD(TestFixture, "GameplayState::getView returns expected view")
 {
-    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay();
+    std::unique_ptr<GameplayState> state = GameplayState::createNewGameplay(game::CharacterType::Melee);
 
     const view::View &view = state->getView();
 

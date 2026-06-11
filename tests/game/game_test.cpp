@@ -1,7 +1,10 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
 #include "controller/persistence/persistence_manager.hpp"
+#include "game/ecs/components/damage.hpp"
+#include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/game.hpp"
@@ -159,11 +162,45 @@ TEST_CASE_METHOD(TestFixture,
     // ASSERT
     REQUIRE(currentState == controller::StateTransitionAction::None);
 
-    const controller::PersistedGame persisted = game.getPersistedGame();
+    const game::PersistedGame persisted = game.getPersistedGame();
     const int expectedWave = wavesPerStage;
     const int expectedStage = ((expectedWave - 1) / wavesPerStage) + 1;
     REQUIRE(persisted.wave == expectedWave);
     REQUIRE(game.getDebugSession().stage == expectedStage);
+}
+
+TEST_CASE_METHOD(TestFixture, "Game update cleanup destroys damage entities when wave finishes")
+{
+    game::Game game;
+    controller::InputState input;
+
+    controller::DebugContext &debug = controller::DebugContext::get();
+    debug.active = true;
+
+    game::GameDebugSession &session = game.getDebugSession();
+    session.wave = 1;
+    session.stage = 1;
+    session.isStageWaveReloadRequested = true;
+
+    game.update(input, 0.0f);
+
+    for (game::Entity enemy : session.registry.view<game::EnemyTag>()) {
+        session.registry.destroyEntity(enemy);
+    }
+
+    const game::Entity damage = session.registry.createEntity();
+    game::Damage damageComponent{
+        .amount = 1.0f,
+        .kind = game::DamageKind::Projectile,
+        .params = game::ProjectileDamage{.speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .maxTargets = 1}};
+    session.registry.addComponent<game::Damage>(damage, damageComponent);
+    session.registry.addComponent<game::DamageTag>(damage, {});
+
+    REQUIRE(session.registry.isEntityAlive(damage));
+
+    game.update(input, dummyDeltaTime);
+
+    REQUIRE_FALSE(session.registry.hasComponent<game::Damage>(damage));
 }
 
 TEST_CASE_METHOD(TestFixture, "Game update keeps player destruction request unchanged when debug is inactive")
@@ -308,18 +345,61 @@ TEST_CASE_METHOD(TestFixture, "Game getView returns correct view")
     REQUIRE(view.cameraY == 0.0f);
 }
 
+TEST_CASE_METHOD(TestFixture, "Game updateView with hitbox debug enabled handles empty hitbox list")
+{
+    game::Game game;
+    view::View view;
+
+    controller::DebugContext &debug = controller::DebugContext::get();
+    debug.active = true;
+    debug.gameSettings.showHitboxes = true;
+
+    game.updateView(view);
+
+    auto hitboxEntities = game.getDebugSession().registry.view<game::HitBox>();
+    REQUIRE(hitboxEntities.empty());
+
+    REQUIRE(!view.nodes.empty());
+}
+
+TEST_CASE_METHOD(TestFixture, "Game updateView with hitbox debug enabled renders hitbox rectangles")
+{
+    game::Game game;
+    controller::InputState input;
+
+    controller::DebugContext &debug = controller::DebugContext::get();
+    debug.active = true;
+    debug.gameSettings.showHitboxes = false;
+
+    view::View withoutHitboxes;
+    game.updateView(withoutHitboxes);
+    const size_t nodesWithoutHitboxes = withoutHitboxes.nodes.size();
+
+    game.update(input, 0.0f);
+
+    auto hitboxEntities = game.getDebugSession().registry.view<game::HitBox>();
+    REQUIRE_FALSE(hitboxEntities.empty());
+
+    debug.gameSettings.showHitboxes = true;
+    view::View withHitboxes;
+    game.updateView(withHitboxes);
+
+    REQUIRE(withHitboxes.nodes.size() > nodesWithoutHitboxes);
+}
+
 TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted values")
 {
-    controller::PersistedGame persistedGame;
+    game::PersistedGame persistedGame;
     persistedGame.wave = 5;
-    persistedGame.currency = 1234;
-    persistedGame.playerStats.speed = 333.0f;
+    persistedGame.playerStats.currency = 1234;
+    persistedGame.playerStats.moveSpeed = 333.0f;
 
     game::Game game(persistedGame);
 
-    const controller::PersistedGame snapshot = game.getPersistedGame();
+    const game::PersistedGame snapshot = game.getPersistedGame();
     REQUIRE(snapshot.wave == 5);
-    REQUIRE(game.getDebugSession().stage == 3);
-    REQUIRE(snapshot.currency == 1234);
-    REQUIRE(snapshot.playerStats.speed == 333.0f);
+    int resultStage = ((snapshot.wave - 1) / controller::PersistenceManager::getConfig().wavesPerStage) + 1;
+    REQUIRE(game.getDebugSession().stage == resultStage);
+    REQUIRE(snapshot.playerStats.currency == 1234);
+    REQUIRE(snapshot.playerStats.moveSpeed == 333.0f);
 }

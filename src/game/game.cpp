@@ -1,11 +1,11 @@
 #include "game/game.hpp"
 #include "controller/debug/debug_context.hpp"
-#include "controller/persistence/persisted_game.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/camera_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/map_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
@@ -18,43 +18,71 @@
 
 namespace game {
 
-Game::Game(int wave)
+namespace {
+
+const controller::PlayerClassConfig &getClassConfig(const controller::PlayerClassConfigs &playerClasses,
+                                                    CharacterType type)
+{
+    if (type == CharacterType::Melee) {
+        return playerClasses.melee;
+    }
+
+    return playerClasses.ranged;
+}
+
+void applyClassStats(const controller::PlayerClassConfig &classConfig, PlayerStats &playerStats)
+{
+    playerStats.maxHealth = classConfig.stats.maxHealth;
+    playerStats.health = playerStats.maxHealth;
+    playerStats.attackPower = classConfig.stats.attackPower;
+    playerStats.attackSpeed = classConfig.stats.attackSpeed;
+    playerStats.defense = classConfig.stats.defense;
+    playerStats.moveSpeed = classConfig.stats.moveSpeed;
+    playerStats.speedOfAttack = classConfig.stats.speedOfAttack;
+    playerStats.attackRange = classConfig.stats.attackRange;
+    playerStats.hasDash = classConfig.hasDash;
+    playerStats.characterType = classConfig.characterType;
+}
+
+void applyAnimationOverwrite(const controller::AnimationOverwriteConfig &overwrite, std::string &texturePath,
+                             float &frameDuration, int &totalFrames, float &moveSpeedMultiplier)
+{
+    texturePath = overwrite.texturePathPrefix;
+    frameDuration = overwrite.frameDuration;
+    totalFrames = overwrite.totalFrames;
+    moveSpeedMultiplier = overwrite.moveSpeedMultiplier;
+}
+
+} // namespace
+
+Game::Game(int wave, CharacterType characterType)
     : config_(controller::PersistenceManager::getConfig()), locationTable_(config_.locTabNumBuckets, config_.mapSize)
 {
     initMap();
-    initCamera();
-    initPlayer();
+    initCamera({0.0f, 0.0f});
+    initPlayer(characterType);
     initWave(wave);
 }
 
-Game::Game() : Game(1)
+Game::Game() : Game(1, CharacterType::Melee)
 {
     logger::log(logger::DEBUG, "New game constructed");
 }
 
-Game::Game(const controller::PersistedGame &persistedGame) : Game(persistedGame.wave)
+Game::Game(CharacterType characterType) : Game(1, characterType)
+{
+    logger::log(logger::DEBUG, "New game constructed");
+}
+
+Game::Game(const PersistedGame &persistedGame)
+    : config_(controller::PersistenceManager::getConfig()), locationTable_(config_.locTabNumBuckets, config_.mapSize)
 {
     logger::log(logger::DEBUG, "Game constructed from persisted game");
 
-    score_ = persistedGame.score;
-    currency_ = persistedGame.currency;
-
-    auto players = registry_.view<PlayerTag>();
-    if (!players.empty()) {
-        Position &position = registry_.getComponent<Position>(players.front());
-
-        position.x = persistedGame.playerStats.posX;
-        position.y = persistedGame.playerStats.posY;
-
-        PlayerStats &playerStats = registry_.getComponent<PlayerStats>(players.front());
-        playerStats.maxHealth = persistedGame.playerStats.maxHealth;
-        playerStats.health = persistedGame.playerStats.maxHealth;
-        playerStats.attackPower = persistedGame.playerStats.attackPower;
-        playerStats.attackSpeed = persistedGame.playerStats.attackSpeed;
-        playerStats.defense = persistedGame.playerStats.defense;
-        playerStats.moveSpeed = persistedGame.playerStats.speed;
-        playerStats.hasDash = persistedGame.playerStats.hasDash;
-    }
+    initMap();
+    initCamera(persistedGame.position);
+    initPlayer(persistedGame.position, persistedGame.playerStats);
+    initWave(persistedGame.wave);
 }
 
 Game::~Game()
@@ -68,41 +96,66 @@ void Game::initMap()
     Entity map = registry_.createEntity();
     registry_.addComponent<MapTag>(map, {});
     registry_.addComponent<Position>(map, {0.0f, 0.0f});
+
+    int mapCounter = stage_ % 4;
     view::Sprite mapSprite = {
-        .imagePath = "assets/maps/map.bmp",
+        .imagePath = config_.assetConfig.mapTexturePathPrefix + std::to_string(mapCounter) + ".png",
         .width = config_.mapSize.x,
         .height = config_.mapSize.y,
     };
     registry_.addComponent<view::Sprite>(map, mapSprite);
 }
 
-void Game::initCamera()
+void Game::switchMap()
+{
+    Entity mapEntity = registry_.view<MapTag>().front();
+    if (registry_.hasComponent<view::Sprite>(mapEntity)) {
+        int mapCounter = stage_ % 4;
+        view::Sprite &mapSprite = registry_.getComponent<view::Sprite>(mapEntity);
+        mapSprite.imagePath = config_.assetConfig.mapTexturePathPrefix + std::to_string(mapCounter) + ".png";
+    }
+}
+
+void Game::initCamera(Position position)
 {
     Entity camera = registry_.createEntity();
     registry_.addComponent<CameraTag>(camera, {});
-    registry_.addComponent<Position>(camera, {0.0f, 0.0f});
+    registry_.addComponent<Position>(camera, position);
 }
 
-void Game::initPlayer()
+void Game::initPlayer(CharacterType characterType)
+{
+    PlayerStats playerStats;
+    Position position = {100.0f, 100.0f};
+
+    const controller::PlayerClassConfig &classConfig = getClassConfig(config_.playerClasses, characterType);
+    applyClassStats(classConfig, playerStats);
+    initPlayer(position, playerStats);
+}
+
+void Game::initPlayer(Position position, PlayerStats playerStats)
 {
     Entity player = registry_.createEntity();
     registry_.addComponent<PlayerTag>(player, {});
+    Animation playerAnimation;
+    if (playerStats.characterType == CharacterType::Melee) {
+        playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePathPrefix};
+    } else {
+        playerStats.characterType = CharacterType::Ranged;
+        playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePathPrefix};
+    }
 
-    PlayerStats playerStats;
-    playerStats.maxHealth = 100.0f;
-    playerStats.health = playerStats.maxHealth;
-    playerStats.attackPower = 10.0f;
-    playerStats.attackSpeed = 1.0f;
-    playerStats.defense = 0.0f;
-    playerStats.moveSpeed = 750.0f;
-    playerStats.hasDash = false;
+    const controller::PlayerClassConfig &classConfig = getClassConfig(config_.playerClasses, playerStats.characterType);
+    applyAnimationOverwrite(classConfig.attack.animationOverwrite, playerAnimation.attackTexturePath,
+                            playerAnimation.attackFrameDuration, playerAnimation.attackTotalFrames,
+                            playerAnimation.attackMoveSpeedMultiplier);
+    applyAnimationOverwrite(classConfig.deathOverwrite, playerAnimation.deathTexturePath,
+                            playerAnimation.deathFrameDuration, playerAnimation.deathTotalFrames,
+                            playerAnimation.deathMoveSpeedMultiplier);
+
     registry_.addComponent<PlayerStats>(player, playerStats);
-
-    registry_.addComponent<Position>(player, {100.0f, 100.0f});
+    registry_.addComponent<Position>(player, position);
     registry_.addComponent<Velocity>(player, {0.0f, 0.0f});
-    Animation playerAnimation = {
-        .baseTexturePath = "assets/characters/character_",
-    };
     registry_.addComponent<Animation>(player, playerAnimation);
     registry_.addComponent<view::Sprite>(player, {.imagePath = playerAnimation.baseTexturePath + "right_1.png"});
 }
@@ -113,14 +166,21 @@ void Game::initWave(int waveNumber)
     wave_ = waveNumber;
     debugSession_.wave = waveNumber;
 
+    int stageOld = stage_;
     stage_ = ((wave_ - 1) / config_.wavesPerStage) + 1;
+
     debugSession_.stage = stage_;
 
     if (wave_ > 1) {
         auto gameSave = getPersistedGame();
+
         if (!controller::PersistenceManager::saveGame(gameSave)) {
 
             // TODO error via gui not console
+        }
+
+        if (stage_ != stageOld) {
+            switchMap();
         }
     }
 
@@ -133,29 +193,31 @@ GameDebugSession &Game::getDebugSession()
     return debugSession_;
 }
 
-controller::PersistedGame Game::getPersistedGame() const
+PersistedGame Game::getPersistedGame() const
 {
-    controller::PersistedGame persistedGame;
+    PersistedGame persistedGame;
     persistedGame.wave = wave_;
-    persistedGame.score = score_;
-    persistedGame.currency = currency_;
 
     auto players = registry_.view<Position, PlayerStats, PlayerTag>();
     if (!players.empty()) {
         const Position &position = registry_.getComponent<Position>(players.front());
-        persistedGame.playerStats.posX = position.x;
-        persistedGame.playerStats.posY = position.y;
-
+        persistedGame.position = position;
         const PlayerStats &playerStats = registry_.getComponent<PlayerStats>(players.front());
-        persistedGame.playerStats.maxHealth = playerStats.maxHealth;
-        persistedGame.playerStats.attackPower = playerStats.attackPower;
-        persistedGame.playerStats.attackSpeed = playerStats.attackSpeed;
-        persistedGame.playerStats.defense = playerStats.defense;
-        persistedGame.playerStats.speed = playerStats.moveSpeed;
-        persistedGame.playerStats.hasDash = playerStats.hasDash;
+        persistedGame.playerStats = playerStats;
     }
 
     return persistedGame;
+}
+void Game::cleanup()
+{
+    std::vector<Entity> enemyEntities = registry_.view<EnemyTag>();
+    for (Entity enemy : enemyEntities) {
+        registry_.destroyEntity(enemy);
+    }
+    std::vector<Entity> damageEntities = registry_.view<Damage>();
+    for (Entity damage : damageEntities) {
+        registry_.destroyEntity(damage);
+    }
 }
 
 controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
@@ -167,6 +229,7 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
     currentWaveDuration_ += dt;
 
     if (isWaveFinished()) {
+        cleanup();
         addScore(config_.waveDurationSeconds - (int)currentWaveDuration_);
 
         bool shouldOpenStore = (wave_ % config_.wavesPerStage) == 0;
@@ -219,7 +282,7 @@ void Game::processDebugSession(float dt)
     if (debugSession_.isSaveGameRequested) {
         debugSession_.isSaveGameRequested = false;
         logger::log(logger::DEBUG, "Saving game!");
-        controller::PersistedGame persistedGame = getPersistedGame();
+        PersistedGame persistedGame = getPersistedGame();
         controller::PersistenceManager::saveGame(persistedGame);
     }
 }
@@ -237,10 +300,12 @@ void Game::updateSystems(const controller::InputState &input, float dt)
 
     locationTable_.update(registry_);
     enemyAI_.update(registry_, locationTable_);
-    inputSystem_.update(registry_, input);
+    inputSystem_.update(registry_, config_, input, dt);
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, dt);
     cameraSystem_.update(registry_);
+    collisionDetectionSystem_.update(registry_, wave_);
+    damageSystem_.update(registry_, dt);
 }
 
 bool Game::isWaveFinished()
@@ -258,8 +323,11 @@ bool Game::isGameOver()
 
 void Game::addScore(int score)
 {
-    score_ += score;
-    currency_ += score;
+    for (Entity player : registry_.view<PlayerTag>()) {
+        PlayerStats &playerStats = registry_.getComponent<PlayerStats>(player);
+        playerStats.score += score;
+        playerStats.currency += score;
+    }
 }
 
 void Game::updateView(view::View &view)
@@ -288,10 +356,30 @@ void Game::updateView(view::View &view)
         view.nodes.push_back({view::ViewMode::FixedToWorld, sprite});
     }
 
+    controller::DebugContext &debug = controller::DebugContext::get();
+    if (debug.active && debug.gameSettings.showHitboxes) {
+        for (auto entity : registry_.view<Position, HitBox>()) {
+            const HitBox &hitbox = registry_.getComponent<HitBox>(entity);
+            view::Rectangle hitboxRect = {
+                .width = hitbox.rect.size.x,
+                .height = hitbox.rect.size.y,
+                .gridX = hitbox.rect.position.x,
+                .gridY = hitbox.rect.position.y,
+                .borderColor = {255, 0, 0},
+                .thickness = 6.0f,
+
+            };
+
+            view.nodes.push_back({view::ViewMode::FixedToWorld, hitboxRect});
+        }
+    }
+
     stageWaveInfo_ = {
         .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_) + " Time remaining: "
-                + std::to_string(config_.waveDurationSeconds - static_cast<int>(currentWaveDuration_))
-                + " score: " + std::to_string(score_) + " currency: " + std::to_string(currency_),
+                + std::to_string(config_.waveDurationSeconds - static_cast<int>(currentWaveDuration_)) + " score: "
+                + std::to_string(registry_.getComponent<PlayerStats>(registry_.view<PlayerTag>().front()).score)
+                + " currency: "
+                + std::to_string(registry_.getComponent<PlayerStats>(registry_.view<PlayerTag>().front()).currency),
         .size = 24,
         .gridX = 960.0f,
         .gridY = 75.0f,

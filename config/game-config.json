@@ -2,7 +2,7 @@
     "initialStage": 1,
     "initialWave": 1,
     "initialCurrency": 0,
-    "waveDurationSeconds": 10,
+    "waveDurationSeconds": 1000,
     "wavesPerStage": 2,
     "maxEnemyCount": 500,
     "windowConfig": {
@@ -11,10 +11,229 @@
         "title": "Robotato"
     },
     "assetConfig": {
-        "playerTexturePath": "assets/characters/character_",
-        "enemyTexturePath": "assets/characters/enemy_1_",
-        "mapTexturePath": "assets/map/map_1.png",
-        "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf"
+        "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf",
+        "meleeTexturePathPrefix": "assets/characters/melee/character_melee_",
+        "rangedTexturePathPrefix": "assets/characters/ranged/ranged_character_",
+        "enemyTexturePathPrefix": "assets/characters/enemy_blob/blob_",
+        "mapTexturePathPrefix": "assets/maps/map",
+        "projectilePath": "assets/effects/base_projectile_1.png",
+        "droppableItems": [
+            {
+                "id": "common",
+                "spritePath": "assets/icons/store/icons-common_1.png"
+            },
+            {
+                "id": "rare",
+                "spritePath": "assets/icons/store/icons-rare_1.png"
+            },
+            {
+                "id": "epic",
+                "spritePath": "assets/icons/store/icons-epic_1.png"
+            }
+        ]
+    },
+    "playerClasses": {
+        "melee": {
+            "characterType": "Melee",
+            "hasDash": true,
+            "deathOverwrite": {
+                "texturePathPrefix": "",
+                "frameDuration": 0.16,
+                "totalFrames": 2,
+                "moveSpeedMultiplier": 0.0
+            },
+            "stats": {
+                "maxHealth": 100.0,
+                "attackPower": 14.0,
+                "attackSpeed": 1.25,
+                "defense": 0.0,
+                "moveSpeed": 700.0,
+                "speedOfAttack": 220.0,
+                "attackRange": 1
+            },
+            "attack": {
+                "kind": "MeleeArc",
+                "amount": 14.0,
+                "isMultiHit": false,
+                "pushBackForce": 0.0,
+                "stunChance": 0.0,
+                "animationOverwrite": {
+                    "texturePathPrefix": "assets/characters/melee/character_melee_atk_",
+                    "frameDuration": 0.16,
+                    "totalFrames": 2,
+                    "moveSpeedMultiplier": 0.5
+                },
+                "meleeArc": {
+                    "reach": 10.0,
+                    "hitBoxWidth": 96.0,
+                    "hitBoxHeight": 128.0,
+                    "activeTimePaddingSec": 0.1
+                },
+                "area": {
+                    "radius": 80.0,
+                    "activeTimeSec": 0.2
+                }
+            }
+        },
+        "ranged": {
+            "characterType": "Ranged",
+            "hasDash": false,
+            "deathOverwrite": {
+                "texturePathPrefix": "",
+                "frameDuration": 0.16,
+                "totalFrames": 2,
+                "moveSpeedMultiplier": 0.0
+            },
+            "stats": {
+                "maxHealth": 100.0,
+                "attackPower": 100.0,
+                "attackSpeed": 3.0,
+                "defense": 0.0,
+                "moveSpeed": 750.0,
+                "speedOfAttack": 240.0,
+                "attackRange": 1000.0
+            },
+            "attack": {
+                "kind": "Projectile",
+                "amount": 10.0,
+                "isMultiHit": false,
+                "pushBackForce": 0.0,
+                "stunChance": 0.0,
+                "animationOverwrite": {
+                    "texturePathPrefix": "assets/characters/ranged/ranged_character_atk_",
+                    "frameDuration": 0.16,
+                    "totalFrames": 2,
+                    "moveSpeedMultiplier": 1.0
+                },
+                "projectile": {
+                    "velocityScale": 10.0,
+                    "spriteWidth": 16.0,
+                    "spriteHeight": 16.0
+                },
+                "beam": {
+                    "length": 120.0,
+                    "width": 16.0,
+                    "activeTimeSec": 0.2
+                }
+            }
+        }
+    },
+    "enemyConfig": {
+        "spawn": {
+            "baseEnemyCount": 2.0,
+            "enemyCountGrowthPerWave": 1.5,
+            "enemyCountVariationRatio": 0.25,
+            "minBossSpawnDistanceFromPlayer": 280.0,
+            "maxBossSpawnDistanceFromPlayer": 570.0,
+            "baseEnemyScaling": 1.0,
+            "enemyScalingGrowthPerWave": 0.15,
+            "enemyScalingVariationMean": 1.0,
+            "enemyScalingVariationStddev": 0.1,
+            "minEnemyScalingVariation": 0.8,
+            "maxEnemyScalingVariation": 1.2,
+            "baseEnemyMoveSpeed": 100.0,
+            "enemyMoveSpeedGrowthPerWave": 3.0,
+            "enemyMoveSpeedVariationMean": 1.0,
+            "enemyMoveSpeedVariationStddev": 0.08,
+            "minEnemyMoveSpeedVariation": 0.9,
+            "maxEnemyMoveSpeedVariation": 1.1
+        },
+        "archetypes": [
+            {
+                "id": "blob_melee",
+                "isBoss": false,
+                "spawnWeight": 1.0,
+                "combatScaleMultiplier": 1.0,
+                "moveSpeedRatioOfPlayer": 0.9,
+                "baseTexturePath": "assets/characters/blob_enemy/blob_",
+                "deathOverwrite": {
+                    "texturePathPrefix": "",
+                    "frameDuration": 0.16,
+                    "totalFrames": 2,
+                    "moveSpeedMultiplier": 0.0
+                },
+                "stats": {
+                    "maxHealth": 10.0,
+                    "attackPower": 2.0,
+                    "attackSpeed": 1.0,
+                    "defense": 0.25,
+                    "moveSpeed": 100.0,
+                    "speedOfAttack": 0.0,
+                    "attackRange": 0.0
+                },
+                "attack": {
+                    "kind": "MeleeArc",
+                    "amount": 2.0,
+                    "isMultiHit": false,
+                    "pushBackForce": 0.0,
+                    "stunChance": 0.0,
+                    "animationOverwrite": {
+                        "texturePathPrefix": "",
+                        "frameDuration": 0.16,
+                        "totalFrames": 2,
+                        "moveSpeedMultiplier": 1.0
+                    },
+                    "meleeArc": {
+                        "reach": 45.0,
+                        "hitBoxWidth": 64.0,
+                        "hitBoxHeight": 64.0,
+                        "activeTimePaddingSec": 0.1
+                    },
+                    "area": {
+                        "radius": 80.0,
+                        "activeTimeSec": 0.2
+                    }
+                },
+                "scoreReward": 1
+            },
+            {
+                "id": "blob_boss",
+                "isBoss": true,
+                "spawnWeight": 1.0,
+                "combatScaleMultiplier": 4.0,
+                "moveSpeedRatioOfPlayer": 0.5,
+                "baseTexturePath": "assets/characters/boss_1_",
+                "deathOverwrite": {
+                    "texturePathPrefix": "",
+                    "frameDuration": 0.16,
+                    "totalFrames": 2,
+                    "moveSpeedMultiplier": 0.0
+                },
+                "stats": {
+                    "maxHealth": 10.0,
+                    "attackPower": 2.0,
+                    "attackSpeed": 1.0,
+                    "defense": 0.25,
+                    "moveSpeed": 100.0,
+                    "speedOfAttack": 0.0,
+                    "attackRange": 0.0
+                },
+                "attack": {
+                    "kind": "MeleeArc",
+                    "amount": 2.0,
+                    "isMultiHit": false,
+                    "pushBackForce": 0.0,
+                    "stunChance": 0.0,
+                    "animationOverwrite": {
+                        "texturePathPrefix": "",
+                        "frameDuration": 0.16,
+                        "totalFrames": 2,
+                        "moveSpeedMultiplier": 1.0
+                    },
+                    "meleeArc": {
+                        "reach": 80.0,
+                        "hitBoxWidth": 96.0,
+                        "hitBoxHeight": 96.0,
+                        "activeTimePaddingSec": 0.1
+                    },
+                    "area": {
+                        "radius": 80.0,
+                        "activeTimeSec": 0.2
+                    }
+                },
+                "scoreReward": 4
+            }
+        ]
     },
     "locTabNumBuckets": {
         "x": 20,
