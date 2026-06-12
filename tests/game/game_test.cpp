@@ -191,6 +191,8 @@ TEST_CASE_METHOD(TestFixture, "Game update cleanup destroys damage entities when
     const game::Entity damage = session.registry.createEntity();
     game::Damage damageComponent{
         .amount = 1.0f,
+        .pushBackForce = 0.0f,
+        .stunChance = 0.0f,
         .kind = game::DamageKind::Projectile,
         .params = game::ProjectileDamage{.speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .maxTargets = 1}};
     session.registry.addComponent<game::Damage>(damage, damageComponent);
