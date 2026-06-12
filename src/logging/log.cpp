@@ -88,7 +88,6 @@ const char *LogSettings::getLogLevelColor(LogLevel messageLevel) const
         return "\033[1;32m"; // bold green
     case LogLevel::DEBUG:
         return "\033[1m"; // bold default
-    case LogLevel::SILENT:
     default:
         return "";
     }
@@ -110,7 +109,6 @@ const char *LogSettings::getLogLevelLabel(LogLevel messageLevel) const
         return "[INFO]  ";
     case LogLevel::DEBUG:
         return "[DEBUG] ";
-    case LogLevel::SILENT:
     default:
         return "";
     }
