@@ -1,5 +1,6 @@
 #pragma once
 #include "geometry/vector.hpp"
+#include "logging/log.hpp"
 #include <string>
 
 namespace controller {
@@ -17,6 +18,11 @@ struct AssetConfig {
     std::string fontPath;
 };
 
+struct LogConfig {
+    logger::LogLevel level;
+    bool useColor;
+};
+
 struct GameConfig {
     int initialStage;
     int initialWave;
@@ -25,6 +31,7 @@ struct GameConfig {
     int wavesPerStage;
     int maxEnemyCount;
     WindowConfig windowConfig;
+    LogConfig logConfig;
     AssetConfig assetConfig;
     Vec2<unsigned> locTabNumBuckets;
     Vec2<float> mapSize;

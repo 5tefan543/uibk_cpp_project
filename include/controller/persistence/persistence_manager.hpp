@@ -1,5 +1,5 @@
 #pragma once
-#include "config_game.hpp"
+#include "game_config.hpp"
 #include "leaderboard.hpp"
 #include "persisted_game.hpp"
 #include <optional>

@@ -10,6 +10,10 @@
         "height": 1080,
         "title": "Robotato"
     },
+    "logConfig": {
+        "level": "Info",
+        "useColor": true
+    },
     "assetConfig": {
         "playerTexturePath": "assets/characters/character_",
         "enemyTexturePath": "assets/characters/enemy_1_",

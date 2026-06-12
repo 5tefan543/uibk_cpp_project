@@ -1,72 +1,138 @@
 #include "logging/log.hpp"
 #include <format>
 #include <iostream>
+#include <optional>
 #include <string>
 
 namespace logger {
 
-struct LogSettings {
-    Level level = ERROR;
-    bool useColor = true;
+namespace {
 
-    LogSettings() : useColor(true)
-    {
-        if (const char *envLevl = std::getenv("ROUGL_LOG_LEVEL")) {
-            if (std::string("Error").compare(envLevl) == 0) {
-                level = ERROR;
-            } else if (std::string("Warning").compare(envLevl) == 0) {
-                level = WARNING;
-            } else if (std::string("Info").compare(envLevl) == 0) {
-                level = INFO;
-            } else if (std::string("Debug").compare(envLevl) == 0) {
-                level = DEBUG;
-            } else if (std::string("Silent").compare(envLevl) == 0) {
-                level = SILENT;
-            } else {
-                log(ERROR, std::format("Invalid environment loggin level: '{}'", envLevl));
-            }
+std::optional<LogLevel> parseLogLevelEnv()
+{
+    if (const char *envLevel = std::getenv(LOG_LEVEL_ENV_VAR)) {
+        const std::string value{envLevel};
+
+        if (value == "Error") {
+            return ERROR;
+        }
+        if (value == "Warning") {
+            return WARNING;
+        }
+        if (value == "Info") {
+            return INFO;
+        }
+        if (value == "Debug") {
+            return DEBUG;
+        }
+        if (value == "Silent") {
+            return SILENT;
         }
 
-        if (const char *envColor = std::getenv("ROUGL_LOG_COLOR")) {
-            if (std::string("On").compare(envColor) == 0) {
-                useColor = true;
-            } else if (std::string("Off").compare(envColor) == 0) {
-                useColor = false;
-            } else {
-                log(ERROR, std::format("Invalid environment loggin color: '{}'", envColor));
-            }
-        }
+        std::cerr << "[ERROR] Invalid environment logging level: '" << value << "'\n";
+        std::cerr << "Valid values are: Silent, Error, Warning, Info, Debug\n";
     }
-};
+
+    return std::nullopt;
+}
+
+std::optional<bool> parseLogColorEnv()
+{
+    if (const char *envColor = std::getenv(LOG_COLOR_ENV_VAR)) {
+        const std::string value{envColor};
+
+        if (value == "On") {
+            return true;
+        }
+        if (value == "Off") {
+            return false;
+        }
+
+        std::cerr << "[ERROR] Invalid environment logging color setting: '" << value << "'\n";
+        std::cerr << "Valid values are: On, Off\n";
+    }
+
+    return std::nullopt;
+}
+
+} // namespace
+
+LogSettings::LogSettings(LogLevel level, bool useColor) : level_(level), useColor_(useColor)
+{
+    if (auto envLevel = parseLogLevelEnv()) {
+        level_ = envLevel.value();
+    }
+
+    if (auto envColor = parseLogColorEnv()) {
+        useColor_ = envColor.value();
+    }
+}
+
+bool LogSettings::shouldLog(LogLevel messageLevel) const
+{
+    return messageLevel != LogLevel::SILENT && messageLevel <= level_;
+}
+
+const char *LogSettings::getLogLevelColor(LogLevel messageLevel) const
+{
+    if (!useColor_) {
+        return "";
+    }
+
+    switch (messageLevel) {
+    case LogLevel::ERROR:
+        return "\033[1;31m"; // bold red
+    case LogLevel::WARNING:
+        return "\033[1;33m"; // bold yellow
+    case LogLevel::INFO:
+        return "\033[1;32m"; // bold green
+    case LogLevel::DEBUG:
+        return "\033[1m"; // bold default
+    case LogLevel::SILENT:
+    default:
+        return "";
+    }
+}
+
+const char *LogSettings::getClearColor() const
+{
+    return useColor_ ? "\033[0m" : "";
+}
+
+const char *LogSettings::getLogLevelLabel(LogLevel messageLevel) const
+{
+    switch (messageLevel) {
+    case LogLevel::ERROR:
+        return "[ERROR] ";
+    case LogLevel::WARNING:
+        return "[WARN]  ";
+    case LogLevel::INFO:
+        return "[INFO]  ";
+    case LogLevel::DEBUG:
+        return "[DEBUG] ";
+    case LogLevel::SILENT:
+    default:
+        return "";
+    }
+}
 
 static LogSettings settings;
 
-void log(Level l, const std::string &msg)
+void configure(LogLevel level, bool useColor)
 {
-    const char *colError = settings.useColor ? "\033[1;31m" : "";
-    const char *colWarning = settings.useColor ? "\033[1;33m" : "";
-    const char *colInfo = settings.useColor ? "\033[1m" : "";
-    const char *colDebug = settings.useColor ? "\033[1m" : "";
-    const char *colClear = settings.useColor ? "\033[0m" : "";
+    settings = LogSettings(level, useColor);
+}
 
-    if (l <= settings.level) {
-        switch (l) {
-        case ERROR:
-            std::cerr << colError << "[ERROR] " << colClear << msg << std::endl;
-            break;
-        case WARNING:
-            std::cout << colWarning << "[WARN]  " << colClear << msg << std::endl;
-            break;
-        case INFO:
-            std::cout << colInfo << "[INFO]  " << colClear << msg << std::endl;
-            break;
-        case DEBUG:
-            std::cout << colDebug << "[DEBUG] " << colClear << msg << std::endl;
-            break;
-        case SILENT:
-            break;
-        }
+void log(LogLevel level, const std::string &msg)
+{
+    if (!settings.shouldLog(level)) {
+        return;
     }
+
+    auto &out = level == LogLevel::ERROR ? std::cerr : std::cout;
+
+    out << settings.getLogLevelColor(level) << settings.getLogLevelLabel(level) << settings.getClearColor() << msg
+        << '\n';
 }
 
 } // namespace logger
