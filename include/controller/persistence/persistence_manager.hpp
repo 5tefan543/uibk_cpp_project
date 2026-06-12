@@ -1,7 +1,7 @@
 #pragma once
+#include "game/persisted_game.hpp"
 #include "game_config.hpp"
 #include "leaderboard.hpp"
-#include "persisted_game.hpp"
 #include <optional>
 #include <string>
 #include <vector>
@@ -12,8 +12,8 @@ class PersistenceManager {
     PersistenceManager() = delete;
     ~PersistenceManager() = delete;
 
-    static bool saveGame(const PersistedGame &persistedGame);
-    static PersistedGame loadGame();
+    static bool saveGame(const game::PersistedGame &persistedGame);
+    static game::PersistedGame loadGame();
     static bool hasSavedGame();
     static void deleteSave();
 

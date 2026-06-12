@@ -36,7 +36,7 @@ TEST_CASE_METHOD(TestFixture, "push multiple states and getCurrent returns top")
 
     // ACT
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
-    stateManager.push(GameplayState::createNewGameplay());
+    stateManager.push(GameplayState::createNewGameplay(game::CharacterType::Melee));
 
     // ASSERT
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
@@ -56,7 +56,7 @@ TEST_CASE_METHOD(TestFixture, "pop removes the top state")
     // ARRANGE
     StateManager stateManager;
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
-    stateManager.push(GameplayState::createNewGameplay());
+    stateManager.push(GameplayState::createNewGameplay(game::CharacterType::Melee));
 
     // ACT
     stateManager.pop();
@@ -109,7 +109,7 @@ TEST_CASE_METHOD(TestFixture, "replaceCurrent replaces the top state")
     stateManager.push(MenuState::createMenu(MenuType::PauseMenu));
 
     // ACT
-    stateManager.replaceCurrent(GameplayState::createNewGameplay());
+    stateManager.replaceCurrent(GameplayState::createNewGameplay(game::CharacterType::Melee));
 
     // ASSERT
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
@@ -148,7 +148,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithGameplay replaces c
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
 
     // ACT
-    stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithGameplay);
+    stateManager.applyAction(StateTransitionAction::StartNewGameRanged);
 
     // ASSERT
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
@@ -156,14 +156,34 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithGameplay replaces c
     REQUIRE(stateManager.isEmpty());
 }
 
+TEST_CASE_METHOD(TestFixture, "applyAction StartNewGameMelee replaces current state with melee gameplay")
+{
+    StateManager stateManager;
+    stateManager.push(MenuState::createMenu(MenuType::CharacterSelection));
+
+    stateManager.applyAction(StateTransitionAction::StartNewGameMelee);
+
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
+}
+
+TEST_CASE_METHOD(TestFixture, "applyAction StartNewGameRanged replaces current state with ranged gameplay")
+{
+    StateManager stateManager;
+    stateManager.push(MenuState::createMenu(MenuType::CharacterSelection));
+
+    stateManager.applyAction(StateTransitionAction::StartNewGameRanged);
+
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
+}
+
 TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay creates gameplay loaded from save")
 {
-    PersistedGame game;
+    game::PersistedGame game;
     game.wave = 4;
-    game.currency = 777;
-    game.playerStats.speed = 360.0f;
+    game.playerStats.currency = 777;
+    game.playerStats.moveSpeed = 360.0f;
     game.playerStats.hasDash = true;
-    game.score = 12345;
+    game.playerStats.score = 12345;
     game.playerStats.maxHealth = 500.0f;
     auto isSaved = PersistenceManager::saveGame(game);
     InputState input;
@@ -178,7 +198,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay crea
     REQUIRE(gameplayState != nullptr);
     REQUIRE(gameplayState->isLoadedFromPersistedGame());
 
-    const PersistedGame loaded = gameplayState->game.getPersistedGame();
+    const game::PersistedGame loaded = gameplayState->game.getPersistedGame();
     gameplayState->game.update(input, 0.1f); // update once to ensure game session is initialized and values are applied
     const int expectedWave = game.wave;
     const int wavesPerStage = PersistenceManager::getConfig().wavesPerStage;
@@ -186,15 +206,15 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay crea
 
     REQUIRE(loaded.wave == expectedWave); // wave is advanced to next wave in loadFromPersistedGame
     REQUIRE(gameplayState->game.getDebugSession().stage == expectedStage);
-    REQUIRE(loaded.currency == 777);
-    REQUIRE(loaded.playerStats.speed == 360.0f);
+    REQUIRE(loaded.playerStats.currency == 777);
+    REQUIRE(loaded.playerStats.moveSpeed == 360.0f);
 }
 
 TEST_CASE_METHOD(TestFixture, "applyAction PushPauseMenu pushes cancelPressed menu on top")
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(GameplayState::createNewGameplay());
+    stateManager.push(GameplayState::createNewGameplay(game::CharacterType::Melee));
 
     // ACT
     stateManager.applyAction(StateTransitionAction::PushPauseMenu);
@@ -207,7 +227,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction PushProgressionStore pushes progressi
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(GameplayState::createNewGameplay());
+    stateManager.push(GameplayState::createNewGameplay(game::CharacterType::Melee));
 
     // ACT
     stateManager.applyAction(StateTransitionAction::PushProgressionStore);
@@ -220,7 +240,7 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithGameOverMenu replac
 {
     // ARRANGE
     StateManager stateManager;
-    stateManager.push(GameplayState::createNewGameplay());
+    stateManager.push(GameplayState::createNewGameplay(game::CharacterType::Melee));
 
     // ACT
     stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithGameOverMenu);

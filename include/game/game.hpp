@@ -2,17 +2,19 @@
 
 #include "controller/input/input_state.hpp"
 #include "controller/persistence/game_config.hpp"
-#include "controller/persistence/persisted_game.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
 #include "game/ecs/systems/camera_system.hpp"
+#include "game/ecs/systems/collision_detection_system.hpp"
+#include "game/ecs/systems/damage_system.hpp"
 #include "game/ecs/systems/debug_selection_system.hpp"
 #include "game/ecs/systems/enemy_ai_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
 #include "game/ecs/systems/spawn_enemy_system.hpp"
 #include "game/location_table.hpp"
+#include "game/persisted_game.hpp"
 #include "view/view.hpp"
 
 namespace game {
@@ -32,11 +34,11 @@ class Game {
     DebugSelectionSystem debugSelectionSystem_;
     EnemyAI enemyAI_;
     SpawnEnemySystem spawnEnemySystem_;
+    CollisionDetectionSystem collisionDetectionSystem_;
+    DamageSystem damageSystem_;
 
     int stage_ = 1;
     int wave_ = 1;
-    int score_ = 0;
-    int currency_ = 0;
     // We need to store view::Text as a member because ViewElement stores a reference to it,
     // so we must ensure that the referenced object lives long enough.
     //
@@ -51,11 +53,14 @@ class Game {
     // all sprites in a deque inside Game.
     view::Text stageWaveInfo_;
 
-    explicit Game(int wave);
+    explicit Game(int wave, CharacterType characterType);
 
     void initMap();
-    void initCamera();
-    void initPlayer();
+    void switchMap();
+    void cleanup();
+    void initCamera(Position position);
+    void initPlayer(CharacterType characterType);
+    void initPlayer(Position position, PlayerStats playerStats);
     void initWave(int waveNumber);
     void processDebugSession(float dt);
     void updateSystems(const controller::InputState &input, float dt);
@@ -64,13 +69,14 @@ class Game {
 
   public:
     Game();
-    Game(const controller::PersistedGame &persistedGame);
+    explicit Game(CharacterType characterType);
+    explicit Game(const PersistedGame &persistedGame);
     Game(const Game &) = delete;
     Game(Game &&) = delete;
     ~Game();
 
     GameDebugSession &getDebugSession();
-    controller::PersistedGame getPersistedGame() const;
+    PersistedGame getPersistedGame() const;
     controller::StateTransitionAction update(const controller::InputState &input, float dt);
     bool isGameOver();
     void updateView(view::View &view);
