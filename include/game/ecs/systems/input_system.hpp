@@ -1,7 +1,7 @@
 #pragma once
 
 #include "controller/input/input_state.hpp"
-#include "controller/persistence/config_game.hpp"
+#include "controller/persistence/game_config.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/registry.hpp"
 

@@ -99,6 +99,8 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk whe
     input.windowConfig.width = 1024;
     input.windowConfig.height = 768;
     input.windowConfig.title = "Disk Config";
+    input.logConfig.level = logger::WARNING;
+    input.logConfig.useColor = false;
     input.assetConfig.meleeTexturePathPrefix = "assets/player.png";
     input.assetConfig.enemyTexturePathPrefix = "assets/enemy.png";
     input.assetConfig.mapTexturePathPrefix = "assets/map.png";
@@ -118,6 +120,8 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk whe
     REQUIRE(output.windowConfig.width == 1024);
     REQUIRE(output.windowConfig.height == 768);
     REQUIRE(output.windowConfig.title == "Disk Config");
+    REQUIRE(output.logConfig.level == logger::WARNING);
+    REQUIRE(output.logConfig.useColor == false);
     REQUIRE(output.assetConfig.meleeTexturePathPrefix == "assets/player.png");
     REQUIRE(output.assetConfig.enemyTexturePathPrefix == "assets/enemy.png");
     REQUIRE(output.assetConfig.mapTexturePathPrefix == "assets/map.png");

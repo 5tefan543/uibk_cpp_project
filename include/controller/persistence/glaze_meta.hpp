@@ -1,6 +1,7 @@
 #pragma once
-#include "config_game.hpp"
 #include "game/persisted_game.hpp"
+#include "game_config.hpp"
+#include "logging/log.hpp"
 #include <glaze/glaze.hpp>
 
 template <>
@@ -26,4 +27,11 @@ struct glz::meta<game::PlayerStats> {
                     &game::PlayerStats::hasDash, "enemiesPierced", &game::PlayerStats::enemiesPierced, "score",
                     &game::PlayerStats::score, "currency", &game::PlayerStats::currency, "characterType",
                     &game::PlayerStats::characterType);
+};
+
+template <>
+struct glz::meta<logger::LogLevel> {
+    static constexpr auto value =
+        glz::enumerate("Silent", logger::LogLevel::SILENT, "Error", logger::LogLevel::ERROR, "Warning",
+                       logger::LogLevel::WARNING, "Info", logger::LogLevel::INFO, "Debug", logger::LogLevel::DEBUG);
 };

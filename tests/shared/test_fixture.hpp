@@ -42,6 +42,7 @@ struct TestFixture {
         resetDebugContext();
         ensureGameConfigAvailable();
         clearPersistenceManagerCache();
+        logger::configure(logger::LogLevel::SILENT, false);
     }
     ~TestFixture() = default;
 };

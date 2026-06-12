@@ -1,6 +1,6 @@
 #pragma once
 
-#include "controller/persistence/config_game.hpp"
+#include "controller/persistence/game_config.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/registry.hpp"
