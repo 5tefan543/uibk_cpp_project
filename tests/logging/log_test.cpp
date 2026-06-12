@@ -32,27 +32,27 @@ struct OutRedirect {
 struct EnvGuard {
     EnvGuard()
     {
-        if (const char *level = std::getenv(logger::LOG_LEVEL_ENV_VAR)) {
+        if (const char *level = std::getenv(logger::logLevelEnvVar)) {
             oldLevel_ = level;
         }
-        if (const char *color = std::getenv(logger::LOG_COLOR_ENV_VAR)) {
+        if (const char *color = std::getenv(logger::logColorEnvVar)) {
             oldColor_ = color;
         }
 
-        unsetenv(logger::LOG_LEVEL_ENV_VAR);
-        unsetenv(logger::LOG_COLOR_ENV_VAR);
+        unsetenv(logger::logLevelEnvVar);
+        unsetenv(logger::logColorEnvVar);
     }
 
     ~EnvGuard()
     {
-        unsetenv(logger::LOG_LEVEL_ENV_VAR);
-        unsetenv(logger::LOG_COLOR_ENV_VAR);
+        unsetenv(logger::logLevelEnvVar);
+        unsetenv(logger::logColorEnvVar);
 
         if (!oldLevel_.empty()) {
-            setenv(logger::LOG_LEVEL_ENV_VAR, oldLevel_.c_str(), 1);
+            setenv(logger::logLevelEnvVar, oldLevel_.c_str(), 1);
         }
         if (!oldColor_.empty()) {
-            setenv(logger::LOG_COLOR_ENV_VAR, oldColor_.c_str(), 1);
+            setenv(logger::logColorEnvVar, oldColor_.c_str(), 1);
         }
 
         logger::configure();
@@ -94,7 +94,7 @@ TEST_CASE("Logger settings can be overridden by environment variables")
     SECTION("Log level env var overrides constructor level")
     {
         for (std::size_t i = 0; i < levels.size(); ++i) {
-            REQUIRE(setenv(logger::LOG_LEVEL_ENV_VAR, levelNames[i], 1) == 0);
+            REQUIRE(setenv(logger::logLevelEnvVar, levelNames[i], 1) == 0);
 
             const logger::LogSettings settings{logger::ERROR, true};
 
@@ -104,16 +104,16 @@ TEST_CASE("Logger settings can be overridden by environment variables")
 
     SECTION("Log color env var overrides constructor color")
     {
-        REQUIRE(setenv(logger::LOG_COLOR_ENV_VAR, "On", 1) == 0);
+        REQUIRE(setenv(logger::logColorEnvVar, "On", 1) == 0);
         REQUIRE(logger::LogSettings{logger::ERROR, false}.getUseColor());
 
-        REQUIRE(setenv(logger::LOG_COLOR_ENV_VAR, "Off", 1) == 0);
+        REQUIRE(setenv(logger::logColorEnvVar, "Off", 1) == 0);
         REQUIRE_FALSE(logger::LogSettings{logger::ERROR, true}.getUseColor());
     }
 
     SECTION("Invalid log level env var prints plain error to cerr")
     {
-        REQUIRE(setenv(logger::LOG_LEVEL_ENV_VAR, "Invalid", 1) == 0);
+        REQUIRE(setenv(logger::logLevelEnvVar, "Invalid", 1) == 0);
 
         std::string coutOutput;
         std::string cerrOutput;
@@ -134,7 +134,7 @@ TEST_CASE("Logger settings can be overridden by environment variables")
 
     SECTION("Invalid log color env var prints plain error to cerr")
     {
-        REQUIRE(setenv(logger::LOG_COLOR_ENV_VAR, "Invalid", 1) == 0);
+        REQUIRE(setenv(logger::logColorEnvVar, "Invalid", 1) == 0);
 
         std::string coutOutput;
         std::string cerrOutput;

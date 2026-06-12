@@ -10,7 +10,7 @@ namespace {
 
 std::optional<LogLevel> parseLogLevelEnv()
 {
-    if (const char *envLevel = std::getenv(LOG_LEVEL_ENV_VAR)) {
+    if (const char *envLevel = std::getenv(logLevelEnvVar)) {
         const std::string value{envLevel};
 
         if (value == "Error") {
@@ -38,7 +38,7 @@ std::optional<LogLevel> parseLogLevelEnv()
 
 std::optional<bool> parseLogColorEnv()
 {
-    if (const char *envColor = std::getenv(LOG_COLOR_ENV_VAR)) {
+    if (const char *envColor = std::getenv(logColorEnvVar)) {
         const std::string value{envColor};
 
         if (value == "On") {

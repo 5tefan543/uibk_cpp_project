@@ -3,8 +3,8 @@
 
 namespace logger {
 
-constexpr const char *LOG_LEVEL_ENV_VAR = "ROUGL_LOG_LEVEL";
-constexpr const char *LOG_COLOR_ENV_VAR = "ROUGL_LOG_COLOR";
+constexpr const char *logLevelEnvVar = "ROUGL_LOG_LEVEL";
+constexpr const char *logColorEnvVar = "ROUGL_LOG_COLOR";
 
 // Log levels in increasing order of verbosity: SILENT < ERROR < WARNING < INFO < DEBUG
 // Enum order is important for level hierachy comparison. Higher verbosity (higher enum value) includes all lower
