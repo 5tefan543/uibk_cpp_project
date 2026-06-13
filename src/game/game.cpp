@@ -56,7 +56,8 @@ void applyAnimationOverwrite(const controller::AnimationOverwriteConfig &overwri
 } // namespace
 
 Game::Game(int wave, CharacterType characterType)
-    : config_(controller::PersistenceManager::getConfig()), locationTable_(config_.locTabNumBuckets, config_.mapSize)
+    : config_(controller::PersistenceManager::getConfig()),
+      locationTable_(config_.locTabNumBuckets, config_.mapConfig.mapSize)
 {
     initMap();
     initCamera({0.0f, 0.0f});
@@ -75,7 +76,8 @@ Game::Game(CharacterType characterType) : Game(1, characterType)
 }
 
 Game::Game(const PersistedGame &persistedGame)
-    : config_(controller::PersistenceManager::getConfig()), locationTable_(config_.locTabNumBuckets, config_.mapSize)
+    : config_(controller::PersistenceManager::getConfig()),
+      locationTable_(config_.locTabNumBuckets, config_.mapConfig.mapSize)
 {
     logger::log(logger::DEBUG, "Game constructed from persisted game");
 
@@ -92,28 +94,38 @@ Game::~Game()
 
 void Game::initMap()
 {
-    // Initialize map and camera
+    int mapIdx = (stage_ - 1) % config_.mapConfig.mapSprites.size();
+    auto &mapSpriteConfig = config_.mapConfig.mapSprites[mapIdx];
+
     Entity map = registry_.createEntity();
     registry_.addComponent<MapTag>(map, {});
     registry_.addComponent<Position>(map, {0.0f, 0.0f});
 
-    int mapCounter = stage_ % 4;
     view::Sprite mapSprite = {
-        .imagePath = config_.assetConfig.mapTexturePathPrefix + std::to_string(mapCounter) + ".png",
-        .width = config_.mapSize.x,
-        .height = config_.mapSize.y,
+        .imagePath = mapSpriteConfig.texture.path,
+        .width = config_.mapConfig.mapSize.x,
+        .height = config_.mapConfig.mapSize.y,
     };
     registry_.addComponent<view::Sprite>(map, mapSprite);
 }
 
 void Game::switchMap()
 {
-    Entity mapEntity = registry_.view<MapTag>().front();
-    if (registry_.hasComponent<view::Sprite>(mapEntity)) {
-        int mapCounter = stage_ % 4;
-        view::Sprite &mapSprite = registry_.getComponent<view::Sprite>(mapEntity);
-        mapSprite.imagePath = config_.assetConfig.mapTexturePathPrefix + std::to_string(mapCounter) + ".png";
+    auto mapEntities = registry_.view<MapTag, Position, view::Sprite>();
+    if (mapEntities.empty()) {
+        logger::log(logger::ERROR, "No map entity found when trying to switch map");
+        return;
     }
+
+    Entity mapEntity = mapEntities.front();
+    view::Sprite &mapSprite = registry_.getComponent<view::Sprite>(mapEntity);
+
+    int mapIdx = (stage_ - 1) % config_.mapConfig.mapSprites.size();
+    auto &mapSpriteConfig = config_.mapConfig.mapSprites[mapIdx];
+
+    mapSprite.imagePath = mapSpriteConfig.texture.path;
+    mapSprite.width = config_.mapConfig.mapSize.x;
+    mapSprite.height = config_.mapConfig.mapSize.y;
 }
 
 void Game::initCamera(Position position)

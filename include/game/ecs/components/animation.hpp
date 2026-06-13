@@ -4,11 +4,13 @@
 
 namespace game {
 
-enum class Direction { Left, Right, Up, Down };
+enum class Direction { None, Left, Right, Up, Down };
 
 enum class AnimationOverrideState { None, Attack, Death, TakingDamage };
+enum class AnimationState { Idle, Walk, Attack, Hit, Death };
 
 struct Animation {
+    AnimationState state = AnimationState::Idle;
     Direction direction = Direction::Right;
     int currentFrame = 0;
     float frameTimer = 0.0f;

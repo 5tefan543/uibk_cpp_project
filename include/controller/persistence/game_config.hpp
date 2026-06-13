@@ -1,8 +1,11 @@
 #pragma once
+#include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/stats.hpp"
+#include "geometry/rectangle.hpp"
 #include "geometry/vector.hpp"
 #include "logging/log.hpp"
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -27,6 +30,31 @@ struct AssetConfig {
     };
 
     std::vector<DroppableItemAssetConfig> droppableItems;
+};
+
+struct TextureConfig {
+    std::string path;
+    std::optional<Vec2<float>> position;
+    std::optional<Vec2<float>> size;
+};
+
+struct HitBoxConfig {
+    // TODO: store hitbox boundaries here
+};
+
+struct SpriteConfig {
+    TextureConfig texture;
+    HitBoxConfig hitBox;
+};
+
+struct DirectionalAnimationConfig {
+    game::Direction direction;
+    std::vector<SpriteConfig> frames;
+};
+
+struct AnimationConfig {
+    game::AnimationState state;
+    std::vector<DirectionalAnimationConfig> directions;
 };
 
 struct AnimationOverwriteConfig {
@@ -89,12 +117,19 @@ struct PlayerClassConfig {
     AnimationOverwriteConfig deathOverwrite;
     CombatStatsConfig stats;
     AttackProfileConfig attack;
+    // AnimationConfig
+    // SoundConfig
 };
 
 struct PlayerClassConfigs {
     PlayerClassConfig melee;
     PlayerClassConfig ranged;
 };
+
+// struct EnemyClassConfigs {
+//     EnemyClassConfig blob;
+//     EnemyClassConfig boss;
+// };
 
 struct EnemyArchetypeConfig {
     std::string id;
@@ -142,6 +177,11 @@ struct LogConfig {
     bool useColor;
 };
 
+struct MapConfig {
+    Vec2<float> mapSize;
+    std::vector<SpriteConfig> mapSprites;
+};
+
 struct GameConfig {
     int initialStage;
     int initialWave;
@@ -151,11 +191,11 @@ struct GameConfig {
     int maxEnemyCount;
     WindowConfig windowConfig;
     LogConfig logConfig;
+    MapConfig mapConfig;
     AssetConfig assetConfig;
     PlayerClassConfigs playerClasses;
     EnemyConfig enemyConfig;
     Vec2<unsigned> locTabNumBuckets;
-    Vec2<float> mapSize;
 };
 
 } // namespace controller

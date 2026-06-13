@@ -14,6 +14,38 @@
         "level": "Info",
         "useColor": true
     },
+    "mapConfig": {
+        "mapSize": {
+            "x": 3840.0,
+            "y": 2160.0
+        },
+        "mapSprites": [
+            {
+                "texture": {
+                    "path": "assets/maps/map0.png"
+                },
+                "hitBox": {}
+            },
+            {
+                "texture": {
+                    "path": "assets/maps/map1.png"
+                },
+                "hitBox": {}
+            },
+            {
+                "texture": {
+                    "path": "assets/maps/map2.png"
+                },
+                "hitBox": {}
+            },
+            {
+                "texture": {
+                    "path": "assets/maps/map3.png"
+                },
+                "hitBox": {}
+            }
+        ]
+    },
     "assetConfig": {
         "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf",
         "meleeTexturePathPrefix": "assets/characters/melee/character_melee_",
@@ -242,9 +274,5 @@
     "locTabNumBuckets": {
         "x": 20,
         "y": 20
-    },
-    "mapSize": {
-        "x": 3840.0,
-        "y": 2160.0
     }
 }
