@@ -14,8 +14,8 @@
 
 namespace game {
 
-const controller::AttackProfileConfig &InputSystem::getAttackProfile(const controller::GameConfig &config,
-                                                                     CharacterType characterType) const
+const config::AttackProfileConfig &InputSystem::getAttackProfile(const config::GameConfig &config,
+                                                                 CharacterType characterType) const
 {
     if (characterType == CharacterType::Melee) {
         return config.playerClasses.melee.attack;
@@ -32,9 +32,8 @@ void InputSystem::updateCooldown(float dt)
 }
 
 void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Entity playerEntity,
-                               const controller::InputState &input,
-                               const controller::AttackProfileConfig &attackProfile,
-                               const controller::GameConfig &config)
+                               const controller::InputState &input, const config::AttackProfileConfig &attackProfile,
+                               const config::GameConfig &config)
 {
 
     if (timeSinceLastAttack_ <= 1.0f / stats.attackSpeed) {
@@ -56,8 +55,10 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
         .params = ProjectileDamage{
             .speed = stats.speedOfAttack, .maxRange = stats.attackRange, .distanceTraveled = 0.0f, .maxTargets = 1}};
 
-    Direction attackDirection = input.mouseGridX >= playerPosition.x ? Direction::Right : Direction::Left;
-    float offsetX = attackDirection == Direction::Right ? playerSprite.width : -attackProfile.projectile.spriteWidth;
+    AnimationDirection attackDirection =
+        input.mouseGridX >= playerPosition.x ? AnimationDirection::Right : AnimationDirection::Left;
+    float offsetX =
+        attackDirection == AnimationDirection::Right ? playerSprite.width : -attackProfile.projectile.spriteWidth;
     Position position{.x = playerPosition.x + offsetX,
                       .y = playerPosition.y + (playerSprite.height / 2) - (attackProfile.projectile.spriteHeight / 2)};
     if (registry.hasComponent<Animation>(playerEntity)) {
@@ -90,7 +91,7 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
 }
 
 void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Entity playerEntity,
-                              const controller::InputState &input, const controller::AttackProfileConfig &attackProfile)
+                              const controller::InputState &input, const config::AttackProfileConfig &attackProfile)
 {
 
     if (timeSinceLastAttack_ <= 1.0f / stats.attackSpeed) {
@@ -100,7 +101,8 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
                                           ? registry.getComponent<view::Sprite>(playerEntity)
                                           : view::Sprite{};
     Position playerPosition = registry.getComponent<Position>(playerEntity);
-    Direction attackDirection = input.mouseGridX >= playerPosition.x ? Direction::Right : Direction::Left;
+    AnimationDirection attackDirection =
+        input.mouseGridX >= playerPosition.x ? AnimationDirection::Right : AnimationDirection::Left;
 
     float attackDurationSec = 0.32f;
     if (registry.hasComponent<Animation>(playerEntity)) {
@@ -118,7 +120,7 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
 
     timeSinceLastAttack_ = 0.0f;
     Entity attackEntity = registry.createEntity();
-    float offsetX = attackDirection == Direction::Right ? playerSprite.width / 2 : -playerSprite.width / 2;
+    float offsetX = attackDirection == AnimationDirection::Right ? playerSprite.width / 2 : -playerSprite.width / 2;
     Damage damageComponent{
         .amount = attackProfile.amount,
         .pushBackForce = attackProfile.pushBackForce,
@@ -142,7 +144,7 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
     registry.addComponent<PlayerTag>(attackEntity, {}); // Mark as player's attack for collision detection
 }
 
-void InputSystem::update(Registry &registry, const controller::GameConfig &config, const controller::InputState &input,
+void InputSystem::update(Registry &registry, const config::GameConfig &config, const controller::InputState &input,
                          float dt)
 {
     updateCooldown(dt);
@@ -150,7 +152,7 @@ void InputSystem::update(Registry &registry, const controller::GameConfig &confi
     for (auto entity : registry.view<Velocity, PlayerStats>()) {
         Velocity &velocity = registry.getComponent<Velocity>(entity);
         PlayerStats &playerStats = registry.getComponent<PlayerStats>(entity);
-        const controller::AttackProfileConfig &attackProfile = getAttackProfile(config, playerStats.characterType);
+        const config::AttackProfileConfig &attackProfile = getAttackProfile(config, playerStats.characterType);
 
         Vec2<float> v = {0, 0};
 

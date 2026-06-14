@@ -6,6 +6,18 @@ namespace game {
 
 enum class CharacterType { Melee, Ranged };
 
+inline const char *toString(game::CharacterType type)
+{
+    switch (type) {
+    case game::CharacterType::Melee:
+        return "Melee";
+    case game::CharacterType::Ranged:
+        return "Ranged";
+    default:
+        return "Unknown";
+    }
+}
+
 struct Stats {
     float maxHealth = 1.0f;
     float health = 1.0f;

@@ -282,7 +282,7 @@ void DebugUI::renderComponent(game::Animation &c)
         overrideStateText = "TakingDamage";
     }
     ImGui::Text("overrideState: %s", overrideStateText);
-    ImGui::Text("overrideDirection: %s", c.overrideDirection == game::Direction::Left ? "Left" : "Right");
+    ImGui::Text("overrideDirection: %s", c.overrideDirection == game::AnimationDirection::Left ? "Left" : "Right");
     ImGui::Text("attackTexturePath: %s", c.attackTexturePath.c_str());
     ImGui::Text("deathTexturePath: %s", c.deathTexturePath.c_str());
 

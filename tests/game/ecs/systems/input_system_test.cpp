@@ -32,7 +32,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem sets player velocity from input")
     input.upHeld = true;
 
     // ACT
-    const auto config = controller::PersistenceManager::getConfig();
+    const config::GameConfig &config = controller::PersistenceManager::getConfig();
     system.update(registry, config, input, dummyDeltaTime);
 
     // ASSERT
@@ -56,7 +56,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem resets old velocity before applying n
     controller::InputState input;
 
     // ACT
-    const auto config = controller::PersistenceManager::getConfig();
+    const config::GameConfig &config = controller::PersistenceManager::getConfig();
     system.update(registry, config, input, dummyDeltaTime);
 
     // ASSERT
@@ -79,7 +79,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem does not update entity without Player
     input.downHeld = true;
 
     // ACT
-    const auto config = controller::PersistenceManager::getConfig();
+    const config::GameConfig &config = controller::PersistenceManager::getConfig();
     system.update(registry, config, input, dummyDeltaTime);
 
     // ASSERT
@@ -107,7 +107,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem opposing directions cancel each other
     input.downHeld = true;
 
     // ACT
-    const auto config = controller::PersistenceManager::getConfig();
+    const config::GameConfig &config = controller::PersistenceManager::getConfig();
     system.update(registry, config, input, dummyDeltaTime);
 
     // ASSERT
@@ -139,12 +139,12 @@ TEST_CASE_METHOD(TestFixture, "InputSystem melee attack activates player attack 
     input.mouseGridX = 130.0f;
     input.mouseGridY = 100.0f;
 
-    const auto config = controller::PersistenceManager::getConfig();
+    const config::GameConfig &config = controller::PersistenceManager::getConfig();
     system.update(registry, config, input, 1.0f);
 
     const auto &animation = registry.getComponent<game::Animation>(player);
     REQUIRE(animation.overrideState == game::AnimationOverrideState::Attack);
-    REQUIRE(animation.overrideDirection == game::Direction::Right);
+    REQUIRE(animation.overrideDirection == game::AnimationDirection::Right);
     REQUIRE(animation.overrideTimeRemaining > 0.59f);
     REQUIRE(animation.overrideTimeRemaining < 0.61f);
 
@@ -173,7 +173,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem reduces movement speed while attack o
     controller::InputState input;
     input.rightHeld = true;
 
-    const auto config = controller::PersistenceManager::getConfig();
+    const config::GameConfig &config = controller::PersistenceManager::getConfig();
     system.update(registry, config, input, dummyDeltaTime);
 
     const auto &velocity = registry.getComponent<game::Velocity>(player);
@@ -201,7 +201,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem ranged attack spawns projectile with 
     input.mouseGridX = 100.0f;
     input.mouseGridY = 100.0f;
 
-    const auto config = controller::PersistenceManager::getConfig();
+    const config::GameConfig &config = controller::PersistenceManager::getConfig();
     system.update(registry, config, input, 1.1f);
 
     const auto attackEntities =
@@ -240,7 +240,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem attack cooldown is strict on boundary
     input.mouseGridX = 10.0f;
     input.mouseGridY = 0.0f;
 
-    const auto config = controller::PersistenceManager::getConfig();
+    const config::GameConfig &config = controller::PersistenceManager::getConfig();
 
     system.update(registry, config, input, 0.5f);
     REQUIRE(registry.view<game::Damage>().empty());
@@ -271,7 +271,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem melee attack cooldown blocks boundary
     input.mouseGridX = 100.0f;
     input.mouseGridY = 10.0f;
 
-    const auto config = controller::PersistenceManager::getConfig();
+    const config::GameConfig &config = controller::PersistenceManager::getConfig();
 
     system.update(registry, config, input, 0.5f);
     REQUIRE(registry.view<game::Damage>().empty());

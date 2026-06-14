@@ -49,7 +49,7 @@ void AnimationSystem::update(Registry &registry, float dt)
                 animation.currentFrame = (animation.currentFrame + 1) % std::max(1, overwriteConfig.totalFrames);
             }
 
-            std::string directionStr = (animation.overrideDirection == Direction::Left) ? "left" : "right";
+            std::string directionStr = (animation.overrideDirection == AnimationDirection::Left) ? "left" : "right";
             int frameNum = animation.currentFrame + 1;
             sprite.imagePath = *overwriteConfig.texturePath + directionStr + "_" + std::to_string(frameNum) + ".png";
 
@@ -70,7 +70,7 @@ void AnimationSystem::update(Registry &registry, float dt)
             const auto v = Vec2{velocity.x, velocity.y}.abs(); // TODO: Velocity use Vec2
             const bool isEnemyHorizMove = isEnemy && v.x >= v.y;
             if ((isEnemyHorizMove || !isEnemy) && std::abs(velocity.x) > 0.1f) {
-                animation.direction = velocity.x > 0 ? Direction::Right : Direction::Left;
+                animation.direction = velocity.x > 0 ? AnimationDirection::Right : AnimationDirection::Left;
             }
 
             // Only update animation frame if moving
@@ -87,7 +87,7 @@ void AnimationSystem::update(Registry &registry, float dt)
         }
 
         // Update sprite image path based on current animation state
-        const std::string directionStr = (animation.direction == Direction::Left) ? "left" : "right";
+        const std::string directionStr = (animation.direction == AnimationDirection::Left) ? "left" : "right";
         const int frameNum = animation.currentFrame + 1; // Frames are 1-indexed in filenames
         sprite.imagePath = animation.baseTexturePath + directionStr + "_" + std::to_string(frameNum) + ".png";
     }

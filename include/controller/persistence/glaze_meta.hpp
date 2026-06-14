@@ -1,6 +1,6 @@
 #pragma once
+#include "game/ecs/components/animation.hpp"
 #include "game/persisted_game.hpp"
-#include "game_config.hpp"
 #include "logging/log.hpp"
 #include <glaze/glaze.hpp>
 
@@ -34,4 +34,18 @@ struct glz::meta<logger::LogLevel> {
     static constexpr auto value =
         glz::enumerate("Silent", logger::LogLevel::SILENT, "Error", logger::LogLevel::ERROR, "Warning",
                        logger::LogLevel::WARNING, "Info", logger::LogLevel::INFO, "Debug", logger::LogLevel::DEBUG);
+};
+
+template <>
+struct glz::meta<game::AnimationDirection> {
+    static constexpr auto value = glz::enumerate(
+        "None", game::AnimationDirection::None, "Left", game::AnimationDirection::Left, "Right",
+        game::AnimationDirection::Right, "Up", game::AnimationDirection::Up, "Down", game::AnimationDirection::Down);
+};
+
+template <>
+struct glz::meta<game::AnimationState> {
+    static constexpr auto value = glz::enumerate("Idle", game::AnimationState::Idle, "Walk", game::AnimationState::Walk,
+                                                 "Attack", game::AnimationState::Attack, "Hit",
+                                                 game::AnimationState::Hit, "Death", game::AnimationState::Death);
 };

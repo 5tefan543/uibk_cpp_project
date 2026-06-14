@@ -32,6 +32,19 @@ add_library(roguelike_logger
 roguelike_cxx_flags(roguelike_logger)
 target_include_directories(roguelike_logger PUBLIC include)
 
+# Config library
+add_library(roguelike_config
+  src/config/asset_manager.cpp
+)
+
+roguelike_cxx_flags(roguelike_config)
+target_include_directories(roguelike_config PUBLIC include)
+
+target_link_libraries(roguelike_config
+  PUBLIC
+    roguelike_logger
+)
+
 # Game library
 add_library(roguelike_game
   src/game/game.cpp
@@ -50,6 +63,12 @@ add_library(roguelike_game
 roguelike_cxx_flags(roguelike_game)
 target_include_directories(roguelike_game PUBLIC include)
 
+target_link_libraries(roguelike_game
+  PUBLIC
+    roguelike_config
+    roguelike_logger
+)
+
 # Controller library
 add_library(roguelike_controller
   src/controller/controller.cpp
@@ -60,10 +79,12 @@ add_library(roguelike_controller
 
 roguelike_cxx_flags(roguelike_controller)
 target_include_directories(roguelike_controller PUBLIC include)
+
 target_link_libraries(roguelike_controller
   PUBLIC
     roguelike_game
     roguelike_logger
+    roguelike_config
     glaze::glaze
 )
 
@@ -98,6 +119,7 @@ target_link_libraries(roguelike_app
     roguelike_controller
     roguelike_ui
     roguelike_logger
+    roguelike_config
 )
 
 add_custom_command(TARGET roguelike_app POST_BUILD
@@ -146,6 +168,7 @@ target_link_libraries(roguelike_test_runner
     roguelike_game
     roguelike_controller
     roguelike_logger
+    roguelike_config
     Catch2::Catch2WithMain
 )
 

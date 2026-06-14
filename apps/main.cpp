@@ -1,4 +1,6 @@
 #include "controller/controller.hpp"
+#include "game/ecs/components/animation.hpp"
+#include "game/ecs/components/stats.hpp"
 #include "logging/log.hpp"
 #include "ui/ui.hpp"
 #include "view/view.hpp"
@@ -24,7 +26,7 @@ int main()
         std::signal(SIGINT, signalHandler);
 
         // Load config and configure logger before anything else to ensure all logs are properly handled
-        controller::GameConfig config = controller::PersistenceManager::getConfig();
+        const config::GameConfig &config = controller::PersistenceManager::getConfig();
         logger::configure(config.logConfig.level, config.logConfig.useColor);
 
         controller::Controller controller;

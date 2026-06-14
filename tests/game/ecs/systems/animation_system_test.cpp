@@ -13,7 +13,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem sets sprite direction from horizo
     game::AnimationSystem system;
 
     game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
+    registry.addComponent<game::Animation>(e, {.direction = game::AnimationDirection::Right,
                                                .currentFrame = 0,
                                                .frameTimer = 0.0f,
                                                .frameDuration = 0.5f,
@@ -27,7 +27,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem sets sprite direction from horizo
     const auto &animation = registry.getComponent<game::Animation>(e);
     const auto &sprite = registry.getComponent<view::Sprite>(e);
 
-    REQUIRE(animation.direction == game::Direction::Left);
+    REQUIRE(animation.direction == game::AnimationDirection::Left);
     REQUIRE(sprite.imagePath == "assets/characters/left_1.png");
 }
 
@@ -37,7 +37,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem advances frame when moving and ti
     game::AnimationSystem system;
 
     game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
+    registry.addComponent<game::Animation>(e, {.direction = game::AnimationDirection::Right,
                                                .currentFrame = 0,
                                                .frameTimer = 0.0f,
                                                .frameDuration = 0.5f,
@@ -53,7 +53,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem advances frame when moving and ti
 
     REQUIRE(animation.currentFrame == 1);
     REQUIRE(animation.frameTimer == 0.0f);
-    REQUIRE(animation.direction == game::Direction::Right);
+    REQUIRE(animation.direction == game::AnimationDirection::Right);
     REQUIRE(sprite.imagePath == "assets/characters/right_2.png");
 }
 
@@ -63,7 +63,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem keeps frame when moving but timer
     game::AnimationSystem system;
 
     game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
+    registry.addComponent<game::Animation>(e, {.direction = game::AnimationDirection::Right,
                                                .currentFrame = 2,
                                                .frameTimer = 0.0f,
                                                .frameDuration = 0.5f,
@@ -88,7 +88,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem resets frame timer when idle")
     game::AnimationSystem system;
 
     game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
+    registry.addComponent<game::Animation>(e, {.direction = game::AnimationDirection::Right,
                                                .currentFrame = 3,
                                                .frameTimer = 0.4f,
                                                .frameDuration = 0.5f,
@@ -113,7 +113,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem prioritizes attack override sprit
     game::AnimationSystem system;
 
     game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
+    registry.addComponent<game::Animation>(e, {.direction = game::AnimationDirection::Right,
                                                .currentFrame = 0,
                                                .frameTimer = 0.0f,
                                                .frameDuration = 0.5f,
@@ -121,7 +121,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem prioritizes attack override sprit
                                                .baseTexturePath = "assets/characters/",
                                                .overrideState = game::AnimationOverrideState::Attack,
                                                .overrideTimeRemaining = 0.6f,
-                                               .overrideDirection = game::Direction::Left,
+                                               .overrideDirection = game::AnimationDirection::Left,
                                                .attackTexturePath = "assets/characters/atk_",
                                                .attackFrameDuration = 0.3f,
                                                .attackTotalFrames = 2});
@@ -135,7 +135,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem prioritizes attack override sprit
 
     REQUIRE(animation.currentFrame == 1);
     REQUIRE(animation.overrideState == game::AnimationOverrideState::Attack);
-    REQUIRE(animation.direction == game::Direction::Left);
+    REQUIRE(animation.direction == game::AnimationDirection::Left);
     REQUIRE(sprite.imagePath == "assets/characters/atk_left_2.png");
 }
 
@@ -145,7 +145,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem prioritizes death override sprite
     game::AnimationSystem system;
 
     game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
+    registry.addComponent<game::Animation>(e, {.direction = game::AnimationDirection::Right,
                                                .currentFrame = 0,
                                                .frameTimer = 0.0f,
                                                .frameDuration = 0.5f,
@@ -153,7 +153,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem prioritizes death override sprite
                                                .baseTexturePath = "assets/characters/",
                                                .overrideState = game::AnimationOverrideState::Death,
                                                .overrideTimeRemaining = 0.6f,
-                                               .overrideDirection = game::Direction::Left,
+                                               .overrideDirection = game::AnimationDirection::Left,
                                                .deathTexturePath = "assets/characters/death_",
                                                .deathFrameDuration = 0.3f,
                                                .deathTotalFrames = 2});
@@ -167,7 +167,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem prioritizes death override sprite
 
     REQUIRE(animation.currentFrame == 1);
     REQUIRE(animation.overrideState == game::AnimationOverrideState::Death);
-    REQUIRE(animation.direction == game::Direction::Left);
+    REQUIRE(animation.direction == game::AnimationDirection::Left);
     REQUIRE(sprite.imagePath == "assets/characters/death_left_2.png");
 }
 
@@ -177,7 +177,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem clears attack override after time
     game::AnimationSystem system;
 
     game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
+    registry.addComponent<game::Animation>(e, {.direction = game::AnimationDirection::Right,
                                                .currentFrame = 0,
                                                .frameTimer = 0.0f,
                                                .frameDuration = 0.5f,
@@ -185,7 +185,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem clears attack override after time
                                                .baseTexturePath = "assets/characters/",
                                                .overrideState = game::AnimationOverrideState::Attack,
                                                .overrideTimeRemaining = 0.2f,
-                                               .overrideDirection = game::Direction::Right,
+                                               .overrideDirection = game::AnimationDirection::Right,
                                                .attackTexturePath = "assets/characters/atk_",
                                                .attackFrameDuration = 0.2f,
                                                .attackTotalFrames = 2});

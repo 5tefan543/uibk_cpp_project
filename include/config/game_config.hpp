@@ -7,9 +7,10 @@
 #include "logging/log.hpp"
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-namespace controller {
+namespace config {
 
 struct WindowConfig {
     int width;
@@ -48,13 +49,12 @@ struct SpriteConfig {
 };
 
 struct DirectionalAnimationConfig {
-    game::Direction direction;
-    std::vector<SpriteConfig> frames;
+    std::unordered_map<game::AnimationDirection, std::vector<SpriteConfig>> directionToFrames;
 };
 
 struct AnimationConfig {
-    game::AnimationState state;
-    std::vector<DirectionalAnimationConfig> directions;
+    SpriteConfig fallbackFrame;
+    std::unordered_map<game::AnimationState, DirectionalAnimationConfig> stateToDirection;
 };
 
 struct AnimationOverwriteConfig {
@@ -117,13 +117,21 @@ struct PlayerClassConfig {
     AnimationOverwriteConfig deathOverwrite;
     CombatStatsConfig stats;
     AttackProfileConfig attack;
-    // AnimationConfig
+    AnimationConfig animations;
     // SoundConfig
 };
 
 struct PlayerClassConfigs {
     PlayerClassConfig melee;
     PlayerClassConfig ranged;
+
+    const PlayerClassConfig &getByType(game::CharacterType type) const
+    {
+        if (type == game::CharacterType::Melee) {
+            return melee;
+        }
+        return ranged;
+    }
 };
 
 // struct EnemyClassConfigs {
@@ -198,4 +206,4 @@ struct GameConfig {
     Vec2<unsigned> locTabNumBuckets;
 };
 
-} // namespace controller
+} // namespace config

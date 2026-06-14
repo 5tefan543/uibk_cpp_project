@@ -1,4 +1,5 @@
 #include "game/game.hpp"
+#include "config/asset_manager.hpp"
 #include "controller/debug/debug_context.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state_transition_action.hpp"
@@ -20,8 +21,7 @@ namespace game {
 
 namespace {
 
-const controller::PlayerClassConfig &getClassConfig(const controller::PlayerClassConfigs &playerClasses,
-                                                    CharacterType type)
+const config::PlayerClassConfig &getClassConfig(const config::PlayerClassConfigs &playerClasses, CharacterType type)
 {
     if (type == CharacterType::Melee) {
         return playerClasses.melee;
@@ -30,7 +30,7 @@ const controller::PlayerClassConfig &getClassConfig(const controller::PlayerClas
     return playerClasses.ranged;
 }
 
-void applyClassStats(const controller::PlayerClassConfig &classConfig, PlayerStats &playerStats)
+void applyClassStats(const config::PlayerClassConfig &classConfig, PlayerStats &playerStats)
 {
     playerStats.maxHealth = classConfig.stats.maxHealth;
     playerStats.health = playerStats.maxHealth;
@@ -44,7 +44,7 @@ void applyClassStats(const controller::PlayerClassConfig &classConfig, PlayerSta
     playerStats.characterType = classConfig.characterType;
 }
 
-void applyAnimationOverwrite(const controller::AnimationOverwriteConfig &overwrite, std::string &texturePath,
+void applyAnimationOverwrite(const config::AnimationOverwriteConfig &overwrite, std::string &texturePath,
                              float &frameDuration, int &totalFrames, float &moveSpeedMultiplier)
 {
     texturePath = overwrite.texturePathPrefix;
@@ -140,7 +140,7 @@ void Game::initPlayer(CharacterType characterType)
     PlayerStats playerStats;
     Position position = {100.0f, 100.0f};
 
-    const controller::PlayerClassConfig &classConfig = getClassConfig(config_.playerClasses, characterType);
+    const config::PlayerClassConfig &classConfig = getClassConfig(config_.playerClasses, characterType);
     applyClassStats(classConfig, playerStats);
     initPlayer(position, playerStats);
 }
@@ -149,6 +149,7 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
 {
     Entity player = registry_.createEntity();
     registry_.addComponent<PlayerTag>(player, {});
+
     Animation playerAnimation;
     if (playerStats.characterType == CharacterType::Melee) {
         playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePathPrefix};
@@ -157,7 +158,7 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
         playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePathPrefix};
     }
 
-    const controller::PlayerClassConfig &classConfig = getClassConfig(config_.playerClasses, playerStats.characterType);
+    const config::PlayerClassConfig &classConfig = config_.playerClasses.getByType(playerStats.characterType);
     applyAnimationOverwrite(classConfig.attack.animationOverwrite, playerAnimation.attackTexturePath,
                             playerAnimation.attackFrameDuration, playerAnimation.attackTotalFrames,
                             playerAnimation.attackMoveSpeedMultiplier);
@@ -165,11 +166,15 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
                             playerAnimation.deathFrameDuration, playerAnimation.deathTotalFrames,
                             playerAnimation.deathMoveSpeedMultiplier);
 
+    const config::SpriteConfig &spriteConfig =
+        config::AssetManager::getPlayerSpriteConfig(config_, playerStats.characterType, playerAnimation.state,
+                                                    playerAnimation.direction, playerAnimation.currentFrame);
+
     registry_.addComponent<PlayerStats>(player, playerStats);
     registry_.addComponent<Position>(player, position);
     registry_.addComponent<Velocity>(player, {0.0f, 0.0f});
     registry_.addComponent<Animation>(player, playerAnimation);
-    registry_.addComponent<view::Sprite>(player, {.imagePath = playerAnimation.baseTexturePath + "right_1.png"});
+    registry_.addComponent<view::Sprite>(player, {.imagePath = spriteConfig.texture.path});
 }
 
 void Game::initWave(int waveNumber)

@@ -1,6 +1,6 @@
 #pragma once
+#include "config/game_config.hpp"
 #include "game/persisted_game.hpp"
-#include "game_config.hpp"
 #include "leaderboard.hpp"
 #include <optional>
 #include <string>
@@ -21,8 +21,8 @@ class PersistenceManager {
     static std::vector<LeaderboardEntry> getLeaderboardEntries();
     static std::vector<LeaderboardEntry> getTopNLeaderboardEntries(int topN);
 
-    static bool saveConfig(const GameConfig &config);
-    static GameConfig getConfig();
+    static bool saveConfig(const config::GameConfig &config);
+    static const config::GameConfig &getConfig();
     static void resetConfig();
 };
 

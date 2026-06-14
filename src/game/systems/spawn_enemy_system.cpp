@@ -17,7 +17,7 @@ namespace {
 constexpr float pi = 3.14159265358979323846f;
 const std::string texturePathSuffix = "right_1.png";
 
-void applyAnimationOverwrite(const controller::AnimationOverwriteConfig &overwrite, std::string &texturePath,
+void applyAnimationOverwrite(const config::AnimationOverwriteConfig &overwrite, std::string &texturePath,
                              float &frameDuration, int &totalFrames, float &moveSpeedMultiplier)
 {
     texturePath = overwrite.texturePathPrefix;
@@ -30,21 +30,21 @@ void applyAnimationOverwrite(const controller::AnimationOverwriteConfig &overwri
 
 SpawnEnemySystem::SpawnEnemySystem() : randomEngine_(std::random_device{}()) {}
 
-void SpawnEnemySystem::update(Registry &registry, int wave, const controller::GameConfig &config)
+void SpawnEnemySystem::update(Registry &registry, int wave, const config::GameConfig &config)
 {
     clearEnemies(registry);
 
     const SpawnContext context = createSpawnContext(registry);
-    const controller::EnemySpawnConfig &spawnConfig = config.enemyConfig.spawn;
+    const config::EnemySpawnConfig &spawnConfig = config.enemyConfig.spawn;
 
     const int enemyCount = generateEnemyCount(wave, config.maxEnemyCount, spawnConfig);
     for (int i = 0; i < enemyCount; ++i) {
-        const controller::EnemyArchetypeConfig &archetype = chooseEnemyArchetype(config.enemyConfig, false);
+        const config::EnemyArchetypeConfig &archetype = chooseEnemyArchetype(config.enemyConfig, false);
         spawnEnemy(registry, wave, archetype, spawnConfig, context);
     }
 
     if (isBossWave(wave, config.wavesPerStage)) {
-        const controller::EnemyArchetypeConfig &archetype = chooseEnemyArchetype(config.enemyConfig, true);
+        const config::EnemyArchetypeConfig &archetype = chooseEnemyArchetype(config.enemyConfig, true);
         spawnEnemy(registry, wave, archetype, spawnConfig, context);
     }
 }
@@ -75,7 +75,7 @@ void SpawnEnemySystem::clearEnemies(Registry &registry)
     }
 }
 
-int SpawnEnemySystem::generateEnemyCount(int wave, int maxEnemyCount, const controller::EnemySpawnConfig &spawnConfig)
+int SpawnEnemySystem::generateEnemyCount(int wave, int maxEnemyCount, const config::EnemySpawnConfig &spawnConfig)
 {
     const float averageEnemyCount =
         spawnConfig.baseEnemyCount + static_cast<float>(wave) * spawnConfig.enemyCountGrowthPerWave;
@@ -92,13 +92,13 @@ bool SpawnEnemySystem::isBossWave(int wave, int wavesPerStage) const
     return wavesPerStage > 0 && wave % wavesPerStage == 0;
 }
 
-const controller::EnemyArchetypeConfig &
-SpawnEnemySystem::chooseEnemyArchetype(const controller::EnemyConfig &enemyConfig, bool isBoss)
+const config::EnemyArchetypeConfig &SpawnEnemySystem::chooseEnemyArchetype(const config::EnemyConfig &enemyConfig,
+                                                                           bool isBoss)
 {
-    std::vector<const controller::EnemyArchetypeConfig *> candidates;
+    std::vector<const config::EnemyArchetypeConfig *> candidates;
     std::vector<double> weights;
 
-    for (const controller::EnemyArchetypeConfig &archetype : enemyConfig.archetypes) {
+    for (const config::EnemyArchetypeConfig &archetype : enemyConfig.archetypes) {
         if (archetype.isBoss != isBoss) {
             continue;
         }
@@ -115,8 +115,8 @@ SpawnEnemySystem::chooseEnemyArchetype(const controller::EnemyConfig &enemyConfi
     return *candidates.at(distribution(randomEngine_));
 }
 
-void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const controller::EnemyArchetypeConfig &archetype,
-                                  const controller::EnemySpawnConfig &spawnConfig, const SpawnContext &context)
+void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const config::EnemyArchetypeConfig &archetype,
+                                  const config::EnemySpawnConfig &spawnConfig, const SpawnContext &context)
 {
     const std::string &baseTexturePath = archetype.baseTexturePath;
 
@@ -148,7 +148,7 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const controller
 }
 
 Position SpawnEnemySystem::generateSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite,
-                                                 bool isBoss, const controller::EnemySpawnConfig &spawnConfig)
+                                                 bool isBoss, const config::EnemySpawnConfig &spawnConfig)
 {
     if (isBoss) {
         return generateBossSpawnPosition(context, enemySprite, spawnConfig);
@@ -158,7 +158,7 @@ Position SpawnEnemySystem::generateSpawnPosition(const SpawnContext &context, co
 }
 
 Position SpawnEnemySystem::generateBossSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite,
-                                                     const controller::EnemySpawnConfig &spawnConfig)
+                                                     const config::EnemySpawnConfig &spawnConfig)
 {
     std::uniform_real_distribution<float> angleDistribution(0.0f, 2.0f * pi);
     std::uniform_real_distribution<float> distanceDistribution(spawnConfig.minBossSpawnDistanceFromPlayer,
@@ -187,9 +187,8 @@ Position SpawnEnemySystem::generateRandomSpawnPosition(const SpawnContext &conte
     return {posXDistribution(randomEngine_), posYDistribution(randomEngine_)};
 }
 
-EnemyStats SpawnEnemySystem::createEnemyStats(int wave, const controller::EnemyArchetypeConfig &archetype,
-                                              const controller::EnemySpawnConfig &spawnConfig,
-                                              const SpawnContext &context)
+EnemyStats SpawnEnemySystem::createEnemyStats(int wave, const config::EnemyArchetypeConfig &archetype,
+                                              const config::EnemySpawnConfig &spawnConfig, const SpawnContext &context)
 {
     const float combatScaling = generateCombatScaling(wave, archetype, spawnConfig);
 
@@ -206,8 +205,8 @@ EnemyStats SpawnEnemySystem::createEnemyStats(int wave, const controller::EnemyA
     return stats;
 }
 
-float SpawnEnemySystem::generateCombatScaling(int wave, const controller::EnemyArchetypeConfig &archetype,
-                                              const controller::EnemySpawnConfig &spawnConfig)
+float SpawnEnemySystem::generateCombatScaling(int wave, const config::EnemyArchetypeConfig &archetype,
+                                              const config::EnemySpawnConfig &spawnConfig)
 {
     const float waveScaling =
         spawnConfig.baseEnemyScaling + static_cast<float>(wave - 1) * spawnConfig.enemyScalingGrowthPerWave;
@@ -221,9 +220,8 @@ float SpawnEnemySystem::generateCombatScaling(int wave, const controller::EnemyA
     return waveScaling * variation * archetype.combatScaleMultiplier;
 }
 
-float SpawnEnemySystem::generateEnemyMoveSpeed(int wave, const controller::EnemyArchetypeConfig &archetype,
-                                               const controller::EnemySpawnConfig &spawnConfig,
-                                               const SpawnContext &context)
+float SpawnEnemySystem::generateEnemyMoveSpeed(int wave, const config::EnemyArchetypeConfig &archetype,
+                                               const config::EnemySpawnConfig &spawnConfig, const SpawnContext &context)
 {
     const float wantedMoveSpeed =
         spawnConfig.baseEnemyMoveSpeed + static_cast<float>(wave - 1) * spawnConfig.enemyMoveSpeedGrowthPerWave;

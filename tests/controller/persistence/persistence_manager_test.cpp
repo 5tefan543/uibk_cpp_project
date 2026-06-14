@@ -92,7 +92,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager stores leaderboard entries sor
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk when cache is empty")
 {
-    GameConfig input;
+    config::GameConfig input;
     input.initialStage = 13;
     input.initialWave = 8;
     input.initialCurrency = 456;
@@ -112,7 +112,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk whe
 
     REQUIRE(Serializer::writeJsonToFile(input, Serializer::configFilePath));
 
-    const auto output = PersistenceManager::getConfig();
+    const config::GameConfig &output = PersistenceManager::getConfig();
 
     REQUIRE(output.initialStage == 13);
     REQUIRE(output.initialWave == 8);
@@ -157,7 +157,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saveConfig returns false when 
         REQUIRE(configPathAsFile.good());
     }
 
-    GameConfig config;
+    config::GameConfig config;
     config.initialStage = 1;
 
     REQUIRE_FALSE(PersistenceManager::saveConfig(config));
@@ -165,7 +165,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saveConfig returns false when 
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads config")
 {
-    GameConfig input;
+    config::GameConfig input;
     input.initialStage = 7;
     input.initialWave = 3;
     input.initialCurrency = 999;
@@ -182,8 +182,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads config")
 
     PersistenceManager::saveConfig(input);
 
-    GameConfig output;
-    output = PersistenceManager::getConfig();
+    const config::GameConfig &output = PersistenceManager::getConfig();
 
     REQUIRE(output.initialStage == 7);
     REQUIRE(output.initialWave == 3);
@@ -204,18 +203,18 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads config")
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig prefers cached config after save")
 {
-    GameConfig cachedConfig;
+    config::GameConfig cachedConfig;
     cachedConfig.initialStage = 11;
     cachedConfig.initialWave = 6;
     cachedConfig.initialCurrency = 555;
 
     REQUIRE(PersistenceManager::saveConfig(cachedConfig));
 
-    GameConfig diskConfig = cachedConfig;
+    config::GameConfig diskConfig = cachedConfig;
     diskConfig.initialStage = 99;
     REQUIRE(Serializer::writeJsonToFile(diskConfig, Serializer::configFilePath));
 
-    const auto output = PersistenceManager::getConfig();
+    const config::GameConfig &output = PersistenceManager::getConfig();
 
     REQUIRE(output.initialStage == 11);
     REQUIRE(output.initialWave == 6);

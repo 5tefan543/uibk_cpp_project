@@ -109,6 +109,84 @@
                     "radius": 80.0,
                     "activeTimeSec": 0.2
                 }
+            },
+            "animations": {
+                "fallbackFrame": {
+                    "texture": {
+                        "path": "assets/icons/question_mark.png"
+                    },
+                    "hitBox": {}
+                },
+                "stateToDirection": {
+                    "Idle": {
+                        "directionToFrames": {
+                            "None": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
+                    },
+                    "Walk": {
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_left_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_left_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_left_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_right_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_right_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_right_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
+                    }
+                }
             }
         },
         "ranged": {
@@ -150,6 +228,84 @@
                     "length": 120.0,
                     "width": 16.0,
                     "activeTimeSec": 0.2
+                }
+            },
+            "animations": {
+                "fallbackFrame": {
+                    "texture": {
+                        "path": "assets/icons/question_mark.png"
+                    },
+                    "hitBox": {}
+                },
+                "stateToDirection": {
+                    "Idle": {
+                        "directionToFrames": {
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
+                    },
+                    "Walk": {
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_left_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_left_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_left_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_right_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_right_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_right_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
+                    }
                 }
             }
         }

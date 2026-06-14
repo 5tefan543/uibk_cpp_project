@@ -1,7 +1,7 @@
 #pragma once
 
+#include "config/game_config.hpp"
 #include "controller/input/input_state.hpp"
-#include "controller/persistence/game_config.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
@@ -22,7 +22,7 @@ namespace game {
 class Game {
   private:
     Registry registry_;
-    controller::GameConfig config_;
+    config::GameConfig config_;
     LocationTable locationTable_;
     GameDebugSession debugSession_{registry_, locationTable_};
     float currentWaveDuration_;
