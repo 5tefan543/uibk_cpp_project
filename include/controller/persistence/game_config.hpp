@@ -2,6 +2,7 @@
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "geometry/vector.hpp"
+#include "logging/log.hpp"
 #include <string>
 #include <vector>
 
@@ -136,6 +137,11 @@ struct EnemyConfig {
     std::vector<EnemyArchetypeConfig> archetypes;
 };
 
+struct LogConfig {
+    logger::LogLevel level;
+    bool useColor;
+};
+
 struct GameConfig {
     int initialStage;
     int initialWave;
@@ -144,6 +150,7 @@ struct GameConfig {
     int wavesPerStage;
     int maxEnemyCount;
     WindowConfig windowConfig;
+    LogConfig logConfig;
     AssetConfig assetConfig;
     PlayerClassConfigs playerClasses;
     EnemyConfig enemyConfig;

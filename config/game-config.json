@@ -10,6 +10,10 @@
         "height": 1080,
         "title": "Robotato"
     },
+    "logConfig": {
+        "level": "Info",
+        "useColor": true
+    },
     "assetConfig": {
         "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf",
         "meleeTexturePathPrefix": "assets/characters/melee/character_melee_",

@@ -1,17 +1,26 @@
 #ifndef _WIN32 // We're only testing on linux
-#include "../src/logging/log.cpp"
+
+#include "logging/log.hpp"
+#include <array>
 #include <catch2/catch_test_macros.hpp>
+#include <format>
 #include <iostream>
+#include <sstream>
+#include <string>
+
+namespace {
 
 struct OutRedirect {
     OutRedirect() : oldBufCout_(std::cout.rdbuf(ssCout_.rdbuf())), oldBufCerr_(std::cerr.rdbuf(ssCerr_.rdbuf())) {}
+
     ~OutRedirect()
     {
         std::cout.rdbuf(oldBufCout_);
         std::cerr.rdbuf(oldBufCerr_);
     }
-    std::string getCout() { return ssCout_.str(); }
-    std::string getCerr() { return ssCerr_.str(); }
+
+    std::string getCout() const { return ssCout_.str(); }
+    std::string getCerr() const { return ssCerr_.str(); }
 
   private:
     std::stringstream ssCout_;
@@ -20,156 +29,167 @@ struct OutRedirect {
     std::streambuf *oldBufCerr_;
 };
 
-// Return {log-correct-output-msg, log-input-msg}
-std::tuple<std::string, std::string> formatLogLine(logger::Level l, bool useColor, std::string msg = "")
+struct EnvGuard {
+    EnvGuard()
+    {
+        if (const char *level = std::getenv(logger::logLevelEnvVar)) {
+            oldLevel_ = level;
+        }
+        if (const char *color = std::getenv(logger::logColorEnvVar)) {
+            oldColor_ = color;
+        }
+
+        unsetenv(logger::logLevelEnvVar);
+        unsetenv(logger::logColorEnvVar);
+    }
+
+    ~EnvGuard()
+    {
+        unsetenv(logger::logLevelEnvVar);
+        unsetenv(logger::logColorEnvVar);
+
+        if (!oldLevel_.empty()) {
+            setenv(logger::logLevelEnvVar, oldLevel_.c_str(), 1);
+        }
+        if (!oldColor_.empty()) {
+            setenv(logger::logColorEnvVar, oldColor_.c_str(), 1);
+        }
+
+        logger::configure();
+    }
+
+  private:
+    std::string oldLevel_;
+    std::string oldColor_;
+};
+
+std::string formatLogLine(logger::LogLevel level, bool useColor, const std::string &msg)
 {
-    const char *colError = useColor ? "\033[1;31m" : "";
-    const char *colWarning = useColor ? "\033[1;33m" : "";
-    const char *colInfo = useColor ? "\033[1m" : "";
-    const char *colDebug = useColor ? "\033[1m" : "";
-    const char *colClear = useColor ? "\033[0m" : "";
-    switch (l) {
+    const char *clear = useColor ? "\033[0m" : "";
+
+    switch (level) {
     case logger::ERROR:
-        if (msg == "") {
-            msg = "ERROR-log-test";
-        }
-        return {std::format("{}{}{}{}\n", colError, "[ERROR] ", colClear, msg), msg};
+        return std::format("{}[ERROR] {}{}\n", useColor ? "\033[1;31m" : "", clear, msg);
     case logger::WARNING:
-        if (msg == "") {
-            msg = "WARNING-log-test";
-        }
-        return {std::format("{}{}{}{}\n", colWarning, "[WARN]  ", colClear, msg), msg};
+        return std::format("{}[WARN]  {}{}\n", useColor ? "\033[1;33m" : "", clear, msg);
     case logger::INFO:
-        if (msg == "") {
-            msg = "INFO-log-test";
-        }
-        return {std::format("{}{}{}{}\n", colInfo, "[INFO]  ", colClear, msg), msg};
+        return std::format("{}[INFO]  {}{}\n", useColor ? "\033[1;32m" : "", clear, msg);
     case logger::DEBUG:
-        if (msg == "") {
-            msg = "DEBUG-log-test";
-        }
-        return {std::format("{}{}{}{}\n", colDebug, "[DEBUG] ", colClear, msg), msg};
+        return std::format("{}[DEBUG] {}{}\n", useColor ? "\033[1m" : "", clear, msg);
     case logger::SILENT:
-        if (msg == "") {
-            msg = "silence-is-absence";
-        }
-        return {std::string(""), msg};
     default:
-        throw std::runtime_error("Unexpected logger level");
+        return "";
     }
 }
 
-TEST_CASE("Test setting log level via env. variable")
+} // namespace
+
+TEST_CASE("Logger settings can be overridden by environment variables")
 {
-    using logger::log;
-    using logger::LogSettings;
-
-    // Remember values so that they can be restored after the tests
-    const char *envLevlBefore = std::getenv("ROUGL_LOG_LEVEL");
-    const char *envColBefore = std::getenv("ROUGL_LOG_COLOR");
-
-    unsetenv("ROUGL_LOG_LEVEL");
-    unsetenv("ROUGL_LOG_COLOR");
-    const auto defaultSettings = logger::LogSettings();
+    EnvGuard envGuard; // is constructed / destroyed by each section
 
     const auto levels = std::array{logger::SILENT, logger::ERROR, logger::WARNING, logger::INFO, logger::DEBUG};
-    const auto levelStr = std::array{"Silent", "Error", "Warning", "Info", "Debug"};
+    const auto levelNames = std::array{"Silent", "Error", "Warning", "Info", "Debug"};
 
-    SECTION("Log level env. var parsing")
+    SECTION("Log level env var overrides constructor level")
     {
-        for (unsigned i = 0; i < levels.size(); i++) {
-            REQUIRE(setenv("ROUGL_LOG_LEVEL", levelStr[i], 1) == 0);
-            logger::settings = logger::LogSettings();
-            REQUIRE(logger::settings.level == levels[i]);
-        }
+        for (std::size_t i = 0; i < levels.size(); ++i) {
+            REQUIRE(setenv(logger::logLevelEnvVar, levelNames[i], 1) == 0);
 
-        logger::settings = defaultSettings;
-        REQUIRE(setenv("ROUGL_LOG_COLOR", "On", 1) == 0);
-        REQUIRE(setenv("ROUGL_LOG_LEVEL", "Invalid", 1) == 0);
-        std::string sout, eout;
-        {
-            OutRedirect r;
-            logger::settings = logger::LogSettings();
-            sout = r.getCout();
-            eout = r.getCerr();
+            const logger::LogSettings settings{logger::ERROR, true};
+
+            REQUIRE(settings.getLevel() == levels[i]);
         }
-        auto [logExpected, msg] =
-            formatLogLine(logger::ERROR, defaultSettings.useColor, "Invalid environment loggin level: 'Invalid'");
-        REQUIRE(sout == std::string(""));
-        REQUIRE(eout == logExpected);
     }
 
-    SECTION("Log color env. var parsing")
+    SECTION("Log color env var overrides constructor color")
     {
-        REQUIRE(setenv("ROUGL_LOG_COLOR", "On", 1) == 0);
-        logger::settings = logger::LogSettings();
-        REQUIRE(logger::settings.useColor == true);
+        REQUIRE(setenv(logger::logColorEnvVar, "On", 1) == 0);
+        REQUIRE(logger::LogSettings{logger::ERROR, false}.getUseColor());
 
-        REQUIRE(setenv("ROUGL_LOG_COLOR", "Off", 1) == 0);
-        logger::settings = logger::LogSettings();
-        REQUIRE(logger::settings.useColor == false);
-
-        logger::settings = defaultSettings;
-        REQUIRE(setenv("ROUGL_LOG_COLOR", "Invalid", 1) == 0);
-        REQUIRE(setenv("ROUGL_LOG_LEVEL", "Error", 1) == 0);
-        std::string sout, eout;
-        {
-            OutRedirect r;
-            logger::settings = logger::LogSettings();
-            sout = r.getCout();
-            eout = r.getCerr();
-        }
-        auto [logExpected, msg] =
-            formatLogLine(logger::ERROR, defaultSettings.useColor, "Invalid environment loggin color: 'Invalid'");
-        REQUIRE(sout == std::string(""));
-        REQUIRE(eout == logExpected);
+        REQUIRE(setenv(logger::logColorEnvVar, "Off", 1) == 0);
+        REQUIRE_FALSE(logger::LogSettings{logger::ERROR, true}.getUseColor());
     }
 
-    SECTION("Printing different log levels")
+    SECTION("Invalid log level env var prints plain error to cerr")
+    {
+        REQUIRE(setenv(logger::logLevelEnvVar, "Invalid", 1) == 0);
+
+        std::string coutOutput;
+        std::string cerrOutput;
+
+        {
+            OutRedirect redirect;
+            // create settings to trigger log level env var parsing
+            const logger::LogSettings settings;
+            coutOutput = redirect.getCout();
+            cerrOutput = redirect.getCerr();
+        }
+
+        REQUIRE(coutOutput.empty());
+        REQUIRE(cerrOutput
+                == "[ERROR] Invalid environment logging level: 'Invalid'\n"
+                   "Valid values are: Silent, Error, Warning, Info, Debug\n");
+    }
+
+    SECTION("Invalid log color env var prints plain error to cerr")
+    {
+        REQUIRE(setenv(logger::logColorEnvVar, "Invalid", 1) == 0);
+
+        std::string coutOutput;
+        std::string cerrOutput;
+
+        {
+            OutRedirect redirect;
+            // create settings to trigger log color env var parsing
+            const logger::LogSettings settings;
+            coutOutput = redirect.getCout();
+            cerrOutput = redirect.getCerr();
+        }
+
+        REQUIRE(coutOutput.empty());
+        REQUIRE(cerrOutput
+                == "[ERROR] Invalid environment logging color setting: 'Invalid'\n"
+                   "Valid values are: On, Off\n");
+    }
+
+    SECTION("Logger prints expected messages depending on configured level")
     {
         for (bool useColor : {false, true}) {
-            for (unsigned i = 0; i < levels.size(); i++) {
-                REQUIRE(setenv("ROUGL_LOG_LEVEL", levelStr[i], 1) == 0);
-                REQUIRE(setenv("ROUGL_LOG_COLOR", useColor ? "On" : "Off", 1) == 0);
-                logger::settings = logger::LogSettings();
+            for (std::size_t i = 0; i < levels.size(); ++i) {
+                logger::configure(levels[i], useColor);
 
-                for (unsigned j = 0; j < levels.size(); j++) {
-                    auto [logExpected, msg] = formatLogLine(levels[j], useColor);
-                    std::string sout, eout;
+                for (std::size_t messageIndex = 0; messageIndex < levels.size(); ++messageIndex) {
+                    const auto messageLevel = levels[messageIndex];
+                    const auto msg = std::format("{}-log-test", levelNames[messageIndex]);
+
+                    std::string coutOutput;
+                    std::string cerrOutput;
+
                     {
-                        OutRedirect r;
-                        logger::log(levels[j], msg);
-                        sout = r.getCout();
-                        eout = r.getCerr();
+                        OutRedirect redirect;
+                        logger::log(messageLevel, msg);
+                        coutOutput = redirect.getCout();
+                        cerrOutput = redirect.getCerr();
                     }
-                    INFO(std::format("Test env level: {}, logging with level: {}, using color: {}\n", levelStr[i],
-                                     levelStr[j], useColor ? "true" : "false"));
-                    if (j > i || levels[j] == logger::SILENT) {
-                        REQUIRE(sout == std::string(""));
-                        REQUIRE(eout == std::string(""));
-                    } else if (levels[j] == logger::ERROR) {
-                        REQUIRE(sout == std::string(""));
-                        REQUIRE(eout == logExpected);
+
+                    INFO(std::format("configured={}, message={}, useColor={}", levelNames[i], levelNames[messageIndex],
+                                     useColor));
+
+                    if (messageLevel == logger::SILENT || messageLevel > levels[i]) {
+                        REQUIRE(coutOutput.empty());
+                        REQUIRE(cerrOutput.empty());
+                    } else if (messageLevel == logger::ERROR) {
+                        REQUIRE(coutOutput.empty());
+                        REQUIRE(cerrOutput == formatLogLine(messageLevel, useColor, msg));
                     } else {
-                        REQUIRE(sout == logExpected);
-                        REQUIRE(eout == std::string(""));
+                        REQUIRE(coutOutput == formatLogLine(messageLevel, useColor, msg));
+                        REQUIRE(cerrOutput.empty());
                     }
                 }
             }
         }
     }
-
-    // Restore logging settings to what they were before the tests
-    {
-        unsetenv("ROUGL_LOG_LEVEL");
-        unsetenv("ROUGL_LOG_COLOR");
-        if (envLevlBefore) {
-            setenv("ROUGL_LOG_LEVEL", envLevlBefore, 1);
-        }
-        if (envColBefore) {
-            setenv("ROUGL_LOG_COLOR", envColBefore, 1);
-        }
-        logger::settings = logger::LogSettings();
-    }
 }
+
 #endif
