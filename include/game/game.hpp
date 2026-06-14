@@ -12,6 +12,7 @@
 #include "game/ecs/systems/enemy_ai_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
+#include "game/ecs/systems/sound_system.hpp"
 #include "game/ecs/systems/spawn_enemy_system.hpp"
 #include "game/location_table.hpp"
 #include "game/persisted_game.hpp"
@@ -36,6 +37,7 @@ class Game {
     SpawnEnemySystem spawnEnemySystem_;
     CollisionDetectionSystem collisionDetectionSystem_;
     DamageSystem damageSystem_;
+    SoundSystem soundSystem_;
 
     int stage_ = 1;
     int wave_ = 1;

@@ -87,7 +87,7 @@ target_link_libraries(roguelike_ui
 
 #musicLibrary
 add_library(roguelike_audio
-  src/sound/audio_manager.cpp
+  src/audio/audio_manager.cpp
 
 )
 
