@@ -166,15 +166,15 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
                             playerAnimation.deathFrameDuration, playerAnimation.deathTotalFrames,
                             playerAnimation.deathMoveSpeedMultiplier);
 
-    const config::SpriteConfig &spriteConfig =
-        config::AssetManager::getPlayerSpriteConfig(config_, playerStats.characterType, playerAnimation.state,
-                                                    playerAnimation.direction, playerAnimation.currentFrame);
+    const config::AnimationFrame animationFrame =
+        config::AssetManager::getPlayerAnimationFrame(config_, playerStats.characterType, playerAnimation.state,
+                                                      playerAnimation.direction, playerAnimation.currentFrame);
 
     registry_.addComponent<PlayerStats>(player, playerStats);
     registry_.addComponent<Position>(player, position);
     registry_.addComponent<Velocity>(player, {0.0f, 0.0f});
     registry_.addComponent<Animation>(player, playerAnimation);
-    registry_.addComponent<view::Sprite>(player, {.imagePath = spriteConfig.texture.path});
+    registry_.addComponent<view::Sprite>(player, {.imagePath = animationFrame.spriteConfig.texture.path});
 }
 
 void Game::initWave(int waveNumber)
@@ -319,7 +319,7 @@ void Game::updateSystems(const controller::InputState &input, float dt)
     enemyAI_.update(registry_, locationTable_);
     inputSystem_.update(registry_, config_, input, dt);
     movementSystem_.update(registry_, dt);
-    animationSystem_.update(registry_, dt);
+    animationSystem_.update(registry_, config_, dt);
     cameraSystem_.update(registry_);
     collisionDetectionSystem_.update(registry_, wave_);
     damageSystem_.update(registry_, dt);

@@ -5,7 +5,6 @@
 #include "geometry/rectangle.hpp"
 #include "geometry/vector.hpp"
 #include "logging/log.hpp"
-#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -35,8 +34,8 @@ struct AssetConfig {
 
 struct TextureConfig {
     std::string path;
-    std::optional<Vec2<float>> position;
-    std::optional<Vec2<float>> size;
+    Vec2<float> position = {0, 0};
+    Vec2<float> size = {0, 0};
 };
 
 struct HitBoxConfig {
@@ -49,11 +48,11 @@ struct SpriteConfig {
 };
 
 struct DirectionalAnimationConfig {
+    float frameDuration;
     std::unordered_map<game::AnimationDirection, std::vector<SpriteConfig>> directionToFrames;
 };
 
 struct AnimationConfig {
-    SpriteConfig fallbackFrame;
     std::unordered_map<game::AnimationState, DirectionalAnimationConfig> stateToDirection;
 };
 
@@ -76,8 +75,7 @@ struct CombatStatsConfig {
 
 struct ProjectileAttackConfig {
     float velocityScale = 10.0f;
-    float spriteWidth = 16.0f;
-    float spriteHeight = 16.0f;
+    AnimationConfig animations;
 };
 
 struct MeleeArcAttackConfig {
@@ -134,13 +132,7 @@ struct PlayerClassConfigs {
     }
 };
 
-// struct EnemyClassConfigs {
-//     EnemyClassConfig blob;
-//     EnemyClassConfig boss;
-// };
-
-struct EnemyArchetypeConfig {
-    std::string id;
+struct EnemyClassConfig {
     bool isBoss = false;
     float spawnWeight = 1.0f;
     float combatScaleMultiplier = 1.0f;
@@ -150,6 +142,12 @@ struct EnemyArchetypeConfig {
     CombatStatsConfig stats;
     AttackProfileConfig attack;
     int scoreReward = 1;
+    AnimationConfig animations;
+};
+
+struct EnemyClassConfigs {
+    EnemyClassConfig blob;
+    EnemyClassConfig boss;
 };
 
 struct EnemySpawnConfig {
@@ -175,11 +173,6 @@ struct EnemySpawnConfig {
     float maxEnemyMoveSpeedVariation = 1.1f;
 };
 
-struct EnemyConfig {
-    EnemySpawnConfig spawn;
-    std::vector<EnemyArchetypeConfig> archetypes;
-};
-
 struct LogConfig {
     logger::LogLevel level;
     bool useColor;
@@ -201,8 +194,10 @@ struct GameConfig {
     LogConfig logConfig;
     MapConfig mapConfig;
     AssetConfig assetConfig;
+    SpriteConfig fallbackSprite;
     PlayerClassConfigs playerClasses;
-    EnemyConfig enemyConfig;
+    EnemyClassConfigs enemyClasses;
+    EnemySpawnConfig enemySpawnConfig;
     Vec2<unsigned> locTabNumBuckets;
 };
 

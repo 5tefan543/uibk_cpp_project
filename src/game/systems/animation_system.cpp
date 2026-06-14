@@ -1,6 +1,8 @@
 #include "game/ecs/systems/animation_system.hpp"
+#include "config/asset_manager.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
+#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "geometry/vector.hpp"
 #include "view/sprite.hpp"
@@ -32,7 +34,7 @@ OverwriteRenderConfig getOverwriteRenderConfig(const Animation &animation)
 
 } // namespace
 
-void AnimationSystem::update(Registry &registry, float dt)
+void AnimationSystem::update(Registry &registry, const config::GameConfig &config, float dt)
 {
     for (auto entity : registry.view<Animation, view::Sprite>()) {
         Animation &animation = registry.getComponent<Animation>(entity);
@@ -62,6 +64,11 @@ void AnimationSystem::update(Registry &registry, float dt)
             continue;
         }
 
+        // Update sprite image path based on current animation state
+        const std::string directionStr = (animation.direction == AnimationDirection::Left) ? "left" : "right";
+        const int frameNum = animation.currentFrame + 1; // Frames are 1-indexed in filenames
+        sprite.imagePath = animation.baseTexturePath + directionStr + "_" + std::to_string(frameNum) + ".png";
+
         if (registry.hasComponent<Velocity>(entity)) {
             const Velocity &velocity = registry.getComponent<Velocity>(entity);
 
@@ -85,11 +92,6 @@ void AnimationSystem::update(Registry &registry, float dt)
                 animation.frameTimer = 0.0f;
             }
         }
-
-        // Update sprite image path based on current animation state
-        const std::string directionStr = (animation.direction == AnimationDirection::Left) ? "left" : "right";
-        const int frameNum = animation.currentFrame + 1; // Frames are 1-indexed in filenames
-        sprite.imagePath = animation.baseTexturePath + directionStr + "_" + std::to_string(frameNum) + ".png";
     }
 }
 

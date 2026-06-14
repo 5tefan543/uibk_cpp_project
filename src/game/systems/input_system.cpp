@@ -1,4 +1,5 @@
 #include "game/ecs/systems/input_system.hpp"
+#include "config/asset_manager.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
@@ -45,7 +46,7 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
                                           : view::Sprite{};
 
     timeSinceLastAttack_ = 0.0f;
-    Entity attackEntity = registry.createEntity();
+    Entity projectileEntity = registry.createEntity();
     Position playerPosition = registry.getComponent<Position>(playerEntity);
     Damage damageComponent{
         .amount = attackProfile.amount,
@@ -55,12 +56,16 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
         .params = ProjectileDamage{
             .speed = stats.speedOfAttack, .maxRange = stats.attackRange, .distanceTraveled = 0.0f, .maxTargets = 1}};
 
+    const config::AnimationFrame projectileAnimationFrame = config::AssetManager::getProjectileAnimationFrame(
+        config, attackProfile.projectile, AnimationState::Idle, AnimationDirection::None, 0);
+    const config::SpriteConfig &projectileSpriteConfig = projectileAnimationFrame.spriteConfig;
+
     AnimationDirection attackDirection =
         input.mouseGridX >= playerPosition.x ? AnimationDirection::Right : AnimationDirection::Left;
     float offsetX =
-        attackDirection == AnimationDirection::Right ? playerSprite.width : -attackProfile.projectile.spriteWidth;
+        attackDirection == AnimationDirection::Right ? playerSprite.width : -projectileSpriteConfig.texture.size.x;
     Position position{.x = playerPosition.x + offsetX,
-                      .y = playerPosition.y + (playerSprite.height / 2) - (attackProfile.projectile.spriteHeight / 2)};
+                      .y = playerPosition.y + (playerSprite.height / 2) - (projectileSpriteConfig.texture.size.y / 2)};
     if (registry.hasComponent<Animation>(playerEntity)) {
         Animation &playerAnimation = registry.getComponent<Animation>(playerEntity);
         playerAnimation.overrideState = AnimationOverrideState::Attack;
@@ -74,20 +79,24 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
 
     view::Sprite sprite{.x = position.x,
                         .y = position.y,
-                        .imagePath = config.assetConfig.projectilePath,
-                        .width = attackProfile.projectile.spriteWidth,
-                        .height = attackProfile.projectile.spriteHeight};
+                        .imagePath = projectileSpriteConfig.texture.path,
+                        .width = projectileSpriteConfig.texture.size.x,
+                        .height = projectileSpriteConfig.texture.size.y};
+
+    // TODO: define hitbox from projectileSpriteConfig.hitBox instead of using the whole sprite as hitbox
     HitBox hitBox{.rect = {sprite.x, sprite.y, sprite.width, sprite.height}};
+
     float angle = std::atan2(input.mouseGridY - position.y, input.mouseGridX - position.x);
     Velocity velocity{.x = stats.speedOfAttack * attackProfile.projectile.velocityScale * std::cos(angle),
                       .y = stats.speedOfAttack * attackProfile.projectile.velocityScale * std::sin(angle)};
-    registry.addComponent<Damage>(attackEntity, damageComponent);
-    registry.addComponent<view::Sprite>(attackEntity, sprite);
-    registry.addComponent<Position>(attackEntity, position);
-    registry.addComponent<Velocity>(attackEntity, velocity);
-    registry.addComponent<HitBox>(attackEntity, hitBox);
-    registry.addComponent<PlayerTag>(attackEntity, {});
-    registry.addComponent<DamageTag>(attackEntity, {});
+
+    registry.addComponent<Damage>(projectileEntity, damageComponent);
+    registry.addComponent<view::Sprite>(projectileEntity, sprite);
+    registry.addComponent<Position>(projectileEntity, position);
+    registry.addComponent<Velocity>(projectileEntity, velocity);
+    registry.addComponent<HitBox>(projectileEntity, hitBox);
+    registry.addComponent<PlayerTag>(projectileEntity, {});
+    registry.addComponent<DamageTag>(projectileEntity, {});
 }
 
 void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Entity playerEntity,
@@ -119,7 +128,7 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
     }
 
     timeSinceLastAttack_ = 0.0f;
-    Entity attackEntity = registry.createEntity();
+    Entity meleeAttackEntity = registry.createEntity();
     float offsetX = attackDirection == AnimationDirection::Right ? playerSprite.width / 2 : -playerSprite.width / 2;
     Damage damageComponent{
         .amount = attackProfile.amount,
@@ -137,11 +146,11 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
                            attackProfile.meleeArc.hitBoxWidth + 2 * attackProfile.meleeArc.reach * stats.attackRange,
                            attackProfile.meleeArc.hitBoxHeight + 2 * attackProfile.meleeArc.reach * stats.attackRange}};
 
-    registry.addComponent<Damage>(attackEntity, damageComponent);
-    registry.addComponent<DamageTag>(attackEntity, damageTag);
-    registry.addComponent<Position>(attackEntity, position);
-    registry.addComponent<HitBox>(attackEntity, hitBox);
-    registry.addComponent<PlayerTag>(attackEntity, {}); // Mark as player's attack for collision detection
+    registry.addComponent<Damage>(meleeAttackEntity, damageComponent);
+    registry.addComponent<DamageTag>(meleeAttackEntity, damageTag);
+    registry.addComponent<Position>(meleeAttackEntity, position);
+    registry.addComponent<HitBox>(meleeAttackEntity, hitBox);
+    registry.addComponent<PlayerTag>(meleeAttackEntity, {}); // Mark as player's attack for collision detection
 }
 
 void InputSystem::update(Registry &registry, const config::GameConfig &config, const controller::InputState &input,

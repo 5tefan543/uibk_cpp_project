@@ -25,19 +25,18 @@ class SpawnEnemySystem {
     void clearEnemies(Registry &registry);
     int generateEnemyCount(int wave, int maxEnemyCount, const config::EnemySpawnConfig &spawnConfig);
     bool isBossWave(int wave, int wavesPerStage) const;
-    const config::EnemyArchetypeConfig &chooseEnemyArchetype(const config::EnemyConfig &enemyConfig, bool isBoss);
-    void spawnEnemy(Registry &registry, int wave, const config::EnemyArchetypeConfig &archetype,
+    void spawnEnemy(Registry &registry, int wave, const config::EnemyClassConfig &archetype,
                     const config::EnemySpawnConfig &spawnConfig, const SpawnContext &context);
     Position generateSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite, bool isBoss,
                                    const config::EnemySpawnConfig &spawnConfig);
     Position generateBossSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite,
                                        const config::EnemySpawnConfig &spawnConfig);
     Position generateRandomSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite);
-    EnemyStats createEnemyStats(int wave, const config::EnemyArchetypeConfig &archetype,
+    EnemyStats createEnemyStats(int wave, const config::EnemyClassConfig &archetype,
                                 const config::EnemySpawnConfig &spawnConfig, const SpawnContext &context);
-    float generateCombatScaling(int wave, const config::EnemyArchetypeConfig &archetype,
+    float generateCombatScaling(int wave, const config::EnemyClassConfig &archetype,
                                 const config::EnemySpawnConfig &spawnConfig);
-    float generateEnemyMoveSpeed(int wave, const config::EnemyArchetypeConfig &archetype,
+    float generateEnemyMoveSpeed(int wave, const config::EnemyClassConfig &archetype,
                                  const config::EnemySpawnConfig &spawnConfig, const SpawnContext &context);
 
   public:
