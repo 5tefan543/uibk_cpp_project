@@ -17,8 +17,8 @@ bool AudioManager::loadSound(const std::string &name, const std::filesystem::pat
         return false;
     }
 
-    sf::Sound sound(buffer);
-    soundCache_.insert(std::pair<std::string, sf::Sound>(name, sound));
+    
+    soundCache_.insert(std::pair<std::string, sf::SoundBuffer>(name, buffer));
     return true;
 };
 
@@ -32,8 +32,11 @@ void AudioManager::playSound(const std::string &name)
         loadSound(name, path);
     }
 
-    auto it = soundCache_.find("name");
-    it->second.play();
+    auto buffer = soundCache_.find("name")->second;
+    sf::Sound sound(buffer);
+    sound.setLooping(false);
+    sound.setVolume(soundVolume_);
+    sound.play();
 }
 
 bool AudioManager::loadMusic(const std::string &name, const std::filesystem::path &path)
