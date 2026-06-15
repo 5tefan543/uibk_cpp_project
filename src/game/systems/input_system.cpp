@@ -5,6 +5,7 @@
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
+#include "game/ecs/components/sound.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/location_table.hpp"
@@ -56,6 +57,8 @@ void InputSystem::attackRanged(Registry &registry, const PlayerStats &stats, Ent
         .params = ProjectileDamage{
             .speed = stats.speedOfAttack, .maxRange = stats.attackRange, .distanceTraveled = 0.0f, .maxTargets = 1}};
 
+    SoundComponent sound{.name = "assets/audio/sounds/character/ranged_attack.wav"};
+    registry.addComponent<SoundComponent>(playerEntity, sound);
     Direction attackDirection = input.mouseGridX >= playerPosition.x ? Direction::Right : Direction::Left;
     float offsetX = attackDirection == Direction::Right ? playerSprite.width : -attackProfile.projectile.spriteWidth;
     Position position{.x = playerPosition.x + offsetX,
@@ -115,6 +118,8 @@ void InputSystem::attackMelee(Registry &registry, const PlayerStats &stats, Enti
 
         attackDurationSec = playerAnimation.overrideTimeRemaining;
     }
+    SoundComponent sound{.name = "assets/audio/sounds/character/melee_attack.wav"};
+    registry.addComponent<SoundComponent>(playerEntity, sound);
 
     timeSinceLastAttack_ = 0.0f;
     Entity attackEntity = registry.createEntity();

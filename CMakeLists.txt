@@ -67,6 +67,7 @@ roguelike_cxx_flags(roguelike_controller)
 target_include_directories(roguelike_controller PUBLIC include)
 target_link_libraries(roguelike_controller
   PUBLIC
+    roguelike_audio
     roguelike_game
     roguelike_logger
     glaze::glaze

@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "audio/audio_controller.hpp"
 #include "controller/state/state.hpp"
 
 namespace controller {
@@ -10,8 +11,10 @@ namespace controller {
 class StateManager {
   private:
     std::vector<std::unique_ptr<BaseState>> states_;
+    audio::AudioController *audioController_ = nullptr;
 
   public:
+    explicit StateManager(audio::AudioController *audioController = nullptr);
     void push(std::unique_ptr<BaseState> state);
     void pop();
     BaseState &getCurrent();
