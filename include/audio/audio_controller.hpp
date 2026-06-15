@@ -1,49 +1,30 @@
 #pragma once
 
-#include "audio_cache.hpp"
+#include "audio/audio_cache.hpp"
 #include <SFML/Audio/Music.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
-#include <algorithm>
 #include <memory>
-#include <stdexcept>
+#include <string>
 #include <vector>
 
 namespace audio {
 class AudioController {
   public:
-    explicit AudioController(AudioCache &cache) : cache_(cache) {}
+    explicit AudioController(AudioCache &cache);
 
-    void playSound(const std::string &file)
-    {
-        auto buffer = cache_.getBuffer(file);
+    void playSound(const std::string &file);
+    void playMusic(const std::string &file);
+    void stopMusic();
+    void pauseMusic();
+    void resumeMusic();
+    void update();
 
-        auto sound = std::make_unique<sf::Sound>(*buffer);
-
-        sound->play();
-
-        activeSounds_.push_back({std::move(sound), std::move(buffer)});
-    }
-
-    void playMusic(const std::string &file)
-    {
-        music_.stop();
-
-        if (!music_.openFromFile(file)) {
-            throw std::runtime_error("Failed to load music: " + file);
-        }
-
-        music_.setLooping(true);
-        music_.play();
-    }
-
-    void stopMusic() { music_.stop(); }
-
-    void update()
-    {
-        std::erase_if(activeSounds_,
-                      [](const ActiveSound &s) { return s.sound->getStatus() == sf::Sound::Status::Stopped; });
-    }
+    void safePlaySound(const std::string &file);
+    void safePlayMusic(const std::string &file);
+    void safeStopMusic();
+    void safePauseMusic();
+    void safeResumeMusic();
 
   private:
     struct ActiveSound {

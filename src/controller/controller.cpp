@@ -4,7 +4,7 @@
 
 namespace controller {
 
-Controller::Controller() : audioController_(audioCache_), stateManager_(&audioController_)
+Controller::Controller()
 {
     logger::log(logger::DEBUG, "Controller constructed");
 
@@ -18,7 +18,7 @@ Controller::~Controller()
 
 void Controller::update(const InputState &input, float dt)
 {
-    audioController_.update();
+    stateManager_.updateAudio();
 
     DebugContext &debug = DebugContext::get();
 

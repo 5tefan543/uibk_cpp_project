@@ -1,5 +1,6 @@
 #pragma once
 
+#include "audio/audio_cache.hpp"
 #include <memory>
 #include <vector>
 
@@ -11,16 +12,18 @@ namespace controller {
 class StateManager {
   private:
     std::vector<std::unique_ptr<BaseState>> states_;
-    audio::AudioController *audioController_ = nullptr;
+    audio::AudioCache audioCache_;
+    audio::AudioController audioController_;
 
   public:
-    explicit StateManager(audio::AudioController *audioController = nullptr);
+    StateManager();
     void push(std::unique_ptr<BaseState> state);
     void pop();
     BaseState &getCurrent();
     bool isEmpty() const;
     void clear();
     void replaceCurrent(std::unique_ptr<BaseState> state);
+    void updateAudio();
     void applyAction(StateTransitionAction action);
     std::string getDebugInfo() const;
     void printDebugInfo() const;

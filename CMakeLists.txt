@@ -91,16 +91,21 @@ target_link_libraries(roguelike_ui
     ImGui-SFML::ImGui-SFML
 )
 
-add_library(roguelike_audio INTERFACE)
+add_library(roguelike_audio
+  src/audio/audio_controller.cpp
+)
+roguelike_cxx_flags(roguelike_audio)
 
 target_include_directories(roguelike_audio
-  INTERFACE
+  PUBLIC
     include
 )
 
 target_link_libraries(roguelike_audio
-  INTERFACE
+  PUBLIC
     SFML::Audio
+  PRIVATE
+    roguelike_logger
 )
 
 # Executable
