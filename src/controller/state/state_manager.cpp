@@ -89,6 +89,7 @@ void StateManager::applyAction(StateTransitionAction action)
         push(MenuState::createMenu(MenuType::PauseMenu));
         break;
     case StateTransitionAction::PushProgressionStore:
+        audioController_.safePauseMusic();
         push(ProgressionStoreState::createStore());
         break;
     case StateTransitionAction::ReplaceCurrentWithGameOverMenu:
