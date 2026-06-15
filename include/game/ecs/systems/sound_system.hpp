@@ -1,13 +1,16 @@
 #pragma once
-#include "audio/audio_manager.hpp"
+#include "audio/audio_controller.hpp"
 #include "game/ecs/registry.hpp"
 namespace game {
 
 class SoundSystem {
   private:
-    audio::AudioManager manager_;
+    audio::AudioCache cache_;
+    audio::AudioController manager_;
 
   public:
+    SoundSystem() : manager_(cache_) {}
+
     void update(Registry &registry);
 };
 } // namespace game

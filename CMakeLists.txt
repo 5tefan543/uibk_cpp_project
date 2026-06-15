@@ -44,11 +44,16 @@ add_library(roguelike_game
   src/game/systems/collision_detection_system.cpp
   src/game/systems/damage_system.cpp
   src/game/systems/enemy_ai_system.cpp
+  src/game/systems/sound_system.cpp
   src/game/location_table.cpp
 )
 
 roguelike_cxx_flags(roguelike_game)
 target_include_directories(roguelike_game PUBLIC include)
+target_link_libraries(roguelike_game
+  PUBLIC
+    roguelike_audio
+)
 
 # Controller library
 add_library(roguelike_controller
@@ -85,20 +90,16 @@ target_link_libraries(roguelike_ui
     ImGui-SFML::ImGui-SFML
 )
 
-#musicLibrary
-add_library(roguelike_audio
-  src/audio/audio_manager.cpp
+add_library(roguelike_audio INTERFACE)
 
+target_include_directories(roguelike_audio
+  INTERFACE
+    include
 )
 
-roguelike_cxx_flags(roguelike_audio)
-target_include_directories(roguelike_audio PUBLIC include)
 target_link_libraries(roguelike_audio
-  PUBLIC
+  INTERFACE
     SFML::Audio
-    roguelike_controller
-    roguelike_logger
-    ImGui-SFML::ImGui-SFML
 )
 
 # Executable
