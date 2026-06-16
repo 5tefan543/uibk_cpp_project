@@ -325,6 +325,15 @@ bool GameplayState::isLoadedFromPersistedGame() const
     return loadedFromSave_;
 }
 
+bool GameplayState::hasWaveChanged()
+{
+    int gameWave = game.getWaveNumber();
+    if (currentWave_ == gameWave)
+        return false;
+    currentWave_ = gameWave;
+    return true;
+}
+
 StateTransitionAction GameplayState::update(const InputState &input, float dt)
 {
     DebugContext &debug = DebugContext::get();

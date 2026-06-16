@@ -322,6 +322,11 @@ bool Game::isGameOver()
     return registry_.view<PlayerTag>().empty();
 }
 
+int Game::getWaveNumber()
+{
+    return wave_;
+}
+
 void Game::addScore(int score)
 {
     for (Entity player : registry_.view<PlayerTag>()) {

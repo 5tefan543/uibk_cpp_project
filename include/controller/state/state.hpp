@@ -47,17 +47,17 @@ class MenuState : public BaseState {
 
 class GameplayState : public BaseState {
     bool loadedFromSave_ = false;
+    int currentWave_ = 1;
 
     explicit GameplayState(game::CharacterType characterType);
     explicit GameplayState(const game::PersistedGame &persistedGame);
 
   public:
     game::Game game;
-
     static std::unique_ptr<GameplayState> createNewGameplay(game::CharacterType characterType);
     static std::unique_ptr<GameplayState> createLoadedGameplay();
     bool isLoadedFromPersistedGame() const;
-
+    bool hasWaveChanged();
     StateTransitionAction update(const InputState &input, float dt) override;
     std::string toString() const override;
     const view::View &getView() override;

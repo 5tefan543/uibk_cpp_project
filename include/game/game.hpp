@@ -66,8 +66,8 @@ class Game {
     void initWave(int waveNumber);
     void processDebugSession(float dt);
     void updateSystems(const controller::InputState &input, float dt);
-    bool isWaveFinished();
     void addScore(int score);
+    bool isWaveFinished();
 
   public:
     Game();
@@ -81,6 +81,7 @@ class Game {
     PersistedGame getPersistedGame() const;
     controller::StateTransitionAction update(const controller::InputState &input, float dt);
     bool isGameOver();
+    int getWaveNumber();
     void updateView(view::View &view);
 };
 

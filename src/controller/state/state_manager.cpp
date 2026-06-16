@@ -11,6 +11,7 @@ constexpr const char *kMenuClickSoundPath = "assets/audio/sounds/menu/menu_click
 constexpr const char *kMenuHoverSoundPath = "assets/audio/sounds/menu/menu_hover.wav";
 constexpr const char *kGameMusicPath = "assets/audio/music/game_loop.ogg";
 constexpr const char *kGameOverSound = "assets/audio/sounds/character/player_death.wav";
+constexpr const char *kWaveOverSound = "assets/audio/sounds/wave_finished.wav";
 
 } // namespace
 
@@ -66,6 +67,14 @@ void StateManager::updateAudio()
         if (menu->selectedButtonChanged()) {
             audioController_.playSound(kMenuHoverSoundPath);
         }
+    } else if (auto *menu = dynamic_cast<ProgressionStoreState *>(&currentState)) {
+        if (menu->selectedButtonChanged()) {
+            audioController_.playSound(kMenuHoverSoundPath);
+        }
+    } else if (auto *menu = dynamic_cast<GameplayState *>(&currentState)) {
+        if (menu->hasWaveChanged()) {
+            audioController_.playSound(kWaveOverSound);
+        }
     }
     audioController_.update();
 }
@@ -97,7 +106,7 @@ void StateManager::applyAction(StateTransitionAction action)
         push(MenuState::createMenu(MenuType::PauseMenu));
         break;
     case StateTransitionAction::PushProgressionStore:
-        audioController_.safeStopMusic();
+        audioController_.safePauseMusic();
         push(ProgressionStoreState::createStore());
         break;
     case StateTransitionAction::ReplaceCurrentWithGameOverMenu:
