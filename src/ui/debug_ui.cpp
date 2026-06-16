@@ -262,29 +262,10 @@ void DebugUI::renderComponent(game::Animation &c)
     ImGui::PushID("AnimationComponent");
 
     ImGui::SeparatorText("Animation");
-    ImGui::InputInt("currentFrame", &c.currentFrame);
-    ImGui::InputInt("totalFrames", &c.totalFrames);
-    ImGui::InputFloat("frameDuration", &c.frameDuration);
     ImGui::InputFloat("frameTimer", &c.frameTimer);
-    ImGui::InputFloat("overrideTimeRemaining", &c.overrideTimeRemaining);
-    ImGui::InputFloat("attackFrameDuration", &c.attackFrameDuration);
-    ImGui::InputInt("attackTotalFrames", &c.attackTotalFrames);
-    ImGui::InputFloat("attackMoveSpeedMultiplier", &c.attackMoveSpeedMultiplier);
-    ImGui::InputFloat("deathFrameDuration", &c.deathFrameDuration);
-    ImGui::InputInt("deathTotalFrames", &c.deathTotalFrames);
-    ImGui::InputFloat("deathMoveSpeedMultiplier", &c.deathMoveSpeedMultiplier);
-    const char *overrideStateText = "None";
-    if (c.overrideState == game::AnimationOverrideState::Attack) {
-        overrideStateText = "Attack";
-    } else if (c.overrideState == game::AnimationOverrideState::Death) {
-        overrideStateText = "Death";
-    } else if (c.overrideState == game::AnimationOverrideState::TakingDamage) {
-        overrideStateText = "TakingDamage";
-    }
-    ImGui::Text("overrideState: %s", overrideStateText);
-    ImGui::Text("overrideDirection: %s", c.overrideDirection == game::AnimationDirection::Left ? "Left" : "Right");
-    ImGui::Text("attackTexturePath: %s", c.attackTexturePath.c_str());
-    ImGui::Text("deathTexturePath: %s", c.deathTexturePath.c_str());
+    ImGui::InputFloat("stateTimeRemaining", &c.stateTimeRemaining);
+    ImGui::Text("state: %s", toString(c.state));
+    ImGui::Text("direction: %s", toString(c.direction));
 
     ImGui::PopID();
 }

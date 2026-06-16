@@ -5,6 +5,7 @@
 namespace game {
 
 enum class CharacterType { Melee, Ranged };
+enum class EnemyType { Blob, Boss };
 
 inline const char *toString(game::CharacterType type)
 {
@@ -13,6 +14,18 @@ inline const char *toString(game::CharacterType type)
         return "Melee";
     case game::CharacterType::Ranged:
         return "Ranged";
+    default:
+        return "Unknown";
+    }
+}
+
+inline const char *toString(game::EnemyType type)
+{
+    switch (type) {
+    case game::EnemyType::Blob:
+        return "Blob";
+    case game::EnemyType::Boss:
+        return "Boss";
     default:
         return "Unknown";
     }
@@ -38,6 +51,7 @@ struct PlayerStats : Stats {
 };
 
 struct EnemyStats : Stats {
+    EnemyType enemyType = EnemyType::Blob;
     int scoreReward = 1;
 };
 

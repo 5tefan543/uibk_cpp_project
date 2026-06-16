@@ -1,9 +1,11 @@
 #include "game/ecs/systems/collision_detection_system.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
+#include "game/ecs/components/enemy_attack_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/map_tag.hpp"
+#include "game/ecs/components/player_attack_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
@@ -84,10 +86,10 @@ void CollisionDetectionSystem::activateDamage(const Entity &source, const Entity
         return; // Damage instances do not interact with each other
     }
 
-    if (registry.hasComponent<PlayerTag>(source) && registry.hasComponent<EnemyStats>(target)) {
+    if (registry.hasComponent<PlayerAttackTag>(source) && registry.hasComponent<EnemyTag>(target)) {
         addTarget(source, target, registry);
         return;
-    } else if (registry.hasComponent<EnemyTag>(source) && registry.hasComponent<PlayerStats>(target)) {
+    } else if (registry.hasComponent<EnemyAttackTag>(source) && registry.hasComponent<PlayerTag>(target)) {
         addTarget(source, target, registry);
         return;
     } else {

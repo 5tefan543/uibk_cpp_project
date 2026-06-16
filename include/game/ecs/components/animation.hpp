@@ -7,7 +7,6 @@ namespace game {
 
 enum class AnimationDirection { None, Left, Right, Up, Down };
 
-enum class AnimationOverrideState { None, Attack, Death, TakingDamage };
 enum class AnimationState { Idle, Walk, Attack, Hit, Death };
 
 inline const char *toString(AnimationDirection direction)
@@ -49,23 +48,9 @@ inline const char *toString(game::AnimationState state)
 struct Animation {
     AnimationState state = AnimationState::Idle;
     AnimationDirection direction = AnimationDirection::None;
-    int currentFrame = 0;
+    size_t currentFrame = 0;
     float frameTimer = 0.0f;
-    float frameDuration = 0.2f; // seconds per animation frame
-    int totalFrames = 4;        // Total animation frames in each direction
-    std::string baseTexturePath = "";
-
-    AnimationOverrideState overrideState = AnimationOverrideState::None;
-    float overrideTimeRemaining = 0.0f;
-    AnimationDirection overrideDirection = AnimationDirection::Right;
-    std::string attackTexturePath = "";
-    float attackFrameDuration = 0.16f;
-    int attackTotalFrames = 2;
-    float attackMoveSpeedMultiplier = 0.5f;
-    std::string deathTexturePath = "";
-    float deathFrameDuration = 0.16f;
-    int deathTotalFrames = 2;
-    float deathMoveSpeedMultiplier = 0.0f;
+    float stateTimeRemaining = 0.0f;
 };
 
 } // namespace game

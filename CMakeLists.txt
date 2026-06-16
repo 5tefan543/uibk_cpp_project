@@ -34,7 +34,7 @@ target_include_directories(roguelike_logger PUBLIC include)
 
 # Config library
 add_library(roguelike_config
-  src/config/asset_manager.cpp
+  src/config/animation_config_helper.cpp
 )
 
 roguelike_cxx_flags(roguelike_config)

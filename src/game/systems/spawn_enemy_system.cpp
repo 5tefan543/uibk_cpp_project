@@ -1,6 +1,6 @@
 #include "game/ecs/systems/spawn_enemy_system.hpp"
+#include "config/animation_config_helper.hpp"
 #include "game/ecs/components/animation.hpp"
-#include "game/ecs/components/boss_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/map_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
@@ -12,21 +12,7 @@
 
 namespace game {
 
-namespace {
-
 constexpr float pi = 3.14159265358979323846f;
-const std::string texturePathSuffix = "right_1.png";
-
-void applyAnimationOverwrite(const config::AnimationOverwriteConfig &overwrite, std::string &texturePath,
-                             float &frameDuration, int &totalFrames, float &moveSpeedMultiplier)
-{
-    texturePath = overwrite.texturePathPrefix;
-    frameDuration = overwrite.frameDuration;
-    totalFrames = overwrite.totalFrames;
-    moveSpeedMultiplier = overwrite.moveSpeedMultiplier;
-}
-
-} // namespace
 
 SpawnEnemySystem::SpawnEnemySystem() : randomEngine_(std::random_device{}()) {}
 
@@ -39,11 +25,11 @@ void SpawnEnemySystem::update(Registry &registry, int wave, const config::GameCo
 
     const int enemyCount = generateEnemyCount(wave, config.maxEnemyCount, spawnConfig);
     for (int i = 0; i < enemyCount; ++i) {
-        spawnEnemy(registry, wave, config.enemyClasses.blob, spawnConfig, context);
+        spawnEnemy(registry, wave, config, EnemyType::Blob, spawnConfig, context);
     }
 
     if (isBossWave(wave, config.wavesPerStage)) {
-        spawnEnemy(registry, wave, config.enemyClasses.boss, spawnConfig, context);
+        spawnEnemy(registry, wave, config, EnemyType::Boss, spawnConfig, context);
     }
 }
 
@@ -90,16 +76,21 @@ bool SpawnEnemySystem::isBossWave(int wave, int wavesPerStage) const
     return wavesPerStage > 0 && wave % wavesPerStage == 0;
 }
 
-void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const config::EnemyClassConfig &enemyClass,
+void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const config::GameConfig &config, EnemyType enemyType,
                                   const config::EnemySpawnConfig &spawnConfig, const SpawnContext &context)
 {
-    const std::string &baseTexturePath = enemyClass.baseTexturePath;
-
-    view::Sprite enemySprite{
-        .imagePath = baseTexturePath + texturePathSuffix,
+    Animation enemyAnimation{
+        .state = AnimationState::Idle,
+        .direction = AnimationDirection::Right,
     };
 
-    Position spawnPosition = generateSpawnPosition(context, enemySprite, enemyClass.isBoss, spawnConfig);
+    const config::AnimationFrame animationFrame = config::AnimationConfigHelper::getEnemyAnimationFrame(
+        config, enemyType, enemyAnimation.state, enemyAnimation.direction, enemyAnimation.currentFrame);
+
+    view::Sprite enemySprite{.imagePath = animationFrame.spriteConfig.texture.path};
+
+    Position spawnPosition = generateSpawnPosition(context, enemySprite, enemyType, spawnConfig);
+    const config::EnemyClassConfig &enemyClass = config.enemyClasses.getByType(enemyType);
     EnemyStats enemyStats = createEnemyStats(wave, enemyClass, spawnConfig, context);
 
     Entity enemy = registry.createEntity();
@@ -107,25 +98,14 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const config::En
     registry.addComponent<Position>(enemy, spawnPosition);
     registry.addComponent<Velocity>(enemy, {});
     registry.addComponent<EnemyStats>(enemy, enemyStats);
-    Animation enemyAnimation{.baseTexturePath = baseTexturePath};
-    applyAnimationOverwrite(enemyClass.attack.animationOverwrite, enemyAnimation.attackTexturePath,
-                            enemyAnimation.attackFrameDuration, enemyAnimation.attackTotalFrames,
-                            enemyAnimation.attackMoveSpeedMultiplier);
-    applyAnimationOverwrite(enemyClass.deathOverwrite, enemyAnimation.deathTexturePath,
-                            enemyAnimation.deathFrameDuration, enemyAnimation.deathTotalFrames,
-                            enemyAnimation.deathMoveSpeedMultiplier);
     registry.addComponent<Animation>(enemy, enemyAnimation);
     registry.addComponent<view::Sprite>(enemy, enemySprite);
-
-    if (enemyClass.isBoss) {
-        registry.addComponent<BossTag>(enemy, {});
-    }
 }
 
 Position SpawnEnemySystem::generateSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite,
-                                                 bool isBoss, const config::EnemySpawnConfig &spawnConfig)
+                                                 EnemyType enemyType, const config::EnemySpawnConfig &spawnConfig)
 {
-    if (isBoss) {
+    if (enemyType == EnemyType::Boss) {
         return generateBossSpawnPosition(context, enemySprite, spawnConfig);
     }
 
@@ -162,25 +142,28 @@ Position SpawnEnemySystem::generateRandomSpawnPosition(const SpawnContext &conte
     return {posXDistribution(randomEngine_), posYDistribution(randomEngine_)};
 }
 
-EnemyStats SpawnEnemySystem::createEnemyStats(int wave, const config::EnemyClassConfig &archetype,
+EnemyStats SpawnEnemySystem::createEnemyStats(int wave, const config::EnemyClassConfig &classConfig,
                                               const config::EnemySpawnConfig &spawnConfig, const SpawnContext &context)
 {
-    const float combatScaling = generateCombatScaling(wave, archetype, spawnConfig);
+    const float combatScaling = generateCombatScaling(wave, classConfig, spawnConfig);
 
     EnemyStats stats;
-    stats.maxHealth = archetype.stats.maxHealth * combatScaling;
+    stats.maxHealth = classConfig.stats.maxHealth * combatScaling;
     stats.health = stats.maxHealth;
-    stats.attackPower = archetype.stats.attackPower * combatScaling;
-    stats.attackSpeed = archetype.stats.attackSpeed;
-    stats.defense = archetype.stats.defense * combatScaling;
-    stats.moveSpeed = generateEnemyMoveSpeed(wave, archetype, spawnConfig, context);
+    stats.attackPower = classConfig.stats.attackPower * combatScaling;
+    stats.attackSpeed = classConfig.stats.attackSpeed;
+    stats.defense = classConfig.stats.defense * combatScaling;
+    stats.moveSpeed = generateEnemyMoveSpeed(wave, classConfig, spawnConfig, context);
+    stats.speedOfAttack = classConfig.stats.speedOfAttack;
+    stats.attackRange = classConfig.stats.attackRange;
+    stats.enemyType = classConfig.enemyType;
     stats.scoreReward =
-        std::max(1, static_cast<int>(std::round(static_cast<float>(archetype.scoreReward) * combatScaling)));
+        std::max(1, static_cast<int>(std::round(static_cast<float>(classConfig.scoreReward) * combatScaling)));
 
     return stats;
 }
 
-float SpawnEnemySystem::generateCombatScaling(int wave, const config::EnemyClassConfig &archetype,
+float SpawnEnemySystem::generateCombatScaling(int wave, const config::EnemyClassConfig &classConfig,
                                               const config::EnemySpawnConfig &spawnConfig)
 {
     const float waveScaling =
@@ -192,10 +175,10 @@ float SpawnEnemySystem::generateCombatScaling(int wave, const config::EnemyClass
     const float variation = std::clamp(variationDistribution(randomEngine_), spawnConfig.minEnemyScalingVariation,
                                        spawnConfig.maxEnemyScalingVariation);
 
-    return waveScaling * variation * archetype.combatScaleMultiplier;
+    return waveScaling * variation * classConfig.combatScaleMultiplier;
 }
 
-float SpawnEnemySystem::generateEnemyMoveSpeed(int wave, const config::EnemyClassConfig &archetype,
+float SpawnEnemySystem::generateEnemyMoveSpeed(int wave, const config::EnemyClassConfig &classConfig,
                                                const config::EnemySpawnConfig &spawnConfig, const SpawnContext &context)
 {
     const float wantedMoveSpeed =
@@ -209,7 +192,7 @@ float SpawnEnemySystem::generateEnemyMoveSpeed(int wave, const config::EnemyClas
 
     const float variedMoveSpeed = wantedMoveSpeed * variation;
 
-    const float maxMoveSpeed = context.playerStats.moveSpeed * archetype.moveSpeedRatioOfPlayer;
+    const float maxMoveSpeed = context.playerStats.moveSpeed * classConfig.moveSpeedRatioOfPlayer;
 
     return std::min(variedMoveSpeed, maxMoveSpeed);
 }

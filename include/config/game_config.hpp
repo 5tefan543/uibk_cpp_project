@@ -5,6 +5,7 @@
 #include "geometry/rectangle.hpp"
 #include "geometry/vector.hpp"
 #include "logging/log.hpp"
+#include "view/font.hpp"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -15,21 +16,6 @@ struct WindowConfig {
     int width;
     int height;
     std::string title;
-};
-
-struct AssetConfig {
-    std::string meleeTexturePathPrefix;
-    std::string rangedTexturePathPrefix;
-    std::string enemyTexturePathPrefix;
-    std::string mapTexturePathPrefix;
-    std::string fontPath;
-    std::string projectilePath;
-    struct DroppableItemAssetConfig {
-        std::string id;
-        std::string spritePath;
-    };
-
-    std::vector<DroppableItemAssetConfig> droppableItems;
 };
 
 struct TextureConfig {
@@ -47,20 +33,14 @@ struct SpriteConfig {
     HitBoxConfig hitBox;
 };
 
-struct DirectionalAnimationConfig {
-    float frameDuration;
+struct AnimationStateConfig {
+    float frameDuration = 0.16f;
+    float moveSpeedMultiplier = 1.0f;
     std::unordered_map<game::AnimationDirection, std::vector<SpriteConfig>> directionToFrames;
 };
 
 struct AnimationConfig {
-    std::unordered_map<game::AnimationState, DirectionalAnimationConfig> stateToDirection;
-};
-
-struct AnimationOverwriteConfig {
-    std::string texturePathPrefix;
-    float frameDuration = 0.16f;
-    int totalFrames = 2;
-    float moveSpeedMultiplier = 1.0f;
+    std::unordered_map<game::AnimationState, AnimationStateConfig> stateToStateConfig;
 };
 
 struct CombatStatsConfig {
@@ -102,7 +82,6 @@ struct AttackProfileConfig {
     bool isMultiHit = false;
     float pushBackForce = 0.0f;
     float stunChance = 0.0f;
-    AnimationOverwriteConfig animationOverwrite;
     ProjectileAttackConfig projectile;
     MeleeArcAttackConfig meleeArc;
     BeamAttackConfig beam;
@@ -112,7 +91,6 @@ struct AttackProfileConfig {
 struct PlayerClassConfig {
     game::CharacterType characterType = game::CharacterType::Melee;
     bool hasDash = false;
-    AnimationOverwriteConfig deathOverwrite;
     CombatStatsConfig stats;
     AttackProfileConfig attack;
     AnimationConfig animations;
@@ -133,21 +111,28 @@ struct PlayerClassConfigs {
 };
 
 struct EnemyClassConfig {
-    bool isBoss = false;
+    game::EnemyType enemyType = game::EnemyType::Blob;
     float spawnWeight = 1.0f;
     float combatScaleMultiplier = 1.0f;
     float moveSpeedRatioOfPlayer = 0.9f;
-    std::string baseTexturePath;
-    AnimationOverwriteConfig deathOverwrite;
     CombatStatsConfig stats;
     AttackProfileConfig attack;
     int scoreReward = 1;
     AnimationConfig animations;
+    // SoundConfig
 };
 
 struct EnemyClassConfigs {
     EnemyClassConfig blob;
     EnemyClassConfig boss;
+
+    const EnemyClassConfig &getByType(game::EnemyType type) const
+    {
+        if (type == game::EnemyType::Blob) {
+            return blob;
+        }
+        return boss;
+    }
 };
 
 struct EnemySpawnConfig {
@@ -183,6 +168,14 @@ struct MapConfig {
     std::vector<SpriteConfig> mapSprites;
 };
 
+struct LocationTableConfig {
+    Vec2<unsigned> numBuckets;
+};
+
+struct FontConfig {
+    std::unordered_map<view::FontType, std::string> fontToFilePath;
+};
+
 struct GameConfig {
     int initialStage;
     int initialWave;
@@ -193,12 +186,12 @@ struct GameConfig {
     WindowConfig windowConfig;
     LogConfig logConfig;
     MapConfig mapConfig;
-    AssetConfig assetConfig;
+    LocationTableConfig locationTableConfig;
+    FontConfig fontConfig;
     SpriteConfig fallbackSprite;
     PlayerClassConfigs playerClasses;
     EnemyClassConfigs enemyClasses;
     EnemySpawnConfig enemySpawnConfig;
-    Vec2<unsigned> locTabNumBuckets;
 };
 
 } // namespace config

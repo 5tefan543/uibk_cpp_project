@@ -46,27 +46,16 @@
             }
         ]
     },
-    "assetConfig": {
-        "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf",
-        "meleeTexturePathPrefix": "assets/characters/melee/character_melee_",
-        "rangedTexturePathPrefix": "assets/characters/ranged/ranged_character_",
-        "enemyTexturePathPrefix": "assets/characters/enemy_blob/blob_",
-        "mapTexturePathPrefix": "assets/maps/map",
-        "projectilePath": "assets/effects/base_projectile_1.png",
-        "droppableItems": [
-            {
-                "id": "common",
-                "spritePath": "assets/icons/store/icons-common_1.png"
-            },
-            {
-                "id": "rare",
-                "spritePath": "assets/icons/store/icons-rare_1.png"
-            },
-            {
-                "id": "epic",
-                "spritePath": "assets/icons/store/icons-epic_1.png"
-            }
-        ]
+    "locationTableConfig": {
+        "numBuckets": {
+            "x": 20,
+            "y": 20
+        }
+    },
+    "fontConfig": {
+        "fontToFilePath": {
+            "Default": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf"
+        }
     },
     "fallbackSprite": {
         "texture": {
@@ -78,12 +67,6 @@
         "melee": {
             "characterType": "Melee",
             "hasDash": true,
-            "deathOverwrite": {
-                "texturePathPrefix": "",
-                "frameDuration": 0.16,
-                "totalFrames": 2,
-                "moveSpeedMultiplier": 0.0
-            },
             "stats": {
                 "maxHealth": 100.0,
                 "attackPower": 14.0,
@@ -99,12 +82,6 @@
                 "isMultiHit": false,
                 "pushBackForce": 0.0,
                 "stunChance": 0.0,
-                "animationOverwrite": {
-                    "texturePathPrefix": "assets/characters/melee/character_melee_atk_",
-                    "frameDuration": 0.16,
-                    "totalFrames": 2,
-                    "moveSpeedMultiplier": 0.5
-                },
                 "meleeArc": {
                     "reach": 10.0,
                     "hitBoxWidth": 96.0,
@@ -117,11 +94,18 @@
                 }
             },
             "animations": {
-                "stateToDirection": {
+                "stateToStateConfig": {
                     "Idle": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
-                            "None": [
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
                                 {
                                     "texture": {
                                         "path": "assets/characters/melee/character_melee_right_1.png"
@@ -132,7 +116,6 @@
                         }
                     },
                     "Walk": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [
                                 {
@@ -189,7 +172,7 @@
                         }
                     },
                     "Attack": {
-                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 0.5,
                         "directionToFrames": {
                             "Left": [
                                 {
@@ -222,7 +205,6 @@
                         }
                     },
                     "Hit": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [
                                 {
@@ -279,7 +261,6 @@
                         }
                     },
                     "Death": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
@@ -291,12 +272,6 @@
         "ranged": {
             "characterType": "Ranged",
             "hasDash": false,
-            "deathOverwrite": {
-                "texturePathPrefix": "",
-                "frameDuration": 0.16,
-                "totalFrames": 2,
-                "moveSpeedMultiplier": 0.0
-            },
             "stats": {
                 "maxHealth": 100.0,
                 "attackPower": 100.0,
@@ -312,18 +287,11 @@
                 "isMultiHit": false,
                 "pushBackForce": 0.0,
                 "stunChance": 0.0,
-                "animationOverwrite": {
-                    "texturePathPrefix": "assets/characters/ranged/ranged_character_atk_",
-                    "frameDuration": 0.16,
-                    "totalFrames": 2,
-                    "moveSpeedMultiplier": 1.0
-                },
                 "projectile": {
                     "velocityScale": 10.0,
                     "animations": {
-                        "stateToDirection": {
+                        "stateToStateConfig": {
                             "Idle": {
-                                "frameDuration": 0.16,
                                 "directionToFrames": {
                                     "None": [
                                         {
@@ -349,11 +317,18 @@
                 }
             },
             "animations": {
-                "stateToDirection": {
+                "stateToStateConfig": {
                     "Idle": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
-                            "None": [
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
                                 {
                                     "texture": {
                                         "path": "assets/characters/ranged/ranged_character_right_1.png"
@@ -364,7 +339,6 @@
                         }
                     },
                     "Walk": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [
                                 {
@@ -421,7 +395,6 @@
                         }
                     },
                     "Attack": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [
                                 {
@@ -454,7 +427,6 @@
                         }
                     },
                     "Hit": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [
                                 {
@@ -511,7 +483,6 @@
                         }
                     },
                     "Death": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
@@ -523,17 +494,10 @@
     },
     "enemyClasses": {
         "blob": {
-            "isBoss": false,
+            "enemyType": "Blob",
             "spawnWeight": 1.0,
             "combatScaleMultiplier": 1.0,
             "moveSpeedRatioOfPlayer": 0.9,
-            "baseTexturePath": "assets/characters/blob_enemy/blob_",
-            "deathOverwrite": {
-                "texturePathPrefix": "",
-                "frameDuration": 0.16,
-                "totalFrames": 2,
-                "moveSpeedMultiplier": 0.0
-            },
             "stats": {
                 "maxHealth": 10.0,
                 "attackPower": 2.0,
@@ -549,12 +513,6 @@
                 "isMultiHit": false,
                 "pushBackForce": 0.0,
                 "stunChance": 0.0,
-                "animationOverwrite": {
-                    "texturePathPrefix": "",
-                    "frameDuration": 0.16,
-                    "totalFrames": 2,
-                    "moveSpeedMultiplier": 1.0
-                },
                 "meleeArc": {
                     "reach": 45.0,
                     "hitBoxWidth": 64.0,
@@ -568,11 +526,18 @@
             },
             "scoreReward": 1,
             "animations": {
-                "stateToDirection": {
+                "stateToStateConfig": {
                     "Idle": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
-                            "None": [
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
                                 {
                                     "texture": {
                                         "path": "assets/characters/blob_enemy/blob_right_1.png"
@@ -583,7 +548,6 @@
                         }
                     },
                     "Walk": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [
                                 {
@@ -640,7 +604,6 @@
                         }
                     },
                     "Attack": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [
                                 {
@@ -697,7 +660,6 @@
                         }
                     },
                     "Hit": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [
                                 {
@@ -754,7 +716,6 @@
                         }
                     },
                     "Death": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
@@ -764,17 +725,10 @@
             }
         },
         "boss": {
-            "isBoss": true,
+            "enemyType": "Boss",
             "spawnWeight": 1.0,
             "combatScaleMultiplier": 4.0,
             "moveSpeedRatioOfPlayer": 0.5,
-            "baseTexturePath": "assets/characters/boss_1_",
-            "deathOverwrite": {
-                "texturePathPrefix": "",
-                "frameDuration": 0.16,
-                "totalFrames": 2,
-                "moveSpeedMultiplier": 0.0
-            },
             "stats": {
                 "maxHealth": 10.0,
                 "attackPower": 2.0,
@@ -790,12 +744,6 @@
                 "isMultiHit": false,
                 "pushBackForce": 0.0,
                 "stunChance": 0.0,
-                "animationOverwrite": {
-                    "texturePathPrefix": "",
-                    "frameDuration": 0.16,
-                    "totalFrames": 2,
-                    "moveSpeedMultiplier": 1.0
-                },
                 "meleeArc": {
                     "reach": 80.0,
                     "hitBoxWidth": 96.0,
@@ -809,36 +757,32 @@
             },
             "scoreReward": 4,
             "animations": {
-                "stateToDirection": {
+                "stateToStateConfig": {
                     "Idle": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
-                            "None": []
+                            "Left": [],
+                            "Right": []
                         }
                     },
                     "Walk": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
                         }
                     },
                     "Attack": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
                         }
                     },
                     "Hit": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
                         }
                     },
                     "Death": {
-                        "frameDuration": 0.16,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
@@ -866,9 +810,5 @@
         "enemyMoveSpeedVariationStddev": 0.08,
         "minEnemyMoveSpeedVariation": 0.9,
         "maxEnemyMoveSpeedVariation": 1.1
-    },
-    "locTabNumBuckets": {
-        "x": 20,
-        "y": 20
     }
 }

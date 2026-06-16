@@ -1,5 +1,5 @@
 #include "game/game.hpp"
-#include "config/asset_manager.hpp"
+#include "config/animation_config_helper.hpp"
 #include "controller/debug/debug_context.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state_transition_action.hpp"
@@ -20,16 +20,6 @@
 namespace game {
 
 namespace {
-
-const config::PlayerClassConfig &getClassConfig(const config::PlayerClassConfigs &playerClasses, CharacterType type)
-{
-    if (type == CharacterType::Melee) {
-        return playerClasses.melee;
-    }
-
-    return playerClasses.ranged;
-}
-
 void applyClassStats(const config::PlayerClassConfig &classConfig, PlayerStats &playerStats)
 {
     playerStats.maxHealth = classConfig.stats.maxHealth;
@@ -43,21 +33,11 @@ void applyClassStats(const config::PlayerClassConfig &classConfig, PlayerStats &
     playerStats.hasDash = classConfig.hasDash;
     playerStats.characterType = classConfig.characterType;
 }
-
-void applyAnimationOverwrite(const config::AnimationOverwriteConfig &overwrite, std::string &texturePath,
-                             float &frameDuration, int &totalFrames, float &moveSpeedMultiplier)
-{
-    texturePath = overwrite.texturePathPrefix;
-    frameDuration = overwrite.frameDuration;
-    totalFrames = overwrite.totalFrames;
-    moveSpeedMultiplier = overwrite.moveSpeedMultiplier;
-}
-
 } // namespace
 
 Game::Game(int wave, CharacterType characterType)
     : config_(controller::PersistenceManager::getConfig()),
-      locationTable_(config_.locTabNumBuckets, config_.mapConfig.mapSize)
+      locationTable_(config_.locationTableConfig.numBuckets, config_.mapConfig.mapSize)
 {
     initMap();
     initCamera({0.0f, 0.0f});
@@ -77,7 +57,7 @@ Game::Game(CharacterType characterType) : Game(1, characterType)
 
 Game::Game(const PersistedGame &persistedGame)
     : config_(controller::PersistenceManager::getConfig()),
-      locationTable_(config_.locTabNumBuckets, config_.mapConfig.mapSize)
+      locationTable_(config_.locationTableConfig.numBuckets, config_.mapConfig.mapSize)
 {
     logger::log(logger::DEBUG, "Game constructed from persisted game");
 
@@ -137,11 +117,12 @@ void Game::initCamera(Position position)
 
 void Game::initPlayer(CharacterType characterType)
 {
-    PlayerStats playerStats;
     Position position = {100.0f, 100.0f};
+    PlayerStats playerStats;
 
-    const config::PlayerClassConfig &classConfig = getClassConfig(config_.playerClasses, characterType);
+    const config::PlayerClassConfig &classConfig = config_.playerClasses.getByType(characterType);
     applyClassStats(classConfig, playerStats);
+
     initPlayer(position, playerStats);
 }
 
@@ -150,25 +131,14 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
     Entity player = registry_.createEntity();
     registry_.addComponent<PlayerTag>(player, {});
 
-    Animation playerAnimation;
-    if (playerStats.characterType == CharacterType::Melee) {
-        playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePathPrefix};
-    } else {
-        playerStats.characterType = CharacterType::Ranged;
-        playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePathPrefix};
-    }
+    Animation playerAnimation{
+        .state = AnimationState::Idle,
+        .direction = AnimationDirection::Right,
+    };
 
-    const config::PlayerClassConfig &classConfig = config_.playerClasses.getByType(playerStats.characterType);
-    applyAnimationOverwrite(classConfig.attack.animationOverwrite, playerAnimation.attackTexturePath,
-                            playerAnimation.attackFrameDuration, playerAnimation.attackTotalFrames,
-                            playerAnimation.attackMoveSpeedMultiplier);
-    applyAnimationOverwrite(classConfig.deathOverwrite, playerAnimation.deathTexturePath,
-                            playerAnimation.deathFrameDuration, playerAnimation.deathTotalFrames,
-                            playerAnimation.deathMoveSpeedMultiplier);
-
-    const config::AnimationFrame animationFrame =
-        config::AssetManager::getPlayerAnimationFrame(config_, playerStats.characterType, playerAnimation.state,
-                                                      playerAnimation.direction, playerAnimation.currentFrame);
+    const config::AnimationFrame animationFrame = config::AnimationConfigHelper::getPlayerAnimationFrame(
+        config_, playerStats.characterType, playerAnimation.state, playerAnimation.direction,
+        playerAnimation.currentFrame);
 
     registry_.addComponent<PlayerStats>(player, playerStats);
     registry_.addComponent<Position>(player, position);
@@ -316,7 +286,7 @@ void Game::updateSystems(const controller::InputState &input, float dt)
     }
 
     locationTable_.update(registry_);
-    enemyAI_.update(registry_, locationTable_);
+    enemyAI_.update(registry_, config_, locationTable_, dt);
     inputSystem_.update(registry_, config_, input, dt);
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, config_, dt);

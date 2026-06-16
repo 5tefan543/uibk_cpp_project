@@ -2,12 +2,23 @@
 #include "game/ecs/components/animation.hpp"
 #include "game/persisted_game.hpp"
 #include "logging/log.hpp"
+#include "view/font.hpp"
 #include <glaze/glaze.hpp>
+
+template <>
+struct glz::meta<view::FontType> {
+    static constexpr auto value = glz::enumerate("Default", view::FontType::Default);
+};
 
 template <>
 struct glz::meta<game::CharacterType> {
     static constexpr auto value =
         glz::enumerate("Melee", game::CharacterType::Melee, "Ranged", game::CharacterType::Ranged);
+};
+
+template <>
+struct glz::meta<game::EnemyType> {
+    static constexpr auto value = glz::enumerate("Blob", game::EnemyType::Blob, "Boss", game::EnemyType::Boss);
 };
 
 template <>
