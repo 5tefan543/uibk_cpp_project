@@ -5,12 +5,15 @@
 #include <vector>
 
 #include "audio/audio_controller.hpp"
+#include "config/game_config.hpp"
+#include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state.hpp"
 
 namespace controller {
 
 class StateManager {
   private:
+    const config::GameConfig &config_ = controller::PersistenceManager::getConfig();
     std::vector<std::unique_ptr<BaseState>> states_;
     audio::AudioCache audioCache_;
     audio::AudioController audioController_;
