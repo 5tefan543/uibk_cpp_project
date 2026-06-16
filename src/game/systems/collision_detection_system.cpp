@@ -103,11 +103,12 @@ void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &r
     Rectangle<float> mapHitBoxRect{.position = {mapPosition.x + mapHitBox.offset.x, mapPosition.y + mapHitBox.offset.y},
                                    .size = {mapHitBox.size.x, mapHitBox.size.y}};
 
-    Rectangle<float> entityRect{{position.x, position.y}, {hitBox.size.x, hitBox.size.y}};
-    entityRect.snapBack(mapHitBoxRect);
+    Rectangle<float> entityHitBoxRect{{position.x + hitBox.offset.x, position.y + hitBox.offset.y},
+                                      {hitBox.size.x, hitBox.size.y}};
+    entityHitBoxRect.snapBack(mapHitBoxRect);
 
-    position.x = entityRect.position.x;
-    position.y = entityRect.position.y;
+    position.x = entityHitBoxRect.position.x - hitBox.offset.x;
+    position.y = entityHitBoxRect.position.y - hitBox.offset.y;
 }
 
 void CollisionDetectionSystem::update(Registry &registry)

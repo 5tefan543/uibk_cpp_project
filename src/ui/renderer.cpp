@@ -158,7 +158,7 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Sprite &sprit
         selectionBox.setSize(sfSprite.getGlobalBounds().size);
         selectionBox.setFillColor(sf::Color::Transparent);
         selectionBox.setOutlineColor(sf::Color::Yellow);
-        selectionBox.setOutlineThickness(2.0f);
+        selectionBox.setOutlineThickness(3.0f);
         window.draw(selectionBox);
     }
 }

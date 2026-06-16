@@ -154,7 +154,16 @@
                                     "texture": {
                                         "path": "assets/characters/melee/character_melee_left_1.png"
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 72.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
                                 }
                             ],
                             "Right": [
@@ -162,7 +171,16 @@
                                     "texture": {
                                         "path": "assets/characters/melee/character_melee_right_1.png"
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 12.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
                                 }
                             ]
                         }
@@ -173,25 +191,62 @@
                                 {
                                     "texture": {
                                         "path": "assets/characters/melee/character_melee_left_1.png"
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 72.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
                                     }
                                 },
                                 {
                                     "texture": {
                                         "path": "assets/characters/melee/character_melee_left_2.png"
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 68.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
                                         "path": "assets/characters/melee/character_melee_left_3.png"
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 72.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
                                         "path": "assets/characters/melee/character_melee_left_4.png"
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 72.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
                                 }
                             ],
                             "Right": [
@@ -199,25 +254,61 @@
                                     "texture": {
                                         "path": "assets/characters/melee/character_melee_right_1.png"
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 12.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
                                         "path": "assets/characters/melee/character_melee_right_2.png"
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 16.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
                                         "path": "assets/characters/melee/character_melee_right_3.png"
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 12.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
                                         "path": "assets/characters/melee/character_melee_right_4.png"
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 12.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
                                 }
                             ]
                         }

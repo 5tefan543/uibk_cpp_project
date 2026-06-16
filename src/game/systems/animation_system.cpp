@@ -2,6 +2,7 @@
 #include "config/animation_config_helper.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "geometry/vector.hpp"
@@ -14,16 +15,17 @@ namespace game {
 
 namespace {
 
-void applySpriteConfig(view::Sprite &sprite, const config::SpriteConfig &spriteConfig)
+void applySpriteConfig(Registry &registry, Entity entity, const config::SpriteConfig &spriteConfig)
 {
+    view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
     sprite.imagePath = spriteConfig.texture.path;
+    sprite.width = spriteConfig.texture.size.x;
+    sprite.height = spriteConfig.texture.size.y;
 
-    if (spriteConfig.texture.size.x > 0.0f) {
-        sprite.width = spriteConfig.texture.size.x;
-    }
-
-    if (spriteConfig.texture.size.y > 0.0f) {
-        sprite.height = spriteConfig.texture.size.y;
+    if (registry.hasComponent<HitBox>(entity)) {
+        HitBox &hitBox = registry.getComponent<HitBox>(entity);
+        hitBox.offset = spriteConfig.hitBox.offset;
+        hitBox.size = spriteConfig.hitBox.size;
     }
 }
 
@@ -53,7 +55,6 @@ void AnimationSystem::update(Registry &registry, const config::GameConfig &confi
 {
     for (auto entity : registry.view<Animation, view::Sprite>()) {
         Animation &animation = registry.getComponent<Animation>(entity);
-        view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
 
         const std::optional<config::AnimationFrame> frame =
             getAnimationFrameForEntity(registry, entity, config, animation);
@@ -62,7 +63,7 @@ void AnimationSystem::update(Registry &registry, const config::GameConfig &confi
             continue;
         }
 
-        applySpriteConfig(sprite, frame->spriteConfig);
+        applySpriteConfig(registry, entity, frame->spriteConfig);
 
         animation.frameTimer += dt;
 
