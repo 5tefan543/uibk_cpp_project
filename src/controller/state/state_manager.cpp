@@ -86,41 +86,41 @@ void StateManager::applyAction(StateTransitionAction action)
         // No state change
         break;
     case StateTransitionAction::StartNewGameMelee:
-        audioController_.safePlayMusic(kGameMusicPath);
-        audioController_.safePlaySound(kMenuClickSoundPath);
+        audioController_.playMusic(kGameMusicPath);
+        audioController_.playSound(kMenuClickSoundPath);
         replaceCurrent(GameplayState::createNewGameplay(game::CharacterType::Melee));
         break;
     case StateTransitionAction::StartNewGameRanged:
-        audioController_.safePlayMusic(kGameMusicPath);
-        audioController_.safePlaySound(kMenuClickSoundPath);
+        audioController_.playMusic(kGameMusicPath);
+        audioController_.playSound(kMenuClickSoundPath);
         replaceCurrent(GameplayState::createNewGameplay(game::CharacterType::Ranged));
         break;
     case StateTransitionAction::ReplaceCurrentWithLoadedGameplay:
-        audioController_.safePlayMusic(kGameMusicPath);
-        audioController_.safePlaySound(kMenuClickSoundPath);
+        audioController_.playMusic(kGameMusicPath);
+        audioController_.playSound(kMenuClickSoundPath);
         replaceCurrent(GameplayState::createLoadedGameplay());
         break;
     case StateTransitionAction::PushPauseMenu:
-        audioController_.safePauseMusic();
-        audioController_.safePlaySound(kMenuClickSoundPath);
+        audioController_.pauseMusic();
+        audioController_.playSound(kMenuClickSoundPath);
         push(MenuState::createMenu(MenuType::PauseMenu));
         break;
     case StateTransitionAction::PushProgressionStore:
-        audioController_.safePauseMusic();
+        audioController_.pauseMusic();
         push(ProgressionStoreState::createStore());
         break;
     case StateTransitionAction::ReplaceCurrentWithGameOverMenu:
-        audioController_.safeStopMusic();
-        audioController_.safePlaySound(kGameOverSound);
+        audioController_.stopMusic();
+        audioController_.playSound(kGameOverSound);
         replaceCurrent(MenuState::createMenu(MenuType::GameOverMenu));
         break;
     case StateTransitionAction::Pop:
-        audioController_.safeResumeMusic();
-        audioController_.safePlaySound(kMenuClickSoundPath);
+        audioController_.resumeMusic();
+        audioController_.playSound(kMenuClickSoundPath);
         pop();
         break;
     case StateTransitionAction::ReplaceCurrentWithMainMenu:
-        audioController_.safePlaySound(kMenuClickSoundPath);
+        audioController_.playSound(kMenuClickSoundPath);
         replaceCurrent(MenuState::createMenu(MenuType::MainMenu));
         break;
     case StateTransitionAction::ReplaceAllStatesWithExit:
@@ -128,7 +128,7 @@ void StateManager::applyAction(StateTransitionAction action)
         push(ExitState::createExitState());
         break;
     case StateTransitionAction::ReplaceCurrentWithCharacterSelection:
-        audioController_.safePlaySound(kMenuClickSoundPath);
+        audioController_.playSound(kMenuClickSoundPath);
         replaceCurrent(MenuState::createMenu(MenuType::CharacterSelection));
         break;
     }

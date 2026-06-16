@@ -20,12 +20,6 @@ class AudioController {
     void resumeMusic();
     void update();
 
-    void safePlaySound(const std::string &file);
-    void safePlayMusic(const std::string &file);
-    void safeStopMusic();
-    void safePauseMusic();
-    void safeResumeMusic();
-
   private:
     struct ActiveSound {
         std::unique_ptr<sf::Sound> sound;

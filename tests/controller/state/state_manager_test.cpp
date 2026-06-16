@@ -308,7 +308,7 @@ TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for menu state when se
     REQUIRE_NOTHROW(stateManager.updateAudio());
 }
 
-TEST_CASE_METHOD(TestFixture, "updateAudio throws for menu state when selection changed and assets are missing")
+TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for menu state when selection changed")
 {
     StateManager stateManager;
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
@@ -318,8 +318,7 @@ TEST_CASE_METHOD(TestFixture, "updateAudio throws for menu state when selection 
     input.downPressed = true;
     stateManager.getCurrent().update(input, 0.0f);
 
-    // playSound(kMenuHoverSoundPath) propagates uncaught → throws because asset is absent
-    REQUIRE_THROWS(stateManager.updateAudio());
+    REQUIRE_NOTHROW(stateManager.updateAudio());
 }
 
 TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for progression store when selection did not change")
@@ -330,7 +329,7 @@ TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for progression store 
     REQUIRE_NOTHROW(stateManager.updateAudio());
 }
 
-TEST_CASE_METHOD(TestFixture, "updateAudio throws for progression store when selection changed and assets are missing")
+TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for progression store when selection changed")
 {
     StateManager stateManager;
     stateManager.push(ProgressionStoreState::createStore());
@@ -339,7 +338,7 @@ TEST_CASE_METHOD(TestFixture, "updateAudio throws for progression store when sel
     input.downPressed = true;
     stateManager.getCurrent().update(input, 0.0f);
 
-    REQUIRE_THROWS(stateManager.updateAudio());
+    REQUIRE_NOTHROW(stateManager.updateAudio());
 }
 
 TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for gameplay state when wave did not change")
@@ -350,7 +349,7 @@ TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for gameplay state whe
     REQUIRE_NOTHROW(stateManager.updateAudio());
 }
 
-TEST_CASE_METHOD(TestFixture, "updateAudio throws for gameplay state when wave changed and assets are missing")
+TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for gameplay state when wave changed")
 {
     // GameplayState::currentWave_ starts at 1; loading wave=3 makes hasWaveChanged() true immediately
     game::PersistedGame saved;
@@ -360,11 +359,10 @@ TEST_CASE_METHOD(TestFixture, "updateAudio throws for gameplay state when wave c
     StateManager stateManager;
     stateManager.push(GameplayState::createLoadedGameplay());
 
-    // playSound(kWaveOverSound) propagates uncaught → throws because asset is absent
-    REQUIRE_THROWS(stateManager.updateAudio());
+    REQUIRE_NOTHROW(stateManager.updateAudio());
 }
 
-TEST_CASE_METHOD(TestFixture, "applyAction audio-safe transitions do not throw when assets are unavailable")
+TEST_CASE_METHOD(TestFixture, "applyAction audio transitions do not throw with available assets")
 {
     StateManager stateManager;
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));

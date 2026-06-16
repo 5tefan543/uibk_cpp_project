@@ -1,8 +1,6 @@
 #include "audio/audio_controller.hpp"
-#include "logging/log.hpp"
 
 #include <algorithm>
-#include <exception>
 #include <stdexcept>
 #include <string>
 
@@ -55,51 +53,6 @@ void AudioController::update()
     std::erase_if(activeSounds_, [](const ActiveSound &activeSound) {
         return activeSound.sound->getStatus() == sf::Sound::Status::Stopped;
     });
-}
-
-void AudioController::safePlaySound(const std::string &file)
-{
-    try {
-        playSound(file);
-    } catch (const std::exception &e) {
-        logger::log(logger::WARNING, std::string("AudioController sound playback failed: ") + e.what());
-    }
-}
-
-void AudioController::safePlayMusic(const std::string &file)
-{
-    try {
-        playMusic(file);
-    } catch (const std::exception &e) {
-        logger::log(logger::WARNING, std::string("AudioController music playback failed: ") + e.what());
-    }
-}
-
-void AudioController::safeStopMusic()
-{
-    try {
-        stopMusic();
-    } catch (const std::exception &e) {
-        logger::log(logger::WARNING, std::string("AudioController stop music failed: ") + e.what());
-    }
-}
-
-void AudioController::safePauseMusic()
-{
-    try {
-        pauseMusic();
-    } catch (const std::exception &e) {
-        logger::log(logger::WARNING, std::string("AudioController pause music failed: ") + e.what());
-    }
-}
-
-void AudioController::safeResumeMusic()
-{
-    try {
-        resumeMusic();
-    } catch (const std::exception &e) {
-        logger::log(logger::WARNING, std::string("AudioController resume music failed: ") + e.what());
-    }
 }
 
 } // namespace audio
