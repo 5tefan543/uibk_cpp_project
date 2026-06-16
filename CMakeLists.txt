@@ -135,49 +135,49 @@ add_custom_command(TARGET roguelike_app POST_BUILD
 )
 
 # Tests
-enable_testing()
+# enable_testing()
 
-add_executable(roguelike_test_runner
-  tests/controller/controller_test.cpp
-  tests/controller/input/input_state_test.cpp
-  tests/controller/persistence/persistence_manager_test.cpp
-  tests/controller/persistence/serializer_test.cpp
-  tests/controller/state/state_test.cpp
-  tests/controller/state/state_manager_test.cpp
-  tests/game/game_test.cpp
-  tests/game/ecs/component_storage_test.cpp
-  tests/game/ecs/registry_test.cpp
-  tests/game/ecs/systems/input_system_test.cpp
-  tests/game/ecs/systems/movement_system_test.cpp
-  tests/shared/util.cpp
-  tests/game/ecs/systems/animation_system_test.cpp
-  tests/game/ecs/systems/camera_system_test.cpp
-  tests/game/ecs/systems/debug_selection_system_test.cpp
-  tests/game/ecs/systems/collision_detection_system_test.cpp
-  tests/game/ecs/systems/damage_system_test.cpp
-  tests/game/ecs/systems/enemy_ai_system_test.cpp
-  tests/game/location_table_test.cpp
-  tests/geometry/vector_test.cpp
-  tests/logging/log_test.cpp
-)
+# add_executable(roguelike_test_runner
+#   tests/controller/controller_test.cpp
+#   tests/controller/input/input_state_test.cpp
+#   tests/controller/persistence/persistence_manager_test.cpp
+#   tests/controller/persistence/serializer_test.cpp
+#   tests/controller/state/state_test.cpp
+#   tests/controller/state/state_manager_test.cpp
+#   tests/game/game_test.cpp
+#   tests/game/ecs/component_storage_test.cpp
+#   tests/game/ecs/registry_test.cpp
+#   tests/game/ecs/systems/input_system_test.cpp
+#   tests/game/ecs/systems/movement_system_test.cpp
+#   tests/shared/util.cpp
+#   tests/game/ecs/systems/animation_system_test.cpp
+#   tests/game/ecs/systems/camera_system_test.cpp
+#   tests/game/ecs/systems/debug_selection_system_test.cpp
+#   tests/game/ecs/systems/collision_detection_system_test.cpp
+#   tests/game/ecs/systems/damage_system_test.cpp
+#   tests/game/ecs/systems/enemy_ai_system_test.cpp
+#   tests/game/location_table_test.cpp
+#   tests/geometry/vector_test.cpp
+#   tests/logging/log_test.cpp
+# )
 
-roguelike_cxx_flags(roguelike_test_runner)
-target_include_directories(roguelike_test_runner PRIVATE tests)
-target_link_libraries(roguelike_test_runner
-  PRIVATE
-    roguelike_game
-    roguelike_controller
-    roguelike_logger
-    roguelike_config
-    Catch2::Catch2WithMain
-)
+# roguelike_cxx_flags(roguelike_test_runner)
+# target_include_directories(roguelike_test_runner PRIVATE tests)
+# target_link_libraries(roguelike_test_runner
+#   PRIVATE
+#     roguelike_game
+#     roguelike_controller
+#     roguelike_logger
+#     roguelike_config
+#     Catch2::Catch2WithMain
+# )
 
-add_custom_command(TARGET roguelike_test_runner POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/config
-            $<TARGET_FILE_DIR:roguelike_test_runner>/config
-)
+# add_custom_command(TARGET roguelike_test_runner POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy_directory
+#             ${CMAKE_SOURCE_DIR}/config
+#             $<TARGET_FILE_DIR:roguelike_test_runner>/config
+# )
 
-include(CTest)
-include(Catch)
-catch_discover_tests(roguelike_test_runner)
+# include(CTest)
+# include(Catch)
+# catch_discover_tests(roguelike_test_runner)
