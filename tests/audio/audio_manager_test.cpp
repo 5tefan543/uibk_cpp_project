@@ -1,48 +1,23 @@
 #include "audio/audio_cache.hpp"
 #include "audio/audio_controller.hpp"
+#include "logging/log.hpp"
+#include "shared/audio_test_util.hpp"
 #include "shared/test_fixture.hpp"
 
 #include <catch2/catch_test_macros.hpp>
-#include <cstdint>
-#include <filesystem>
-#include <fstream>
-#include <vector>
+#include <iostream>
+#include <sstream>
 
 namespace {
+struct StdoutCapture {
+    StdoutCapture() : oldBuf_(std::cout.rdbuf(ss_.rdbuf())) {}
+    ~StdoutCapture() { std::cout.rdbuf(oldBuf_); }
+    std::string get() const { return ss_.str(); }
 
-// Writes a minimal valid mono 16-bit 44100 Hz silent PCM WAV file so tests
-// can exercise positive audio paths without shipping binary assets.
-void writeMinimalWav(const std::filesystem::path &path)
-{
-    constexpr uint32_t sampleRate = 44100;
-    constexpr uint16_t numChannels = 1;
-    constexpr uint16_t bitsPerSample = 16;
-    constexpr uint32_t numSamples = 4;
-    constexpr uint32_t dataSize = numSamples * numChannels * (bitsPerSample / 8U);
-    constexpr uint32_t riffSize = 36 + dataSize;
-    constexpr uint32_t byteRate = sampleRate * numChannels * (bitsPerSample / 8U);
-    constexpr uint16_t blockAlign = numChannels * (bitsPerSample / 8U);
-    constexpr uint32_t fmtChunkSize = 16;
-    constexpr uint16_t pcmFormat = 1;
-
-    std::ofstream out(path, std::ios::binary);
-    out.write("RIFF", 4);
-    out.write(reinterpret_cast<const char *>(&riffSize), sizeof(riffSize));
-    out.write("WAVE", 4);
-    out.write("fmt ", 4);
-    out.write(reinterpret_cast<const char *>(&fmtChunkSize), sizeof(fmtChunkSize));
-    out.write(reinterpret_cast<const char *>(&pcmFormat), sizeof(pcmFormat));
-    out.write(reinterpret_cast<const char *>(&numChannels), sizeof(numChannels));
-    out.write(reinterpret_cast<const char *>(&sampleRate), sizeof(sampleRate));
-    out.write(reinterpret_cast<const char *>(&byteRate), sizeof(byteRate));
-    out.write(reinterpret_cast<const char *>(&blockAlign), sizeof(blockAlign));
-    out.write(reinterpret_cast<const char *>(&bitsPerSample), sizeof(bitsPerSample));
-    out.write("data", 4);
-    out.write(reinterpret_cast<const char *>(&dataSize), sizeof(dataSize));
-    const std::vector<uint8_t> silence(dataSize, 0);
-    out.write(reinterpret_cast<const char *>(silence.data()), static_cast<std::streamsize>(dataSize));
-}
-
+  private:
+    std::stringstream ss_;
+    std::streambuf *oldBuf_;
+};
 } // namespace
 
 // ---------------------------------------------------------------------------
@@ -91,7 +66,7 @@ TEST_CASE_METHOD(TestFixture, "AudioController safe audio methods swallow failur
 
 TEST_CASE_METHOD(TestFixture, "AudioCache getBuffer returns the same shared_ptr for the same file")
 {
-    writeMinimalWav("fixture.wav");
+    test::writeMinimalWav("fixture.wav");
     audio::AudioCache cache;
 
     auto buf1 = cache.getBuffer("fixture.wav");
@@ -103,8 +78,8 @@ TEST_CASE_METHOD(TestFixture, "AudioCache getBuffer returns the same shared_ptr 
 
 TEST_CASE_METHOD(TestFixture, "AudioCache getBuffer returns different buffers for different files")
 {
-    writeMinimalWav("a.wav");
-    writeMinimalWav("b.wav");
+    test::writeMinimalWav("a.wav");
+    test::writeMinimalWav("b.wav");
     audio::AudioCache cache;
 
     auto bufA = cache.getBuffer("a.wav");
@@ -117,7 +92,7 @@ TEST_CASE_METHOD(TestFixture, "AudioCache getBuffer returns different buffers fo
 
 TEST_CASE_METHOD(TestFixture, "AudioCache keeps buffer alive as long as cache holds it")
 {
-    writeMinimalWav("fixture.wav");
+    test::writeMinimalWav("fixture.wav");
     audio::AudioCache cache;
 
     std::weak_ptr<sf::SoundBuffer> weak;
@@ -135,7 +110,7 @@ TEST_CASE_METHOD(TestFixture, "AudioCache keeps buffer alive as long as cache ho
 
 TEST_CASE_METHOD(TestFixture, "AudioController playSound with valid file does not throw")
 {
-    writeMinimalWav("fixture.wav");
+    test::writeMinimalWav("fixture.wav");
     audio::AudioCache cache;
     audio::AudioController controller(cache);
 
@@ -144,12 +119,40 @@ TEST_CASE_METHOD(TestFixture, "AudioController playSound with valid file does no
 
 TEST_CASE_METHOD(TestFixture, "AudioController update does not throw after valid playSound")
 {
-    writeMinimalWav("fixture.wav");
+    test::writeMinimalWav("fixture.wav");
     audio::AudioCache cache;
     audio::AudioController controller(cache);
 
     controller.playSound("fixture.wav");
     REQUIRE_NOTHROW(controller.update());
+}
+
+// ---------------------------------------------------------------------------
+// AudioController – safe method catch blocks log a warning
+// ---------------------------------------------------------------------------
+
+TEST_CASE_METHOD(TestFixture, "AudioController safePlaySound logs a warning when sound file is missing")
+{
+    logger::configure(logger::WARNING, false);
+    StdoutCapture capture;
+
+    audio::AudioCache cache;
+    audio::AudioController controller(cache);
+    controller.safePlaySound("no/such/file.wav");
+
+    REQUIRE(capture.get().find("AudioController sound playback failed") != std::string::npos);
+}
+
+TEST_CASE_METHOD(TestFixture, "AudioController safePlayMusic logs a warning when music file is missing")
+{
+    logger::configure(logger::WARNING, false);
+    StdoutCapture capture;
+
+    audio::AudioCache cache;
+    audio::AudioController controller(cache);
+    controller.safePlayMusic("no/such/file.ogg");
+
+    REQUIRE(capture.get().find("AudioController music playback failed") != std::string::npos);
 }
 
 // ---------------------------------------------------------------------------
