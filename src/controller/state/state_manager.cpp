@@ -1,12 +1,14 @@
 #include "controller/state/state_manager.hpp"
 #include "logging/log.hpp"
+#include <typeinfo>
 #include <utility>
 
 namespace controller {
 
 namespace {
-
+// TODO will be integrated into assetconfig after assetmanager
 constexpr const char *kMenuClickSoundPath = "assets/audio/sounds/menu/menu_click.wav";
+constexpr const char *kMenuHoverSoundPath = "assets/audio/sounds/menu/menu_hover.wav";
 constexpr const char *kGameMusicPath = "assets/audio/music/game_loop.ogg";
 constexpr const char *kGameOverSound = "assets/audio/sounds/character/player_death.wav";
 
@@ -59,6 +61,12 @@ void StateManager::replaceCurrent(std::unique_ptr<BaseState> state)
 
 void StateManager::updateAudio()
 {
+    BaseState &currentState = getCurrent();
+    if (auto *menu = dynamic_cast<MenuState *>(&currentState)) {
+        if (menu->selectedButtonChanged()) {
+            audioController_.playSound(kMenuHoverSoundPath);
+        }
+    }
     audioController_.update();
 }
 
@@ -89,7 +97,7 @@ void StateManager::applyAction(StateTransitionAction action)
         push(MenuState::createMenu(MenuType::PauseMenu));
         break;
     case StateTransitionAction::PushProgressionStore:
-        audioController_.safePauseMusic();
+        audioController_.safeStopMusic();
         push(ProgressionStoreState::createStore());
         break;
     case StateTransitionAction::ReplaceCurrentWithGameOverMenu:

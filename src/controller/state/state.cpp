@@ -25,7 +25,7 @@ std::unique_ptr<MenuState> MenuState::createMenu(const MenuType menuType)
 StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]] float dt)
 {
     StateTransitionAction stateTransitionAction = StateTransitionAction::None;
-    const size_t prevSelectedButtonId = selectedButtonId_;
+    prevSelectedButtonId_ = selectedButtonId_;
 
     // Only update selected button based on mouse input if mouse was moved or
     // mouse left button was pressed to avoid interfering with keyboard selection
@@ -119,7 +119,7 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
         break;
     }
 
-    buttons_[prevSelectedButtonId].isSelected = false;
+    buttons_[prevSelectedButtonId_].isSelected = false;
     buttons_[selectedButtonId_].isSelected = true;
 
     return stateTransitionAction;
@@ -273,6 +273,11 @@ void MenuState::initView()
     buttons_[selectedButtonId_].isSelected = true;
 }
 
+bool MenuState::selectedButtonChanged()
+{
+    return selectedButtonId_ != prevSelectedButtonId_;
+}
+
 std::string MenuState::toString() const
 {
     switch (type) {
@@ -401,7 +406,7 @@ void ProgressionStoreState::initView()
 
 StateTransitionAction ProgressionStoreState::update(const InputState &input, [[maybe_unused]] float dt)
 {
-    const size_t prevSelectedButtonId = selectedButtonId_;
+    prevSelectedButtonId_ = selectedButtonId_;
 
     StateTransitionAction stateTransitionAction = StateTransitionAction::None;
     bool isMouseSelectionActive = input.mouseMoved || input.mouseLeftPressed;
@@ -433,10 +438,15 @@ StateTransitionAction ProgressionStoreState::update(const InputState &input, [[m
         }
     }
 
-    buttons_[prevSelectedButtonId].isSelected = false;
+    buttons_[prevSelectedButtonId_].isSelected = false;
     buttons_[selectedButtonId_].isSelected = true;
 
     return stateTransitionAction;
+}
+
+bool ProgressionStoreState::selectedButtonChanged()
+{
+    return selectedButtonId_ != prevSelectedButtonId_;
 }
 
 std::string ProgressionStoreState::toString() const
