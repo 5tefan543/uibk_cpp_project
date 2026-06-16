@@ -156,7 +156,32 @@ TEST_CASE_METHOD(TestFixture, "AudioController safePlayMusic logs a warning when
 }
 
 // ---------------------------------------------------------------------------
-// AudioController – conditional music controls  (audio_controller.cpp lines 41-48)
+// AudioController – playMusic positive path  (setLooping + play)
+// ---------------------------------------------------------------------------
+
+TEST_CASE_METHOD(TestFixture, "AudioController playMusic with valid file does not throw")
+{
+    // Covers music_.stop(), openFromFile(), setLooping(true) and music_.play()
+    test::writeMinimalWav("music.wav");
+    audio::AudioCache cache;
+    audio::AudioController controller(cache);
+
+    REQUIRE_NOTHROW(controller.playMusic("music.wav"));
+}
+
+TEST_CASE_METHOD(TestFixture, "AudioController playMusic replaces currently playing music without throwing")
+{
+    test::writeMinimalWav("music.wav");
+    audio::AudioCache cache;
+    audio::AudioController controller(cache);
+
+    controller.playMusic("music.wav");
+    // Second call must stop the first stream before opening the new one
+    REQUIRE_NOTHROW(controller.playMusic("music.wav"));
+}
+
+// ---------------------------------------------------------------------------
+// AudioController – conditional music controls
 // ---------------------------------------------------------------------------
 
 TEST_CASE_METHOD(TestFixture, "AudioController stopMusic does not throw when no music is loaded")
@@ -167,12 +192,33 @@ TEST_CASE_METHOD(TestFixture, "AudioController stopMusic does not throw when no 
     REQUIRE_NOTHROW(controller.stopMusic());
 }
 
+TEST_CASE_METHOD(TestFixture, "AudioController stopMusic does not throw after music has been started")
+{
+    test::writeMinimalWav("music.wav");
+    audio::AudioCache cache;
+    audio::AudioController controller(cache);
+
+    controller.playMusic("music.wav");
+    REQUIRE_NOTHROW(controller.stopMusic());
+}
+
 TEST_CASE_METHOD(TestFixture, "AudioController pauseMusic is a no-op when music is not playing")
 {
     audio::AudioCache cache;
     audio::AudioController controller(cache);
 
-    // Without a loaded music track, status is Stopped → the guard skips pause.
+    // status is Stopped → guard skips pause
+    REQUIRE_NOTHROW(controller.pauseMusic());
+}
+
+TEST_CASE_METHOD(TestFixture, "AudioController pauseMusic pauses music that is currently playing")
+{
+    // Covers the status == Playing → music_.pause() branch
+    test::writeMinimalWav("music.wav");
+    audio::AudioCache cache;
+    audio::AudioController controller(cache);
+
+    controller.playMusic("music.wav");
     REQUIRE_NOTHROW(controller.pauseMusic());
 }
 
@@ -181,6 +227,83 @@ TEST_CASE_METHOD(TestFixture, "AudioController resumeMusic is a no-op when music
     audio::AudioCache cache;
     audio::AudioController controller(cache);
 
-    // Without a loaded or paused music track, status is Stopped → the guard skips resume.
+    // status is Stopped → guard skips resume
     REQUIRE_NOTHROW(controller.resumeMusic());
+}
+
+TEST_CASE_METHOD(TestFixture, "AudioController resumeMusic resumes music that is currently paused")
+{
+    // Covers the status == Paused → music_.play() branch
+    test::writeMinimalWav("music.wav");
+    audio::AudioCache cache;
+    audio::AudioController controller(cache);
+
+    controller.playMusic("music.wav");
+    controller.pauseMusic();
+    REQUIRE_NOTHROW(controller.resumeMusic());
+}
+
+// ---------------------------------------------------------------------------
+// AudioController – safe wrappers for stop / pause / resume
+//
+// Note: stopMusic(), pauseMusic() and resumeMusic() never throw std::exception
+// (they only call SFML void methods). The catch blocks in safeStopMusic(),
+// safePauseMusic() and safeResumeMusic() are therefore structurally dead code
+// and cannot be triggered without a mock/fake. The tests below cover the
+// try-path (normal execution) of each wrapper explicitly.
+// ---------------------------------------------------------------------------
+
+TEST_CASE_METHOD(TestFixture, "AudioController safeStopMusic does not throw when music is not loaded")
+{
+    audio::AudioCache cache;
+    audio::AudioController controller(cache);
+
+    REQUIRE_NOTHROW(controller.safeStopMusic());
+}
+
+TEST_CASE_METHOD(TestFixture, "AudioController safeStopMusic does not throw after music has been started")
+{
+    test::writeMinimalWav("music.wav");
+    audio::AudioCache cache;
+    audio::AudioController controller(cache);
+
+    controller.playMusic("music.wav");
+    REQUIRE_NOTHROW(controller.safeStopMusic());
+}
+
+TEST_CASE_METHOD(TestFixture, "AudioController safePauseMusic does not throw when music is not playing")
+{
+    audio::AudioCache cache;
+    audio::AudioController controller(cache);
+
+    REQUIRE_NOTHROW(controller.safePauseMusic());
+}
+
+TEST_CASE_METHOD(TestFixture, "AudioController safePauseMusic does not throw when music is playing")
+{
+    test::writeMinimalWav("music.wav");
+    audio::AudioCache cache;
+    audio::AudioController controller(cache);
+
+    controller.playMusic("music.wav");
+    REQUIRE_NOTHROW(controller.safePauseMusic());
+}
+
+TEST_CASE_METHOD(TestFixture, "AudioController safeResumeMusic does not throw when music is not paused")
+{
+    audio::AudioCache cache;
+    audio::AudioController controller(cache);
+
+    REQUIRE_NOTHROW(controller.safeResumeMusic());
+}
+
+TEST_CASE_METHOD(TestFixture, "AudioController safeResumeMusic does not throw when music is paused")
+{
+    test::writeMinimalWav("music.wav");
+    audio::AudioCache cache;
+    audio::AudioController controller(cache);
+
+    controller.playMusic("music.wav");
+    controller.pauseMusic();
+    REQUIRE_NOTHROW(controller.safeResumeMusic());
 }
