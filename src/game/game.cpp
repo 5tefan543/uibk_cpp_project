@@ -1,4 +1,5 @@
 #include "game/game.hpp"
+#include "config/animation_config_helper.hpp"
 #include "controller/debug/debug_context.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state_transition_action.hpp"
@@ -19,18 +20,7 @@
 namespace game {
 
 namespace {
-
-const controller::PlayerClassConfig &getClassConfig(const controller::PlayerClassConfigs &playerClasses,
-                                                    CharacterType type)
-{
-    if (type == CharacterType::Melee) {
-        return playerClasses.melee;
-    }
-
-    return playerClasses.ranged;
-}
-
-void applyClassStats(const controller::PlayerClassConfig &classConfig, PlayerStats &playerStats)
+void applyClassStats(const config::PlayerClassConfig &classConfig, PlayerStats &playerStats)
 {
     playerStats.maxHealth = classConfig.stats.maxHealth;
     playerStats.health = playerStats.maxHealth;
@@ -43,20 +33,11 @@ void applyClassStats(const controller::PlayerClassConfig &classConfig, PlayerSta
     playerStats.hasDash = classConfig.hasDash;
     playerStats.characterType = classConfig.characterType;
 }
-
-void applyAnimationOverwrite(const controller::AnimationOverwriteConfig &overwrite, std::string &texturePath,
-                             float &frameDuration, int &totalFrames, float &moveSpeedMultiplier)
-{
-    texturePath = overwrite.texturePathPrefix;
-    frameDuration = overwrite.frameDuration;
-    totalFrames = overwrite.totalFrames;
-    moveSpeedMultiplier = overwrite.moveSpeedMultiplier;
-}
-
 } // namespace
 
 Game::Game(int wave, CharacterType characterType)
-    : config_(controller::PersistenceManager::getConfig()), locationTable_(config_.locTabNumBuckets, config_.mapSize)
+    : config_(controller::PersistenceManager::getConfig()),
+      locationTable_(config_.locationTableConfig.numBuckets, config_.mapConfig.mapSize)
 {
     initMap();
     initCamera({0.0f, 0.0f});
@@ -75,7 +56,8 @@ Game::Game(CharacterType characterType) : Game(1, characterType)
 }
 
 Game::Game(const PersistedGame &persistedGame)
-    : config_(controller::PersistenceManager::getConfig()), locationTable_(config_.locTabNumBuckets, config_.mapSize)
+    : config_(controller::PersistenceManager::getConfig()),
+      locationTable_(config_.locationTableConfig.numBuckets, config_.mapConfig.mapSize)
 {
     logger::log(logger::DEBUG, "Game constructed from persisted game");
 
@@ -92,28 +74,49 @@ Game::~Game()
 
 void Game::initMap()
 {
-    // Initialize map and camera
+    int mapIdx = (stage_ - 1) % config_.mapConfig.mapSprites.size();
+    auto &mapSpriteConfig = config_.mapConfig.mapSprites[mapIdx];
+
+    view::Sprite mapSprite = {
+        .x = mapSpriteConfig.texture.position.x,
+        .y = mapSpriteConfig.texture.position.y,
+        .imagePath = mapSpriteConfig.texture.path,
+        .width = mapSpriteConfig.texture.size.x,
+        .height = mapSpriteConfig.texture.size.y,
+    };
+
+    HitBox mapHitBox{.offset = mapSpriteConfig.hitBox.offset, .size = mapSpriteConfig.hitBox.size};
+
     Entity map = registry_.createEntity();
     registry_.addComponent<MapTag>(map, {});
     registry_.addComponent<Position>(map, {0.0f, 0.0f});
-
-    int mapCounter = stage_ % 4;
-    view::Sprite mapSprite = {
-        .imagePath = config_.assetConfig.mapTexturePathPrefix + std::to_string(mapCounter) + ".png",
-        .width = config_.mapSize.x,
-        .height = config_.mapSize.y,
-    };
     registry_.addComponent<view::Sprite>(map, mapSprite);
+    registry_.addComponent<HitBox>(map, mapHitBox);
 }
 
 void Game::switchMap()
 {
-    Entity mapEntity = registry_.view<MapTag>().front();
-    if (registry_.hasComponent<view::Sprite>(mapEntity)) {
-        int mapCounter = stage_ % 4;
-        view::Sprite &mapSprite = registry_.getComponent<view::Sprite>(mapEntity);
-        mapSprite.imagePath = config_.assetConfig.mapTexturePathPrefix + std::to_string(mapCounter) + ".png";
+    auto mapEntities = registry_.view<MapTag, Position, view::Sprite>();
+    if (mapEntities.empty()) {
+        logger::log(logger::ERROR, "No map entity found when trying to switch map");
+        return;
     }
+
+    Entity mapEntity = mapEntities.front();
+    view::Sprite &mapSprite = registry_.getComponent<view::Sprite>(mapEntity);
+    HitBox &mapHitBox = registry_.getComponent<HitBox>(mapEntity);
+
+    int mapIdx = (stage_ - 1) % config_.mapConfig.mapSprites.size();
+    auto &mapSpriteConfig = config_.mapConfig.mapSprites[mapIdx];
+
+    mapSprite.x = mapSpriteConfig.texture.position.x;
+    mapSprite.y = mapSpriteConfig.texture.position.y;
+    mapSprite.imagePath = mapSpriteConfig.texture.path;
+    mapSprite.width = mapSpriteConfig.texture.size.x;
+    mapSprite.height = mapSpriteConfig.texture.size.y;
+
+    mapHitBox.offset = mapSpriteConfig.hitBox.offset;
+    mapHitBox.size = mapSpriteConfig.hitBox.size;
 }
 
 void Game::initCamera(Position position)
@@ -125,11 +128,12 @@ void Game::initCamera(Position position)
 
 void Game::initPlayer(CharacterType characterType)
 {
-    PlayerStats playerStats;
     Position position = {100.0f, 100.0f};
+    PlayerStats playerStats;
 
-    const controller::PlayerClassConfig &classConfig = getClassConfig(config_.playerClasses, characterType);
+    const config::PlayerClassConfig &classConfig = config_.playerClasses.getByType(characterType);
     applyClassStats(classConfig, playerStats);
+
     initPlayer(position, playerStats);
 }
 
@@ -137,27 +141,28 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
 {
     Entity player = registry_.createEntity();
     registry_.addComponent<PlayerTag>(player, {});
-    Animation playerAnimation;
-    if (playerStats.characterType == CharacterType::Melee) {
-        playerAnimation = {.baseTexturePath = config_.assetConfig.meleeTexturePathPrefix};
-    } else {
-        playerStats.characterType = CharacterType::Ranged;
-        playerAnimation = {.baseTexturePath = config_.assetConfig.rangedTexturePathPrefix};
-    }
 
-    const controller::PlayerClassConfig &classConfig = getClassConfig(config_.playerClasses, playerStats.characterType);
-    applyAnimationOverwrite(classConfig.attack.animationOverwrite, playerAnimation.attackTexturePath,
-                            playerAnimation.attackFrameDuration, playerAnimation.attackTotalFrames,
-                            playerAnimation.attackMoveSpeedMultiplier);
-    applyAnimationOverwrite(classConfig.deathOverwrite, playerAnimation.deathTexturePath,
-                            playerAnimation.deathFrameDuration, playerAnimation.deathTotalFrames,
-                            playerAnimation.deathMoveSpeedMultiplier);
+    Animation playerAnimation{
+        .state = AnimationState::Idle,
+        .direction = AnimationDirection::Right,
+    };
+
+    const config::AnimationFrame animationFrame = config::AnimationConfigHelper::getPlayerAnimationFrame(
+        config_, playerStats.characterType, playerAnimation.state, playerAnimation.direction,
+        playerAnimation.currentFrame);
+
+    view::Sprite playerSprite{.imagePath = animationFrame.spriteConfig.texture.path,
+                              .width = animationFrame.spriteConfig.texture.size.x,
+                              .height = animationFrame.spriteConfig.texture.size.y};
+
+    HitBox hitBox{.offset = animationFrame.spriteConfig.hitBox.offset, .size = animationFrame.spriteConfig.hitBox.size};
 
     registry_.addComponent<PlayerStats>(player, playerStats);
     registry_.addComponent<Position>(player, position);
     registry_.addComponent<Velocity>(player, {0.0f, 0.0f});
     registry_.addComponent<Animation>(player, playerAnimation);
-    registry_.addComponent<view::Sprite>(player, {.imagePath = playerAnimation.baseTexturePath + "right_1.png"});
+    registry_.addComponent<view::Sprite>(player, playerSprite);
+    registry_.addComponent<HitBox>(player, hitBox);
 }
 
 void Game::initWave(int waveNumber)
@@ -299,12 +304,12 @@ void Game::updateSystems(const controller::InputState &input, float dt)
     }
 
     locationTable_.update(registry_);
-    enemyAI_.update(registry_, locationTable_);
+    enemyAI_.update(registry_, config_, locationTable_, dt);
     inputSystem_.update(registry_, config_, input, dt);
     movementSystem_.update(registry_, dt);
-    animationSystem_.update(registry_, dt);
+    animationSystem_.update(registry_, config_, dt);
     cameraSystem_.update(registry_);
-    collisionDetectionSystem_.update(registry_, wave_);
+    collisionDetectionSystem_.update(registry_);
     damageSystem_.update(registry_, dt);
     soundSystem_.update(registry_);
 }
@@ -365,15 +370,16 @@ void Game::updateView(view::View &view)
     controller::DebugContext &debug = controller::DebugContext::get();
     if (debug.active && debug.gameSettings.showHitboxes) {
         for (auto entity : registry_.view<Position, HitBox>()) {
+            const Position &position = registry_.getComponent<Position>(entity);
             const HitBox &hitbox = registry_.getComponent<HitBox>(entity);
-            view::Rectangle hitboxRect = {
-                .width = hitbox.rect.size.x,
-                .height = hitbox.rect.size.y,
-                .gridX = hitbox.rect.position.x,
-                .gridY = hitbox.rect.position.y,
-                .borderColor = {255, 0, 0},
-                .thickness = 6.0f,
 
+            view::Rectangle hitboxRect = {
+                .width = hitbox.size.x,
+                .height = hitbox.size.y,
+                .gridX = position.x + hitbox.offset.x,
+                .gridY = position.y + hitbox.offset.y,
+                .borderColor = {255, 0, 0},
+                .thickness = 3.0f,
             };
 
             view.nodes.push_back({view::ViewMode::FixedToWorld, hitboxRect});

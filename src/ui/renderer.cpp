@@ -3,13 +3,28 @@
 #include "controller/persistence/persistence_manager.hpp"
 #include "logging/log.hpp"
 #include <SFML/Graphics.hpp>
+#include <format>
+
+namespace {
+
+void loadFontsFromConfig(std::unordered_map<view::FontType, sf::Font> &fontTypeToSfFont)
+{
+    for (const auto &[fontType, fontPath] : controller::PersistenceManager::getConfig().fontConfig.fontToFilePath) {
+        sf::Font font;
+        if (!font.openFromFile(fontPath)) {
+            throw std::runtime_error(std::format("Failed to load font {} from path {}.", toString(fontType), fontPath));
+        }
+        fontTypeToSfFont.emplace(fontType, std::move(font));
+    }
+}
+
+} // namespace
 
 namespace ui {
 
 Renderer::Renderer()
 {
-    // Load all fonts from disk once upon instantiation
-    fonts_ = std::vector<sf::Font>({sf::Font(controller::PersistenceManager::getConfig().assetConfig.fontPath)});
+    loadFontsFromConfig(fontTypeToSfFont_);
     logger::log(logger::DEBUG, "Renderer constructed");
 }
 
@@ -23,9 +38,12 @@ sf::Color Renderer::toSfColor(const view::Color &color)
     return sf::Color(color.red, color.green, color.blue);
 }
 
-const sf::Font &Renderer::toSfFont(const view::Font font)
+const sf::Font &Renderer::toSfFont(const view::FontType font)
 {
-    return fonts_.at(font);
+    if (!fontTypeToSfFont_.contains(font)) {
+        logger::log(logger::ERROR, std::format("Font type {} not found in renderer.", toString(font)));
+    }
+    return fontTypeToSfFont_.at(font);
 }
 
 sf::Texture &Renderer::getTexture(const std::string &imagePath)
@@ -140,7 +158,7 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Sprite &sprit
         selectionBox.setSize(sfSprite.getGlobalBounds().size);
         selectionBox.setFillColor(sf::Color::Transparent);
         selectionBox.setOutlineColor(sf::Color::Yellow);
-        selectionBox.setOutlineThickness(2.0f);
+        selectionBox.setOutlineThickness(3.0f);
         window.draw(selectionBox);
     }
 }
@@ -162,7 +180,7 @@ void Renderer::renderDebugLocationTable(sf::RenderWindow &window)
             bucket.setOutlineThickness(1.0f);
             window.draw(bucket);
 
-            sf::Text t(toSfFont(view::Font::Default), std::format("{}", lt.cgetBucket(x, y).size()));
+            sf::Text t(toSfFont(view::FontType::Default), std::format("{}", lt.cgetBucket(x, y).size()));
             t.setOrigin(t.getLocalBounds().getCenter());
             t.setPosition({bucket.getPosition() + bucket.getGeometricCenter()});
             t.setFillColor(sf::Color::Black);

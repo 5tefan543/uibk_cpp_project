@@ -1,7 +1,7 @@
 #pragma once
 
+#include "config/game_config.hpp"
 #include "controller/input/input_state.hpp"
-#include "controller/persistence/game_config.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
@@ -23,7 +23,7 @@ namespace game {
 class Game {
   private:
     Registry registry_;
-    controller::GameConfig config_;
+    config::GameConfig config_;
     LocationTable locationTable_;
     GameDebugSession debugSession_{registry_, locationTable_};
     float currentWaveDuration_;
@@ -41,18 +41,6 @@ class Game {
 
     int stage_ = 1;
     int wave_ = 1;
-    // We need to store view::Text as a member because ViewElement stores a reference to it,
-    // so we must ensure that the referenced object lives long enough.
-    //
-    // Is this approach ok?
-    // Or would it make more sense to only store certain elements like view::Card and
-    // view::Button as reference_wrapped, while keeping view::Text as a value type in ViewElement?
-    //
-    // At the moment view::Sprite is NOT reference_wrapped, so ViewElement already contains
-    // a mix of reference_wrapped and value types.
-    //
-    // If we changed view::Sprite to also be reference_wrapped, we would need to store
-    // all sprites in a deque inside Game.
     view::Text stageWaveInfo_;
 
     explicit Game(int wave, CharacterType characterType);

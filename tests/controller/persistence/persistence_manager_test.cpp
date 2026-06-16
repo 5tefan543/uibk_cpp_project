@@ -92,7 +92,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager stores leaderboard entries sor
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk when cache is empty")
 {
-    GameConfig input;
+    config::GameConfig input;
     input.initialStage = 13;
     input.initialWave = 8;
     input.initialCurrency = 456;
@@ -101,18 +101,10 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk whe
     input.windowConfig.title = "Disk Config";
     input.logConfig.level = logger::WARNING;
     input.logConfig.useColor = false;
-    input.assetConfig.meleeTexturePathPrefix = "assets/player.png";
-    input.assetConfig.enemyTexturePathPrefix = "assets/enemy.png";
-    input.assetConfig.mapTexturePathPrefix = "assets/map.png";
-    input.assetConfig.fontPath = "assets/font.ttf";
-    input.assetConfig.droppableItems = {{"common", "assets/icons/store/icons-common_1.png"}};
-    input.playerClasses.melee.attack.animationOverwrite.texturePathPrefix =
-        "assets/characters/melee/character_melee_atk_";
-    input.playerClasses.melee.deathOverwrite.texturePathPrefix = "assets/characters/melee/death_";
 
     REQUIRE(Serializer::writeJsonToFile(input, Serializer::configFilePath));
 
-    const auto output = PersistenceManager::getConfig();
+    const config::GameConfig &output = PersistenceManager::getConfig();
 
     REQUIRE(output.initialStage == 13);
     REQUIRE(output.initialWave == 8);
@@ -122,16 +114,6 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk whe
     REQUIRE(output.windowConfig.title == "Disk Config");
     REQUIRE(output.logConfig.level == logger::WARNING);
     REQUIRE(output.logConfig.useColor == false);
-    REQUIRE(output.assetConfig.meleeTexturePathPrefix == "assets/player.png");
-    REQUIRE(output.assetConfig.enemyTexturePathPrefix == "assets/enemy.png");
-    REQUIRE(output.assetConfig.mapTexturePathPrefix == "assets/map.png");
-    REQUIRE(output.assetConfig.fontPath == "assets/font.ttf");
-    REQUIRE(output.assetConfig.droppableItems.size() == 1);
-    REQUIRE(output.assetConfig.droppableItems[0].id == "common");
-    REQUIRE(output.assetConfig.droppableItems[0].spritePath == "assets/icons/store/icons-common_1.png");
-    REQUIRE(output.playerClasses.melee.attack.animationOverwrite.texturePathPrefix
-            == "assets/characters/melee/character_melee_atk_");
-    REQUIRE(output.playerClasses.melee.deathOverwrite.texturePathPrefix == "assets/characters/melee/death_");
 }
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig throws when config is missing and cache is empty")
@@ -157,7 +139,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saveConfig returns false when 
         REQUIRE(configPathAsFile.good());
     }
 
-    GameConfig config;
+    config::GameConfig config;
     config.initialStage = 1;
 
     REQUIRE_FALSE(PersistenceManager::saveConfig(config));
@@ -165,25 +147,17 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saveConfig returns false when 
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads config")
 {
-    GameConfig input;
+    config::GameConfig input;
     input.initialStage = 7;
     input.initialWave = 3;
     input.initialCurrency = 999;
     input.windowConfig.width = 1280;
     input.windowConfig.height = 720;
     input.windowConfig.title = "Test Window";
-    input.assetConfig.meleeTexturePathPrefix = "assets/players/test_player.png";
-    input.assetConfig.enemyTexturePathPrefix = "assets/enemies/test_enemy.png";
-    input.assetConfig.mapTexturePathPrefix = "assets/maps/test_map.png";
-    input.assetConfig.fontPath = "assets/fonts/test_font.ttf";
-    input.assetConfig.droppableItems = {{"rare", "assets/icons/store/icons-rare_1.png"}};
-    input.playerClasses.ranged.attack.animationOverwrite.texturePathPrefix = "assets/characters/ranged/atk_";
-    input.playerClasses.ranged.deathOverwrite.texturePathPrefix = "assets/characters/ranged/death_";
 
     PersistenceManager::saveConfig(input);
 
-    GameConfig output;
-    output = PersistenceManager::getConfig();
+    const config::GameConfig &output = PersistenceManager::getConfig();
 
     REQUIRE(output.initialStage == 7);
     REQUIRE(output.initialWave == 3);
@@ -191,31 +165,22 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads config")
     REQUIRE(output.windowConfig.width == 1280);
     REQUIRE(output.windowConfig.height == 720);
     REQUIRE(output.windowConfig.title == "Test Window");
-    REQUIRE(output.assetConfig.meleeTexturePathPrefix == "assets/players/test_player.png");
-    REQUIRE(output.assetConfig.enemyTexturePathPrefix == "assets/enemies/test_enemy.png");
-    REQUIRE(output.assetConfig.mapTexturePathPrefix == "assets/maps/test_map.png");
-    REQUIRE(output.assetConfig.fontPath == "assets/fonts/test_font.ttf");
-    REQUIRE(output.assetConfig.droppableItems.size() == 1);
-    REQUIRE(output.assetConfig.droppableItems[0].id == "rare");
-    REQUIRE(output.assetConfig.droppableItems[0].spritePath == "assets/icons/store/icons-rare_1.png");
-    REQUIRE(output.playerClasses.ranged.attack.animationOverwrite.texturePathPrefix == "assets/characters/ranged/atk_");
-    REQUIRE(output.playerClasses.ranged.deathOverwrite.texturePathPrefix == "assets/characters/ranged/death_");
 }
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig prefers cached config after save")
 {
-    GameConfig cachedConfig;
+    config::GameConfig cachedConfig;
     cachedConfig.initialStage = 11;
     cachedConfig.initialWave = 6;
     cachedConfig.initialCurrency = 555;
 
     REQUIRE(PersistenceManager::saveConfig(cachedConfig));
 
-    GameConfig diskConfig = cachedConfig;
+    config::GameConfig diskConfig = cachedConfig;
     diskConfig.initialStage = 99;
     REQUIRE(Serializer::writeJsonToFile(diskConfig, Serializer::configFilePath));
 
-    const auto output = PersistenceManager::getConfig();
+    const config::GameConfig &output = PersistenceManager::getConfig();
 
     REQUIRE(output.initialStage == 11);
     REQUIRE(output.initialWave == 6);

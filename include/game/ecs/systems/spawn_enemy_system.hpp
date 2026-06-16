@@ -1,6 +1,6 @@
 #pragma once
 
-#include "controller/persistence/game_config.hpp"
+#include "config/game_config.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/registry.hpp"
@@ -23,27 +23,25 @@ class SpawnEnemySystem {
 
     SpawnContext createSpawnContext(Registry &registry) const;
     void clearEnemies(Registry &registry);
-    int generateEnemyCount(int wave, int maxEnemyCount, const controller::EnemySpawnConfig &spawnConfig);
+    int generateEnemyCount(int wave, int maxEnemyCount, const config::EnemySpawnConfig &spawnConfig);
     bool isBossWave(int wave, int wavesPerStage) const;
-    const controller::EnemyArchetypeConfig &chooseEnemyArchetype(const controller::EnemyConfig &enemyConfig,
-                                                                 bool isBoss);
-    void spawnEnemy(Registry &registry, int wave, const controller::EnemyArchetypeConfig &archetype,
-                    const controller::EnemySpawnConfig &spawnConfig, const SpawnContext &context);
-    Position generateSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite, bool isBoss,
-                                   const controller::EnemySpawnConfig &spawnConfig);
+    void spawnEnemy(Registry &registry, int wave, const config::GameConfig &config, EnemyType enemyType,
+                    const config::EnemySpawnConfig &spawnConfig, const SpawnContext &context);
+    Position generateSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite, EnemyType enemyType,
+                                   const config::EnemySpawnConfig &spawnConfig);
     Position generateBossSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite,
-                                       const controller::EnemySpawnConfig &spawnConfig);
+                                       const config::EnemySpawnConfig &spawnConfig);
     Position generateRandomSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite);
-    EnemyStats createEnemyStats(int wave, const controller::EnemyArchetypeConfig &archetype,
-                                const controller::EnemySpawnConfig &spawnConfig, const SpawnContext &context);
-    float generateCombatScaling(int wave, const controller::EnemyArchetypeConfig &archetype,
-                                const controller::EnemySpawnConfig &spawnConfig);
-    float generateEnemyMoveSpeed(int wave, const controller::EnemyArchetypeConfig &archetype,
-                                 const controller::EnemySpawnConfig &spawnConfig, const SpawnContext &context);
+    EnemyStats createEnemyStats(int wave, const config::EnemyClassConfig &classConfig,
+                                const config::EnemySpawnConfig &spawnConfig, const SpawnContext &context);
+    float generateCombatScaling(int wave, const config::EnemyClassConfig &classConfig,
+                                const config::EnemySpawnConfig &spawnConfig);
+    float generateEnemyMoveSpeed(int wave, const config::EnemyClassConfig &classConfig,
+                                 const config::EnemySpawnConfig &spawnConfig, const SpawnContext &context);
 
   public:
     SpawnEnemySystem();
-    void update(Registry &registry, int wave, const controller::GameConfig &config);
+    void update(Registry &registry, int wave, const config::GameConfig &config);
 };
 
 } // namespace game

@@ -3,7 +3,6 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
 #include "game/ecs/components/animation.hpp"
-#include "game/ecs/components/boss_tag.hpp"
 #include "game/ecs/components/camera_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"

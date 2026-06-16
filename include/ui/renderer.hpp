@@ -12,9 +12,9 @@ namespace ui {
 
 class Renderer {
   private:
-    std::vector<sf::Font> fonts_;
+    std::unordered_map<view::FontType, sf::Font> fontTypeToSfFont_;
     std::map<std::string, sf::Texture> textureCache_;
-    const sf::Font &toSfFont(const view::Font font);
+    const sf::Font &toSfFont(const view::FontType font);
     sf::Texture &getTexture(const std::string &imagePath);
     void renderElement(sf::RenderWindow &window, const view::Card &card);
     void renderElement(sf::RenderWindow &window, const view::Button &button);

@@ -1,204 +1,330 @@
+#include "config/game_config.hpp"
 #include "game/ecs/components/animation.hpp"
-#include "game/ecs/components/velocity.hpp"
+#include "game/ecs/components/enemy_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/player_tag.hpp"
+#include "game/ecs/components/stats.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
 #include "shared/test_fixture.hpp"
 #include "view/sprite.hpp"
 
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE_METHOD(TestFixture, "AnimationSystem sets sprite direction from horizontal velocity")
+namespace {
+
+config::SpriteConfig makeSpriteConfig(const std::string &path, float textureWidth, float textureHeight,
+                                      float hitBoxOffsetX = 0.0f, float hitBoxOffsetY = 0.0f,
+                                      float hitBoxWidth = 128.0f, float hitBoxHeight = 128.0f)
 {
-    game::Registry registry;
-    game::AnimationSystem system;
-
-    game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
-                                               .currentFrame = 0,
-                                               .frameTimer = 0.0f,
-                                               .frameDuration = 0.5f,
-                                               .totalFrames = 4,
-                                               .baseTexturePath = "assets/characters/"});
-    registry.addComponent<view::Sprite>(e, {});
-    registry.addComponent<game::Velocity>(e, {-50.0f, 0.0f});
-
-    system.update(registry, 0.1f);
-
-    const auto &animation = registry.getComponent<game::Animation>(e);
-    const auto &sprite = registry.getComponent<view::Sprite>(e);
-
-    REQUIRE(animation.direction == game::Direction::Left);
-    REQUIRE(sprite.imagePath == "assets/characters/left_1.png");
+    config::SpriteConfig spriteConfig{};
+    spriteConfig.texture.path = path;
+    spriteConfig.texture.size = {textureWidth, textureHeight};
+    spriteConfig.hitBox.offset = {hitBoxOffsetX, hitBoxOffsetY};
+    spriteConfig.hitBox.size = {hitBoxWidth, hitBoxHeight};
+    return spriteConfig;
 }
 
-TEST_CASE_METHOD(TestFixture, "AnimationSystem advances frame when moving and timer reaches frame duration")
+config::GameConfig makeAnimationSystemTestConfig()
 {
-    game::Registry registry;
-    game::AnimationSystem system;
+    config::GameConfig config{};
 
-    game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
-                                               .currentFrame = 0,
-                                               .frameTimer = 0.0f,
-                                               .frameDuration = 0.5f,
-                                               .totalFrames = 4,
-                                               .baseTexturePath = "assets/characters/"});
-    registry.addComponent<view::Sprite>(e, {});
-    registry.addComponent<game::Velocity>(e, {100.0f, 0.0f});
+    config.fallbackSprite = makeSpriteConfig("fallback.png", 10.0f, 10.0f);
 
-    system.update(registry, 0.5f);
+    config.playerClasses.melee.characterType = game::CharacterType::Melee;
+    config.playerClasses.melee.animations.stateToStateConfig[game::AnimationState::Idle] = {
+        .frameDuration = 0.25f,
+        .moveSpeedMultiplier = 1.0f,
+        .directionToFrames =
+            {
+                {
+                    game::AnimationDirection::Right,
+                    {
+                        makeSpriteConfig("player_idle_right_1.png", 32.0f, 48.0f, 2.0f, 4.0f, 20.0f, 40.0f),
+                        makeSpriteConfig("player_idle_right_2.png", 33.0f, 49.0f, 3.0f, 5.0f, 21.0f, 41.0f),
+                    },
+                },
+                {
+                    game::AnimationDirection::Left,
+                    {
+                        makeSpriteConfig("player_idle_left_1.png", 32.0f, 48.0f),
+                        makeSpriteConfig("player_idle_left_2.png", 33.0f, 49.0f),
+                    },
+                },
+            },
+    };
 
-    const auto &animation = registry.getComponent<game::Animation>(e);
-    const auto &sprite = registry.getComponent<view::Sprite>(e);
+    config.enemyClasses.blob.enemyType = game::EnemyType::Blob;
+    config.enemyClasses.blob.animations.stateToStateConfig[game::AnimationState::Walk] = {
+        .frameDuration = 0.5f,
+        .moveSpeedMultiplier = 1.0f,
+        .directionToFrames =
+            {
+                {
+                    game::AnimationDirection::Left,
+                    {
+                        makeSpriteConfig("enemy_walk_left_1.png", 64.0f, 64.0f, 5.0f, 6.0f, 30.0f, 31.0f),
+                        makeSpriteConfig("enemy_walk_left_2.png", 65.0f, 65.0f, 7.0f, 8.0f, 32.0f, 33.0f),
+                    },
+                },
+            },
+    };
 
-    REQUIRE(animation.currentFrame == 1);
-    REQUIRE(animation.frameTimer == 0.0f);
-    REQUIRE(animation.direction == game::Direction::Right);
-    REQUIRE(sprite.imagePath == "assets/characters/right_2.png");
+    return config;
 }
 
-TEST_CASE_METHOD(TestFixture, "AnimationSystem keeps frame when moving but timer is below frame duration")
+game::PlayerStats makePlayerStats(game::CharacterType characterType)
 {
-    game::Registry registry;
-    game::AnimationSystem system;
-
-    game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
-                                               .currentFrame = 2,
-                                               .frameTimer = 0.0f,
-                                               .frameDuration = 0.5f,
-                                               .totalFrames = 4,
-                                               .baseTexturePath = "assets/characters/"});
-    registry.addComponent<view::Sprite>(e, {});
-    registry.addComponent<game::Velocity>(e, {10.0f, 0.0f});
-
-    system.update(registry, 0.25f);
-
-    const auto &animation = registry.getComponent<game::Animation>(e);
-    const auto &sprite = registry.getComponent<view::Sprite>(e);
-
-    REQUIRE(animation.currentFrame == 2);
-    REQUIRE(animation.frameTimer == 0.25f);
-    REQUIRE(sprite.imagePath == "assets/characters/right_3.png");
+    game::PlayerStats stats{};
+    stats.characterType = characterType;
+    return stats;
 }
 
-TEST_CASE_METHOD(TestFixture, "AnimationSystem resets frame timer when idle")
+game::EnemyStats makeEnemyStats(game::EnemyType enemyType)
 {
-    game::Registry registry;
-    game::AnimationSystem system;
-
-    game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
-                                               .currentFrame = 3,
-                                               .frameTimer = 0.4f,
-                                               .frameDuration = 0.5f,
-                                               .totalFrames = 4,
-                                               .baseTexturePath = "assets/characters/"});
-    registry.addComponent<view::Sprite>(e, {});
-    registry.addComponent<game::Velocity>(e, {0.0f, 0.0f});
-
-    system.update(registry, 0.25f);
-
-    const auto &animation = registry.getComponent<game::Animation>(e);
-    const auto &sprite = registry.getComponent<view::Sprite>(e);
-
-    REQUIRE(animation.currentFrame == 3);
-    REQUIRE(animation.frameTimer == 0.0f);
-    REQUIRE(sprite.imagePath == "assets/characters/right_4.png");
+    game::EnemyStats stats{};
+    stats.enemyType = enemyType;
+    return stats;
 }
 
-TEST_CASE_METHOD(TestFixture, "AnimationSystem prioritizes attack override sprite and direction")
+} // namespace
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem applies player sprite and hitbox from current animation frame")
 {
     game::Registry registry;
     game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
 
-    game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
-                                               .currentFrame = 0,
-                                               .frameTimer = 0.0f,
-                                               .frameDuration = 0.5f,
-                                               .totalFrames = 4,
-                                               .baseTexturePath = "assets/characters/",
-                                               .overrideState = game::AnimationOverrideState::Attack,
-                                               .overrideTimeRemaining = 0.6f,
-                                               .overrideDirection = game::Direction::Left,
-                                               .attackTexturePath = "assets/characters/atk_",
-                                               .attackFrameDuration = 0.3f,
-                                               .attackTotalFrames = 2});
-    registry.addComponent<view::Sprite>(e, {});
-    registry.addComponent<game::Velocity>(e, {100.0f, 0.0f});
+    const game::Entity entity = registry.createEntity();
 
-    system.update(registry, 0.3f);
+    registry.addComponent<game::PlayerTag>(entity, {});
+    registry.addComponent<game::PlayerStats>(entity, makePlayerStats(game::CharacterType::Melee));
+    registry.addComponent<game::Animation>(entity, {
+                                                       .state = game::AnimationState::Idle,
+                                                       .direction = game::AnimationDirection::Right,
+                                                       .currentFrame = 0,
+                                                       .frameTimer = 0.0f,
+                                                   });
+    registry.addComponent<view::Sprite>(entity, {});
+    registry.addComponent<game::HitBox>(entity, {});
 
-    const auto &animation = registry.getComponent<game::Animation>(e);
-    const auto &sprite = registry.getComponent<view::Sprite>(e);
+    system.update(registry, config, 0.0f);
 
-    REQUIRE(animation.currentFrame == 1);
-    REQUIRE(animation.overrideState == game::AnimationOverrideState::Attack);
-    REQUIRE(animation.direction == game::Direction::Left);
-    REQUIRE(sprite.imagePath == "assets/characters/atk_left_2.png");
-}
+    const auto &sprite = registry.getComponent<view::Sprite>(entity);
+    const auto &hitBox = registry.getComponent<game::HitBox>(entity);
+    const auto &animation = registry.getComponent<game::Animation>(entity);
 
-TEST_CASE_METHOD(TestFixture, "AnimationSystem prioritizes death override sprite and direction")
-{
-    game::Registry registry;
-    game::AnimationSystem system;
+    REQUIRE(sprite.imagePath == "player_idle_right_1.png");
+    REQUIRE(sprite.width == Catch::Approx(32.0f));
+    REQUIRE(sprite.height == Catch::Approx(48.0f));
 
-    game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
-                                               .currentFrame = 0,
-                                               .frameTimer = 0.0f,
-                                               .frameDuration = 0.5f,
-                                               .totalFrames = 4,
-                                               .baseTexturePath = "assets/characters/",
-                                               .overrideState = game::AnimationOverrideState::Death,
-                                               .overrideTimeRemaining = 0.6f,
-                                               .overrideDirection = game::Direction::Left,
-                                               .deathTexturePath = "assets/characters/death_",
-                                               .deathFrameDuration = 0.3f,
-                                               .deathTotalFrames = 2});
-    registry.addComponent<view::Sprite>(e, {});
-    registry.addComponent<game::Velocity>(e, {100.0f, 0.0f});
+    REQUIRE(hitBox.offset.x == Catch::Approx(2.0f));
+    REQUIRE(hitBox.offset.y == Catch::Approx(4.0f));
+    REQUIRE(hitBox.size.x == Catch::Approx(20.0f));
+    REQUIRE(hitBox.size.y == Catch::Approx(40.0f));
 
-    system.update(registry, 0.3f);
-
-    const auto &animation = registry.getComponent<game::Animation>(e);
-    const auto &sprite = registry.getComponent<view::Sprite>(e);
-
-    REQUIRE(animation.currentFrame == 1);
-    REQUIRE(animation.overrideState == game::AnimationOverrideState::Death);
-    REQUIRE(animation.direction == game::Direction::Left);
-    REQUIRE(sprite.imagePath == "assets/characters/death_left_2.png");
-}
-
-TEST_CASE_METHOD(TestFixture, "AnimationSystem clears attack override after timer expires")
-{
-    game::Registry registry;
-    game::AnimationSystem system;
-
-    game::Entity e = registry.createEntity();
-    registry.addComponent<game::Animation>(e, {.direction = game::Direction::Right,
-                                               .currentFrame = 0,
-                                               .frameTimer = 0.0f,
-                                               .frameDuration = 0.5f,
-                                               .totalFrames = 4,
-                                               .baseTexturePath = "assets/characters/",
-                                               .overrideState = game::AnimationOverrideState::Attack,
-                                               .overrideTimeRemaining = 0.2f,
-                                               .overrideDirection = game::Direction::Right,
-                                               .attackTexturePath = "assets/characters/atk_",
-                                               .attackFrameDuration = 0.2f,
-                                               .attackTotalFrames = 2});
-    registry.addComponent<view::Sprite>(e, {});
-    registry.addComponent<game::Velocity>(e, {0.0f, 0.0f});
-
-    system.update(registry, 0.2f);
-
-    const auto &animation = registry.getComponent<game::Animation>(e);
-    REQUIRE(animation.overrideState == game::AnimationOverrideState::None);
     REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+}
 
-    system.update(registry, 0.0f);
-    const auto &sprite = registry.getComponent<view::Sprite>(e);
-    REQUIRE(sprite.imagePath == "assets/characters/right_1.png");
+TEST_CASE_METHOD(TestFixture, "AnimationSystem advances frame when configured frame duration is reached")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity entity = registry.createEntity();
+
+    registry.addComponent<game::PlayerTag>(entity, {});
+    registry.addComponent<game::PlayerStats>(entity, makePlayerStats(game::CharacterType::Melee));
+    registry.addComponent<game::Animation>(entity, {
+                                                       .state = game::AnimationState::Idle,
+                                                       .direction = game::AnimationDirection::Right,
+                                                       .currentFrame = 0,
+                                                       .frameTimer = 0.0f,
+                                                   });
+    registry.addComponent<view::Sprite>(entity, {});
+
+    system.update(registry, config, 0.25f);
+
+    const auto &animation = registry.getComponent<game::Animation>(entity);
+
+    REQUIRE(animation.currentFrame == 1);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem keeps current frame while timer is below configured frame duration")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity entity = registry.createEntity();
+
+    registry.addComponent<game::PlayerTag>(entity, {});
+    registry.addComponent<game::PlayerStats>(entity, makePlayerStats(game::CharacterType::Melee));
+    registry.addComponent<game::Animation>(entity, {
+                                                       .state = game::AnimationState::Idle,
+                                                       .direction = game::AnimationDirection::Right,
+                                                       .currentFrame = 1,
+                                                       .frameTimer = 0.0f,
+                                                   });
+    registry.addComponent<view::Sprite>(entity, {});
+
+    system.update(registry, config, 0.1f);
+
+    const auto &animation = registry.getComponent<game::Animation>(entity);
+    const auto &sprite = registry.getComponent<view::Sprite>(entity);
+
+    REQUIRE(animation.currentFrame == 1);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.1f));
+    REQUIRE(sprite.imagePath == "player_idle_right_2.png");
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem preserves leftover frame time after advancing")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity entity = registry.createEntity();
+
+    registry.addComponent<game::PlayerTag>(entity, {});
+    registry.addComponent<game::PlayerStats>(entity, makePlayerStats(game::CharacterType::Melee));
+    registry.addComponent<game::Animation>(entity, {
+                                                       .state = game::AnimationState::Idle,
+                                                       .direction = game::AnimationDirection::Right,
+                                                       .currentFrame = 0,
+                                                       .frameTimer = 0.2f,
+                                                   });
+    registry.addComponent<view::Sprite>(entity, {});
+
+    system.update(registry, config, 0.1f);
+
+    const auto &animation = registry.getComponent<game::Animation>(entity);
+
+    REQUIRE(animation.currentFrame == 1);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.05f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem wraps current frame at configured total frame count")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity entity = registry.createEntity();
+
+    registry.addComponent<game::PlayerTag>(entity, {});
+    registry.addComponent<game::PlayerStats>(entity, makePlayerStats(game::CharacterType::Melee));
+    registry.addComponent<game::Animation>(entity, {
+                                                       .state = game::AnimationState::Idle,
+                                                       .direction = game::AnimationDirection::Right,
+                                                       .currentFrame = 1,
+                                                       .frameTimer = 0.0f,
+                                                   });
+    registry.addComponent<view::Sprite>(entity, {});
+
+    system.update(registry, config, 0.25f);
+
+    const auto &animation = registry.getComponent<game::Animation>(entity);
+
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem applies enemy animation config")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity entity = registry.createEntity();
+
+    registry.addComponent<game::EnemyTag>(entity, {});
+    registry.addComponent<game::EnemyStats>(entity, makeEnemyStats(game::EnemyType::Blob));
+    registry.addComponent<game::Animation>(entity, {
+                                                       .state = game::AnimationState::Walk,
+                                                       .direction = game::AnimationDirection::Left,
+                                                       .currentFrame = 0,
+                                                       .frameTimer = 0.0f,
+                                                   });
+    registry.addComponent<view::Sprite>(entity, {});
+    registry.addComponent<game::HitBox>(entity, {});
+
+    system.update(registry, config, 0.0f);
+
+    const auto &sprite = registry.getComponent<view::Sprite>(entity);
+    const auto &hitBox = registry.getComponent<game::HitBox>(entity);
+
+    REQUIRE(sprite.imagePath == "enemy_walk_left_1.png");
+    REQUIRE(sprite.width == Catch::Approx(64.0f));
+    REQUIRE(sprite.height == Catch::Approx(64.0f));
+
+    REQUIRE(hitBox.offset.x == Catch::Approx(5.0f));
+    REQUIRE(hitBox.offset.y == Catch::Approx(6.0f));
+    REQUIRE(hitBox.size.x == Catch::Approx(30.0f));
+    REQUIRE(hitBox.size.y == Catch::Approx(31.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem applies sprite config when entity has no hitbox")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity entity = registry.createEntity();
+
+    registry.addComponent<game::PlayerTag>(entity, {});
+    registry.addComponent<game::PlayerStats>(entity, makePlayerStats(game::CharacterType::Melee));
+    registry.addComponent<game::Animation>(entity, {
+                                                       .state = game::AnimationState::Idle,
+                                                       .direction = game::AnimationDirection::Right,
+                                                       .currentFrame = 0,
+                                                       .frameTimer = 0.0f,
+                                                   });
+    registry.addComponent<view::Sprite>(entity, {});
+
+    REQUIRE_NOTHROW(system.update(registry, config, 0.0f));
+
+    const auto &sprite = registry.getComponent<view::Sprite>(entity);
+
+    REQUIRE(sprite.imagePath == "player_idle_right_1.png");
+    REQUIRE(sprite.width == Catch::Approx(32.0f));
+    REQUIRE(sprite.height == Catch::Approx(48.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem skips entity when no animation frame can be resolved")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity entity = registry.createEntity();
+
+    registry.addComponent<game::Animation>(entity, {
+                                                       .state = game::AnimationState::Idle,
+                                                       .direction = game::AnimationDirection::Right,
+                                                       .currentFrame = 0,
+                                                       .frameTimer = 0.0f,
+                                                   });
+
+    registry.addComponent<view::Sprite>(entity, {});
+    auto &spriteBeforeUpdate = registry.getComponent<view::Sprite>(entity);
+    spriteBeforeUpdate.imagePath = "unchanged.png";
+    spriteBeforeUpdate.width = 10.0f;
+    spriteBeforeUpdate.height = 20.0f;
+
+    system.update(registry, config, 1.0f);
+
+    const auto &animation = registry.getComponent<game::Animation>(entity);
+    const auto &sprite = registry.getComponent<view::Sprite>(entity);
+
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+
+    REQUIRE(sprite.imagePath == "unchanged.png");
+    REQUIRE(sprite.width == Catch::Approx(10.0f));
+    REQUIRE(sprite.height == Catch::Approx(20.0f));
 }

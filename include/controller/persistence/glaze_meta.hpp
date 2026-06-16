@@ -1,13 +1,24 @@
 #pragma once
+#include "game/ecs/components/animation.hpp"
 #include "game/persisted_game.hpp"
-#include "game_config.hpp"
 #include "logging/log.hpp"
+#include "view/font.hpp"
 #include <glaze/glaze.hpp>
+
+template <>
+struct glz::meta<view::FontType> {
+    static constexpr auto value = glz::enumerate("Default", view::FontType::Default);
+};
 
 template <>
 struct glz::meta<game::CharacterType> {
     static constexpr auto value =
         glz::enumerate("Melee", game::CharacterType::Melee, "Ranged", game::CharacterType::Ranged);
+};
+
+template <>
+struct glz::meta<game::EnemyType> {
+    static constexpr auto value = glz::enumerate("Blob", game::EnemyType::Blob, "Boss", game::EnemyType::Boss);
 };
 
 template <>
@@ -34,4 +45,18 @@ struct glz::meta<logger::LogLevel> {
     static constexpr auto value =
         glz::enumerate("Silent", logger::LogLevel::SILENT, "Error", logger::LogLevel::ERROR, "Warning",
                        logger::LogLevel::WARNING, "Info", logger::LogLevel::INFO, "Debug", logger::LogLevel::DEBUG);
+};
+
+template <>
+struct glz::meta<game::AnimationDirection> {
+    static constexpr auto value = glz::enumerate(
+        "None", game::AnimationDirection::None, "Left", game::AnimationDirection::Left, "Right",
+        game::AnimationDirection::Right, "Up", game::AnimationDirection::Up, "Down", game::AnimationDirection::Down);
+};
+
+template <>
+struct glz::meta<game::AnimationState> {
+    static constexpr auto value = glz::enumerate("Idle", game::AnimationState::Idle, "Walk", game::AnimationState::Walk,
+                                                 "Attack", game::AnimationState::Attack, "Hit",
+                                                 game::AnimationState::Hit, "Death", game::AnimationState::Death);
 };
