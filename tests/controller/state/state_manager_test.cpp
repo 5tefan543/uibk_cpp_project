@@ -291,3 +291,52 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithExitState clears al
     stateManager.pop();
     REQUIRE(stateManager.isEmpty());
 }
+
+TEST_CASE_METHOD(TestFixture, "updateAudio on empty StateManager throws")
+{
+    StateManager stateManager;
+
+    REQUIRE_THROWS(stateManager.updateAudio());
+}
+
+TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for menu state when selection did not change")
+{
+    StateManager stateManager;
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
+
+    REQUIRE_NOTHROW(stateManager.updateAudio());
+}
+
+TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for progression store when selection did not change")
+{
+    StateManager stateManager;
+    stateManager.push(ProgressionStoreState::createStore());
+
+    REQUIRE_NOTHROW(stateManager.updateAudio());
+}
+
+TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for gameplay state when wave did not change")
+{
+    StateManager stateManager;
+    stateManager.push(GameplayState::createNewGameplay(game::CharacterType::Melee));
+
+    REQUIRE_NOTHROW(stateManager.updateAudio());
+}
+
+TEST_CASE_METHOD(TestFixture, "applyAction audio-safe transitions do not throw when assets are unavailable")
+{
+    StateManager stateManager;
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
+
+    REQUIRE_NOTHROW(stateManager.applyAction(StateTransitionAction::StartNewGameMelee));
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
+
+    REQUIRE_NOTHROW(stateManager.applyAction(StateTransitionAction::PushPauseMenu));
+    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::PauseMenu);
+
+    REQUIRE_NOTHROW(stateManager.applyAction(StateTransitionAction::Pop));
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
+
+    REQUIRE_NOTHROW(stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithGameOverMenu));
+    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::GameOverMenu);
+}

@@ -139,6 +139,7 @@ add_custom_command(TARGET roguelike_app POST_BUILD
 enable_testing()
 
 add_executable(roguelike_test_runner
+  tests/audio/audio_manager_test.cpp
   tests/controller/controller_test.cpp
   tests/controller/input/input_state_test.cpp
   tests/controller/persistence/persistence_manager_test.cpp
@@ -154,6 +155,7 @@ add_executable(roguelike_test_runner
   tests/game/ecs/systems/animation_system_test.cpp
   tests/game/ecs/systems/camera_system_test.cpp
   tests/game/ecs/systems/debug_selection_system_test.cpp
+  tests/game/ecs/systems/sound_system_test.cpp
   tests/game/ecs/systems/collision_detection_system_test.cpp
   tests/game/ecs/systems/damage_system_test.cpp
   tests/game/ecs/systems/enemy_ai_system_test.cpp
@@ -169,6 +171,7 @@ target_link_libraries(roguelike_test_runner
     roguelike_game
     roguelike_controller
     roguelike_logger
+    roguelike_audio
     Catch2::Catch2WithMain
 )
 
