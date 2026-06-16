@@ -77,16 +77,21 @@ void Game::initMap()
     int mapIdx = (stage_ - 1) % config_.mapConfig.mapSprites.size();
     auto &mapSpriteConfig = config_.mapConfig.mapSprites[mapIdx];
 
+    view::Sprite mapSprite = {
+        .x = mapSpriteConfig.texture.position.x,
+        .y = mapSpriteConfig.texture.position.y,
+        .imagePath = mapSpriteConfig.texture.path,
+        .width = mapSpriteConfig.texture.size.x,
+        .height = mapSpriteConfig.texture.size.y,
+    };
+
+    HitBox mapHitBox{.offset = mapSpriteConfig.hitBox.offset, .size = mapSpriteConfig.hitBox.size};
+
     Entity map = registry_.createEntity();
     registry_.addComponent<MapTag>(map, {});
     registry_.addComponent<Position>(map, {0.0f, 0.0f});
-
-    view::Sprite mapSprite = {
-        .imagePath = mapSpriteConfig.texture.path,
-        .width = config_.mapConfig.mapSize.x,
-        .height = config_.mapConfig.mapSize.y,
-    };
     registry_.addComponent<view::Sprite>(map, mapSprite);
+    registry_.addComponent<HitBox>(map, mapHitBox);
 }
 
 void Game::switchMap()
@@ -99,13 +104,19 @@ void Game::switchMap()
 
     Entity mapEntity = mapEntities.front();
     view::Sprite &mapSprite = registry_.getComponent<view::Sprite>(mapEntity);
+    HitBox &mapHitBox = registry_.getComponent<HitBox>(mapEntity);
 
     int mapIdx = (stage_ - 1) % config_.mapConfig.mapSprites.size();
     auto &mapSpriteConfig = config_.mapConfig.mapSprites[mapIdx];
 
+    mapSprite.x = mapSpriteConfig.texture.position.x;
+    mapSprite.y = mapSpriteConfig.texture.position.y;
     mapSprite.imagePath = mapSpriteConfig.texture.path;
-    mapSprite.width = config_.mapConfig.mapSize.x;
-    mapSprite.height = config_.mapConfig.mapSize.y;
+    mapSprite.width = mapSpriteConfig.texture.size.x;
+    mapSprite.height = mapSpriteConfig.texture.size.y;
+
+    mapHitBox.offset = mapSpriteConfig.hitBox.offset;
+    mapHitBox.size = mapSpriteConfig.hitBox.size;
 }
 
 void Game::initCamera(Position position)
@@ -140,11 +151,18 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
         config_, playerStats.characterType, playerAnimation.state, playerAnimation.direction,
         playerAnimation.currentFrame);
 
+    view::Sprite playerSprite{.imagePath = animationFrame.spriteConfig.texture.path,
+                              .width = animationFrame.spriteConfig.texture.size.x,
+                              .height = animationFrame.spriteConfig.texture.size.y};
+
+    HitBox hitBox{.offset = animationFrame.spriteConfig.hitBox.offset, .size = animationFrame.spriteConfig.hitBox.size};
+
     registry_.addComponent<PlayerStats>(player, playerStats);
     registry_.addComponent<Position>(player, position);
     registry_.addComponent<Velocity>(player, {0.0f, 0.0f});
     registry_.addComponent<Animation>(player, playerAnimation);
-    registry_.addComponent<view::Sprite>(player, {.imagePath = animationFrame.spriteConfig.texture.path});
+    registry_.addComponent<view::Sprite>(player, playerSprite);
+    registry_.addComponent<HitBox>(player, hitBox);
 }
 
 void Game::initWave(int waveNumber)
@@ -291,7 +309,7 @@ void Game::updateSystems(const controller::InputState &input, float dt)
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, config_, dt);
     cameraSystem_.update(registry_);
-    collisionDetectionSystem_.update(registry_, wave_);
+    collisionDetectionSystem_.update(registry_);
     damageSystem_.update(registry_, dt);
 }
 
@@ -346,15 +364,16 @@ void Game::updateView(view::View &view)
     controller::DebugContext &debug = controller::DebugContext::get();
     if (debug.active && debug.gameSettings.showHitboxes) {
         for (auto entity : registry_.view<Position, HitBox>()) {
+            const Position &position = registry_.getComponent<Position>(entity);
             const HitBox &hitbox = registry_.getComponent<HitBox>(entity);
-            view::Rectangle hitboxRect = {
-                .width = hitbox.rect.size.x,
-                .height = hitbox.rect.size.y,
-                .gridX = hitbox.rect.position.x,
-                .gridY = hitbox.rect.position.y,
-                .borderColor = {255, 0, 0},
-                .thickness = 6.0f,
 
+            view::Rectangle hitboxRect = {
+                .width = hitbox.size.x,
+                .height = hitbox.size.y,
+                .gridX = position.x + hitbox.offset.x,
+                .gridY = position.y + hitbox.offset.y,
+                .borderColor = {255, 0, 0},
+                .thickness = 3.0f,
             };
 
             view.nodes.push_back({view::ViewMode::FixedToWorld, hitboxRect});

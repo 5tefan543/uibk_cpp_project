@@ -197,10 +197,6 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
                                                    playerStats.characterType, attackDirection);
 
     // create melee attack entity
-    const float offsetX =
-        attackDirection == AnimationDirection::Right ? playerSprite.width / 2 : -playerSprite.width / 2;
-    const Position position{.x = playerPosition.x + offsetX, .y = playerPosition.y};
-
     const Damage damageComponent{.amount = attackProfile.amount,
                                  .pushBackForce = attackProfile.pushBackForce,
                                  .stunChance = attackProfile.stunChance,
@@ -211,19 +207,23 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
                                      .elapsedSec = 0.0f,
                                  }};
 
+    const Position damagePosition{playerPosition.x, playerPosition.y};
+
+    const float hitBoxOffsetX =
+        attackDirection == AnimationDirection::Right ? playerSprite.width / 2 : -playerSprite.width / 2;
+    const float hitBoxOffsetY = -(attackProfile.meleeArc.reach) * playerStats.attackRange;
+
     const HitBox meleeHitBox{
-        .rect = {
-            .position = {position.x + offsetX, position.y - (attackProfile.meleeArc.reach) * playerStats.attackRange},
-            .size = {attackProfile.meleeArc.hitBoxWidth + 2 * attackProfile.meleeArc.reach * playerStats.attackRange,
-                     attackProfile.meleeArc.hitBoxHeight
-                         + 2 * attackProfile.meleeArc.reach * playerStats.attackRange}}};
+        .offset = {hitBoxOffsetX, hitBoxOffsetY},
+        .size = {attackProfile.meleeArc.hitBoxWidth + 2 * attackProfile.meleeArc.reach * playerStats.attackRange,
+                 attackProfile.meleeArc.hitBoxHeight + 2 * attackProfile.meleeArc.reach * playerStats.attackRange}};
 
     // add melee attack entity with all components
     // component references may be invalid: retrieve again from registry if used after this point
     const Entity meleeAttackEntity = registry.createEntity();
     registry.addComponent<Damage>(meleeAttackEntity, damageComponent);
     registry.addComponent<DamageTag>(meleeAttackEntity, {});
-    registry.addComponent<Position>(meleeAttackEntity, position);
+    registry.addComponent<Position>(meleeAttackEntity, damagePosition);
     registry.addComponent<HitBox>(meleeAttackEntity, meleeHitBox);
     registry.addComponent<PlayerAttackTag>(meleeAttackEntity, {}); // Mark as player's attack for collision detection
 }
@@ -275,9 +275,8 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
                                         .width = projectileSpriteConfig.texture.size.x,
                                         .height = projectileSpriteConfig.texture.size.y};
 
-    // TODO: define hitbox from projectileSpriteConfig.hitBox instead of using the whole sprite as hitbox
-    const HitBox projectileHitBox{.rect = {.position = {projectileSprite.x, projectileSprite.y},
-                                           .size = {projectileSprite.width, projectileSprite.height}}};
+    const HitBox projectileHitBox{.offset = projectileSpriteConfig.hitBox.offset,
+                                  .size = projectileSpriteConfig.hitBox.size};
 
     // add projectile entity with all components
     // component references may be invalid: retrieve again from registry if used after this point

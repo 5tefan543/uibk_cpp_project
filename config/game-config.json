@@ -11,7 +11,7 @@
         "title": "Robotato"
     },
     "logConfig": {
-        "level": "Info",
+        "level": "Debug",
         "useColor": true
     },
     "mapConfig": {
@@ -22,27 +22,79 @@
         "mapSprites": [
             {
                 "texture": {
-                    "path": "assets/maps/map0.png"
+                    "path": "assets/maps/map0.png",
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
                 },
-                "hitBox": {}
+                "hitBox": {
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
+                }
             },
             {
                 "texture": {
-                    "path": "assets/maps/map1.png"
+                    "path": "assets/maps/map1.png",
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
                 },
-                "hitBox": {}
+                "hitBox": {
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
+                }
             },
             {
                 "texture": {
-                    "path": "assets/maps/map2.png"
+                    "path": "assets/maps/map2.png",
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
                 },
-                "hitBox": {}
+                "hitBox": {
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
+                }
             },
             {
                 "texture": {
-                    "path": "assets/maps/map3.png"
+                    "path": "assets/maps/map3.png",
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
                 },
-                "hitBox": {}
+                "hitBox": {
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
+                }
             }
         ]
     },
@@ -121,8 +173,7 @@
                                 {
                                     "texture": {
                                         "path": "assets/characters/melee/character_melee_left_1.png"
-                                    },
-                                    "hitBox": {}
+                                    }
                                 },
                                 {
                                     "texture": {
@@ -302,7 +353,16 @@
                                                     "y": 16.0
                                                 }
                                             },
-                                            "hitBox": {}
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 5.0,
+                                                    "y": 5.0
+                                                },
+                                                "size": {
+                                                    "x": 6.0,
+                                                    "y": 6.0
+                                                }
+                                            }
                                         }
                                     ]
                                 }

@@ -21,11 +21,12 @@ struct WindowConfig {
 struct TextureConfig {
     std::string path;
     Vec2<float> position = {0, 0};
-    Vec2<float> size = {0, 0};
+    Vec2<float> size = {128.0f, 128.0f};
 };
 
 struct HitBoxConfig {
-    // TODO: store hitbox boundaries here
+    Vec2<float> offset = {0, 0};
+    Vec2<float> size = {128.0f, 128.0f};
 };
 
 struct SpriteConfig {

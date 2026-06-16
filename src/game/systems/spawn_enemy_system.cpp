@@ -2,6 +2,7 @@
 #include "config/animation_config_helper.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/map_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/velocity.hpp"
@@ -87,11 +88,15 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const config::Ga
     const config::AnimationFrame animationFrame = config::AnimationConfigHelper::getEnemyAnimationFrame(
         config, enemyType, enemyAnimation.state, enemyAnimation.direction, enemyAnimation.currentFrame);
 
-    view::Sprite enemySprite{.imagePath = animationFrame.spriteConfig.texture.path};
+    view::Sprite enemySprite{.imagePath = animationFrame.spriteConfig.texture.path,
+                             .width = animationFrame.spriteConfig.texture.size.x,
+                             .height = animationFrame.spriteConfig.texture.size.y};
 
     Position spawnPosition = generateSpawnPosition(context, enemySprite, enemyType, spawnConfig);
     const config::EnemyClassConfig &enemyClass = config.enemyClasses.getByType(enemyType);
     EnemyStats enemyStats = createEnemyStats(wave, enemyClass, spawnConfig, context);
+
+    HitBox hitBox{.offset = animationFrame.spriteConfig.hitBox.offset, .size = animationFrame.spriteConfig.hitBox.size};
 
     Entity enemy = registry.createEntity();
     registry.addComponent<EnemyTag>(enemy, {});
@@ -100,6 +105,7 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const config::Ga
     registry.addComponent<EnemyStats>(enemy, enemyStats);
     registry.addComponent<Animation>(enemy, enemyAnimation);
     registry.addComponent<view::Sprite>(enemy, enemySprite);
+    registry.addComponent<HitBox>(enemy, hitBox);
 }
 
 Position SpawnEnemySystem::generateSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite,
