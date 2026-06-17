@@ -831,12 +831,6 @@
                                         "path": "assets/characters/blob_enemy/blob_atk_left_3.png"
                                     },
                                     "hitBox": {}
-                                },
-                                {
-                                    "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_atk_left_4.png"
-                                    },
-                                    "hitBox": {}
                                 }
                             ],
                             "Right": [
@@ -855,12 +849,6 @@
                                 {
                                     "texture": {
                                         "path": "assets/characters/blob_enemy/blob_atk_right_3.png"
-                                    },
-                                    "hitBox": {}
-                                },
-                                {
-                                    "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_atk_right_4.png"
                                     },
                                     "hitBox": {}
                                 }
