@@ -159,6 +159,7 @@ void DamageSystem::update(Registry &registry, float dt)
 
             damageTag.targetsHit.insert(targetEntity);
 
+            // check if max targets are reached
             if (damage.kind == DamageKind::Projectile) {
                 if (std::holds_alternative<ProjectileDamage>(damage.params)) {
                     const auto &projectile = std::get<ProjectileDamage>(damage.params);
