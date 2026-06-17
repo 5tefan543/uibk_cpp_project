@@ -71,12 +71,15 @@ struct BeamAttackConfig {
     float width = 0.0f;
     float activeTimeSec = 0.0f;
     int damageTicks = 0;
+    AnimationConfig animations;
 };
 
 struct AreaAttackConfig {
     float radius = 0.0f;
     float activeTimeSec = 0.0f;
     int damageTicks = 0;
+    float initialHit; // percentage based of damage amount the remaining damage will be divided over the damageTicks
+    AnimationConfig animations;
 };
 
 struct AttackProfileConfig {

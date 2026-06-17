@@ -672,20 +672,64 @@
                 "attackRange": 0.0
             },
             "attack": {
-                "kind": "MeleeArc",
-                "amount": 2.0,
+                "kind": "Area",
+                "amount": 30,
                 "isMultiHit": false,
                 "pushBackForce": 0.0,
                 "stunChance": 0.0,
-                "meleeArc": {
-                    "reach": 45.0,
-                    "hitBoxWidth": 64.0,
-                    "hitBoxHeight": 64.0,
-                    "activeTimePaddingSec": 0.1
-                },
                 "area": {
-                    "radius": 80.0,
-                    "activeTimeSec": 0.2
+                    "radius": 64.0,
+                    "activeTimeSec": 5.0,
+                    "damageTicks": 5,
+                    "initialHit": 0.3333,
+                    "animations": {
+                        "stateToStateConfig": {
+                            "Idle": {
+                                "directionToFrames": {
+                                    "None": [
+                                        {
+                                            "texture": {
+                                                "path": "assets/characters/blob_enemy/blob_atk_1.png",
+                                                "size": {
+                                                    "x": 64.0,
+                                                    "y": 64.0
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 5.0,
+                                                    "y": 5.0
+                                                },
+                                                "size": {
+                                                    "x": 128.0,
+                                                    "y": 128.0
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/characters/blob_enemy/blob_atk_2.png",
+                                                "size": {
+                                                    "x": 64.0,
+                                                    "y": 64.0
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 5.0,
+                                                    "y": 5.0
+                                                },
+                                                "size": {
+                                                    "x": 128.0,
+                                                    "y": 128.0
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 }
             },
             "scoreReward": 1,
