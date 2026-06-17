@@ -2,6 +2,8 @@
 
 namespace game {
 
-struct EnemyAttackTag {};
+struct EnemyAttackTag {
+    Entity source;
+};
 
 } // namespace game

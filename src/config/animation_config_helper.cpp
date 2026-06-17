@@ -85,4 +85,13 @@ AnimationFrame config::AnimationConfigHelper::getProjectileAnimationFrame(
                              config.fallbackSprite);
 }
 
+AnimationFrame config::AnimationConfigHelper::getAreaAnimationFrame(const GameConfig &config,
+                                                                    const AreaAttackConfig &areaConfig,
+                                                                    const game::AnimationState state,
+                                                                    const game::AnimationDirection direction,
+                                                                    const size_t frameNum)
+{
+    return getAnimationFrame("area", areaConfig.animations, state, direction, frameNum, config.fallbackSprite);
+}
+
 } // namespace config

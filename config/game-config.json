@@ -669,7 +669,7 @@
                 "defense": 0.25,
                 "moveSpeed": 100.0,
                 "speedOfAttack": 0.0,
-                "attackRange": 0.0
+                "attackRange": 1.0
             },
             "attack": {
                 "kind": "Area",
