@@ -59,6 +59,8 @@ void EnemyAI::updateEnemyVelocityTowardsPlayer(Registry &registry, LocationTable
 
     EnemyStats &enemyStats = registry.getComponent<EnemyStats>(enemy);
     if (enemyStats.moveSpeed == 0) {
+        vx = 0;
+        vy = 0;
         return;
     }
     Vec2 enemyPosVec{px, py};
