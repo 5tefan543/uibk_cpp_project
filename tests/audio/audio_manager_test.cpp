@@ -24,12 +24,12 @@ TEST_CASE_METHOD(TestFixture, "AudioController playSound throws for missing file
     REQUIRE_THROWS(controller.playSound("this/path/does/not/exist.wav"));
 }
 
-TEST_CASE_METHOD(TestFixture, "AudioController playMusic throws for missing file")
+TEST_CASE_METHOD(TestFixture, "AudioController playMusic does not throw for missing file")
 {
     audio::AudioCache cache;
     audio::AudioController controller(cache);
 
-    REQUIRE_THROWS(controller.playMusic("this/path/does/not/exist.ogg"));
+    REQUIRE_NOTHROW(controller.playMusic("this/path/does/not/exist.ogg"));
 }
 
 // ---------------------------------------------------------------------------

@@ -1,6 +1,8 @@
 #include "audio/audio_controller.hpp"
 
+#include "logging/log.hpp"
 #include <algorithm>
+#include <format>
 #include <stdexcept>
 #include <string>
 
@@ -22,7 +24,8 @@ void AudioController::playMusic(const std::string &file)
     music_.stop();
 
     if (!music_.openFromFile(file)) {
-        throw std::runtime_error("Failed to load music: " + file);
+        logger::log(logger::LogLevel::ERROR, std::format("Failed to load music: {}", file));
+        return;
     }
 
     music_.setLooping(true);
