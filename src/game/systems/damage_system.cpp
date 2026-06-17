@@ -132,7 +132,7 @@ void DamageSystem::update(Registry &registry, float dt)
 
             if (!registry.isEntityAlive(targetEntity)) {
                 damageTag.targets.erase(targetEntity);
-                continue; // Skip if target entity is no longer alive, and remove the damage tag to find new target
+                continue; // Skip if target entity is no longer alive, and remove the damage tag to allow new target
             }
 
             hasAliveTarget = true;
