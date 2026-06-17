@@ -135,6 +135,9 @@
                 "speedOfAttack": 220.0,
                 "attackRange": 1
             },
+            "sounds": {
+                "attack": "assets/audio/sounds/character/melee_attack.wav"
+            },
             "attack": {
                 "kind": "MeleeArc",
                 "amount": 14.0,
@@ -429,6 +432,9 @@
                 "moveSpeed": 750.0,
                 "speedOfAttack": 240.0,
                 "attackRange": 1000.0
+            },
+            "sounds": {
+                "attack": "assets/audio/sounds/character/ranged_attack.wav"
             },
             "attack": {
                 "kind": "Projectile",
