@@ -239,9 +239,10 @@ void EnemyAI::blobAreaAttack(Registry &registry, const config::GameConfig &confi
                                                       .elapsedSecSinceLastTick = 0.0f}};
     const config::AnimationFrame areaFrame = config::AnimationConfigHelper::getAreaAnimationFrame(
         config, attackProfile.area, AnimationState::Idle, AnimationDirection::None, 0);
-    const config::SpriteConfig &projectileSpriteConfig = areaFrame.spriteConfig;
+    const config::SpriteConfig &areaSpriteConfig = areaFrame.spriteConfig;
     const Position damagePosition{blobPosition.x, blobPosition.y};
-
+    const view::Sprite sprite{damagePosition.x, damagePosition.y, areaSpriteConfig.texture.path,
+                              areaSpriteConfig.texture.size.x, areaSpriteConfig.texture.size.y};
     const float hitBoxOffsetX =
         attackDirection == AnimationDirection::Right ? playerSprite.width / 2 : -playerSprite.width / 2;
     const float hitBoxOffsetY = -(attackProfile.meleeArc.reach) * enemyStats.attackRange;
@@ -257,6 +258,7 @@ void EnemyAI::blobAreaAttack(Registry &registry, const config::GameConfig &confi
     registry.addComponent<DamageTag>(areaAttackEntity, {});
     registry.addComponent<Position>(areaAttackEntity, damagePosition);
     registry.addComponent<HitBox>(areaAttackEntity, areaHitbox);
+    registry.addComponent<view::Sprite>(areaAttackEntity, sprite);
     // registry.addComponent<SoundComponent>(blobEntity, sound);
     registry.addComponent<EnemyAttackTag>(areaAttackEntity,
                                           {blobEntity}); // Mark as player's attack for collision detection
