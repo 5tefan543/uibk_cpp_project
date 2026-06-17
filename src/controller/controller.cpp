@@ -18,6 +18,8 @@ Controller::~Controller()
 
 void Controller::update(const InputState &input, float dt)
 {
+    stateManager_.updateAudio();
+
     DebugContext &debug = DebugContext::get();
 
     if (input.toggleDebugPressed) {

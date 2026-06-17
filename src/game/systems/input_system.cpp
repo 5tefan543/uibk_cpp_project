@@ -7,6 +7,7 @@
 #include "game/ecs/components/player_attack_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
+#include "game/ecs/components/sound.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/location_table.hpp"
@@ -195,6 +196,7 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
 
     const float animationDuration = applyAnimation(registry, config, playerEntity, AnimationState::Attack,
                                                    playerStats.characterType, attackDirection);
+    const SoundComponent sound = {config.playerClasses.melee.sounds.attack};
 
     // create melee attack entity
     const Damage damageComponent{.amount = attackProfile.amount,
@@ -225,6 +227,7 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
     registry.addComponent<DamageTag>(meleeAttackEntity, {});
     registry.addComponent<Position>(meleeAttackEntity, damagePosition);
     registry.addComponent<HitBox>(meleeAttackEntity, meleeHitBox);
+    registry.addComponent<SoundComponent>(playerEntity, sound);
     registry.addComponent<PlayerAttackTag>(meleeAttackEntity, {}); // Mark as player's attack for collision detection
 }
 
@@ -241,7 +244,7 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
     applyAnimation(registry, config, playerEntity, AnimationState::Attack, playerStats.characterType, attackDirection);
 
     // add projectile
-
+    const SoundComponent sound = {config.playerClasses.ranged.sounds.attack};
     const config::AnimationFrame projectileFrame = config::AnimationConfigHelper::getProjectileAnimationFrame(
         config, attackProfile.projectile, AnimationState::Idle, AnimationDirection::None, 0);
     const config::SpriteConfig &projectileSpriteConfig = projectileFrame.spriteConfig;
@@ -281,6 +284,7 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
     // add projectile entity with all components
     // component references may be invalid: retrieve again from registry if used after this point
     const Entity projectileEntity = registry.createEntity();
+    registry.addComponent<SoundComponent>(playerEntity, sound);
     registry.addComponent<Damage>(projectileEntity, projectileDamage);
     registry.addComponent<view::Sprite>(projectileEntity, projectileSprite);
     registry.addComponent<Position>(projectileEntity, projectileLaunchPosition);

@@ -91,13 +91,20 @@ struct AttackProfileConfig {
     AreaAttackConfig area;
 };
 
+struct CharacterSoundConfig {
+    std::string attack;
+    std::string special;
+    std::string hit;
+    std::string dash;
+};
+
 struct PlayerClassConfig {
     game::CharacterType characterType = game::CharacterType::Melee;
     bool hasDash = false;
     CombatStatsConfig stats;
     AttackProfileConfig attack;
     AnimationConfig animations;
-    // SoundConfig
+    CharacterSoundConfig sounds;
 };
 
 struct PlayerClassConfigs {
@@ -122,7 +129,7 @@ struct EnemyClassConfig {
     AttackProfileConfig attack;
     int scoreReward = 1;
     AnimationConfig animations;
-    // SoundConfig
+    CharacterSoundConfig sounds;
 };
 
 struct EnemyClassConfigs {
@@ -179,6 +186,14 @@ struct FontConfig {
     std::unordered_map<view::FontType, std::string> fontToFilePath;
 };
 
+struct MenuSoundConfig {
+    std::string gameMusic;
+    std::string buttonHoverSound;
+    std::string buttonClickSound;
+    std::string gameOverSound;
+    std::string waveOverSound;
+};
+
 struct GameConfig {
     int initialStage;
     int initialWave;
@@ -195,6 +210,7 @@ struct GameConfig {
     PlayerClassConfigs playerClasses;
     EnemyClassConfigs enemyClasses;
     EnemySpawnConfig enemySpawnConfig;
+    MenuSoundConfig menuSoundConfig;
 };
 
 } // namespace config

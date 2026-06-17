@@ -34,6 +34,21 @@ struct TestFixture {
         std::filesystem::copy_file(sourceConfig, targetConfig, std::filesystem::copy_options::overwrite_existing);
     }
 
+    void ensureAudioAssetsAvailable()
+    {
+        const std::filesystem::path sourceAudioRoot = std::filesystem::path(testDir_.oldPath()) / "assets/audio";
+        const std::filesystem::path targetAudioRoot = "assets/audio";
+
+        if (!std::filesystem::exists(sourceAudioRoot)) {
+            throw std::runtime_error("Missing source audio assets folder: " + sourceAudioRoot.string());
+        }
+
+        std::filesystem::create_directories(targetAudioRoot);
+        std::filesystem::copy(sourceAudioRoot, targetAudioRoot,
+                              std::filesystem::copy_options::recursive
+                                  | std::filesystem::copy_options::overwrite_existing);
+    }
+
     void clearPersistenceManagerCache() { controller::PersistenceManager::resetConfig(); }
 
   public:
@@ -41,6 +56,7 @@ struct TestFixture {
     {
         resetDebugContext();
         ensureGameConfigAvailable();
+        ensureAudioAssetsAvailable();
         clearPersistenceManagerCache();
         logger::configure(logger::LogLevel::SILENT, false);
     }
