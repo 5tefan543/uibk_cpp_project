@@ -27,6 +27,8 @@ struct BeamDamage {
     float width;         // hitbox width
     float activeTimeSec; // short hit window
     float elapsedSec;    // runtime state
+    int damageTicks;
+    float elapsedSecSinceLastTick;
 };
 
 // e.g.

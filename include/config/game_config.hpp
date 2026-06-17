@@ -70,6 +70,7 @@ struct BeamAttackConfig {
     float length = 0.0f;
     float width = 0.0f;
     float activeTimeSec = 0.0f;
+    int damageTicks = 0;
 };
 
 struct AreaAttackConfig {

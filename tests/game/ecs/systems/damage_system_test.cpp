@@ -198,7 +198,8 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem destroys beam and area damage entiti
                .pushBackForce = 0.0f,
                .stunChance = 0.0f,
                .kind = game::DamageKind::Area,
-               .params = game::AreaDamage{.radius = 40.0f, .activeTimeSec = 0.4f, .elapsedSec = 0.0f}});
+               .params = game::AreaDamage{
+                   .radius = 40.0f, .activeTimeSec = 0.4f, .elapsedSec = 0.0f, .initialHit = 0.0f, .damageTicks = 1}});
     registry.addComponent<game::DamageTag>(area, {});
 
     system.update(registry, 0.21f);
