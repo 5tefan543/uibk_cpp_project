@@ -75,6 +75,7 @@ struct BeamAttackConfig {
 struct AreaAttackConfig {
     float radius = 0.0f;
     float activeTimeSec = 0.0f;
+    int damageTicks = 0;
 };
 
 struct AttackProfileConfig {

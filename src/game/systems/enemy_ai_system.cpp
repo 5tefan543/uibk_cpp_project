@@ -32,6 +32,20 @@ const float enemyRepelRadius = 50;
 const float enemyRepelProximityRampParam = 1.5;
 const float enemyRelSpeedCutoffPercentage = 0.02;
 
+void EnemyAI::updateCoolDowns(Registry &registry, Entity enemyEntity, float dt)
+{
+    EnemyStats &enemyStats = registry.getComponent<EnemyStats>(enemyEntity);
+    if (attackCoolDowns_.contains(enemyEntity)) {
+        auto it = attackCoolDowns_.find(enemyEntity);
+        if (it != attackCoolDowns_.end()) {
+            it->second -= dt;
+        }
+        if (it->second <= 0.0f) {
+            attackCoolDowns_.erase(enemyEntity);
+        }
+    }
+}
+
 void EnemyAI::update(Registry &registry, const config::GameConfig &config, LocationTable &locationTable, float dt)
 {
     const auto players = registry.view<PlayerTag, Position>();
@@ -46,7 +60,16 @@ void EnemyAI::update(Registry &registry, const config::GameConfig &config, Locat
         updateEnemyAnimationState(registry, enemy, dt);
         // attack methods similar as in input system
         applyAnimationMoveSpeedModifier(registry, config, enemy);
+        updateCoolDowns(registry, enemy, dt);
     }
+}
+
+void EnemyAI::updateAttack(Registry &registry, Entity enemyEntity)
+{
+    if (attackCoolDowns_.contains(enemyEntity)) {
+        return;
+    }
+    logger::log(logger::LogLevel::DEBUG, "attack!!!");
 }
 
 void EnemyAI::updateEnemyVelocityTowardsPlayer(Registry &registry, LocationTable &locationTable,
@@ -69,7 +92,10 @@ void EnemyAI::updateEnemyVelocityTowardsPlayer(Registry &registry, LocationTable
     Vec2 v = playerPosVec - enemyPosVec;
 
     // TODO: add player attack: -> stwa: maybe not in this method and similar to input system ?
-    // if (v.length() < 30) {attack_player();}
+    if (v.length() < 30) {
+        updateAttack(registry, enemy);
+        return;
+    }
 
     // Prevent shooting over target (player) position
     if (v.length() < minDistanceEnemyPlayer) {
