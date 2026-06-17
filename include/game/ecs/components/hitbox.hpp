@@ -4,6 +4,7 @@
 
 namespace game {
 struct HitBox {
-    Rectangle<float> rect;
+    Vec2<float> offset;
+    Vec2<float> size;
 };
 } // namespace game

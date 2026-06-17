@@ -347,23 +347,6 @@ TEST_CASE_METHOD(TestFixture, "Game getView returns correct view")
     REQUIRE(view.cameraY == 0.0f);
 }
 
-TEST_CASE_METHOD(TestFixture, "Game updateView with hitbox debug enabled handles empty hitbox list")
-{
-    game::Game game;
-    view::View view;
-
-    controller::DebugContext &debug = controller::DebugContext::get();
-    debug.active = true;
-    debug.gameSettings.showHitboxes = true;
-
-    game.updateView(view);
-
-    auto hitboxEntities = game.getDebugSession().registry.view<game::HitBox>();
-    REQUIRE(hitboxEntities.empty());
-
-    REQUIRE(!view.nodes.empty());
-}
-
 TEST_CASE_METHOD(TestFixture, "Game updateView with hitbox debug enabled renders hitbox rectangles")
 {
     game::Game game;

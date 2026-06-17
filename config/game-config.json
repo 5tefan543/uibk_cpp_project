@@ -11,41 +11,114 @@
         "title": "Robotato"
     },
     "logConfig": {
-        "level": "Info",
+        "level": "Debug",
         "useColor": true
     },
-    "assetConfig": {
-        "fontPath": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf",
-        "meleeTexturePathPrefix": "assets/characters/melee/character_melee_",
-        "rangedTexturePathPrefix": "assets/characters/ranged/ranged_character_",
-        "enemyTexturePathPrefix": "assets/characters/enemy_blob/blob_",
-        "mapTexturePathPrefix": "assets/maps/map",
-        "projectilePath": "assets/effects/base_projectile_1.png",
-        "droppableItems": [
+    "mapConfig": {
+        "mapSize": {
+            "x": 3840.0,
+            "y": 2160.0
+        },
+        "mapSprites": [
             {
-                "id": "common",
-                "spritePath": "assets/icons/store/icons-common_1.png"
+                "texture": {
+                    "path": "assets/maps/map0.png",
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
+                },
+                "hitBox": {
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
+                }
             },
             {
-                "id": "rare",
-                "spritePath": "assets/icons/store/icons-rare_1.png"
+                "texture": {
+                    "path": "assets/maps/map1.png",
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
+                },
+                "hitBox": {
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
+                }
             },
             {
-                "id": "epic",
-                "spritePath": "assets/icons/store/icons-epic_1.png"
+                "texture": {
+                    "path": "assets/maps/map2.png",
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
+                },
+                "hitBox": {
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
+                }
+            },
+            {
+                "texture": {
+                    "path": "assets/maps/map3.png",
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
+                },
+                "hitBox": {
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "size": {
+                        "x": 3840.0,
+                        "y": 2160.0
+                    }
+                }
             }
         ]
+    },
+    "locationTableConfig": {
+        "numBuckets": {
+            "x": 20,
+            "y": 20
+        }
+    },
+    "fontConfig": {
+        "fontToFilePath": {
+            "Default": "assets/font/BigBlueTerm_Nerd_Font/BigBlueTerm437NerdFont-Regular.ttf"
+        }
+    },
+    "fallbackSprite": {
+        "texture": {
+            "path": "assets/icons/question_mark.png"
+        },
+        "hitBox": {}
     },
     "playerClasses": {
         "melee": {
             "characterType": "Melee",
             "hasDash": true,
-            "deathOverwrite": {
-                "texturePathPrefix": "",
-                "frameDuration": 0.16,
-                "totalFrames": 2,
-                "moveSpeedMultiplier": 0.0
-            },
             "stats": {
                 "maxHealth": 100.0,
                 "attackPower": 14.0,
@@ -61,12 +134,6 @@
                 "isMultiHit": false,
                 "pushBackForce": 0.0,
                 "stunChance": 0.0,
-                "animationOverwrite": {
-                    "texturePathPrefix": "assets/characters/melee/character_melee_atk_",
-                    "frameDuration": 0.16,
-                    "totalFrames": 2,
-                    "moveSpeedMultiplier": 0.5
-                },
                 "meleeArc": {
                     "reach": 10.0,
                     "hitBoxWidth": 96.0,
@@ -77,17 +144,276 @@
                     "radius": 80.0,
                     "activeTimeSec": 0.2
                 }
+            },
+            "animations": {
+                "stateToStateConfig": {
+                    "Idle": {
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_left_1.png"
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 72.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_right_1.png"
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 12.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "Walk": {
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_left_1.png"
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 72.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_left_2.png"
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 68.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_left_3.png"
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 72.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_left_4.png"
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 72.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_right_1.png"
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 12.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_right_2.png"
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 16.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_right_3.png"
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 12.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_right_4.png"
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 12.0,
+                                            "y": 32.0
+                                        },
+                                        "size": {
+                                            "x": 44.0,
+                                            "y": 84.0
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "Attack": {
+                        "moveSpeedMultiplier": 0.5,
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_atk_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_atk_left_2.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_atk_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_atk_right_2.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
+                    },
+                    "Hit": {
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_hit_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_hit_left_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_hit_left_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_hit_left_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_hit_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_hit_right_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_hit_right_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/melee/character_melee_hit_right_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
+                    },
+                    "Death": {
+                        "directionToFrames": {
+                            "Left": [],
+                            "Right": []
+                        }
+                    }
+                }
             }
         },
         "ranged": {
             "characterType": "Ranged",
             "hasDash": false,
-            "deathOverwrite": {
-                "texturePathPrefix": "",
-                "frameDuration": 0.16,
-                "totalFrames": 2,
-                "moveSpeedMultiplier": 0.0
-            },
             "stats": {
                 "maxHealth": 100.0,
                 "attackPower": 100.0,
@@ -103,148 +429,537 @@
                 "isMultiHit": false,
                 "pushBackForce": 0.0,
                 "stunChance": 0.0,
-                "animationOverwrite": {
-                    "texturePathPrefix": "assets/characters/ranged/ranged_character_atk_",
-                    "frameDuration": 0.16,
-                    "totalFrames": 2,
-                    "moveSpeedMultiplier": 1.0
-                },
                 "projectile": {
                     "velocityScale": 10.0,
-                    "spriteWidth": 16.0,
-                    "spriteHeight": 16.0
+                    "animations": {
+                        "stateToStateConfig": {
+                            "Idle": {
+                                "directionToFrames": {
+                                    "None": [
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/base_projectile_1.png",
+                                                "size": {
+                                                    "x": 16.0,
+                                                    "y": 16.0
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 5.0,
+                                                    "y": 5.0
+                                                },
+                                                "size": {
+                                                    "x": 6.0,
+                                                    "y": 6.0
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 },
                 "beam": {
                     "length": 120.0,
                     "width": 16.0,
                     "activeTimeSec": 0.2
                 }
+            },
+            "animations": {
+                "stateToStateConfig": {
+                    "Idle": {
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
+                    },
+                    "Walk": {
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_left_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_left_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_left_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_right_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_right_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_right_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
+                    },
+                    "Attack": {
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_atk_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_atk_left_2.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_atk_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_atk_right_2.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
+                    },
+                    "Hit": {
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_hit_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_hit_left_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_hit_left_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_hit_left_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_hit_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_hit_right_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_hit_right_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/ranged/ranged_character_hit_right_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
+                    },
+                    "Death": {
+                        "directionToFrames": {
+                            "Left": [],
+                            "Right": []
+                        }
+                    }
+                }
             }
         }
     },
-    "enemyConfig": {
-        "spawn": {
-            "baseEnemyCount": 2.0,
-            "enemyCountGrowthPerWave": 1.5,
-            "enemyCountVariationRatio": 0.25,
-            "minBossSpawnDistanceFromPlayer": 280.0,
-            "maxBossSpawnDistanceFromPlayer": 570.0,
-            "baseEnemyScaling": 1.0,
-            "enemyScalingGrowthPerWave": 0.15,
-            "enemyScalingVariationMean": 1.0,
-            "enemyScalingVariationStddev": 0.1,
-            "minEnemyScalingVariation": 0.8,
-            "maxEnemyScalingVariation": 1.2,
-            "baseEnemyMoveSpeed": 100.0,
-            "enemyMoveSpeedGrowthPerWave": 3.0,
-            "enemyMoveSpeedVariationMean": 1.0,
-            "enemyMoveSpeedVariationStddev": 0.08,
-            "minEnemyMoveSpeedVariation": 0.9,
-            "maxEnemyMoveSpeedVariation": 1.1
-        },
-        "archetypes": [
-            {
-                "id": "blob_melee",
-                "isBoss": false,
-                "spawnWeight": 1.0,
-                "combatScaleMultiplier": 1.0,
-                "moveSpeedRatioOfPlayer": 0.9,
-                "baseTexturePath": "assets/characters/blob_enemy/blob_",
-                "deathOverwrite": {
-                    "texturePathPrefix": "",
-                    "frameDuration": 0.16,
-                    "totalFrames": 2,
-                    "moveSpeedMultiplier": 0.0
-                },
-                "stats": {
-                    "maxHealth": 10.0,
-                    "attackPower": 2.0,
-                    "attackSpeed": 1.0,
-                    "defense": 0.25,
-                    "moveSpeed": 100.0,
-                    "speedOfAttack": 0.0,
-                    "attackRange": 0.0
-                },
-                "attack": {
-                    "kind": "MeleeArc",
-                    "amount": 2.0,
-                    "isMultiHit": false,
-                    "pushBackForce": 0.0,
-                    "stunChance": 0.0,
-                    "animationOverwrite": {
-                        "texturePathPrefix": "",
-                        "frameDuration": 0.16,
-                        "totalFrames": 2,
-                        "moveSpeedMultiplier": 1.0
-                    },
-                    "meleeArc": {
-                        "reach": 45.0,
-                        "hitBoxWidth": 64.0,
-                        "hitBoxHeight": 64.0,
-                        "activeTimePaddingSec": 0.1
-                    },
-                    "area": {
-                        "radius": 80.0,
-                        "activeTimeSec": 0.2
-                    }
-                },
-                "scoreReward": 1
+    "enemyClasses": {
+        "blob": {
+            "enemyType": "Blob",
+            "spawnWeight": 1.0,
+            "combatScaleMultiplier": 1.0,
+            "moveSpeedRatioOfPlayer": 0.9,
+            "stats": {
+                "maxHealth": 10.0,
+                "attackPower": 2.0,
+                "attackSpeed": 1.0,
+                "defense": 0.25,
+                "moveSpeed": 100.0,
+                "speedOfAttack": 0.0,
+                "attackRange": 0.0
             },
-            {
-                "id": "blob_boss",
-                "isBoss": true,
-                "spawnWeight": 1.0,
-                "combatScaleMultiplier": 4.0,
-                "moveSpeedRatioOfPlayer": 0.5,
-                "baseTexturePath": "assets/characters/boss_1_",
-                "deathOverwrite": {
-                    "texturePathPrefix": "",
-                    "frameDuration": 0.16,
-                    "totalFrames": 2,
-                    "moveSpeedMultiplier": 0.0
+            "attack": {
+                "kind": "MeleeArc",
+                "amount": 2.0,
+                "isMultiHit": false,
+                "pushBackForce": 0.0,
+                "stunChance": 0.0,
+                "meleeArc": {
+                    "reach": 45.0,
+                    "hitBoxWidth": 64.0,
+                    "hitBoxHeight": 64.0,
+                    "activeTimePaddingSec": 0.1
                 },
-                "stats": {
-                    "maxHealth": 10.0,
-                    "attackPower": 2.0,
-                    "attackSpeed": 1.0,
-                    "defense": 0.25,
-                    "moveSpeed": 100.0,
-                    "speedOfAttack": 0.0,
-                    "attackRange": 0.0
-                },
-                "attack": {
-                    "kind": "MeleeArc",
-                    "amount": 2.0,
-                    "isMultiHit": false,
-                    "pushBackForce": 0.0,
-                    "stunChance": 0.0,
-                    "animationOverwrite": {
-                        "texturePathPrefix": "",
-                        "frameDuration": 0.16,
-                        "totalFrames": 2,
-                        "moveSpeedMultiplier": 1.0
+                "area": {
+                    "radius": 80.0,
+                    "activeTimeSec": 0.2
+                }
+            },
+            "scoreReward": 1,
+            "animations": {
+                "stateToStateConfig": {
+                    "Idle": {
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
                     },
-                    "meleeArc": {
-                        "reach": 80.0,
-                        "hitBoxWidth": 96.0,
-                        "hitBoxHeight": 96.0,
-                        "activeTimePaddingSec": 0.1
+                    "Walk": {
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_left_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_left_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_left_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_right_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_right_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_right_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
                     },
-                    "area": {
-                        "radius": 80.0,
-                        "activeTimeSec": 0.2
+                    "Attack": {
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_atk_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_atk_left_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_atk_left_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_atk_left_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_atk_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_atk_right_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_atk_right_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_atk_right_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
+                    },
+                    "Hit": {
+                        "directionToFrames": {
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_hit_left_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_hit_left_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_hit_left_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_hit_left_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_hit_right_1.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_hit_right_2.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_hit_right_3.png"
+                                    },
+                                    "hitBox": {}
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/blob_enemy/blob_atk_right_4.png"
+                                    },
+                                    "hitBox": {}
+                                }
+                            ]
+                        }
+                    },
+                    "Death": {
+                        "directionToFrames": {
+                            "Left": [],
+                            "Right": []
+                        }
                     }
-                },
-                "scoreReward": 4
+                }
             }
-        ]
+        },
+        "boss": {
+            "enemyType": "Boss",
+            "spawnWeight": 1.0,
+            "combatScaleMultiplier": 4.0,
+            "moveSpeedRatioOfPlayer": 0.5,
+            "stats": {
+                "maxHealth": 10.0,
+                "attackPower": 2.0,
+                "attackSpeed": 1.0,
+                "defense": 0.25,
+                "moveSpeed": 100.0,
+                "speedOfAttack": 0.0,
+                "attackRange": 0.0
+            },
+            "attack": {
+                "kind": "MeleeArc",
+                "amount": 2.0,
+                "isMultiHit": false,
+                "pushBackForce": 0.0,
+                "stunChance": 0.0,
+                "meleeArc": {
+                    "reach": 80.0,
+                    "hitBoxWidth": 96.0,
+                    "hitBoxHeight": 96.0,
+                    "activeTimePaddingSec": 0.1
+                },
+                "area": {
+                    "radius": 80.0,
+                    "activeTimeSec": 0.2
+                }
+            },
+            "scoreReward": 4,
+            "animations": {
+                "stateToStateConfig": {
+                    "Idle": {
+                        "directionToFrames": {
+                            "Left": [],
+                            "Right": []
+                        }
+                    },
+                    "Walk": {
+                        "directionToFrames": {
+                            "Left": [],
+                            "Right": []
+                        }
+                    },
+                    "Attack": {
+                        "directionToFrames": {
+                            "Left": [],
+                            "Right": []
+                        }
+                    },
+                    "Hit": {
+                        "directionToFrames": {
+                            "Left": [],
+                            "Right": []
+                        }
+                    },
+                    "Death": {
+                        "directionToFrames": {
+                            "Left": [],
+                            "Right": []
+                        }
+                    }
+                }
+            }
+        }
     },
-    "locTabNumBuckets": {
-        "x": 20,
-        "y": 20
-    },
-    "mapSize": {
-        "x": 3840.0,
-        "y": 2160.0
+    "enemySpawnConfig": {
+        "baseEnemyCount": 2.0,
+        "enemyCountGrowthPerWave": 1.5,
+        "enemyCountVariationRatio": 0.25,
+        "minBossSpawnDistanceFromPlayer": 280.0,
+        "maxBossSpawnDistanceFromPlayer": 570.0,
+        "baseEnemyScaling": 1.0,
+        "enemyScalingGrowthPerWave": 0.15,
+        "enemyScalingVariationMean": 1.0,
+        "enemyScalingVariationStddev": 0.1,
+        "minEnemyScalingVariation": 0.8,
+        "maxEnemyScalingVariation": 1.2,
+        "baseEnemyMoveSpeed": 100.0,
+        "enemyMoveSpeedGrowthPerWave": 3.0,
+        "enemyMoveSpeedVariationMean": 1.0,
+        "enemyMoveSpeedVariationStddev": 0.08,
+        "minEnemyMoveSpeedVariation": 0.9,
+        "maxEnemyMoveSpeedVariation": 1.1
     }
 }

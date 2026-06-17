@@ -1,12 +1,16 @@
 #pragma once
+#include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/stats.hpp"
+#include "geometry/rectangle.hpp"
 #include "geometry/vector.hpp"
 #include "logging/log.hpp"
+#include "view/font.hpp"
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-namespace controller {
+namespace config {
 
 struct WindowConfig {
     int width;
@@ -14,26 +18,30 @@ struct WindowConfig {
     std::string title;
 };
 
-struct AssetConfig {
-    std::string meleeTexturePathPrefix;
-    std::string rangedTexturePathPrefix;
-    std::string enemyTexturePathPrefix;
-    std::string mapTexturePathPrefix;
-    std::string fontPath;
-    std::string projectilePath;
-    struct DroppableItemAssetConfig {
-        std::string id;
-        std::string spritePath;
-    };
-
-    std::vector<DroppableItemAssetConfig> droppableItems;
+struct TextureConfig {
+    std::string path;
+    Vec2<float> position = {0, 0};
+    Vec2<float> size = {128.0f, 128.0f};
 };
 
-struct AnimationOverwriteConfig {
-    std::string texturePathPrefix;
+struct HitBoxConfig {
+    Vec2<float> offset = {0, 0};
+    Vec2<float> size = {128.0f, 128.0f};
+};
+
+struct SpriteConfig {
+    TextureConfig texture;
+    HitBoxConfig hitBox;
+};
+
+struct AnimationStateConfig {
     float frameDuration = 0.16f;
-    int totalFrames = 2;
     float moveSpeedMultiplier = 1.0f;
+    std::unordered_map<game::AnimationDirection, std::vector<SpriteConfig>> directionToFrames;
+};
+
+struct AnimationConfig {
+    std::unordered_map<game::AnimationState, AnimationStateConfig> stateToStateConfig;
 };
 
 struct CombatStatsConfig {
@@ -48,8 +56,7 @@ struct CombatStatsConfig {
 
 struct ProjectileAttackConfig {
     float velocityScale = 10.0f;
-    float spriteWidth = 16.0f;
-    float spriteHeight = 16.0f;
+    AnimationConfig animations;
 };
 
 struct MeleeArcAttackConfig {
@@ -76,7 +83,6 @@ struct AttackProfileConfig {
     bool isMultiHit = false;
     float pushBackForce = 0.0f;
     float stunChance = 0.0f;
-    AnimationOverwriteConfig animationOverwrite;
     ProjectileAttackConfig projectile;
     MeleeArcAttackConfig meleeArc;
     BeamAttackConfig beam;
@@ -86,27 +92,48 @@ struct AttackProfileConfig {
 struct PlayerClassConfig {
     game::CharacterType characterType = game::CharacterType::Melee;
     bool hasDash = false;
-    AnimationOverwriteConfig deathOverwrite;
     CombatStatsConfig stats;
     AttackProfileConfig attack;
+    AnimationConfig animations;
+    // SoundConfig
 };
 
 struct PlayerClassConfigs {
     PlayerClassConfig melee;
     PlayerClassConfig ranged;
+
+    const PlayerClassConfig &getByType(game::CharacterType type) const
+    {
+        if (type == game::CharacterType::Melee) {
+            return melee;
+        }
+        return ranged;
+    }
 };
 
-struct EnemyArchetypeConfig {
-    std::string id;
-    bool isBoss = false;
+struct EnemyClassConfig {
+    game::EnemyType enemyType = game::EnemyType::Blob;
     float spawnWeight = 1.0f;
     float combatScaleMultiplier = 1.0f;
     float moveSpeedRatioOfPlayer = 0.9f;
-    std::string baseTexturePath;
-    AnimationOverwriteConfig deathOverwrite;
     CombatStatsConfig stats;
     AttackProfileConfig attack;
     int scoreReward = 1;
+    AnimationConfig animations;
+    // SoundConfig
+};
+
+struct EnemyClassConfigs {
+    EnemyClassConfig blob;
+    EnemyClassConfig boss;
+
+    const EnemyClassConfig &getByType(game::EnemyType type) const
+    {
+        if (type == game::EnemyType::Blob) {
+            return blob;
+        }
+        return boss;
+    }
 };
 
 struct EnemySpawnConfig {
@@ -132,14 +159,22 @@ struct EnemySpawnConfig {
     float maxEnemyMoveSpeedVariation = 1.1f;
 };
 
-struct EnemyConfig {
-    EnemySpawnConfig spawn;
-    std::vector<EnemyArchetypeConfig> archetypes;
-};
-
 struct LogConfig {
     logger::LogLevel level;
     bool useColor;
+};
+
+struct MapConfig {
+    Vec2<float> mapSize;
+    std::vector<SpriteConfig> mapSprites;
+};
+
+struct LocationTableConfig {
+    Vec2<unsigned> numBuckets;
+};
+
+struct FontConfig {
+    std::unordered_map<view::FontType, std::string> fontToFilePath;
 };
 
 struct GameConfig {
@@ -151,11 +186,13 @@ struct GameConfig {
     int maxEnemyCount;
     WindowConfig windowConfig;
     LogConfig logConfig;
-    AssetConfig assetConfig;
+    MapConfig mapConfig;
+    LocationTableConfig locationTableConfig;
+    FontConfig fontConfig;
+    SpriteConfig fallbackSprite;
     PlayerClassConfigs playerClasses;
-    EnemyConfig enemyConfig;
-    Vec2<unsigned> locTabNumBuckets;
-    Vec2<float> mapSize;
+    EnemyClassConfigs enemyClasses;
+    EnemySpawnConfig enemySpawnConfig;
 };
 
-} // namespace controller
+} // namespace config

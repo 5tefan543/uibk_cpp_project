@@ -9,7 +9,7 @@ namespace view {
 
 struct Text {
     std::string text;
-    Font font = Font::Default;
+    FontType font = FontType::Default;
     unsigned int size = 30;
     Color color = {255, 255, 255};
     float gridX = gridWidth / 2;

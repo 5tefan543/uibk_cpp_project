@@ -40,7 +40,7 @@ TEST_CASE_METHOD(TestFixture, "Serializer returns false when stream write fails"
         SKIP("/dev/full is unavailable on this platform");
     }
 
-    GameConfig config;
+    config::GameConfig config;
     config.windowConfig.title = std::string(1 << 20, 'x');
 
     REQUIRE_FALSE(Serializer::writeJsonToFile(config, "/dev/full"));
