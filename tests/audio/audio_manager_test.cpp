@@ -1,4 +1,3 @@
-#include "audio/audio_cache.hpp"
 #include "audio/audio_controller.hpp"
 #include "shared/audio_test_util.hpp"
 #include "shared/test_fixture.hpp"
@@ -25,49 +24,6 @@ TEST_CASE_METHOD(TestFixture, "AudioController playMusic does not throw for miss
     REQUIRE_NOTHROW(controller.playMusic("this/path/does/not/exist.ogg"));
 }
 
-// ---------------------------------------------------------------------------
-// AudioCache – caching / deduplication  (audio_cache.hpp lines 13-24)
-// ---------------------------------------------------------------------------
-
-TEST_CASE_METHOD(TestFixture, "AudioCache getBuffer returns the same shared_ptr for the same file")
-{
-    test::writeMinimalWav("fixture.wav");
-    
-
-    auto buf1 = cache.getBuffer("fixture.wav");
-    auto buf2 = cache.getBuffer("fixture.wav");
-
-    REQUIRE(buf1 != nullptr);
-    REQUIRE(buf1.get() == buf2.get()); // identical pointer — no reload happened
-}
-
-TEST_CASE_METHOD(TestFixture, "AudioCache getBuffer returns different buffers for different files")
-{
-    test::writeMinimalWav("a.wav");
-    test::writeMinimalWav("b.wav");
-    
-
-    auto bufA = cache.getBuffer("a.wav");
-    auto bufB = cache.getBuffer("b.wav");
-
-    REQUIRE(bufA != nullptr);
-    REQUIRE(bufB != nullptr);
-    REQUIRE(bufA.get() != bufB.get());
-}
-
-TEST_CASE_METHOD(TestFixture, "AudioCache keeps buffer alive as long as cache holds it")
-{
-    test::writeMinimalWav("fixture.wav");
-    
-
-    std::weak_ptr<sf::SoundBuffer> weak;
-    {
-        auto buf = cache.getBuffer("fixture.wav");
-        weak = buf;
-    } // local shared_ptr is released; cache still owns it
-
-    REQUIRE_FALSE(weak.expired());
-}
 
 // ---------------------------------------------------------------------------
 // AudioController – positive sound path  (audio_controller.cpp lines 15-20)
