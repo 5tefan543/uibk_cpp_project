@@ -11,7 +11,6 @@
 namespace audio {
 class AudioController {
   public:
-    explicit AudioController(AudioCache &cache);
 
     void playSound(const std::string &file);
     void playMusic(const std::string &file);
@@ -26,7 +25,7 @@ class AudioController {
         std::shared_ptr<sf::SoundBuffer> buffer;
     };
 
-    AudioCache &cache_;
+    AudioCache cache_;
 
     std::vector<ActiveSound> activeSounds_;
 

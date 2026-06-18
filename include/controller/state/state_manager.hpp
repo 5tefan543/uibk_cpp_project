@@ -15,7 +15,6 @@ class StateManager {
   private:
     const config::GameConfig &config_ = controller::PersistenceManager::getConfig();
     std::vector<std::unique_ptr<BaseState>> states_;
-    audio::AudioCache audioCache_;
     audio::AudioController audioController_;
 
   public:
