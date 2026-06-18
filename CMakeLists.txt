@@ -57,6 +57,7 @@ add_library(roguelike_game
   src/game/systems/collision_detection_system.cpp
   src/game/systems/damage_system.cpp
   src/game/systems/enemy_ai_system.cpp
+  src/game/systems/sound_system.cpp
   src/game/location_table.cpp
 )
 
@@ -67,6 +68,10 @@ target_link_libraries(roguelike_game
   PUBLIC
     roguelike_config
     roguelike_logger
+)
+target_link_libraries(roguelike_game
+  PUBLIC
+    roguelike_audio
 )
 
 # Controller library
@@ -82,6 +87,7 @@ target_include_directories(roguelike_controller PUBLIC include)
 
 target_link_libraries(roguelike_controller
   PUBLIC
+    roguelike_audio
     roguelike_game
     roguelike_logger
     roguelike_config
@@ -101,10 +107,26 @@ target_include_directories(roguelike_ui PUBLIC include)
 target_link_libraries(roguelike_ui
   PUBLIC
     SFML::Graphics
-    SFML::Audio
     roguelike_controller
     roguelike_logger
     ImGui-SFML::ImGui-SFML
+)
+
+add_library(roguelike_audio
+  src/audio/audio_controller.cpp
+)
+roguelike_cxx_flags(roguelike_audio)
+
+target_include_directories(roguelike_audio
+  PUBLIC
+    include
+)
+
+target_link_libraries(roguelike_audio
+  PUBLIC
+    SFML::Audio
+  PRIVATE
+    roguelike_logger
 )
 
 # Executable
@@ -120,6 +142,7 @@ target_link_libraries(roguelike_app
     roguelike_ui
     roguelike_logger
     roguelike_config
+    roguelike_audio
 )
 
 add_custom_command(TARGET roguelike_app POST_BUILD
@@ -138,6 +161,7 @@ add_custom_command(TARGET roguelike_app POST_BUILD
 enable_testing()
 
 add_executable(roguelike_test_runner
+  tests/audio/audio_manager_test.cpp
   tests/controller/controller_test.cpp
   tests/controller/input/input_state_test.cpp
   tests/controller/persistence/persistence_manager_test.cpp
@@ -153,6 +177,7 @@ add_executable(roguelike_test_runner
   tests/game/ecs/systems/animation_system_test.cpp
   tests/game/ecs/systems/camera_system_test.cpp
   tests/game/ecs/systems/debug_selection_system_test.cpp
+  tests/game/ecs/systems/sound_system_test.cpp
   tests/game/ecs/systems/collision_detection_system_test.cpp
   tests/game/ecs/systems/damage_system_test.cpp
   tests/game/ecs/systems/enemy_ai_system_test.cpp
@@ -173,6 +198,7 @@ target_link_libraries(roguelike_test_runner
     roguelike_controller
     roguelike_logger
     roguelike_config
+    roguelike_audio
     Catch2::Catch2WithMain
 )
 

@@ -1,3 +1,4 @@
+#include "controller/input/input_state.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state_manager.hpp"
 #include "shared/test_fixture.hpp"
@@ -290,4 +291,91 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithExitState clears al
     REQUIRE(typeid(stateManager.getCurrent()) == typeid(ExitState));
     stateManager.pop();
     REQUIRE(stateManager.isEmpty());
+}
+
+TEST_CASE_METHOD(TestFixture, "updateAudio on empty StateManager throws")
+{
+    StateManager stateManager;
+
+    REQUIRE_THROWS(stateManager.updateAudio());
+}
+
+TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for menu state when selection did not change")
+{
+    StateManager stateManager;
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
+
+    REQUIRE_NOTHROW(stateManager.updateAudio());
+}
+
+TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for menu state when selection changed")
+{
+    StateManager stateManager;
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
+
+    // Navigate so selectedButtonChanged() returns true on the next updateAudio call
+    InputState input;
+    input.downPressed = true;
+    stateManager.getCurrent().update(input, 0.0f);
+
+    REQUIRE_NOTHROW(stateManager.updateAudio());
+}
+
+TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for progression store when selection did not change")
+{
+    StateManager stateManager;
+    stateManager.push(ProgressionStoreState::createStore());
+
+    REQUIRE_NOTHROW(stateManager.updateAudio());
+}
+
+TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for progression store when selection changed")
+{
+    StateManager stateManager;
+    stateManager.push(ProgressionStoreState::createStore());
+
+    InputState input;
+    input.downPressed = true;
+    stateManager.getCurrent().update(input, 0.0f);
+
+    REQUIRE_NOTHROW(stateManager.updateAudio());
+}
+
+TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for gameplay state when wave did not change")
+{
+    StateManager stateManager;
+    stateManager.push(GameplayState::createNewGameplay(game::CharacterType::Melee));
+
+    REQUIRE_NOTHROW(stateManager.updateAudio());
+}
+
+TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for gameplay state when wave changed")
+{
+    // GameplayState::currentWave_ starts at 1; loading wave=3 makes hasWaveChanged() true immediately
+    game::PersistedGame saved;
+    saved.wave = 3;
+    REQUIRE(PersistenceManager::saveGame(saved));
+
+    StateManager stateManager;
+    stateManager.push(GameplayState::createLoadedGameplay());
+
+    REQUIRE_NOTHROW(stateManager.updateAudio());
+}
+
+TEST_CASE_METHOD(TestFixture, "applyAction audio transitions do not throw with available assets")
+{
+    StateManager stateManager;
+    stateManager.push(MenuState::createMenu(MenuType::MainMenu));
+
+    REQUIRE_NOTHROW(stateManager.applyAction(StateTransitionAction::StartNewGameMelee));
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
+
+    REQUIRE_NOTHROW(stateManager.applyAction(StateTransitionAction::PushPauseMenu));
+    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::PauseMenu);
+
+    REQUIRE_NOTHROW(stateManager.applyAction(StateTransitionAction::Pop));
+    REQUIRE(typeid(stateManager.getCurrent()) == typeid(GameplayState));
+
+    REQUIRE_NOTHROW(stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithGameOverMenu));
+    REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::GameOverMenu);
 }

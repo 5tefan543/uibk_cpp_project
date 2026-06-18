@@ -81,6 +81,44 @@ TEST_CASE_METHOD(TestFixture, "ProgressionStoreState::createStore constructs sto
     REQUIRE(state != nullptr);
 }
 
+TEST_CASE_METHOD(TestFixture, "MenuState selectedButtonChanged tracks navigation changes")
+{
+    auto state = MenuState::createMenu(MenuType::MainMenu);
+
+    REQUIRE_FALSE(state->selectedButtonChanged());
+    REQUIRE(applyInput<controller::MenuState>(state, DOWN) == StateTransitionAction::None);
+    REQUIRE(state->selectedButtonChanged());
+}
+
+TEST_CASE_METHOD(TestFixture, "ProgressionStoreState selectedButtonChanged tracks navigation changes")
+{
+    auto state = ProgressionStoreState::createStore();
+
+    REQUIRE_FALSE(state->selectedButtonChanged());
+    REQUIRE(applyInput<controller::ProgressionStoreState>(state, DOWN) == StateTransitionAction::None);
+    REQUIRE(state->selectedButtonChanged());
+}
+
+TEST_CASE_METHOD(TestFixture, "GameplayState hasWaveChanged returns false when wave did not change")
+{
+    auto state = GameplayState::createNewGameplay(game::CharacterType::Melee);
+
+    REQUIRE_FALSE(state->hasWaveChanged());
+}
+
+TEST_CASE_METHOD(TestFixture, "GameplayState loaded from persisted game reports first wave change")
+{
+    game::PersistedGame game;
+    game.wave = 3;
+    REQUIRE(PersistenceManager::saveGame(game));
+
+    auto state = GameplayState::createLoadedGameplay();
+
+    REQUIRE(state->isLoadedFromPersistedGame());
+    REQUIRE(state->hasWaveChanged());
+    REQUIRE_FALSE(state->hasWaveChanged());
+}
+
 TEST_CASE_METHOD(TestFixture, "Main menu update returns correct actions")
 {
     auto state = MenuState::createMenu(MenuType::MainMenu);

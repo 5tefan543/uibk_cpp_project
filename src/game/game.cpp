@@ -311,6 +311,7 @@ void Game::updateSystems(const controller::InputState &input, float dt)
     cameraSystem_.update(registry_);
     collisionDetectionSystem_.update(registry_);
     damageSystem_.update(registry_, dt);
+    soundSystem_.update(registry_);
 }
 
 bool Game::isWaveFinished()
@@ -324,6 +325,11 @@ bool Game::isWaveFinished()
 bool Game::isGameOver()
 {
     return registry_.view<PlayerTag>().empty();
+}
+
+int Game::getWaveNumber()
+{
+    return wave_;
 }
 
 void Game::addScore(int score)

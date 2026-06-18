@@ -12,6 +12,7 @@
 #include "game/ecs/systems/enemy_ai_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
+#include "game/ecs/systems/sound_system.hpp"
 #include "game/ecs/systems/spawn_enemy_system.hpp"
 #include "game/location_table.hpp"
 #include "game/persisted_game.hpp"
@@ -36,6 +37,7 @@ class Game {
     SpawnEnemySystem spawnEnemySystem_;
     CollisionDetectionSystem collisionDetectionSystem_;
     DamageSystem damageSystem_;
+    SoundSystem soundSystem_;
 
     int stage_ = 1;
     int wave_ = 1;
@@ -52,8 +54,8 @@ class Game {
     void initWave(int waveNumber);
     void processDebugSession(float dt);
     void updateSystems(const controller::InputState &input, float dt);
-    bool isWaveFinished();
     void addScore(int score);
+    bool isWaveFinished();
 
   public:
     Game();
@@ -67,6 +69,7 @@ class Game {
     PersistedGame getPersistedGame() const;
     controller::StateTransitionAction update(const controller::InputState &input, float dt);
     bool isGameOver();
+    int getWaveNumber();
     void updateView(view::View &view);
 };
 

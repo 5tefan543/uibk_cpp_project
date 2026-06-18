@@ -32,6 +32,7 @@ class MenuState : public BaseState {
     std::deque<view::Card> cards_;
     std::deque<view::Text> texts_;
     std::size_t selectedButtonId_ = 0;
+    std::size_t prevSelectedButtonId_ = 0;
 
     MenuState(MenuType type);
     void initView();
@@ -39,24 +40,24 @@ class MenuState : public BaseState {
   public:
     const MenuType type;
     static std::unique_ptr<MenuState> createMenu(const MenuType menuType);
-
+    bool selectedButtonChanged();
     StateTransitionAction update(const InputState &input, float dt) override;
     std::string toString() const override;
 };
 
 class GameplayState : public BaseState {
     bool loadedFromSave_ = false;
+    int currentWave_ = 1;
 
     explicit GameplayState(game::CharacterType characterType);
     explicit GameplayState(const game::PersistedGame &persistedGame);
 
   public:
     game::Game game;
-
     static std::unique_ptr<GameplayState> createNewGameplay(game::CharacterType characterType);
     static std::unique_ptr<GameplayState> createLoadedGameplay();
     bool isLoadedFromPersistedGame() const;
-
+    bool hasWaveChanged();
     StateTransitionAction update(const InputState &input, float dt) override;
     std::string toString() const override;
     const view::View &getView() override;
@@ -67,13 +68,14 @@ class ProgressionStoreState : public BaseState {
     std::deque<view::Card> cards_;
     std::deque<view::Text> texts_;
     std::size_t selectedButtonId_ = 0;
+    std::size_t prevSelectedButtonId_ = 0;
 
     ProgressionStoreState();
     void initView();
 
   public:
     static std::unique_ptr<ProgressionStoreState> createStore();
-
+    bool selectedButtonChanged();
     StateTransitionAction update(const InputState &input, float dt) override;
     std::string toString() const override;
 };
@@ -81,7 +83,6 @@ class ProgressionStoreState : public BaseState {
 class ExitState : public BaseState {
   public:
     static std::unique_ptr<ExitState> createExitState();
-
     StateTransitionAction update(const InputState &input, float dt) override;
     std::string toString() const override;
 };

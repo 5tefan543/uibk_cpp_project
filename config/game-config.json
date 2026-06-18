@@ -5,6 +5,13 @@
     "waveDurationSeconds": 1000,
     "wavesPerStage": 2,
     "maxEnemyCount": 500,
+    "menuSoundConfig": {
+        "gameMusic": "assets/audio/music/game_loop.ogg",
+        "buttonHoverSound": "assets/audio/sounds/menu/menu_hover.wav",
+        "buttonClickSound": "assets/audio/sounds/menu/menu_click.wav",
+        "gameOverSound": "assets/audio/sounds/menu/game_over.wav",
+        "waveOverSound": "assets/audio/sounds/wave_finished.wav"
+    },
     "windowConfig": {
         "width": 1920,
         "height": 1080,
@@ -127,6 +134,9 @@
                 "moveSpeed": 700.0,
                 "speedOfAttack": 220.0,
                 "attackRange": 1
+            },
+            "sounds": {
+                "attack": "assets/audio/sounds/character/melee_attack.wav"
             },
             "attack": {
                 "kind": "MeleeArc",
@@ -422,6 +432,9 @@
                 "moveSpeed": 750.0,
                 "speedOfAttack": 240.0,
                 "attackRange": 1000.0
+            },
+            "sounds": {
+                "attack": "assets/audio/sounds/character/ranged_attack.wav"
             },
             "attack": {
                 "kind": "Projectile",
