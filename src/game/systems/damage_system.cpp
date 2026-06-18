@@ -4,6 +4,7 @@
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "logging/log.hpp"
+#include <format>
 
 #include <cmath>
 
@@ -60,11 +61,13 @@ DamageInformation DamageSystem::updateBeam(Damage &damage, BeamDamage &beam, Dam
 DamageInformation DamageSystem::updateArea(Damage &damage, AreaDamage &area, DamageTag &tag, float dt)
 {
     float graceTimeSec = 0.1f;
+
+    // graceTime should be duration of animation
     DamageInformation result;
     if (area.elapsedSec <= graceTimeSec) {
         result.actualDamageAmount = damage.amount * area.initialHit;
     } else {
-        result.actualDamageAmount = damage.amount / area.damageTicks * (1.0f - area.initialHit);
+        result.actualDamageAmount = damage.amount * (1.0f - area.initialHit) / area.damageTicks;
     }
     result.shouldBeRemoved = false;
     area.elapsedSec += dt;
@@ -127,6 +130,7 @@ void DamageSystem::update(Registry &registry, float dt)
 
         for (Entity targetEntity : taggedTargets) {
             if (damageTag.targetsHit.contains(targetEntity)) {
+                logger::log(logger::LogLevel::DEBUG, std::format("target: {} already hit", targetEntity));
                 continue; // Already hit
             }
 

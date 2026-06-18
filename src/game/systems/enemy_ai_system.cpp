@@ -14,6 +14,7 @@
 #include "game/location_table.hpp"
 #include "view/sprite.hpp"
 #include <cmath>
+#include <format>
 
 namespace game {
 
@@ -85,6 +86,7 @@ void EnemyAI::update(Registry &registry, const config::GameConfig &config, Locat
     const Position &playerPos = registry.getComponent<Position>(player);
 
     for (auto enemy : registry.view<EnemyTag, Velocity, EnemyStats, Position, Animation>()) {
+        spawnPendingAreaAttack(registry, config, enemy);
         updateEnemyVelocityTowardsPlayer(registry, locationTable, playerPos, enemy);
         updateEnemyAnimationState(registry, enemy, dt);
         updateAttack(registry, config, enemy, playerPos);
@@ -214,19 +216,42 @@ void EnemyAI::applyAnimationMoveSpeedModifier(Registry &registry, const config::
 void EnemyAI::blobAreaAttack(Registry &registry, const config::GameConfig &config, Entity blobEntity,
                              const Position &playerPosition)
 {
-    const config::AttackProfileConfig &attackProfile = config.enemyClasses.blob.attack;
+    const Vec2 playerPosVec{playerPosition.x, playerPosition.y};
     const Position blobPosition = registry.getComponent<Position>(blobEntity);
+    Vec2 enemyPosVec{blobPosition.x, blobPosition.y};
+
+    Vec2 v = playerPosVec - enemyPosVec;
+    const config::AttackProfileConfig &attackProfile = config.enemyClasses.blob.attack;
     const EnemyStats &enemyStats = registry.getComponent<EnemyStats>(blobEntity);
-    const view::Sprite playerSprite = registry.getComponent<view::Sprite>(blobEntity);
+
+    if (v.length() >= (enemyStats.attackRange * attackProfile.area.radius)) {
+        return;
+    }
 
     const AnimationDirection attackDirection =
         playerPosition.x >= blobPosition.x ? AnimationDirection::Right : AnimationDirection::Left;
+    applyAnimation(registry, config, blobEntity, AnimationState::Attack, enemyStats.enemyType, attackDirection);
 
-    const float animationDuration =
-        applyAnimation(registry, config, blobEntity, AnimationState::Attack, enemyStats.enemyType, attackDirection);
-    // const SoundComponent sound = {config.playerClasses.melee.sounds.attack};
+    pendingAreaSpawns_.insert(blobEntity);
+}
 
-    // create melee attack entity
+void EnemyAI::spawnPendingAreaAttack(Registry &registry, const config::GameConfig &config, Entity blobEntity)
+{
+    if (!pendingAreaSpawns_.contains(blobEntity)) {
+        return;
+    }
+
+    const Animation &animation = registry.getComponent<Animation>(blobEntity);
+    if (animation.stateTimeRemaining > 0.0f) {
+        return;
+    }
+
+    pendingAreaSpawns_.erase(blobEntity);
+
+    const config::AttackProfileConfig &attackProfile = config.enemyClasses.blob.attack;
+    const EnemyStats &enemyStats = registry.getComponent<EnemyStats>(blobEntity);
+    const Position blobPosition = registry.getComponent<Position>(blobEntity);
+
     const Damage damageComponent{.amount = attackProfile.amount,
                                  .pushBackForce = attackProfile.pushBackForce,
                                  .stunChance = attackProfile.stunChance,
@@ -243,15 +268,12 @@ void EnemyAI::blobAreaAttack(Registry &registry, const config::GameConfig &confi
     const Position damagePosition{blobPosition.x, blobPosition.y};
     const view::Sprite sprite{damagePosition.x, damagePosition.y, areaSpriteConfig.texture.path,
                               areaSpriteConfig.texture.size.x, areaSpriteConfig.texture.size.y};
-    const float hitBoxOffsetX =
-        attackDirection == AnimationDirection::Right ? playerSprite.width / 2 : -playerSprite.width / 2;
-    const float hitBoxOffsetY = -(attackProfile.meleeArc.reach) * enemyStats.attackRange;
+    const Animation areaAnimation{};
 
-    const HitBox areaHitbox{.offset = {hitBoxOffsetX, hitBoxOffsetY},
-                            .size = {attackProfile.area.radius * 2 * enemyStats.attackRange,
-                                     attackProfile.area.radius * 2 * enemyStats.attackRange}};
+    const HitBox areaHitbox{.offset = {0.125f * attackProfile.area.radius, 0.125f * attackProfile.area.radius},
+                            .size = {attackProfile.area.radius * 0.75f * enemyStats.attackRange,
+                                     attackProfile.area.radius * 0.75f * enemyStats.attackRange}};
 
-    // add melee attack entity with all components
     // component references may be invalid: retrieve again from registry if used after this point
     const Entity areaAttackEntity = registry.createEntity();
     registry.addComponent<Damage>(areaAttackEntity, damageComponent);
@@ -259,9 +281,9 @@ void EnemyAI::blobAreaAttack(Registry &registry, const config::GameConfig &confi
     registry.addComponent<Position>(areaAttackEntity, damagePosition);
     registry.addComponent<HitBox>(areaAttackEntity, areaHitbox);
     registry.addComponent<view::Sprite>(areaAttackEntity, sprite);
-    // registry.addComponent<SoundComponent>(blobEntity, sound);
+    registry.addComponent<Animation>(areaAttackEntity, areaAnimation);
     registry.addComponent<EnemyAttackTag>(areaAttackEntity,
-                                          {blobEntity}); // Mark as player's attack for collision detection
+                                          {blobEntity}); // Mark as enemy's attack for collision detection
 }
 
 } // namespace game

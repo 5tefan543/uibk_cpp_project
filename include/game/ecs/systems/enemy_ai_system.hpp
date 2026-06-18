@@ -4,13 +4,16 @@
 #include "game/ecs/registry.hpp"
 #include "game/location_table.hpp"
 #include <map>
+#include <set>
 namespace game {
 
 struct EnemyAI {
   private:
     std::map<Entity, float> attackCoolDowns_;
+    std::set<Entity> pendingAreaSpawns_;
     void blobAreaAttack(Registry &registry, const config::GameConfig &config, Entity blobEntity,
                         const Position &playerPosition);
+    void spawnPendingAreaAttack(Registry &registry, const config::GameConfig &config, Entity blobEntity);
     void updateEnemyVelocityTowardsPlayer(Registry &registry, LocationTable &locationTable, const Position &playerPos,
                                           Entity enemy);
     void updateEnemyAnimationState(Registry &registry, Entity enemy, float dt);

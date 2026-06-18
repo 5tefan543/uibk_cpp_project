@@ -691,14 +691,14 @@
                                             "texture": {
                                                 "path": "assets/characters/blob_enemy/blob_atk_1.png",
                                                 "size": {
-                                                    "x": 64.0,
-                                                    "y": 64.0
+                                                    "x": 128.0,
+                                                    "y": 128.0
                                                 }
                                             },
                                             "hitBox": {
                                                 "offset": {
-                                                    "x": 5.0,
-                                                    "y": 5.0
+                                                    "x": 64.0,
+                                                    "y": 0.0
                                                 },
                                                 "size": {
                                                     "x": 128.0,
@@ -710,14 +710,14 @@
                                             "texture": {
                                                 "path": "assets/characters/blob_enemy/blob_atk_2.png",
                                                 "size": {
-                                                    "x": 64.0,
-                                                    "y": 64.0
+                                                    "x": 128.0,
+                                                    "y": 128.0
                                                 }
                                             },
                                             "hitBox": {
                                                 "offset": {
-                                                    "x": 5.0,
-                                                    "y": 5.0
+                                                    "x": 64.0,
+                                                    "y": 0.0
                                                 },
                                                 "size": {
                                                     "x": 128.0,
