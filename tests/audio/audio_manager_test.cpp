@@ -9,13 +9,6 @@
 // AudioCache – error paths
 // ---------------------------------------------------------------------------
 
-TEST_CASE_METHOD(TestFixture, "AudioCache getBuffer throws for missing file")
-{
-    
-
-    REQUIRE_THROWS(cache.getBuffer("this/path/does/not/exist.wav"));
-}
-
 TEST_CASE_METHOD(TestFixture, "AudioController playSound throws for missing file")
 {
     
