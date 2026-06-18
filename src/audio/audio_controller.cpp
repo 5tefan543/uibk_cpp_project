@@ -8,8 +8,6 @@
 
 namespace audio {
 
-AudioController::AudioController(AudioCache &cache) : cache_(cache) {}
-
 void AudioController::playSound(const std::string &file)
 {
     auto buffer = cache_.getBuffer(file);
