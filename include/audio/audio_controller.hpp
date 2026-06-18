@@ -11,7 +11,6 @@
 namespace audio {
 class AudioController {
   public:
-
     void playSound(const std::string &file);
     void playMusic(const std::string &file);
     void stopMusic();
@@ -26,9 +25,7 @@ class AudioController {
     };
 
     AudioCache cache_;
-
     std::vector<ActiveSound> activeSounds_;
-
     sf::Music music_;
 };
 } // namespace audio

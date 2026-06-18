@@ -10,7 +10,6 @@
 #include "controller/state/state.hpp"
 
 namespace controller {
-
 class StateManager {
   private:
     const config::GameConfig &config_ = controller::PersistenceManager::getConfig();
