@@ -17,7 +17,6 @@ class StateManager {
     audio::AudioController audioController_;
 
   public:
-    StateManager();
     void push(std::unique_ptr<BaseState> state);
     void pop();
     BaseState &getCurrent();

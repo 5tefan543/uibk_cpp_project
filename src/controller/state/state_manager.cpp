@@ -4,6 +4,7 @@
 #include <utility>
 
 namespace controller {
+
 void StateManager::push(std::unique_ptr<BaseState> state)
 {
     states_.push_back(std::move(state));
