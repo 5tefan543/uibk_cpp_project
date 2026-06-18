@@ -10,16 +10,13 @@
 #include "controller/state/state.hpp"
 
 namespace controller {
-
 class StateManager {
   private:
     const config::GameConfig &config_ = controller::PersistenceManager::getConfig();
     std::vector<std::unique_ptr<BaseState>> states_;
-    audio::AudioCache audioCache_;
     audio::AudioController audioController_;
 
   public:
-    StateManager();
     void push(std::unique_ptr<BaseState> state);
     void pop();
     BaseState &getCurrent();
