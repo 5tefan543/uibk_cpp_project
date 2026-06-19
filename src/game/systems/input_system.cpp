@@ -92,10 +92,10 @@ void InputSystem::updateCooldown(float dt)
 
 void InputSystem::updatePlayerVelocity(Registry &registry, const Entity entity, const controller::InputState &input)
 {
-    Velocity &velocity = registry.getComponent<Velocity>(entity);
+    auto &v = registry.getComponent<Velocity>(entity).v;
     const PlayerStats &playerStats = registry.getComponent<PlayerStats>(entity);
 
-    Vec2<float> v = {0, 0};
+    v = {0, 0};
 
     if (input.leftHeld) {
         v.x -= playerStats.moveSpeed;
@@ -110,14 +110,12 @@ void InputSystem::updatePlayerVelocity(Registry &registry, const Entity entity, 
         v.y += playerStats.moveSpeed;
     }
     v.setLength(playerStats.moveSpeed);
-    velocity.x = v.x;
-    velocity.y = v.y; // TODO: into Vec2
 }
 
 void InputSystem::updatePlayerAnimationState(Registry &registry, Entity enemy, float dt)
 {
     Animation &animation = registry.getComponent<Animation>(enemy);
-    const Velocity &velocity = registry.getComponent<Velocity>(enemy);
+    const auto &velocity = registry.getComponent<Velocity>(enemy).v;
 
     if (animation.stateTimeRemaining > 0.0f) {
         animation.stateTimeRemaining = std::max(0.0f, animation.stateTimeRemaining - dt);
@@ -127,12 +125,12 @@ void InputSystem::updatePlayerAnimationState(Registry &registry, Entity enemy, f
         return;
     }
 
-    const bool isMoving = std::abs(velocity.x) > 0.1f || std::abs(velocity.y) > 0.1f;
+    const auto absVelocity = velocity.abs();
+    const bool isMoving = (absVelocity > geometry::Vec2{0.1f, 0.1f}).some();
     const AnimationState nextState = isMoving ? AnimationState::Walk : AnimationState::Idle;
 
     AnimationDirection direction = animation.direction;
 
-    const auto absVelocity = Vec2{velocity.x, velocity.y}.abs();
     bool isHorizMove = absVelocity.x >= absVelocity.y;
 
     if (isHorizMove && absVelocity.x > 0.1f) {
@@ -187,12 +185,12 @@ void InputSystem::handleAttack(Registry &registry, const config::GameConfig &con
 void InputSystem::attackMelee(Registry &registry, const config::GameConfig &config, Entity playerEntity,
                               const controller::InputState &input, const config::AttackProfileConfig &attackProfile)
 {
-    const Position playerPosition = registry.getComponent<Position>(playerEntity);
+    const auto &playerPosition = registry.getComponent<Position>(playerEntity).p;
     const PlayerStats &playerStats = registry.getComponent<PlayerStats>(playerEntity);
-    const view::Sprite playerSprite = registry.getComponent<view::Sprite>(playerEntity);
+    const auto &playerSprite = registry.getComponent<view::Sprite>(playerEntity).rect;
 
     const AnimationDirection attackDirection =
-        input.mouseGridX >= playerPosition.x ? AnimationDirection::Right : AnimationDirection::Left;
+        input.mouseGrid.x >= playerPosition.x ? AnimationDirection::Right : AnimationDirection::Left;
 
     const float animationDuration = applyAnimation(registry, config, playerEntity, AnimationState::Attack,
                                                    playerStats.characterType, attackDirection);
@@ -211,14 +209,14 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
 
     const Position damagePosition{playerPosition.x, playerPosition.y};
 
-    const float hitBoxOffsetX =
-        attackDirection == AnimationDirection::Right ? playerSprite.width / 2 : -playerSprite.width / 2;
-    const float hitBoxOffsetY = -(attackProfile.meleeArc.reach) * playerStats.attackRange;
+    const geometry::Vec2<float> hitBoxOffset = {
+        .x = attackDirection == AnimationDirection::Right ? playerSprite.size.x / 2 : -playerSprite.size.x / 2,
+        .y = -(attackProfile.meleeArc.reach) * playerStats.attackRange};
 
-    const HitBox meleeHitBox{
-        .offset = {hitBoxOffsetX, hitBoxOffsetY},
-        .size = {attackProfile.meleeArc.hitBoxWidth + 2 * attackProfile.meleeArc.reach * playerStats.attackRange,
-                 attackProfile.meleeArc.hitBoxHeight + 2 * attackProfile.meleeArc.reach * playerStats.attackRange}};
+    const HitBox meleeHitBox{{
+        .position = hitBoxOffset,
+        .size = attackProfile.meleeArc.hitBoxSize + 2 * attackProfile.meleeArc.reach * playerStats.attackRange,
+    }};
 
     // add melee attack entity with all components
     // component references may be invalid: retrieve again from registry if used after this point
@@ -234,12 +232,12 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
 void InputSystem::attackRanged(Registry &registry, const config::GameConfig &config, Entity playerEntity,
                                const controller::InputState &input, const config::AttackProfileConfig &attackProfile)
 {
-    const Position playerPosition = registry.getComponent<Position>(playerEntity);
+    const auto playerPosition = registry.getComponent<Position>(playerEntity).p;
     const PlayerStats &playerStats = registry.getComponent<PlayerStats>(playerEntity);
-    const view::Sprite &playerSprite = registry.getComponent<view::Sprite>(playerEntity);
+    const auto &playerSprite = registry.getComponent<view::Sprite>(playerEntity).rect;
 
     const AnimationDirection attackDirection =
-        input.mouseGridX >= playerPosition.x ? AnimationDirection::Right : AnimationDirection::Left;
+        input.mouseGrid.x >= playerPosition.x ? AnimationDirection::Right : AnimationDirection::Left;
 
     applyAnimation(registry, config, playerEntity, AnimationState::Attack, playerStats.characterType, attackDirection);
 
@@ -250,16 +248,16 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
     const config::SpriteConfig &projectileSpriteConfig = projectileFrame.spriteConfig;
 
     const float projectileOffsetX =
-        attackDirection == AnimationDirection::Right ? playerSprite.width : -projectileSpriteConfig.texture.size.x;
-    const Position projectileLaunchPosition{.x = playerPosition.x + projectileOffsetX,
-                                            .y = playerPosition.y + (playerSprite.height / 2)
-                                                 - (projectileSpriteConfig.texture.size.y / 2)};
+        attackDirection == AnimationDirection::Right ? playerSprite.size.x : -projectileSpriteConfig.texture.size.x;
+    const geometry::Vec2<float> projectileLaunchPosition{.x = playerPosition.x + projectileOffsetX,
+                                                         .y = playerPosition.y + (playerSprite.size.y / 2)
+                                                              - (projectileSpriteConfig.texture.size.y / 2)};
 
     const float projectileLaunchAngle =
-        std::atan2(input.mouseGridY - projectileLaunchPosition.y, input.mouseGridX - projectileLaunchPosition.x);
+        std::atan2(input.mouseGrid.y - projectileLaunchPosition.y, input.mouseGrid.x - projectileLaunchPosition.x);
     const Velocity projectileLaunchVelocity{
-        .x = playerStats.speedOfAttack * attackProfile.projectile.velocityScale * std::cos(projectileLaunchAngle),
-        .y = playerStats.speedOfAttack * attackProfile.projectile.velocityScale * std::sin(projectileLaunchAngle)};
+        {.x = playerStats.speedOfAttack * attackProfile.projectile.velocityScale * std::cos(projectileLaunchAngle),
+         .y = playerStats.speedOfAttack * attackProfile.projectile.velocityScale * std::sin(projectileLaunchAngle)}};
 
     const Damage projectileDamage{.amount = attackProfile.amount,
                                   .pushBackForce = attackProfile.pushBackForce,
@@ -272,14 +270,12 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
                                       .maxTargets = 1,
                                   }};
 
-    const view::Sprite projectileSprite{.x = projectileLaunchPosition.x,
-                                        .y = projectileLaunchPosition.y,
-                                        .imagePath = projectileSpriteConfig.texture.path,
-                                        .width = projectileSpriteConfig.texture.size.x,
-                                        .height = projectileSpriteConfig.texture.size.y};
+    const view::Sprite projectileSprite{
+        .rect = {projectileLaunchPosition, projectileSpriteConfig.texture.size},
+        .imagePath = projectileSpriteConfig.texture.path,
+    };
 
-    const HitBox projectileHitBox{.offset = projectileSpriteConfig.hitBox.offset,
-                                  .size = projectileSpriteConfig.hitBox.size};
+    const HitBox projectileHitBox{{projectileSpriteConfig.hitBox.offset, projectileSpriteConfig.hitBox.size}};
 
     // add projectile entity with all components
     // component references may be invalid: retrieve again from registry if used after this point
@@ -287,7 +283,7 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
     registry.addComponent<SoundComponent>(playerEntity, sound);
     registry.addComponent<Damage>(projectileEntity, projectileDamage);
     registry.addComponent<view::Sprite>(projectileEntity, projectileSprite);
-    registry.addComponent<Position>(projectileEntity, projectileLaunchPosition);
+    registry.addComponent<Position>(projectileEntity, {projectileLaunchPosition});
     registry.addComponent<Velocity>(projectileEntity, projectileLaunchVelocity);
     registry.addComponent<HitBox>(projectileEntity, projectileHitBox);
     registry.addComponent<PlayerAttackTag>(projectileEntity, {}); // Mark as player's attack for collision detection
@@ -299,14 +295,13 @@ void InputSystem::applyAnimationMoveSpeedModifier(Registry &registry, const conf
 {
     const Animation &playerAnimation = registry.getComponent<Animation>(playerEntity);
     const PlayerStats &playerStats = registry.getComponent<PlayerStats>(playerEntity);
-    Velocity &playerVelocity = registry.getComponent<Velocity>(playerEntity);
+    auto &playerVelocity = registry.getComponent<Velocity>(playerEntity).v;
 
     const config::AnimationFrame currentFrame =
         config::AnimationConfigHelper::getPlayerAnimationFrame(config, playerStats.characterType, playerAnimation.state,
                                                                playerAnimation.direction, playerAnimation.currentFrame);
 
-    playerVelocity.x *= currentFrame.moveSpeedMultiplier;
-    playerVelocity.y *= currentFrame.moveSpeedMultiplier;
+    playerVelocity *= currentFrame.moveSpeedMultiplier;
 }
 
 } // namespace game

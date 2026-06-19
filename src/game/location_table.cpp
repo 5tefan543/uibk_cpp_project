@@ -10,7 +10,7 @@
 
 namespace game {
 
-LocationTable::LocationTable(const Vec2<unsigned> numBuckets, const Vec2<float> totalGridSize)
+LocationTable::LocationTable(const geometry::Vec2<unsigned> numBuckets, const geometry::Vec2<float> totalGridSize)
     : numBuckets(numBuckets), bucketSize(totalGridSize / numBuckets.into<float>())
 {
     bucketGrid_ = std::vector<std::vector<Entity>>();
@@ -21,8 +21,11 @@ LocationTable::LocationTable(const Vec2<unsigned> numBuckets, const Vec2<float> 
 }
 
 // Return 2D (x,y) bucket indices [firstBucket, lastBucket]. lastBuck is inclusive -> iterate with "<= lastBuck"
-std::tuple<Vec2<unsigned>, Vec2<unsigned>> LocationTable::getBucketIndices(Vec2<float> startGrid, Vec2<float> stopGrid)
+std::tuple<geometry::Vec2<unsigned>, geometry::Vec2<unsigned>>
+LocationTable::getBucketIndices(geometry::Vec2<float> startGrid, geometry::Vec2<float> stopGrid)
 {
+    using geometry::Vec2;
+
     const Vec2<float> maxBuckets = (numBuckets - 1).into<float>();
     // clamp(): better save than sorry - making no assumtions of positioning logic of entities/sprites
     Vec2<unsigned> firstBuck = (startGrid / bucketSize).clamp({0, 0}, maxBuckets).into<unsigned>();
@@ -33,6 +36,8 @@ std::tuple<Vec2<unsigned>, Vec2<unsigned>> LocationTable::getBucketIndices(Vec2<
 
 void LocationTable::update(const Registry &registry)
 {
+    using geometry::Vec2;
+
     for (auto &bucket : bucketGrid_) {
         bucket.clear(); // Leaves the capacity() of the vector unchanged
     }
@@ -40,16 +45,14 @@ void LocationTable::update(const Registry &registry)
     // bool cleanup = false;
     auto entities = registry.view<view::Sprite, Position, Velocity, EnemyTag>();
     for (auto entity : entities) {
-        const Position &position = registry.getComponent<Position>(entity);
+        const auto &pos = registry.getComponent<Position>(entity).p;
         const view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
-        const Vec2<float> pos = {position.x, position.y};             // TODO: Vec2
-        const Vec2<float> spriteSize = {sprite.width, sprite.height}; // TODO: Vec2
 
         // Put entity in every bucket its sprite overlaps with.
         // TODO: we probably want to use hitbox instead of sprite dimensions
         // Distances can be determined either way since hitbox & sprite have the same center.
 
-        const auto [firstBuck, lastBuck] = getBucketIndices(pos, pos + spriteSize);
+        const auto [firstBuck, lastBuck] = getBucketIndices(pos, pos + sprite.rect.size);
 
         for (unsigned buckY = firstBuck.y; buckY <= lastBuck.y; buckY++) {
             for (unsigned buckX = firstBuck.x; buckX <= lastBuck.x; buckX++) {
@@ -88,7 +91,7 @@ void LocationTable::update(const Registry &registry)
 
 // Guarantees to return all entities whose hitbox/sprite is inside the radius but there might be some included that are
 // outside. Extra filtering is required if strictly those inside the radius are required.
-std::unordered_set<Entity> LocationTable::getEntitiesNear(const Vec2<float> position, const float radius)
+std::unordered_set<Entity> LocationTable::getEntitiesNear(const geometry::Vec2<float> position, const float radius)
 {
     std::unordered_set<Entity> inRange;
     const auto [firstBuck, lastBuck] = getBucketIndices(position - radius, position + radius);
@@ -105,14 +108,14 @@ std::unordered_set<Entity> LocationTable::getEntitiesNear(const Vec2<float> posi
 
 // Return Entites being precicesly inside the radius by filtering getEntitiesNear().
 std::vector<std::tuple<Entity, Position>>
-LocationTable::getEntitiesInRange(const Vec2<float> position, const float radius, const Registry &registry)
+LocationTable::getEntitiesInRange(const geometry::Vec2<float> position, const float radius, const Registry &registry)
 {
     auto entitiesNear = getEntitiesNear(position, radius);
     std::vector<std::tuple<Entity, Position>> inRange;
 
     for (auto e : entitiesNear) {
-        const Position p = registry.getComponent<Position>(e);
-        if ((position - Vec2{p.x, p.y}).length() <= radius) {
+        const auto p = registry.getComponent<Position>(e).p;
+        if ((position - p).length() <= radius) {
             inRange.emplace_back(std::tuple{e, p});
         }
     }

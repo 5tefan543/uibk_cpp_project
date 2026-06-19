@@ -8,10 +8,7 @@ namespace view {
 
 struct Card {
     Color backgroundColor = {150, 150, 150};
-    float width = gridWidth / 2;
-    float height = gridHeight / 2;
-    float gridX = (gridWidth / 2) - (width / 2);
-    float gridY = (gridHeight / 2) - (height / 2);
+    geometry::Rectangle<float> rect = geometry::Rectangle<float>::centered(grid.getCenter(), grid.size / 2);
     std::vector<ViewElement> elements;
 };
 

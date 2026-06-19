@@ -8,15 +8,13 @@
 namespace view {
 
 struct Text {
-    std::string text;
+    std::string text = std::string();
     FontType font = FontType::Default;
     unsigned int size = 30;
     Color color = {255, 255, 255};
-    float gridX = gridWidth / 2;
-    float gridY = gridHeight / 2;
+    geometry::Vec2<float> position = grid.getCenter();
     // Origin is topLeft of text bounding box
-    float originOffsetX = 0.0f;
-    float originOffsetY = 0.0f;
+    geometry::Vec2<float> originOffset = {0.0f, 0.0f};
 };
 
 } // namespace view

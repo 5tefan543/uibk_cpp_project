@@ -6,12 +6,12 @@
 #include "view/grid.hpp"
 #include "view/sprite.hpp"
 
-#include <algorithm>
-
 namespace game {
 
 void CameraSystem::update(Registry &registry)
 {
+    using geometry::Vec2;
+
     // Find player and camera
     auto players = registry.view<Position, PlayerTag, view::Sprite>();
     auto maps = registry.view<MapTag, Position, view::Sprite>();
@@ -25,29 +25,20 @@ void CameraSystem::update(Registry &registry)
     const Entity mapEntity = maps.front();
     const Entity cameraEntity = cameras.front();
 
-    const Position &playerPosition = registry.getComponent<Position>(playerEntity);
+    const auto &playerPosition = registry.getComponent<Position>(playerEntity).p;
     const view::Sprite &playerSprite = registry.getComponent<view::Sprite>(playerEntity);
 
-    const Position &mapPos = registry.getComponent<Position>(mapEntity);
+    const auto &mapPos = registry.getComponent<Position>(mapEntity).p;
     const view::Sprite &mapSprite = registry.getComponent<view::Sprite>(mapEntity);
 
     const CameraTag &cameraTag = registry.getComponent<CameraTag>(cameraEntity);
-    Position &cameraPos = registry.getComponent<Position>(cameraEntity);
+    auto &cameraPos = registry.getComponent<Position>(cameraEntity).p;
 
-    const float playerCenterX = playerPosition.x + playerSprite.width / 2.0f;
-    const float playerCenterY = playerPosition.y + playerSprite.height / 2.0f;
-
-    const float desiredCameraX = playerCenterX - view::gridWidth / 2.0f;
-    const float desiredCameraY = playerCenterY - view::gridHeight / 2.0f;
-
-    const float minCameraX = mapPos.x - cameraTag.margin;
-    const float minCameraY = mapPos.y - cameraTag.margin;
-
-    const float maxCameraX = mapPos.x + mapSprite.width - view::gridWidth + cameraTag.margin;
-    const float maxCameraY = mapPos.y + mapSprite.height - view::gridHeight + cameraTag.margin;
-
-    cameraPos.x = std::clamp(desiredCameraX, minCameraX, maxCameraX);
-    cameraPos.y = std::clamp(desiredCameraY, minCameraY, maxCameraY);
+    const auto playerCenter = geometry::Rectangle{playerPosition, playerSprite.rect.size}.getCenter();
+    const auto desiredCamera = playerCenter - view::grid.getCenter();
+    const auto minCamera = mapPos - cameraTag.margin;
+    const auto maxCamera = mapPos + mapSprite.rect.size - view::grid.size + cameraTag.margin;
+    cameraPos = desiredCamera.clamp(minCamera, maxCamera);
 }
 
 } // namespace game

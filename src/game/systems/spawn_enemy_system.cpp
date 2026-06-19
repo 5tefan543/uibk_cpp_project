@@ -88,15 +88,16 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const config::Ga
     const config::AnimationFrame animationFrame = config::AnimationConfigHelper::getEnemyAnimationFrame(
         config, enemyType, enemyAnimation.state, enemyAnimation.direction, enemyAnimation.currentFrame);
 
-    view::Sprite enemySprite{.imagePath = animationFrame.spriteConfig.texture.path,
-                             .width = animationFrame.spriteConfig.texture.size.x,
-                             .height = animationFrame.spriteConfig.texture.size.y};
+    view::Sprite enemySprite{
+        .rect = {{}, animationFrame.spriteConfig.texture.size},
+        .imagePath = animationFrame.spriteConfig.texture.path,
+    };
 
     Position spawnPosition = generateSpawnPosition(context, enemySprite, enemyType, spawnConfig);
     const config::EnemyClassConfig &enemyClass = config.enemyClasses.getByType(enemyType);
     EnemyStats enemyStats = createEnemyStats(wave, enemyClass, spawnConfig, context);
 
-    HitBox hitBox{.offset = animationFrame.spriteConfig.hitBox.offset, .size = animationFrame.spriteConfig.hitBox.size};
+    HitBox hitBox{{animationFrame.spriteConfig.hitBox.offset, animationFrame.spriteConfig.hitBox.size}};
 
     Entity enemy = registry.createEntity();
     registry.addComponent<EnemyTag>(enemy, {});
@@ -128,24 +129,24 @@ Position SpawnEnemySystem::generateBossSpawnPosition(const SpawnContext &context
     const float angle = angleDistribution(randomEngine_);
     const float distance = distanceDistribution(randomEngine_);
 
-    const float playerCenterX = context.playerPosition.x + context.playerSprite.width / 2.0f;
-    const float playerCenterY = context.playerPosition.y + context.playerSprite.height / 2.0f;
+    const geometry::Vec2<float> playerCenter = context.playerPosition.p + context.playerSprite.rect.size / 2.0f;
 
-    const float x = playerCenterX + std::cos(angle) * distance;
-    const float y = playerCenterY + std::sin(angle) * distance;
+    const geometry::Vec2<float> pos = {.x = playerCenter.x + std::cos(angle) * distance,
+                                       .y = playerCenter.y + std::sin(angle) * distance
 
-    return {std::clamp(x, enemySprite.width, context.mapSprite.width - enemySprite.width),
-            std::clamp(y, enemySprite.height, context.mapSprite.height - enemySprite.height)};
+    };
+
+    return Position{pos.clamp(enemySprite.rect.size, context.mapSprite.rect.size - enemySprite.rect.size)};
 }
 
 Position SpawnEnemySystem::generateRandomSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite)
 {
-    std::uniform_real_distribution<float> posXDistribution(enemySprite.width,
-                                                           context.mapSprite.width - enemySprite.width);
-    std::uniform_real_distribution<float> posYDistribution(enemySprite.height,
-                                                           context.mapSprite.height - enemySprite.height);
+    std::uniform_real_distribution<float> posXDistribution(enemySprite.rect.size.x,
+                                                           context.mapSprite.rect.size.x - enemySprite.rect.size.x);
+    std::uniform_real_distribution<float> posYDistribution(enemySprite.rect.size.y,
+                                                           context.mapSprite.rect.size.y - enemySprite.rect.size.y);
 
-    return {posXDistribution(randomEngine_), posYDistribution(randomEngine_)};
+    return {{posXDistribution(randomEngine_), posYDistribution(randomEngine_)}};
 }
 
 EnemyStats SpawnEnemySystem::createEnemyStats(int wave, const config::EnemyClassConfig &classConfig,

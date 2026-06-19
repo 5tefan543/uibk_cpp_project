@@ -19,13 +19,12 @@ void applySpriteConfig(Registry &registry, Entity entity, const config::SpriteCo
 {
     view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
     sprite.imagePath = spriteConfig.texture.path;
-    sprite.width = spriteConfig.texture.size.x;
-    sprite.height = spriteConfig.texture.size.y;
+    sprite.rect.size = spriteConfig.texture.size;
 
     if (registry.hasComponent<HitBox>(entity)) {
         HitBox &hitBox = registry.getComponent<HitBox>(entity);
-        hitBox.offset = spriteConfig.hitBox.offset;
-        hitBox.size = spriteConfig.hitBox.size;
+        hitBox.rect.position = spriteConfig.hitBox.offset;
+        hitBox.rect.size = spriteConfig.hitBox.size;
     }
 }
 

@@ -77,15 +77,10 @@ void Game::initMap()
     int mapIdx = (stage_ - 1) % config_.mapConfig.mapSprites.size();
     auto &mapSpriteConfig = config_.mapConfig.mapSprites[mapIdx];
 
-    view::Sprite mapSprite = {
-        .x = mapSpriteConfig.texture.position.x,
-        .y = mapSpriteConfig.texture.position.y,
-        .imagePath = mapSpriteConfig.texture.path,
-        .width = mapSpriteConfig.texture.size.x,
-        .height = mapSpriteConfig.texture.size.y,
-    };
+    view::Sprite mapSprite = {.rect = {mapSpriteConfig.texture.position, mapSpriteConfig.texture.size},
+                              .imagePath = mapSpriteConfig.texture.path};
 
-    HitBox mapHitBox{.offset = mapSpriteConfig.hitBox.offset, .size = mapSpriteConfig.hitBox.size};
+    HitBox mapHitBox{{mapSpriteConfig.hitBox.offset, mapSpriteConfig.hitBox.size}};
 
     Entity map = registry_.createEntity();
     registry_.addComponent<MapTag>(map, {});
@@ -109,14 +104,10 @@ void Game::switchMap()
     int mapIdx = (stage_ - 1) % config_.mapConfig.mapSprites.size();
     auto &mapSpriteConfig = config_.mapConfig.mapSprites[mapIdx];
 
-    mapSprite.x = mapSpriteConfig.texture.position.x;
-    mapSprite.y = mapSpriteConfig.texture.position.y;
+    mapSprite.rect = {mapSpriteConfig.texture.position, mapSpriteConfig.texture.size};
     mapSprite.imagePath = mapSpriteConfig.texture.path;
-    mapSprite.width = mapSpriteConfig.texture.size.x;
-    mapSprite.height = mapSpriteConfig.texture.size.y;
 
-    mapHitBox.offset = mapSpriteConfig.hitBox.offset;
-    mapHitBox.size = mapSpriteConfig.hitBox.size;
+    mapHitBox.rect = {mapSpriteConfig.hitBox.offset, mapSpriteConfig.hitBox.size};
 }
 
 void Game::initCamera(Position position)
@@ -151,11 +142,14 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
         config_, playerStats.characterType, playerAnimation.state, playerAnimation.direction,
         playerAnimation.currentFrame);
 
-    view::Sprite playerSprite{.imagePath = animationFrame.spriteConfig.texture.path,
-                              .width = animationFrame.spriteConfig.texture.size.x,
-                              .height = animationFrame.spriteConfig.texture.size.y};
+    view::Sprite playerSprite{.rect =
+                                  {
+                                      {0, 0},
+                                      animationFrame.spriteConfig.texture.size,
+                                  },
+                              .imagePath = animationFrame.spriteConfig.texture.path};
 
-    HitBox hitBox{.offset = animationFrame.spriteConfig.hitBox.offset, .size = animationFrame.spriteConfig.hitBox.size};
+    HitBox hitBox{{animationFrame.spriteConfig.hitBox.offset, animationFrame.spriteConfig.hitBox.size}};
 
     registry_.addComponent<PlayerStats>(player, playerStats);
     registry_.addComponent<Position>(player, position);
@@ -351,18 +345,14 @@ void Game::updateView(view::View &view)
     // Get camera data
     auto cameraEntities = registry_.view<CameraTag, Position>();
     if (!cameraEntities.empty()) {
-        const Position &cameraPos = registry_.getComponent<Position>(cameraEntities.front());
-        view.cameraX = cameraPos.x;
-        view.cameraY = cameraPos.y;
+        view.cameraPosition = registry_.getComponent<Position>(cameraEntities.front()).p;
     }
 
     // Render sprite entities
     for (auto entity : registry_.view<Position, view::Sprite>()) {
 
         view::Sprite &sprite = registry_.getComponent<view::Sprite>(entity);
-        const Position &position = registry_.getComponent<Position>(entity);
-        sprite.x = position.x;
-        sprite.y = position.y;
+        sprite.rect.position = registry_.getComponent<Position>(entity).p;
 
         view.nodes.push_back({view::ViewMode::FixedToWorld, sprite});
     }
@@ -370,14 +360,11 @@ void Game::updateView(view::View &view)
     controller::DebugContext &debug = controller::DebugContext::get();
     if (debug.active && debug.gameSettings.showHitboxes) {
         for (auto entity : registry_.view<Position, HitBox>()) {
-            const Position &position = registry_.getComponent<Position>(entity);
+            const auto &position = registry_.getComponent<Position>(entity).p;
             const HitBox &hitbox = registry_.getComponent<HitBox>(entity);
 
             view::Rectangle hitboxRect = {
-                .width = hitbox.size.x,
-                .height = hitbox.size.y,
-                .gridX = position.x + hitbox.offset.x,
-                .gridY = position.y + hitbox.offset.y,
+                .rect = {position + hitbox.rect.position, hitbox.rect.size},
                 .borderColor = {255, 0, 0},
                 .thickness = 3.0f,
             };
@@ -393,8 +380,7 @@ void Game::updateView(view::View &view)
                 + " currency: "
                 + std::to_string(registry_.getComponent<PlayerStats>(registry_.view<PlayerTag>().front()).currency),
         .size = 24,
-        .gridX = 960.0f,
-        .gridY = 75.0f,
+        .position = {960.0f, 75.0f},
     };
     view.nodes.push_back({view::ViewMode::FixedToScreen, std::cref(stageWaveInfo_)});
 }

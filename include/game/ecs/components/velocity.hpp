@@ -1,8 +1,9 @@
 #pragma once
 
+#include "geometry/vector.hpp"
+
 namespace game {
 struct Velocity {
-    float x = 0.0f;
-    float y = 0.0f;
+    geometry::Vec2<float> v;
 };
 } // namespace game

@@ -1,25 +1,29 @@
 #pragma once
 
+#include <SFML/System/Vector2.hpp>
 #include <algorithm>
 #include <cmath>
 #include <ostream>
 
+namespace geometry {
 template <typename T>
 struct Vec2 {
-    T x;
-    T y;
+    T x = 0;
+    T y = 0;
 
-    Vec2<T> operator+(Vec2<T> other) const { return Vec2{x + other.x, y + other.y}; }
-    Vec2<T> operator+(T scalar) const { return Vec2{x + scalar, y + scalar}; }
+    operator sf::Vector2<T>() const { return sf::Vector2<T>{x, y}; }
 
-    Vec2<T> operator-(Vec2<T> other) const { return Vec2{x - other.x, y - other.y}; }
-    Vec2<T> operator-(T scalar) const { return Vec2{x - scalar, y - scalar}; }
+    Vec2<T> operator+(Vec2<T> other) const { return {x + other.x, y + other.y}; }
+    Vec2<T> operator+(T scalar) const { return {x + scalar, y + scalar}; }
 
-    Vec2<T> operator*(Vec2<T> other) const { return Vec2{x * other.x, y * other.y}; }
-    Vec2<T> operator*(T scalar) const { return Vec2{x * scalar, y * scalar}; }
+    Vec2<T> operator-(Vec2<T> other) const { return {x - other.x, y - other.y}; }
+    Vec2<T> operator-(T scalar) const { return {x - scalar, y - scalar}; }
 
-    Vec2<T> operator/(Vec2<T> other) const { return Vec2{x / other.x, y / other.y}; }
-    Vec2<T> operator/(T scalar) const { return Vec2{x / scalar, y / scalar}; }
+    Vec2<T> operator*(Vec2<T> other) const { return {x * other.x, y * other.y}; }
+    Vec2<T> operator*(T scalar) const { return {x * scalar, y * scalar}; }
+
+    Vec2<T> operator/(Vec2<T> other) const { return {x / other.x, y / other.y}; }
+    Vec2<T> operator/(T scalar) const { return {x / scalar, y / scalar}; }
 
     void operator+=(T scalar)
     {
@@ -86,7 +90,7 @@ struct Vec2 {
     Vec2<T> abs() const { return {std::abs(x), std::abs(y)}; };
     static Vec2<T> min(Vec2<T> a, Vec2<T> b) { return {std::min(a.x, b.x), std::min(a.y, b.y)}; };
     static Vec2<T> max(Vec2<T> a, Vec2<T> b) { return {std::max(a.x, b.x), std::max(a.y, b.y)}; };
-
+    // TODO: remove lt, gt, le, ge <><=>= operators are better
     // Return (this->x < b.y, this->y < b.y)
     Vec2<bool> lt(Vec2<T> b) const { return {x < b.x, y < b.y}; };
 
@@ -108,6 +112,48 @@ struct Vec2 {
     {
         return {static_cast<Into>(x), static_cast<Into>(y)};
     }
+
+    // True if x and y are true
+    template <typename T_ = T, std::enable_if_t<std::is_same_v<T_, bool>> * = nullptr>
+    bool all()
+    {
+        return x && y;
+    }
+
+    // True if x or y is true
+    template <typename T_ = T, std::enable_if_t<std::is_same_v<T_, bool>> * = nullptr>
+    bool some()
+    {
+        return x || y;
+    }
+};
+
+// Element-wise comparison
+template <class T>
+Vec2<bool> operator<(const Vec2<T> &l, const Vec2<T> r)
+{
+    return {l.x < r.x, l.y < r.y};
+};
+
+// Element-wise comparison
+template <class T>
+Vec2<bool> operator<=(const Vec2<T> &l, const Vec2<T> r)
+{
+    return {l.x <= r.x, l.y <= r.y};
+};
+
+// Element-wise comparison
+template <class T>
+Vec2<bool> operator>(const Vec2<T> &l, const Vec2<T> r)
+{
+    return {l.x > r.x, l.y > r.y};
+};
+
+// Element-wise comparison
+template <class T>
+Vec2<bool> operator>=(const Vec2<T> &l, const Vec2<T> r)
+{
+    return {l.x >= r.x, l.y >= r.y};
 };
 
 template <typename T>
@@ -115,3 +161,5 @@ std::ostream &operator<<(std::ostream &s, Vec2<T> v)
 {
     return s << "{x: " << v.x << ", y: " << v.y << "}";
 }
+
+} // namespace geometry
