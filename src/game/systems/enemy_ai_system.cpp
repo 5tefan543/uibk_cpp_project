@@ -102,9 +102,7 @@ void EnemyAI::updateAttack(Registry &registry, const config::GameConfig &config,
         return;
     }
     attackCoolDowns_[enemy] = 1 / config.enemyClasses.blob.stats.attackSpeed;
-    // if playerpos outof range return
-    logger::log(logger::LogLevel::DEBUG, "attack!!!");
-    // get enemy Type
+
     blobAreaAttack(registry, config, enemy, playerPos);
 }
 
@@ -267,12 +265,13 @@ void EnemyAI::spawnPendingAreaAttack(Registry &registry, const config::GameConfi
     const config::SpriteConfig &areaSpriteConfig = areaFrame.spriteConfig;
     const Position damagePosition{blobPosition.x, blobPosition.y};
     const view::Sprite sprite{damagePosition.x, damagePosition.y, areaSpriteConfig.texture.path,
-                              areaSpriteConfig.texture.size.x, areaSpriteConfig.texture.size.y};
+                              areaSpriteConfig.texture.size.x * enemyStats.attackRange,
+                              areaSpriteConfig.texture.size.y * enemyStats.attackRange};
     const Animation areaAnimation{};
 
-    const HitBox areaHitbox{.offset = {0.125f * attackProfile.area.radius, 0.125f * attackProfile.area.radius},
-                            .size = {attackProfile.area.radius * 0.75f * enemyStats.attackRange,
-                                     attackProfile.area.radius * 0.75f * enemyStats.attackRange}};
+    const HitBox areaHitbox{.offset = {areaSpriteConfig.hitBox.offset.x, areaSpriteConfig.hitBox.offset.y},
+                            .size = {areaSpriteConfig.hitBox.size.x * enemyStats.attackRange,
+                                     areaSpriteConfig.hitBox.size.y * enemyStats.attackRange}};
 
     // component references may be invalid: retrieve again from registry if used after this point
     const Entity areaAttackEntity = registry.createEntity();

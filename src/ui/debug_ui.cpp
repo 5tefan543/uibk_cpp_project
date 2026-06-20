@@ -123,6 +123,7 @@ void DebugUI::renderEcsManagement(controller::DebugContext &debug, game::GameDeb
         std::string updateSystemsLabel = gameSession.isSystemUpdateActive ? "Pause Simulation" : "Resume Simulation";
         if (ImGui::Button(updateSystemsLabel.c_str())) {
             debug.gameSession->isSystemUpdateActive = !debug.gameSession->isSystemUpdateActive;
+            logger::log(logger::DEBUG, "pause game!");
         }
 
         ImGui::SeparatorText("Entity Management");
