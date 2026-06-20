@@ -175,6 +175,9 @@ void DebugUI::renderEcsManagement(controller::DebugContext &debug, game::GameDeb
                 if (gameSession.registry.hasComponent<view::Sprite>(entity)) {
                     renderComponent(gameSession.registry.getComponent<view::Sprite>(entity));
                 }
+                if (gameSession.registry.hasComponent<game::HitBox>(entity)) {
+                    renderComponent(gameSession.registry.getComponent<game::HitBox>(entity));
+                }
             } else {
                 gameSession.selectedEntity.reset();
             }
@@ -279,6 +282,19 @@ void DebugUI::renderComponent(view::Sprite &c)
     ImGui::InputFloat("height", &c.height);
     ImGui::Text("imagePath: %s", c.imagePath.c_str());
 
+    ImGui::PopID();
+}
+
+void DebugUI::renderComponent(game::HitBox &c)
+{
+    ImGui::PushID("Hitbox");
+
+    ImGui::SeparatorText("Hitbox");
+    ImGui::InputFloat("width", &c.size.x);
+    ImGui::InputFloat("height", &c.size.y);
+
+    ImGui::InputFloat("offset x", &c.offset.x);
+    ImGui::InputFloat("offset y", &c.offset.y);
     ImGui::PopID();
 }
 
