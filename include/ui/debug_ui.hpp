@@ -26,6 +26,7 @@ class DebugUI {
     void renderComponent(game::Stats &c);
     void renderComponent(game::PlayerStats &c);
     void renderComponent(game::HitBox &c);
+    void renderComponent(game::HitBox &c, const std::string &texturePath);
     void renderComponent(game::EnemyStats &c);
     void renderComponent(game::Position &c);
     void renderComponent(game::Velocity &c);
