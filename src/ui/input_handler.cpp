@@ -123,8 +123,7 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
 
     // Convert mouse pixel coords to internal grid coords. Depends on view set in renderView()
     sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-    input.mouseGridX = worldPos.x;
-    input.mouseGridY = worldPos.y;
+    input.mouseGrid = {worldPos.x, worldPos.y};
     return input;
 }
 

@@ -20,13 +20,15 @@ struct WindowConfig {
 
 struct TextureConfig {
     std::string path;
-    Vec2<float> position = {0, 0};
-    Vec2<float> size = {128.0f, 128.0f};
+    // TODO: why not use Rectangle<>?
+    geometry::Vec2<float> position = {0, 0};
+    geometry::Vec2<float> size = {128.0f, 128.0f};
 };
 
 struct HitBoxConfig {
-    Vec2<float> offset = {0, 0};
-    Vec2<float> size = {128.0f, 128.0f};
+    // TODO: why not use Rectangle<>?
+    geometry::Vec2<float> offset = {0, 0};
+    geometry::Vec2<float> size = {128.0f, 128.0f};
 };
 
 struct SpriteConfig {
@@ -61,8 +63,7 @@ struct ProjectileAttackConfig {
 
 struct MeleeArcAttackConfig {
     float reach = 0.0f;
-    float hitBoxWidth = 64.0f;
-    float hitBoxHeight = 64.0f;
+    geometry::Vec2<float> hitBoxSize = {64.0f, 64.0f};
     float activeTimePaddingSec = 0.1f;
 };
 
@@ -172,12 +173,12 @@ struct LogConfig {
 };
 
 struct MapConfig {
-    Vec2<float> mapSize;
+    geometry::Vec2<float> mapSize;
     std::vector<SpriteConfig> mapSprites;
 };
 
 struct LocationTableConfig {
-    Vec2<unsigned> numBuckets;
+    geometry::Vec2<unsigned> numBuckets;
 };
 
 struct FontConfig {

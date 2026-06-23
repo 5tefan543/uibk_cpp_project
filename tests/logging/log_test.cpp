@@ -1,4 +1,7 @@
-#ifndef _WIN32 // We're only testing on linux
+#ifndef _WIN32 // We're only testing log_test on linux as unsetenv() and setenv() are linux sys-calls,
+               // the current test runner is a linux system and we want to avoid
+               // e.g. another dependency for OS agnostic env. var. management.
+               // std::getenv() should work fine on linux & windows.
 
 #include "logging/log.hpp"
 #include <array>

@@ -134,35 +134,33 @@ void MenuState::initView()
 
         // Placeholder for textured background
         view::Card &backgroundCard = cards_.emplace_back(view::Card());
-        backgroundCard.gridX = 0;
-        backgroundCard.gridY = 0;
-        backgroundCard.width = view::gridWidth;
-        backgroundCard.height = view::gridHeight;
+        backgroundCard.rect = {.position = {0, 0}, .size = view::grid.size};
 
         view::Card &mainMenuCard = cards_.emplace_back(view::Card());
         mainMenuCard.backgroundColor = {50, 50, 50};
+        const auto mainMenuCardCenter = mainMenuCard.rect.getCenter();
 
         view::Text &title = texts_.emplace_back(view::Text());
-        title.gridY = (mainMenuCard.gridY + mainMenuCard.height / 10);
+        title.position.y = mainMenuCard.rect.position.y + mainMenuCard.rect.size.y / 10;
         title.text = std::string("Main Menu");
 
         view::Button &startGameButton = buttons_.emplace_back(view::Button());
-        setCenterizedY(startGameButton, getCenterY(mainMenuCard) - startGameButton.height);
-        startGameButton.text.gridY = getCenterY(startGameButton);
+        startGameButton.rect.centerizeY(mainMenuCardCenter.y - startGameButton.rect.size.y);
+        startGameButton.text.position.y = startGameButton.rect.getCenter().y;
         startGameButton.text.text = std::string("Start Game");
 
         if (hasSavedGame) {
             view::Button &loadGameButton = buttons_.emplace_back(view::Button());
-            setCenterizedY(loadGameButton, getCenterY(mainMenuCard) + loadGameButton.height / 2);
+            loadGameButton.rect.centerizeY(mainMenuCardCenter.y + loadGameButton.rect.size.y / 2);
             loadGameButton.text.text = std::string("Load Game");
-            loadGameButton.text.gridY = getCenterY(loadGameButton);
+            loadGameButton.text.position.y = loadGameButton.rect.getCenter().y;
             mainMenuCard.elements.push_back(loadGameButton);
         }
 
         view::Button &quitButton = buttons_.emplace_back(view::Button());
         int quitButtonYOffset = hasSavedGame ? 2 : 1;
-        setCenterizedY(quitButton, getCenterY(mainMenuCard) + quitButtonYOffset * quitButton.height);
-        quitButton.text.gridY = getCenterY(quitButton);
+        quitButton.rect.centerizeY(mainMenuCardCenter.y + quitButtonYOffset * quitButton.rect.size.y);
+        quitButton.text.position.y = quitButton.rect.getCenter().y;
         quitButton.text.text = std::string("Quit");
 
         mainMenuCard.elements.push_back(title);
@@ -175,26 +173,24 @@ void MenuState::initView()
     case MenuType::CharacterSelection: {
         // Placeholder for textured background
         view::Card &backgroundCard = cards_.emplace_back(view::Card());
-        backgroundCard.gridX = 0;
-        backgroundCard.gridY = 0;
-        backgroundCard.width = view::gridWidth;
-        backgroundCard.height = view::gridHeight;
+        backgroundCard.rect = view::grid;
 
         view::Card &mainMenuCard = cards_.emplace_back(view::Card());
         mainMenuCard.backgroundColor = {50, 50, 50};
+        const auto mainMenuCardCenter = mainMenuCard.rect.getCenter();
 
         view::Text &title = texts_.emplace_back(view::Text());
-        title.gridY = (mainMenuCard.gridY + mainMenuCard.height / 10);
+        title.position.y = mainMenuCard.rect.position.y + mainMenuCard.rect.size.y / 10;
         title.text = std::string("Choose your character!");
 
         view::Button &meleeButton = buttons_.emplace_back(view::Button());
-        setCenterizedY(meleeButton, getCenterY(mainMenuCard) - meleeButton.height);
-        meleeButton.text.gridY = getCenterY(meleeButton);
+        meleeButton.rect.centerizeY(mainMenuCardCenter.y - meleeButton.rect.size.y);
+        meleeButton.text.position.y = meleeButton.rect.getCenter().y;
         meleeButton.text.text = std::string("Melee");
 
         view::Button &rangedButton = buttons_.emplace_back(view::Button());
-        setCenterizedY(rangedButton, getCenterY(mainMenuCard) + rangedButton.height);
-        rangedButton.text.gridY = getCenterY(rangedButton);
+        rangedButton.rect.centerizeY(mainMenuCardCenter.y + rangedButton.rect.size.y);
+        rangedButton.text.position.y = rangedButton.rect.getCenter().y;
         rangedButton.text.text = std::string("Ranged");
 
         mainMenuCard.elements.push_back(title);
@@ -207,26 +203,24 @@ void MenuState::initView()
     case MenuType::PauseMenu: {
         // Placeholder for textured background
         view::Card &backgroundCard = cards_.emplace_back(view::Card());
-        backgroundCard.gridX = 0;
-        backgroundCard.gridY = 0;
-        backgroundCard.width = view::gridWidth;
-        backgroundCard.height = view::gridHeight;
+        backgroundCard.rect = view::grid;
 
         view::Card &mainMenuCard = cards_.emplace_back(view::Card());
         mainMenuCard.backgroundColor = {50, 50, 50};
+        const auto mainMenuCardCenter = mainMenuCard.rect.getCenter();
 
         view::Text &title = texts_.emplace_back(view::Text());
-        title.gridY = (mainMenuCard.gridY + mainMenuCard.height / 10);
+        title.position.y = mainMenuCard.rect.position.y + mainMenuCard.rect.size.y / 10;
         title.text = std::string("Paused");
 
         view::Button &resumeButton = buttons_.emplace_back(view::Button());
-        setCenterizedY(resumeButton, getCenterY(mainMenuCard) - resumeButton.height);
-        resumeButton.text.gridY = getCenterY(resumeButton);
+        resumeButton.rect.centerizeY(mainMenuCardCenter.y - resumeButton.rect.size.y);
+        resumeButton.text.position.y = resumeButton.rect.getCenter().y;
         resumeButton.text.text = std::string("Resume");
 
         view::Button &quitButton = buttons_.emplace_back(view::Button());
-        setCenterizedY(quitButton, getCenterY(mainMenuCard) + quitButton.height);
-        quitButton.text.gridY = getCenterY(quitButton);
+        quitButton.rect.centerizeY(mainMenuCardCenter.y + quitButton.rect.size.y);
+        quitButton.text.position.y = quitButton.rect.getCenter().y;
         quitButton.text.text = std::string("Quit");
 
         mainMenuCard.elements.push_back(title);
@@ -239,27 +233,25 @@ void MenuState::initView()
     case MenuType::GameOverMenu:
         // Placeholder for textured background
         view::Card &backgroundCard = cards_.emplace_back(view::Card());
-        backgroundCard.gridX = 0;
-        backgroundCard.gridY = 0;
-        backgroundCard.width = view::gridWidth;
-        backgroundCard.height = view::gridHeight;
+        backgroundCard.rect = view::grid;
 
         view::Card &mainMenuCard = cards_.emplace_back(view::Card());
         mainMenuCard.backgroundColor = {50, 50, 50};
+        const auto mainMenuCardCenter = mainMenuCard.rect.getCenter();
 
         view::Text &title = texts_.emplace_back(view::Text());
-        title.gridY = (mainMenuCard.gridY + mainMenuCard.height / 10);
+        title.position.y = (mainMenuCard.rect.position.y + mainMenuCard.rect.size.y / 10);
         title.text = std::string("Game Over!");
         title.color = {255, 0, 0};
 
         view::Button &mainMenuButton = buttons_.emplace_back(view::Button());
-        setCenterizedY(mainMenuButton, getCenterY(mainMenuCard) - mainMenuButton.height);
-        mainMenuButton.text.gridY = getCenterY(mainMenuButton);
+        mainMenuButton.rect.centerizeY(mainMenuCardCenter.y - mainMenuButton.rect.size.y);
+        mainMenuButton.text.position.y = mainMenuButton.rect.getCenter().y;
         mainMenuButton.text.text = std::string("Main Menu");
 
         view::Button &quitButton = buttons_.emplace_back(view::Button());
-        setCenterizedY(quitButton, getCenterY(mainMenuCard) + quitButton.height);
-        quitButton.text.gridY = getCenterY(quitButton);
+        quitButton.rect.centerizeY(mainMenuCardCenter.y + quitButton.rect.size.y);
+        quitButton.text.position.y = quitButton.rect.getCenter().y;
         quitButton.text.text = std::string("Quit");
 
         mainMenuCard.elements.push_back(title);
@@ -382,26 +374,24 @@ std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
 void ProgressionStoreState::initView()
 {
     view::Card &backgroundCard = cards_.emplace_back(view::Card());
-    backgroundCard.gridX = 0;
-    backgroundCard.gridY = 0;
-    backgroundCard.width = view::gridWidth;
-    backgroundCard.height = view::gridHeight;
+    backgroundCard.rect = view::grid;
 
     view::Card &storeCard = cards_.emplace_back(view::Card());
     storeCard.backgroundColor = {50, 50, 50};
+    const auto storeCardCenter = storeCard.rect.getCenter();
 
     view::Text &title = texts_.emplace_back(view::Text());
-    title.gridY = (storeCard.gridY + storeCard.height / 10);
+    title.position.y = (storeCard.rect.position.y + storeCard.rect.size.y / 10);
     title.text = std::string("Store Menu");
 
     view::Button &startGameButton = buttons_.emplace_back(view::Button());
-    setCenterizedY(startGameButton, getCenterY(storeCard) - startGameButton.height);
-    startGameButton.text.gridY = getCenterY(startGameButton);
+    startGameButton.rect.centerizeY(storeCardCenter.y - startGameButton.rect.size.y);
+    startGameButton.text.position.y = startGameButton.rect.getCenter().y;
     startGameButton.text.text = std::string("Continue Game");
 
     view::Button &quitButton = buttons_.emplace_back(view::Button());
-    setCenterizedY(quitButton, getCenterY(storeCard) + quitButton.height);
-    quitButton.text.gridY = getCenterY(quitButton);
+    quitButton.rect.centerizeY(storeCardCenter.y + quitButton.rect.size.y);
+    quitButton.text.position.y = quitButton.rect.getCenter().y;
     quitButton.text.text = std::string("Quit Game");
 
     storeCard.elements.push_back(title);

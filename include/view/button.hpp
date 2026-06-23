@@ -1,18 +1,18 @@
 #pragma once
 
 #include "color.hpp"
+#include "geometry/rectangle.hpp"
+#include "geometry/vector.hpp"
 #include "grid.hpp"
 #include "text.hpp"
 
 namespace view {
 
 struct Button {
-    Text text;
     Color backgroundColor = {100, 100, 100};
-    float width = gridWidth / 8;
-    float height = gridHeight / 20;
-    float gridX = (gridWidth / 2) - (width / 2);
-    float gridY = (gridHeight / 2) - (height / 2);
+    geometry::Rectangle<float> rect =
+        geometry::Rectangle<float>::centered(grid.getCenter(), grid.size / geometry::Vec2<float>{8, 20});
+    Text text = {.position = rect.getCenter()};
     bool isSelected = false;
     Color selectedColor = {0, 255, 0};
 };

@@ -16,8 +16,8 @@ TEST_CASE_METHOD(TestFixture, "ComponentStorage adds and returns a component")
 
     // ASSERT
     REQUIRE(storage.hasComponent(entity));
-    REQUIRE(storage.getComponent(entity).x == 10.0f);
-    REQUIRE(storage.getComponent(entity).y == 20.0f);
+    REQUIRE(storage.getComponent(entity).p.x == 10.0f);
+    REQUIRE(storage.getComponent(entity).p.y == 20.0f);
 }
 
 TEST_CASE_METHOD(TestFixture, "ComponentStorage throws when adding duplicate component")
@@ -78,6 +78,6 @@ TEST_CASE_METHOD(TestFixture, "ComponentStorage keeps remaining components acces
     REQUIRE(storage.hasComponent(entity3));
     REQUIRE_FALSE(storage.hasComponent(entity2));
 
-    REQUIRE(storage.getComponent(entity1).x == 1.0f);
-    REQUIRE(storage.getComponent(entity3).x == 3.0f);
+    REQUIRE(storage.getComponent(entity1).p.x == 1.0f);
+    REQUIRE(storage.getComponent(entity3).p.x == 3.0f);
 }

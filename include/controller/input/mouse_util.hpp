@@ -11,11 +11,7 @@ struct MouseUtil {
                                                          const std::deque<view::Button> &buttons)
     {
         for (std::size_t idx = 0; idx < buttons.size(); idx++) {
-            const view::Button &button = buttons[idx];
-            const bool insideX = input.mouseGridX >= button.gridX && input.mouseGridX <= (button.gridX + button.width);
-            const bool insideY = input.mouseGridY >= button.gridY && input.mouseGridY <= (button.gridY + button.height);
-
-            if (insideX && insideY) {
+            if (buttons[idx].rect.contains(input.mouseGrid)) {
                 return idx;
             }
         }

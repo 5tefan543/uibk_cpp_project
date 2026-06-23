@@ -2,59 +2,61 @@
 #include <catch2/catch_test_macros.hpp>
 #include <cmath>
 
+using geometry::Vec2;
+
 TEST_CASE("Vector equality")
 {
     Vec2<int> a = {24, 24};
     Vec2<int> b = {42, 42};
-    REQUIRE(a + b == Vec2<int>(66, 66));
+    REQUIRE((a + b == Vec2<int>(66, 66)).all());
 }
 
 TEST_CASE("Vector addition")
 {
     Vec2<int> a = {1, 2};
     Vec2<int> b = {3, 4};
-    REQUIRE(a + b == Vec2<int>(4, 6));
-    REQUIRE(a + 42 == Vec2<int>(43, 44));
+    REQUIRE((a + b == Vec2<int>(4, 6)).all());
+    REQUIRE((a + 42 == Vec2<int>(43, 44)).all());
     a += b;
-    REQUIRE(a == Vec2<int>{4, 6});
+    REQUIRE((a == Vec2<int>{4, 6}).all());
     b += 24;
-    REQUIRE(b == Vec2<int>{27, 28});
+    REQUIRE((b == Vec2<int>{27, 28}).all());
 }
 
 TEST_CASE("Vector subtraction")
 {
     Vec2<int> a = {1, 2};
     Vec2<int> b = {4, 3};
-    REQUIRE(a - b == Vec2<int>(-3, -1));
-    REQUIRE(a - 1 == Vec2<int>(0, 1));
+    REQUIRE((a - b == Vec2<int>(-3, -1)).all());
+    REQUIRE((a - 1 == Vec2<int>(0, 1)).all());
     a -= b;
-    REQUIRE(a == Vec2<int>(-3, -1));
+    REQUIRE((a == Vec2<int>(-3, -1)).all());
     b -= 1;
-    REQUIRE(b == Vec2<int>{3, 2});
+    REQUIRE((b == Vec2<int>{3, 2}).all());
 }
 
 TEST_CASE("Vector multiplication")
 {
     Vec2<int> a = {1, 2};
     Vec2<int> b = {3, 4};
-    REQUIRE(a * b == Vec2<int>(3, 8));
-    REQUIRE(a * 2 == Vec2<int>(2, 4));
+    REQUIRE((a * b == Vec2<int>(3, 8)).all());
+    REQUIRE((a * 2 == Vec2<int>(2, 4)).all());
     a *= b;
-    REQUIRE(a == Vec2<int>(3, 8));
+    REQUIRE((a == Vec2<int>(3, 8)).all());
     b *= 2;
-    REQUIRE(b == Vec2<int>{6, 8});
+    REQUIRE((b == Vec2<int>{6, 8}).all());
 }
 
 TEST_CASE("Vector division")
 {
     Vec2<int> a = {42, 24};
     Vec2<int> b = {7, 2};
-    REQUIRE(a / b == Vec2<int>(6, 12));
-    REQUIRE(a / 2 == Vec2<int>(21, 12));
+    REQUIRE((a / b == Vec2<int>(6, 12)).all());
+    REQUIRE((a / 2 == Vec2<int>(21, 12)).all());
     a /= b;
-    REQUIRE(a == Vec2<int>(6, 12));
+    REQUIRE((a == Vec2<int>(6, 12)).all());
     b /= 2;
-    REQUIRE(b == Vec2<int>{3, 1});
+    REQUIRE((b == Vec2<int>{3, 1}).all());
 }
 
 TEST_CASE("Vector length and normalization")
@@ -79,52 +81,52 @@ TEST_CASE("Vectors methods")
 
     SECTION("Vector absolute value")
     {
-        REQUIRE(a.abs() == Vec2<int>{42, 42});
+        REQUIRE((a.abs() == Vec2<int>{42, 42}).all());
     }
 
     SECTION("Vector min value")
     {
-        REQUIRE(Vec2<int>::min(a, b) == Vec2<int>{-42, -42});
+        REQUIRE((Vec2<int>::min(a, b) == Vec2<int>{-42, -42}).all());
     }
 
     SECTION("Vector max value")
     {
-        REQUIRE(Vec2<int>::max(a, b) == Vec2<int>{42, 42});
+        REQUIRE((Vec2<int>::max(a, b) == Vec2<int>{42, 42}).all());
     }
 
     SECTION("Vectors element wise less than comparison")
     {
-        REQUIRE(a.lt(b) == Vec2<bool>{false, true});
-        REQUIRE(b.lt(a) == Vec2<bool>{true, false});
+        REQUIRE(((a < b) == Vec2<bool>{false, true}).all());
+        REQUIRE(((b < a) == Vec2<bool>{true, false}).all());
     }
 
     SECTION("Vectors element wise greater than comparison")
     {
-        REQUIRE(a.gt(b) == Vec2<bool>{true, false});
-        REQUIRE(b.gt(a) == Vec2<bool>{false, true});
+        REQUIRE(((a > b) == Vec2<bool>{true, false}).all());
+        REQUIRE(((b > a) == Vec2<bool>{false, true}).all());
     }
 
     SECTION("Vectors element wise less or equal comparison")
     {
-        REQUIRE(a.le(b) == a.lt(b));
-        REQUIRE(b.le(a) == b.lt(a));
-        REQUIRE(a.le(c) == Vec2<bool>(true, true));
-        REQUIRE(b.le(c) == Vec2<bool>(true, true));
+        REQUIRE(((a <= b) == (a < b)).all());
+        REQUIRE(((b <= a) == (b < a)).all());
+        REQUIRE(((a <= c) == Vec2<bool>(true, true)).all());
+        REQUIRE(((b <= c) == Vec2<bool>(true, true)).all());
     }
 
     SECTION("Vectors element wise greater or equal comparison")
     {
-        REQUIRE(a.ge(b) == a.gt(b));
-        REQUIRE(b.ge(a) == b.gt(a));
-        REQUIRE(a.ge(c) == Vec2<bool>(true, false));
-        REQUIRE(b.ge(c) == Vec2<bool>(false, true));
+        REQUIRE(((a >= b) == (a > b)).all());
+        REQUIRE(((b >= a) == (b > a)).all());
+        REQUIRE(((a >= c) == Vec2<bool>(true, false)).all());
+        REQUIRE(((b >= c) == Vec2<bool>(false, true)).all());
     }
 
     SECTION("Vector element wise clamp")
     {
-        REQUIRE(a.clamp({0, 0}, {42, 42}) == Vec2<int>{42, 0});
-        REQUIRE(b.clamp({-50, -50}, {0, 0}) == Vec2<int>{-42, 0});
-        REQUIRE(b.clamp({-50, -50}, {50, 50}) == b);
+        REQUIRE((a.clamp({0, 0}, {42, 42}) == Vec2<int>{42, 0}).all());
+        REQUIRE((b.clamp({-50, -50}, {0, 0}) == Vec2<int>{-42, 0}).all());
+        REQUIRE((b.clamp({-50, -50}, {50, 50}) == b).all());
     }
 
     SECTION("Vector element type cast")
@@ -133,6 +135,6 @@ TEST_CASE("Vectors methods")
         auto a2 = a.into<float>();
         REQUIRE(typeid(a2.x) == typeid(float));
         REQUIRE(typeid(a2.y) == typeid(float));
-        REQUIRE(a2 == b);
+        REQUIRE((a2 == b).all());
     }
 }

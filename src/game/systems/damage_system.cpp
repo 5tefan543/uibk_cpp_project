@@ -24,8 +24,8 @@ void DamageSystem::update(Registry &registry, float dt)
             if (auto *projectile = std::get_if<ProjectileDamage>(&damage.params)) {
                 float distanceThisFrame = projectile->speed * dt;
                 if (registry.hasComponent<Velocity>(damageEntity)) {
-                    const Velocity &velocity = registry.getComponent<Velocity>(damageEntity);
-                    distanceThisFrame = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y) * dt;
+                    const auto &velocity = registry.getComponent<Velocity>(damageEntity).v;
+                    distanceThisFrame = velocity.length() * dt;
                 }
                 projectile->distanceTraveled += distanceThisFrame;
 

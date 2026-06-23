@@ -36,6 +36,10 @@ target_include_directories(roguelike_logger PUBLIC include)
 add_library(roguelike_config
   src/config/animation_config_helper.cpp
 )
+target_link_libraries(roguelike_config
+  PUBLIC
+    SFML::Graphics
+)
 
 roguelike_cxx_flags(roguelike_config)
 target_include_directories(roguelike_config PUBLIC include)
@@ -188,6 +192,7 @@ add_executable(roguelike_test_runner
   tests/game/ecs/components/stats_test.cpp
   tests/view/font_test.cpp
   tests/config/animation_config_helper_test.cpp
+  tests/geometry/rectangle_test.cpp
 )
 
 roguelike_cxx_flags(roguelike_test_runner)

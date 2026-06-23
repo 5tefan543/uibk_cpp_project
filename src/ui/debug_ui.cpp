@@ -43,7 +43,7 @@ void DebugUI::renderStats(float fps, const controller::InputState &input, contro
     if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::Text("FPS: %.0f", smoothedFps);
         ImGui::Text("Frame time: %.0f ms", frameTimeMs);
-        ImGui::Text("Mouse position: (%f, %f)", input.mouseGridX, input.mouseGridY);
+        ImGui::Text("Mouse position: (%f, %f)", input.mouseGrid.x, input.mouseGrid.y);
         ImGui::TextUnformatted(debug.currentStateInfo.c_str());
     }
 }
@@ -240,8 +240,8 @@ void DebugUI::renderComponent(game::Position &c)
     ImGui::PushID("PositionComponent");
 
     ImGui::SeparatorText("Position");
-    ImGui::InputFloat("x", &c.x);
-    ImGui::InputFloat("y", &c.y);
+    ImGui::InputFloat("x", &c.p.x);
+    ImGui::InputFloat("y", &c.p.y);
 
     ImGui::PopID();
 }
@@ -251,8 +251,8 @@ void DebugUI::renderComponent(game::Velocity &c)
     ImGui::PushID("VelocityComponent");
 
     ImGui::SeparatorText("Velocity");
-    ImGui::InputFloat("dx", &c.x);
-    ImGui::InputFloat("dy", &c.y);
+    ImGui::InputFloat("dx", &c.v.x);
+    ImGui::InputFloat("dy", &c.v.y);
 
     ImGui::PopID();
 }
@@ -275,8 +275,8 @@ void DebugUI::renderComponent(view::Sprite &c)
     ImGui::PushID("SpriteComponent");
 
     ImGui::SeparatorText("Sprite");
-    ImGui::InputFloat("width", &c.width);
-    ImGui::InputFloat("height", &c.height);
+    ImGui::InputFloat("width", &c.rect.size.x);
+    ImGui::InputFloat("height", &c.rect.size.y);
     ImGui::Text("imagePath: %s", c.imagePath.c_str());
 
     ImGui::PopID();

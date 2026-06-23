@@ -146,8 +146,10 @@
                 "stunChance": 0.0,
                 "meleeArc": {
                     "reach": 10.0,
-                    "hitBoxWidth": 96.0,
-                    "hitBoxHeight": 128.0,
+                    "hitBoxSize": {
+                        "x": 96.0,
+                        "y": 128.0
+                    },
                     "activeTimePaddingSec": 0.1
                 },
                 "area": {
@@ -679,8 +681,10 @@
                 "stunChance": 0.0,
                 "meleeArc": {
                     "reach": 45.0,
-                    "hitBoxWidth": 64.0,
-                    "hitBoxHeight": 64.0,
+                    "hitBoxSize": {
+                        "x": 64.0,
+                        "y": 64.0
+                    },
                     "activeTimePaddingSec": 0.1
                 },
                 "area": {
@@ -910,8 +914,10 @@
                 "stunChance": 0.0,
                 "meleeArc": {
                     "reach": 80.0,
-                    "hitBoxWidth": 96.0,
-                    "hitBoxHeight": 96.0,
+                    "hitBoxSize": {
+                        "x": 96.0,
+                        "y": 96.0
+                    },
                     "activeTimePaddingSec": 0.1
                 },
                 "area": {

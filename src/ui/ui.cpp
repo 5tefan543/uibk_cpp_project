@@ -20,7 +20,7 @@ UI::~UI()
 
 void UI::initSfmlWindow()
 {
-    sf::VideoMode videoMode({(unsigned)view::gridWidth, (unsigned)view::gridHeight});
+    sf::VideoMode videoMode({(unsigned)view::grid.size.x, (unsigned)view::grid.size.y});
     window_.create(videoMode, "My Game", sf::State::Windowed);
     window_.setPosition({0, 0});
     window_.setFramerateLimit(60);
@@ -43,11 +43,12 @@ void UI::initImGuiSfml()
     }
 }
 
+// TODO: could use Vec2<float> cameraPosition as param
 void UI::setSfmlView(float cameraX, float cameraY)
 {
     sf::View view;
-    view.setSize({view::gridWidth, view::gridHeight});
-    view.setCenter({view::gridWidth / 2.0f + cameraX, view::gridHeight / 2.0f + cameraY});
+    view.setSize({view::grid.size});
+    view.setCenter((view::grid.size / 2.0f) + geometry::Vec2{cameraX, cameraY});
     view.setViewport(getLetterboxViewport());
     window_.setView(view);
 }
@@ -57,7 +58,7 @@ sf::FloatRect UI::getLetterboxViewport() const
     const sf::Vector2u windowSize = window_.getSize();
 
     const float windowRatio = static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y);
-    const float viewRatio = view::gridWidth / view::gridHeight;
+    const float viewRatio = view::grid.size.x / view::grid.size.y;
 
     // Viewport uses normalized coordinates [0, 1]
     // Start with entire window
@@ -102,7 +103,7 @@ void UI::render(const view::View &view)
     renderView(window_, view);
 
     // 3. Render debug UI on top
-    setSfmlView(view.cameraX, view.cameraY);
+    setSfmlView(view.cameraPosition.x, view.cameraPosition.y);
     renderer_.renderDebugContext(window_);
     debugUI_.render(inputState_, fps_);
     ImGui::SFML::Render(window_);
@@ -112,7 +113,7 @@ void UI::render(const view::View &view)
 
     // 5. Set view to camera-relative for next frame's input polling
     // Otherwise mouse input is not correctly mapped to grid coordinates when camera is moved
-    setSfmlView(view.cameraX, view.cameraY);
+    setSfmlView(view.cameraPosition.x, view.cameraPosition.y);
 }
 
 void UI::renderView(sf::RenderWindow &window, const view::View &view)
@@ -123,7 +124,7 @@ void UI::renderView(sf::RenderWindow &window, const view::View &view)
         if (currentViewMode != node.mode) {
             currentViewMode = node.mode;
             if (node.mode == view::ViewMode::FixedToWorld) {
-                setSfmlView(view.cameraX, view.cameraY);
+                setSfmlView(view.cameraPosition.x, view.cameraPosition.y);
             } else {
                 setSfmlView(0.0f, 0.0f);
             }

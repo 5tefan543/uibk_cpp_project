@@ -176,7 +176,7 @@ TEST_CASE_METHOD(TestFixture, "Main menu mouse input returns correct actions")
 
     SECTION("mouse move over quit selects quit without triggering action")
     {
-        REQUIRE(applyMouseMove(state, getCenterX(quitButton), getCenterY(quitButton)) == StateTransitionAction::None);
+        REQUIRE(applyMouseMove(state, quitButton.rect.getCenter()) == StateTransitionAction::None);
 
         REQUIRE(startButton.isSelected == false);
         REQUIRE(quitButton.isSelected == true);
@@ -184,19 +184,19 @@ TEST_CASE_METHOD(TestFixture, "Main menu mouse input returns correct actions")
 
     SECTION("mouse click on start game starts character selection")
     {
-        REQUIRE(applyMouseClick<controller::MenuState>(state, getCenterX(startButton), getCenterY(startButton))
+        REQUIRE(applyMouseClick<controller::MenuState>(state, startButton.rect.getCenter())
                 == StateTransitionAction::ReplaceCurrentWithCharacterSelection);
     }
 
     SECTION("mouse click on quit exits game")
     {
-        REQUIRE(applyMouseClick<controller::MenuState>(state, getCenterX(quitButton), getCenterY(quitButton))
+        REQUIRE(applyMouseClick<controller::MenuState>(state, quitButton.rect.getCenter())
                 == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 
     SECTION("mouse click outside buttons returns None")
     {
-        REQUIRE(applyMouseClick<controller::MenuState>(state, 700.0f, 400.0f) == StateTransitionAction::None);
+        REQUIRE(applyMouseClick<controller::MenuState>(state, {700.0f, 400.0f}) == StateTransitionAction::None);
     }
 }
 
@@ -260,7 +260,7 @@ TEST_CASE_METHOD(TestFixture, "Pause menu mouse input returns correct actions")
 
     SECTION("mouse move over quit selects quit without triggering action")
     {
-        REQUIRE(applyMouseMove(state, getCenterX(quitButton), getCenterY(quitButton)) == StateTransitionAction::None);
+        REQUIRE(applyMouseMove(state, quitButton.rect.getCenter()) == StateTransitionAction::None);
 
         REQUIRE(resumeButton.isSelected == false);
         REQUIRE(quitButton.isSelected == true);
@@ -268,19 +268,19 @@ TEST_CASE_METHOD(TestFixture, "Pause menu mouse input returns correct actions")
 
     SECTION("mouse click on resume pops pause menu")
     {
-        REQUIRE(applyMouseClick<controller::MenuState>(state, getCenterX(resumeButton), getCenterY(resumeButton))
+        REQUIRE(applyMouseClick<controller::MenuState>(state, resumeButton.rect.getCenter())
                 == StateTransitionAction::Pop);
     }
 
     SECTION("mouse click on quit exits game")
     {
-        REQUIRE(applyMouseClick<controller::MenuState>(state, getCenterX(quitButton), getCenterY(quitButton))
+        REQUIRE(applyMouseClick<controller::MenuState>(state, quitButton.rect.getCenter())
                 == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 
     SECTION("mouse click outside buttons returns None")
     {
-        REQUIRE(applyMouseClick<controller::MenuState>(state, 700.0f, 400.0f) == StateTransitionAction::None);
+        REQUIRE(applyMouseClick<controller::MenuState>(state, {700.0f, 400.0f}) == StateTransitionAction::None);
     }
 }
 
@@ -323,7 +323,7 @@ TEST_CASE_METHOD(TestFixture, "Game over menu mouse input returns correct action
 
     SECTION("mouse move over quit selects quit without triggering action")
     {
-        REQUIRE(applyMouseMove(state, getCenterX(quitButton), getCenterY(quitButton)) == StateTransitionAction::None);
+        REQUIRE(applyMouseMove(state, quitButton.rect.getCenter()) == StateTransitionAction::None);
 
         REQUIRE(mainMenuButton.isSelected == false);
         REQUIRE(quitButton.isSelected == true);
@@ -331,13 +331,13 @@ TEST_CASE_METHOD(TestFixture, "Game over menu mouse input returns correct action
 
     SECTION("mouse click on main menu returns to main menu")
     {
-        REQUIRE(applyMouseClick<controller::MenuState>(state, getCenterX(mainMenuButton), getCenterY(mainMenuButton))
+        REQUIRE(applyMouseClick<controller::MenuState>(state, mainMenuButton.rect.getCenter())
                 == StateTransitionAction::ReplaceCurrentWithMainMenu);
     }
 
     SECTION("mouse click on quit exits game")
     {
-        REQUIRE(applyMouseClick<controller::MenuState>(state, getCenterX(quitButton), getCenterY(quitButton))
+        REQUIRE(applyMouseClick<controller::MenuState>(state, quitButton.rect.getCenter())
                 == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 }
@@ -497,16 +497,14 @@ TEST_CASE_METHOD(TestFixture, "ProgressionStoreState update returns correct acti
     SECTION("mouse click on quit exits")
     {
 
-        REQUIRE(
-            applyMouseClick<controller::ProgressionStoreState>(state, getCenterX(quitButton), getCenterY(quitButton))
-            == StateTransitionAction::ReplaceAllStatesWithExit);
+        REQUIRE(applyMouseClick<controller::ProgressionStoreState>(state, quitButton.rect.getCenter())
+                == StateTransitionAction::ReplaceAllStatesWithExit);
     }
 
     SECTION("mouse click on continue pops store state")
     {
 
-        REQUIRE(applyMouseClick<controller::ProgressionStoreState>(state, getCenterX(continueButton),
-                                                                   getCenterY(continueButton))
+        REQUIRE(applyMouseClick<controller::ProgressionStoreState>(state, continueButton.rect.getCenter())
                 == StateTransitionAction::Pop);
     }
 }
@@ -611,11 +609,11 @@ TEST_CASE_METHOD(TestFixture, "MenuState::getView returns expected view")
         const view::Button &quitButton = ViewElementAccessor::as<const view::Button>(pauseCard.elements[2]);
 
         REQUIRE(resumeButton.text.text == "Resume");
-        REQUIRE(getCenterY(resumeButton) == getCenterY(pauseCard) - resumeButton.height);
+        REQUIRE(resumeButton.rect.getCenter().y == pauseCard.rect.getCenter().y - resumeButton.rect.size.y);
         REQUIRE(resumeButton.isSelected == true);
 
         REQUIRE(quitButton.text.text == "Quit");
-        REQUIRE(getCenterY(quitButton) == getCenterY(pauseCard) + quitButton.height);
+        REQUIRE(quitButton.rect.getCenter().y == pauseCard.rect.getCenter().y + quitButton.rect.size.y);
         REQUIRE(quitButton.isSelected == false);
     }
 
@@ -632,16 +630,16 @@ TEST_CASE_METHOD(TestFixture, "MenuState::getView returns expected view")
 
         const view::Text &gameOverText = ViewElementAccessor::as<const view::Text>(gameOverCard.elements[0]);
         REQUIRE(gameOverText.text == "Game Over!");
-        REQUIRE(gameOverText.gridY == (gameOverCard.gridY + gameOverCard.height / 10));
+        REQUIRE(gameOverText.position.y == (gameOverCard.rect.position.y + gameOverCard.rect.size.y / 10));
 
         const view::Button &mainMenuButton = ViewElementAccessor::as<const view::Button>(gameOverCard.elements[1]);
         REQUIRE(mainMenuButton.text.text == "Main Menu");
-        REQUIRE(getCenterY(mainMenuButton) == getCenterY(gameOverCard) - mainMenuButton.height);
+        REQUIRE(mainMenuButton.rect.getCenter().y == gameOverCard.rect.getCenter().y - mainMenuButton.rect.size.y);
         REQUIRE(mainMenuButton.isSelected == true);
 
         const view::Button &quitButton = ViewElementAccessor::as<const view::Button>(gameOverCard.elements[2]);
         REQUIRE(quitButton.text.text == "Quit");
-        REQUIRE(getCenterY(quitButton) == getCenterY(gameOverCard) + mainMenuButton.height);
+        REQUIRE(quitButton.rect.getCenter().y == gameOverCard.rect.getCenter().y + mainMenuButton.rect.size.y);
         REQUIRE(quitButton.isSelected == false);
     }
 }
@@ -668,16 +666,16 @@ TEST_CASE_METHOD(TestFixture, "ProgressionStoreState::getView returns expected v
 
     const view::Text &storeText = ViewElementAccessor::as<const view::Text>(storeCard.elements[0]);
     REQUIRE(storeText.text == "Store Menu");
-    REQUIRE(storeText.gridY == (storeCard.gridY + storeCard.height / 10));
+    REQUIRE(storeText.position.y == (storeCard.rect.position.y + storeCard.rect.size.y / 10));
 
     const view::Button &mainMenuButton = ViewElementAccessor::as<const view::Button>(storeCard.elements[1]);
     REQUIRE(mainMenuButton.text.text == "Continue Game");
-    REQUIRE(getCenterY(mainMenuButton) == getCenterY(storeCard) - mainMenuButton.height);
+    REQUIRE(mainMenuButton.rect.getCenter().y == storeCard.rect.getCenter().y - mainMenuButton.rect.size.y);
     REQUIRE(mainMenuButton.isSelected == true);
 
     const view::Button &quitButton = ViewElementAccessor::as<const view::Button>(storeCard.elements[2]);
     REQUIRE(quitButton.text.text == "Quit Game");
-    REQUIRE(getCenterY(quitButton) == getCenterY(storeCard) + mainMenuButton.height);
+    REQUIRE(quitButton.rect.getCenter().y == storeCard.rect.getCenter().y + mainMenuButton.rect.size.y);
     REQUIRE(quitButton.isSelected == false);
 }
 
