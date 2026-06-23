@@ -37,7 +37,7 @@ TEST_CASE_METHOD(TestFixture, "CameraSystem centers camera on center of player")
     const geometry::Vec2<float> expectedCameraPos =
         playerPosition.p + playerSprite.rect.size / 2.0f - view::grid.size / 2.0f;
 
-    REQUIRE(cameraPos == expectedCameraPos);
+    REQUIRE((cameraPos == expectedCameraPos).all());
 }
 
 TEST_CASE_METHOD(TestFixture, "CameraSystem clamps camera to minimum map boundary including margin")
@@ -69,7 +69,7 @@ TEST_CASE_METHOD(TestFixture, "CameraSystem clamps camera to minimum map boundar
     const auto &cameraPos = registry.getComponent<game::Position>(camera).p;
     const geometry::Vec2<float> expectedCameraPos = mapPos.p - cameraTag.margin;
 
-    REQUIRE(cameraPos == expectedCameraPos);
+    REQUIRE((cameraPos == expectedCameraPos).all());
 }
 
 TEST_CASE_METHOD(TestFixture, "CameraSystem clamps camera to maximum map boundary including margin")
@@ -101,7 +101,7 @@ TEST_CASE_METHOD(TestFixture, "CameraSystem clamps camera to maximum map boundar
     const auto &cameraPos = registry.getComponent<game::Position>(camera).p;
     const geometry::Vec2<float> expectedCameraPos = mapPos.p + mapSprite.rect.size - view::grid.size + cameraTag.margin;
 
-    REQUIRE(cameraPos == expectedCameraPos);
+    REQUIRE((cameraPos == expectedCameraPos).all());
 }
 
 TEST_CASE_METHOD(TestFixture, "CameraSystem does nothing if no player exists")
@@ -125,5 +125,5 @@ TEST_CASE_METHOD(TestFixture, "CameraSystem does nothing if no player exists")
 
     const auto &cameraPos = registry.getComponent<game::Position>(camera).p;
 
-    REQUIRE(cameraPos == initialCameraPos.p);
+    REQUIRE((cameraPos == initialCameraPos.p).all());
 }

@@ -18,17 +18,16 @@ struct Rectangle {
 
     bool intersects(const Rectangle<T> &other) const
     {
-        // TODO: use Vec operators
-        return !(position.x + size.x < other.position.x || position.x > other.position.x + other.size.x
-                 || position.y + size.y < other.position.y || position.y > other.position.y + other.size.y);
+        return !(position.x + size.x < other.position.x          // other on the right?
+                 || position.x > other.position.x + other.size.x // other on the left?
+                 || position.y + size.y < other.position.y       // other below?
+                 || position.y > other.position.y + other.size.y // other above?
+        );
     }
 
     bool contains(const Rectangle<T> &other) const
     {
-        // TODO: use Vec operators
-        return position.x <= other.position.x && position.y <= other.position.y
-               && position.x + size.x >= other.position.x + other.size.x
-               && position.y + size.y >= other.position.y + other.size.y;
+        return (position <= other.position).all() && (position + size >= other.position + other.size).all();
     }
 
     // Assuming that sizes are not negative
@@ -42,6 +41,7 @@ struct Rectangle {
         if (position.y < boundary.position.y) {
             position.y = boundary.position.y;
         }
+
         if (position.x + size.x > boundary.position.x + boundary.size.x) {
             position.x = boundary.position.x + boundary.size.x - size.x;
         }

@@ -291,7 +291,7 @@ TEST_CASE_METHOD(TestFixture, "Game update skips system updates when debug is ac
     REQUIRE(currentState == controller::StateTransitionAction::None);
 
     const auto &positionAfter = session.registry.getComponent<game::Position>(player).p;
-    REQUIRE(positionAfter == positionBefore);
+    REQUIRE((positionAfter == positionBefore).all());
 }
 
 TEST_CASE_METHOD(TestFixture,
@@ -338,7 +338,7 @@ TEST_CASE_METHOD(TestFixture, "Game getView returns correct view")
 
     // ASSERT
     REQUIRE(!view.nodes.empty());
-    REQUIRE(view.cameraPosition == geometry::Vec2{0.0f, 0.0f});
+    REQUIRE((view.cameraPosition == geometry::Vec2{0.0f, 0.0f}).all());
 }
 
 TEST_CASE_METHOD(TestFixture, "Game updateView with hitbox debug enabled renders hitbox rectangles")

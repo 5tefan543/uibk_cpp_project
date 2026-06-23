@@ -188,6 +188,7 @@ add_executable(roguelike_test_runner
   tests/game/ecs/components/stats_test.cpp
   tests/view/font_test.cpp
   tests/config/animation_config_helper_test.cpp
+  tests/geometry/rectangle_test.cpp
 )
 
 roguelike_cxx_flags(roguelike_test_runner)

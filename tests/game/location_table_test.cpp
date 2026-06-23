@@ -26,7 +26,7 @@ TEST_CASE("test location table", "[location-table]")
     assert(numCells.y % 2 == 0); // assumed by sections
 
     LocationTable lt(numCells, gridSize);
-    REQUIRE(lt.numBuckets == numCells);
+    REQUIRE((lt.numBuckets == numCells).all());
 
     // Sprite dimension such that they can fit in only one bucket
     const float sprBuckPadd = 0.1;

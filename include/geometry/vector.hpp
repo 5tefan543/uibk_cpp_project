@@ -13,59 +13,58 @@ struct Vec2 {
 
     operator sf::Vector2<T>() const { return sf::Vector2<T>{x, y}; }
 
-    Vec2<T> operator+(Vec2<T> other) const { return {x + other.x, y + other.y}; }
+    Vec2<T> operator+(const Vec2<T> other) const { return {x + other.x, y + other.y}; }
     Vec2<T> operator+(T scalar) const { return {x + scalar, y + scalar}; }
 
-    Vec2<T> operator-(Vec2<T> other) const { return {x - other.x, y - other.y}; }
+    Vec2<T> operator-(const Vec2<T> other) const { return {x - other.x, y - other.y}; }
     Vec2<T> operator-(T scalar) const { return {x - scalar, y - scalar}; }
 
-    Vec2<T> operator*(Vec2<T> other) const { return {x * other.x, y * other.y}; }
+    Vec2<T> operator*(const Vec2<T> other) const { return {x * other.x, y * other.y}; }
     Vec2<T> operator*(T scalar) const { return {x * scalar, y * scalar}; }
 
-    Vec2<T> operator/(Vec2<T> other) const { return {x / other.x, y / other.y}; }
+    Vec2<T> operator/(const Vec2<T> other) const { return {x / other.x, y / other.y}; }
     Vec2<T> operator/(T scalar) const { return {x / scalar, y / scalar}; }
 
-    void operator+=(T scalar)
+    void operator+=(const T scalar)
     {
         x += scalar;
         y += scalar;
     };
-    void operator-=(T scalar)
+    void operator-=(const T scalar)
     {
         x -= scalar;
         y -= scalar;
     };
-    void operator*=(T scalar)
+    void operator*=(const T scalar)
     {
         x *= scalar;
         y *= scalar;
     };
-    void operator/=(T scalar)
+    void operator/=(const T scalar)
     {
         x /= scalar;
         y /= scalar;
     };
-    void operator+=(Vec2<T> other)
+    void operator+=(const Vec2<T> other)
     {
         x += other.x;
         y += other.y;
     };
-    void operator-=(Vec2<T> other)
+    void operator-=(const Vec2<T> other)
     {
         x -= other.x;
         y -= other.y;
     };
-    void operator*=(Vec2<T> other)
+    void operator*=(const Vec2<T> other)
     {
         x *= other.x;
         y *= other.y;
     };
-    void operator/=(Vec2<T> other)
+    void operator/=(const Vec2<T> other)
     {
         x /= other.x;
         y /= other.y;
     };
-    bool operator==(Vec2<T> other) const { return x == other.x && y == other.y; };
 
     // Return type is the return type of std::sqrt() with its argument type being vector's x,y type.
     auto length() const { return std::sqrt(x * x + y * y); };
@@ -91,7 +90,7 @@ struct Vec2 {
     static Vec2<T> min(Vec2<T> a, Vec2<T> b) { return {std::min(a.x, b.x), std::min(a.y, b.y)}; };
     static Vec2<T> max(Vec2<T> a, Vec2<T> b) { return {std::max(a.x, b.x), std::max(a.y, b.y)}; };
 
-    Vec2<T> clamp(Vec2<T> low, Vec2<T> high) const
+    Vec2<T> clamp(const Vec2<T> low, const Vec2<T> high) const
     {
         return Vec2<T>{std::clamp(x, low.x, high.x), std::clamp(y, low.y, high.y)};
     }
@@ -118,34 +117,41 @@ struct Vec2 {
 
 // Element-wise comparison
 template <class T>
-Vec2<bool> operator<(const Vec2<T> &l, const Vec2<T> r)
+Vec2<bool> operator==(const Vec2<T> &l, const Vec2<T> &r)
+{
+    return {l.x == r.x, l.y == r.y};
+};
+
+// Element-wise comparison
+template <class T>
+Vec2<bool> operator<(const Vec2<T> &l, const Vec2<T> &r)
 {
     return {l.x < r.x, l.y < r.y};
 };
 
 // Element-wise comparison
 template <class T>
-Vec2<bool> operator<=(const Vec2<T> &l, const Vec2<T> r)
+Vec2<bool> operator<=(const Vec2<T> &l, const Vec2<T> &r)
 {
     return {l.x <= r.x, l.y <= r.y};
 };
 
 // Element-wise comparison
 template <class T>
-Vec2<bool> operator>(const Vec2<T> &l, const Vec2<T> r)
+Vec2<bool> operator>(const Vec2<T> &l, const Vec2<T> &r)
 {
     return {l.x > r.x, l.y > r.y};
 };
 
 // Element-wise comparison
 template <class T>
-Vec2<bool> operator>=(const Vec2<T> &l, const Vec2<T> r)
+Vec2<bool> operator>=(const Vec2<T> &l, const Vec2<T> &r)
 {
     return {l.x >= r.x, l.y >= r.y};
 };
 
 template <typename T>
-std::ostream &operator<<(std::ostream &s, Vec2<T> v)
+std::ostream &operator<<(std::ostream &s, const Vec2<T> &v)
 {
     return s << "{x: " << v.x << ", y: " << v.y << "}";
 }
