@@ -210,7 +210,7 @@ void MenuState::initView()
         const auto mainMenuCardCenter = mainMenuCard.rect.getCenter();
 
         view::Text &title = texts_.emplace_back(view::Text());
-        title.position.y += mainMenuCard.rect.position.y + mainMenuCard.rect.size.y / 10;
+        title.position.y = mainMenuCard.rect.position.y + mainMenuCard.rect.size.y / 10;
         title.text = std::string("Paused");
 
         view::Button &resumeButton = buttons_.emplace_back(view::Button());

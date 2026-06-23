@@ -116,8 +116,8 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem applies player sprite and hitbox 
     const auto &animation = registry.getComponent<game::Animation>(entity);
 
     REQUIRE(sprite.imagePath == "player_idle_right_1.png");
-    REQUIRE(sprite.width == Catch::Approx(32.0f));
-    REQUIRE(sprite.height == Catch::Approx(48.0f));
+    REQUIRE(sprite.rect.size.x == Catch::Approx(32.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(48.0f));
 
     REQUIRE(hitBox.offset.x == Catch::Approx(2.0f));
     REQUIRE(hitBox.offset.y == Catch::Approx(4.0f));
@@ -259,8 +259,8 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem applies enemy animation config")
     const auto &hitBox = registry.getComponent<game::HitBox>(entity);
 
     REQUIRE(sprite.imagePath == "enemy_walk_left_1.png");
-    REQUIRE(sprite.width == Catch::Approx(64.0f));
-    REQUIRE(sprite.height == Catch::Approx(64.0f));
+    REQUIRE(sprite.rect.size.x == Catch::Approx(64.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(64.0f));
 
     REQUIRE(hitBox.offset.x == Catch::Approx(5.0f));
     REQUIRE(hitBox.offset.y == Catch::Approx(6.0f));
@@ -291,8 +291,8 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem applies sprite config when entity
     const auto &sprite = registry.getComponent<view::Sprite>(entity);
 
     REQUIRE(sprite.imagePath == "player_idle_right_1.png");
-    REQUIRE(sprite.width == Catch::Approx(32.0f));
-    REQUIRE(sprite.height == Catch::Approx(48.0f));
+    REQUIRE(sprite.rect.size.x == Catch::Approx(32.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(48.0f));
 }
 
 TEST_CASE_METHOD(TestFixture, "AnimationSystem skips entity when no animation frame can be resolved")
@@ -313,8 +313,7 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem skips entity when no animation fr
     registry.addComponent<view::Sprite>(entity, {});
     auto &spriteBeforeUpdate = registry.getComponent<view::Sprite>(entity);
     spriteBeforeUpdate.imagePath = "unchanged.png";
-    spriteBeforeUpdate.width = 10.0f;
-    spriteBeforeUpdate.height = 20.0f;
+    spriteBeforeUpdate.rect.size = {10.0f, 20.0f};
 
     system.update(registry, config, 1.0f);
 
@@ -325,6 +324,6 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem skips entity when no animation fr
     REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
 
     REQUIRE(sprite.imagePath == "unchanged.png");
-    REQUIRE(sprite.width == Catch::Approx(10.0f));
-    REQUIRE(sprite.height == Catch::Approx(20.0f));
+    REQUIRE(sprite.rect.size.x == Catch::Approx(10.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(20.0f));
 }

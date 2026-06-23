@@ -1,9 +1,8 @@
 #include "shared/util.hpp"
 
-controller::InputState createInputWithMouse(float gridX, float gridY)
+controller::InputState createInputWithMouse(const geometry::Vec2<float> &position)
 {
     controller::InputState input;
-    input.mouseGridX = gridX;
-    input.mouseGridY = gridY;
+    input.mouseGrid = position;
     return input;
 }

@@ -17,10 +17,7 @@ TEST_CASE_METHOD(TestFixture, "CameraSystem centers camera on center of player")
 
     game::Entity player = registry.createEntity();
     const game::Position playerPosition{2000.0f, 1200.0f};
-    const view::Sprite playerSprite{
-        .width = 128.0f,
-        .height = 128.0f,
-    };
+    const view::Sprite playerSprite{.rect = {.position = {0, 0}, .size = {128.0f, 128.0f}}};
     registry.addComponent<game::Position>(player, playerPosition);
     registry.addComponent<game::PlayerTag>(player, {});
     registry.addComponent<view::Sprite>(player, playerSprite);
@@ -31,17 +28,16 @@ TEST_CASE_METHOD(TestFixture, "CameraSystem centers camera on center of player")
 
     game::Entity map = registry.createEntity();
     registry.addComponent<game::Position>(map, {0.0f, 0.0f});
-    registry.addComponent<view::Sprite>(map, {.width = 3840.0f, .height = 2160.0f});
+    registry.addComponent<view::Sprite>(map, {.rect = {{0, 0}, {3840.0f, 2160.0f}}});
     registry.addComponent<game::MapTag>(map, {});
 
     system.update(registry);
 
-    const auto &cameraPos = registry.getComponent<game::Position>(camera);
-    const float expectedCameraX = playerPosition.x + playerSprite.width / 2.0f - view::gridWidth / 2.0f;
-    const float expectedCameraY = playerPosition.y + playerSprite.height / 2.0f - view::gridHeight / 2.0f;
+    const auto &cameraPos = registry.getComponent<game::Position>(camera).p;
+    const geometry::Vec2<float> expectedCameraPos =
+        playerPosition.p + playerSprite.rect.size / 2.0f - view::grid.size / 2.0f;
 
-    REQUIRE(cameraPos.x == expectedCameraX);
-    REQUIRE(cameraPos.y == expectedCameraY);
+    REQUIRE(cameraPos == expectedCameraPos);
 }
 
 TEST_CASE_METHOD(TestFixture, "CameraSystem clamps camera to minimum map boundary including margin")
@@ -51,10 +47,7 @@ TEST_CASE_METHOD(TestFixture, "CameraSystem clamps camera to minimum map boundar
 
     game::Entity player = registry.createEntity();
     const game::Position playerPosition{0.0f, 0.0f};
-    const view::Sprite playerSprite{
-        .width = 128.0f,
-        .height = 128.0f,
-    };
+    const view::Sprite playerSprite{.rect = {.position = {0, 0}, .size = {128.0f, 128.0f}}};
     registry.addComponent<game::Position>(player, playerPosition);
     registry.addComponent<game::PlayerTag>(player, {});
     registry.addComponent<view::Sprite>(player, playerSprite);
@@ -66,19 +59,17 @@ TEST_CASE_METHOD(TestFixture, "CameraSystem clamps camera to minimum map boundar
 
     game::Entity map = registry.createEntity();
     const game::Position mapPos{0.0f, 0.0f};
-    const view::Sprite mapSprite{.width = 3840.0f, .height = 2160.0f};
+    const view::Sprite mapSprite{.rect = {{0, 0}, {3840.0f, 2160.0f}}};
     registry.addComponent<game::Position>(map, mapPos);
     registry.addComponent<view::Sprite>(map, mapSprite);
     registry.addComponent<game::MapTag>(map, {});
 
     system.update(registry);
 
-    const auto &cameraPos = registry.getComponent<game::Position>(camera);
-    const float expectedCameraX = mapPos.x - cameraTag.margin;
-    const float expectedCameraY = mapPos.y - cameraTag.margin;
+    const auto &cameraPos = registry.getComponent<game::Position>(camera).p;
+    const geometry::Vec2<float> expectedCameraPos = mapPos.p - cameraTag.margin;
 
-    REQUIRE(cameraPos.x == expectedCameraX);
-    REQUIRE(cameraPos.y == expectedCameraY);
+    REQUIRE(cameraPos == expectedCameraPos);
 }
 
 TEST_CASE_METHOD(TestFixture, "CameraSystem clamps camera to maximum map boundary including margin")
@@ -88,10 +79,7 @@ TEST_CASE_METHOD(TestFixture, "CameraSystem clamps camera to maximum map boundar
 
     game::Entity player = registry.createEntity();
     const game::Position playerPosition{10000.0f, 8000.0f};
-    const view::Sprite playerSprite{
-        .width = 128.0f,
-        .height = 128.0f,
-    };
+    const view::Sprite playerSprite{.rect = {.position = {0, 0}, .size = {128.0f, 128.0f}}};
     registry.addComponent<game::Position>(player, playerPosition);
     registry.addComponent<game::PlayerTag>(player, {});
     registry.addComponent<view::Sprite>(player, playerSprite);
@@ -103,19 +91,17 @@ TEST_CASE_METHOD(TestFixture, "CameraSystem clamps camera to maximum map boundar
 
     game::Entity map = registry.createEntity();
     const game::Position mapPos{0.0f, 0.0f};
-    const view::Sprite mapSprite{.width = 3840.0f, .height = 2160.0f};
+    const view::Sprite mapSprite{.rect = {{0, 0}, {3840.0f, 2160.0f}}};
     registry.addComponent<game::Position>(map, mapPos);
     registry.addComponent<view::Sprite>(map, mapSprite);
     registry.addComponent<game::MapTag>(map, {});
 
     system.update(registry);
 
-    const auto &cameraPos = registry.getComponent<game::Position>(camera);
-    const float expectedCameraX = mapPos.x + mapSprite.width - view::gridWidth + cameraTag.margin;
-    const float expectedCameraY = mapPos.y + mapSprite.height - view::gridHeight + cameraTag.margin;
+    const auto &cameraPos = registry.getComponent<game::Position>(camera).p;
+    const geometry::Vec2<float> expectedCameraPos = mapPos.p + mapSprite.rect.size - view::grid.size + cameraTag.margin;
 
-    REQUIRE(cameraPos.x == expectedCameraX);
-    REQUIRE(cameraPos.y == expectedCameraY);
+    REQUIRE(cameraPos == expectedCameraPos);
 }
 
 TEST_CASE_METHOD(TestFixture, "CameraSystem does nothing if no player exists")
@@ -130,15 +116,14 @@ TEST_CASE_METHOD(TestFixture, "CameraSystem does nothing if no player exists")
     registry.addComponent<game::CameraTag>(camera, cameraTag);
 
     game::Entity map = registry.createEntity();
-    const view::Sprite mapSprite{.width = 3840.0f, .height = 2160.0f};
+    const view::Sprite mapSprite{.rect = {{0, 0}, {3840.0f, 2160.0f}}};
     registry.addComponent<game::Position>(map, {0.0f, 0.0f});
     registry.addComponent<view::Sprite>(map, mapSprite);
     registry.addComponent<game::MapTag>(map, {});
 
     system.update(registry);
 
-    const auto &cameraPos = registry.getComponent<game::Position>(camera);
+    const auto &cameraPos = registry.getComponent<game::Position>(camera).p;
 
-    REQUIRE(cameraPos.x == initialCameraPos.x);
-    REQUIRE(cameraPos.y == initialCameraPos.y);
+    REQUIRE(cameraPos == initialCameraPos.p);
 }

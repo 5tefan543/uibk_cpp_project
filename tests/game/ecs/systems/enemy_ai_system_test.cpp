@@ -129,9 +129,8 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI does not update enemies when no player ex
 
     const game::Entity enemy = addEnemy(registry, 100.0f, 100.0f);
 
-    auto &velocityBefore = registry.getComponent<game::Velocity>(enemy);
-    velocityBefore.x = 12.0f;
-    velocityBefore.y = 34.0f;
+    auto &velocityBefore = registry.getComponent<game::Velocity>(enemy).v;
+    velocityBefore = {12.0f, 34.0f};
 
     auto &animationBefore = registry.getComponent<game::Animation>(enemy);
     animationBefore.state = game::AnimationState::Idle;
@@ -141,7 +140,7 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI does not update enemies when no player ex
 
     system.update(registry, config, locationTable, 0.1f);
 
-    const auto &velocity = registry.getComponent<game::Velocity>(enemy);
+    const auto &velocity = registry.getComponent<game::Velocity>(enemy).v;
     const auto &animation = registry.getComponent<game::Animation>(enemy);
 
     REQUIRE(velocity.x == Catch::Approx(12.0f));
@@ -165,7 +164,7 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI moves enemy directly toward player on hor
 
     system.update(registry, config, locationTable, 0.0f);
 
-    const auto &velocity = registry.getComponent<game::Velocity>(enemy);
+    const auto &velocity = registry.getComponent<game::Velocity>(enemy).v;
     const auto &animation = registry.getComponent<game::Animation>(enemy);
 
     REQUIRE(velocity.x == Catch::Approx(100.0f));
@@ -187,7 +186,7 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI normalizes diagonal movement toward playe
 
     system.update(registry, config, locationTable, 0.0f);
 
-    const auto &velocity = registry.getComponent<game::Velocity>(enemy);
+    const auto &velocity = registry.getComponent<game::Velocity>(enemy).v;
 
     REQUIRE(velocity.x == Catch::Approx(70.71067f));
     REQUIRE(velocity.y == Catch::Approx(70.71067f));
@@ -204,13 +203,12 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI stops enemy when already very close to pl
     const game::Entity enemy =
         addEnemy(registry, 103.0f, 100.0f, 100.0f, game::AnimationState::Walk, game::AnimationDirection::Right);
 
-    auto &velocityBefore = registry.getComponent<game::Velocity>(enemy);
-    velocityBefore.x = 50.0f;
-    velocityBefore.y = 0.0f;
+    auto &velocityBefore = registry.getComponent<game::Velocity>(enemy).v;
+    velocityBefore = {50.0f, 0.0f};
 
     system.update(registry, config, locationTable, 0.0f);
 
-    const auto &velocity = registry.getComponent<game::Velocity>(enemy);
+    const auto &velocity = registry.getComponent<game::Velocity>(enemy).v;
     const auto &animation = registry.getComponent<game::Animation>(enemy);
 
     REQUIRE(velocity.x == Catch::Approx(0.0f));
@@ -233,7 +231,7 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI changes animation direction to left when 
 
     system.update(registry, config, locationTable, 0.0f);
 
-    const auto &velocity = registry.getComponent<game::Velocity>(enemy);
+    const auto &velocity = registry.getComponent<game::Velocity>(enemy).v;
     const auto &animation = registry.getComponent<game::Animation>(enemy);
 
     REQUIRE(velocity.x == Catch::Approx(-100.0f));
@@ -310,7 +308,7 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI does not replace timed animation while ti
     system.update(registry, config, locationTable, 0.1f);
 
     const auto &animation = registry.getComponent<game::Animation>(enemy);
-    const auto &velocity = registry.getComponent<game::Velocity>(enemy);
+    const auto &velocity = registry.getComponent<game::Velocity>(enemy).v;
 
     REQUIRE(velocity.x == Catch::Approx(100.0f));
     REQUIRE(velocity.y == Catch::Approx(0.0f));
@@ -335,7 +333,7 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI applies animation move speed multiplier f
 
     system.update(registry, config, locationTable, 0.0f);
 
-    const auto &velocity = registry.getComponent<game::Velocity>(enemy);
+    const auto &velocity = registry.getComponent<game::Velocity>(enemy).v;
     const auto &animation = registry.getComponent<game::Animation>(enemy);
 
     REQUIRE(animation.state == game::AnimationState::Walk);
@@ -357,12 +355,11 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI leaves enemy unchanged when move speed is
         addEnemy(registry, 100.0f, 100.0f, 0.0f, game::AnimationState::Idle, game::AnimationDirection::Right);
 
     auto &velocityBefore = registry.getComponent<game::Velocity>(enemy);
-    velocityBefore.x = 12.0f;
-    velocityBefore.y = 34.0f;
+    velocityBefore = {12.0f, 34.0f};
 
     system.update(registry, config, locationTable, 0.0f);
 
-    const auto &velocity = registry.getComponent<game::Velocity>(enemy);
+    const auto &velocity = registry.getComponent<game::Velocity>(enemy).v;
     const auto &animation = registry.getComponent<game::Animation>(enemy);
 
     REQUIRE(velocity.x == Catch::Approx(0.0f));

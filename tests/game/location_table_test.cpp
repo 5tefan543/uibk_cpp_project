@@ -14,6 +14,8 @@ TEST_CASE("test location table", "[location-table]")
 {
     using namespace game;
     using Sprite = view::Sprite;
+    using geometry::Vec2;
+
     // Tests assume grid dims are integers and dividable by 2
     const Vec2<float> gridSize = {1920, 1080};
     REQUIRE(std::fmod(gridSize.x, 2) == 0.0f);
@@ -43,9 +45,11 @@ TEST_CASE("test location table", "[location-table]")
         registry.addComponent<Position>(e, {p.x, p.y});
         registry.addComponent<Velocity>(e, {0, 0});
         if (sprtSize.has_value()) {
-            registry.addComponent<Sprite>(e, Sprite{.width = sprtSize.value().x, .height = sprtSize.value().y});
+            registry.addComponent<Sprite>(
+                e, Sprite{.rect = {.position = {0, 0}, .size = {sprtSize.value().x, sprtSize.value().y}}});
         } else {
-            registry.addComponent<Sprite>(e, Sprite{.width = spriteSize.x, .height = spriteSize.y});
+            registry.addComponent<Sprite>(e,
+                                          Sprite{.rect = {.position = {0, 0}, .size = {spriteSize.x, spriteSize.y}}});
         }
         lt.update(registry);
         return e;
@@ -86,14 +90,14 @@ TEST_CASE("test location table", "[location-table]")
 
     SECTION("Getting position outside of grid (x,y 'overflow')")
     {
-        auto entities = lt.getEntitiesNear(Vec2{view::gridWidth, view::gridHeight} * 2, 0);
+        auto entities = lt.getEntitiesNear(Vec2{view::grid.size} * 2, 0);
         REQUIRE(entities.size() == 1);
         REQUIRE(entities.contains(eLookup[numCells.x - 1][numCells.y - 1]));
     }
 
     SECTION("Getting position outside of grid (x,y 'underflow')")
     {
-        auto entities = lt.getEntitiesNear(Vec2{-view::gridWidth, -view::gridHeight}, 0);
+        auto entities = lt.getEntitiesNear(view::grid.size * -1, 0);
         REQUIRE(entities.size() == 1);
         REQUIRE(entities.contains(eLookup[0][0]));
     }

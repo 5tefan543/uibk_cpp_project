@@ -8,8 +8,8 @@
 namespace geometry {
 template <typename T>
 struct Vec2 {
-    T x = 0;
-    T y = 0;
+    T x;
+    T y;
 
     operator sf::Vector2<T>() const { return sf::Vector2<T>{x, y}; }
 
@@ -90,18 +90,6 @@ struct Vec2 {
     Vec2<T> abs() const { return {std::abs(x), std::abs(y)}; };
     static Vec2<T> min(Vec2<T> a, Vec2<T> b) { return {std::min(a.x, b.x), std::min(a.y, b.y)}; };
     static Vec2<T> max(Vec2<T> a, Vec2<T> b) { return {std::max(a.x, b.x), std::max(a.y, b.y)}; };
-    // TODO: remove lt, gt, le, ge <><=>= operators are better
-    // Return (this->x < b.y, this->y < b.y)
-    Vec2<bool> lt(Vec2<T> b) const { return {x < b.x, y < b.y}; };
-
-    // Return (this->x > b.y, this->y > b.y)
-    Vec2<bool> gt(Vec2<T> b) const { return {x > b.x, y > b.y}; };
-
-    // Return (this->x <= b.y, this->y <= b.y)
-    Vec2<bool> le(Vec2<T> b) const { return {x <= b.x, y <= b.y}; };
-
-    // Return (this->x >= b.y, this->y >= b.y)
-    Vec2<bool> ge(Vec2<T> b) const { return {x >= b.x, y >= b.y}; };
 
     Vec2<T> clamp(Vec2<T> low, Vec2<T> high) const
     {

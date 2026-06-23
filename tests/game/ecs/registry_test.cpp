@@ -46,8 +46,8 @@ TEST_CASE_METHOD(TestFixture, "Registry add/get/has component works")
 
     // ASSERT
     REQUIRE(registry.hasComponent<game::Position>(e));
-    REQUIRE(registry.getComponent<game::Position>(e).x == 5.0f);
-    REQUIRE(registry.getComponent<game::Position>(e).y == 7.0f);
+    REQUIRE(registry.getComponent<game::Position>(e).p.x == 5.0f);
+    REQUIRE(registry.getComponent<game::Position>(e).p.y == 7.0f);
 }
 
 TEST_CASE_METHOD(TestFixture, "Registry addComponent throws for non-existing entity")

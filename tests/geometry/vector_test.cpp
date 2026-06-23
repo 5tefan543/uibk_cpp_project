@@ -2,6 +2,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include <cmath>
 
+using geometry::Vec2;
+
 TEST_CASE("Vector equality")
 {
     Vec2<int> a = {24, 24};
@@ -94,30 +96,30 @@ TEST_CASE("Vectors methods")
 
     SECTION("Vectors element wise less than comparison")
     {
-        REQUIRE(a.lt(b) == Vec2<bool>{false, true});
-        REQUIRE(b.lt(a) == Vec2<bool>{true, false});
+        REQUIRE((a < b) == Vec2<bool>{false, true});
+        REQUIRE((b < a) == Vec2<bool>{true, false});
     }
 
     SECTION("Vectors element wise greater than comparison")
     {
-        REQUIRE(a.gt(b) == Vec2<bool>{true, false});
-        REQUIRE(b.gt(a) == Vec2<bool>{false, true});
+        REQUIRE((a > b) == Vec2<bool>{true, false});
+        REQUIRE((b > a) == Vec2<bool>{false, true});
     }
 
     SECTION("Vectors element wise less or equal comparison")
     {
-        REQUIRE(a.le(b) == a.lt(b));
-        REQUIRE(b.le(a) == b.lt(a));
-        REQUIRE(a.le(c) == Vec2<bool>(true, true));
-        REQUIRE(b.le(c) == Vec2<bool>(true, true));
+        REQUIRE((a <= b) == (a < b));
+        REQUIRE((b <= a) == (b < a));
+        REQUIRE((a <= c) == Vec2<bool>(true, true));
+        REQUIRE((b <= c) == Vec2<bool>(true, true));
     }
 
     SECTION("Vectors element wise greater or equal comparison")
     {
-        REQUIRE(a.ge(b) == a.gt(b));
-        REQUIRE(b.ge(a) == b.gt(a));
-        REQUIRE(a.ge(c) == Vec2<bool>(true, false));
-        REQUIRE(b.ge(c) == Vec2<bool>(false, true));
+        REQUIRE((a >= b) == (a > b));
+        REQUIRE((b >= a) == (b > a));
+        REQUIRE((a >= c) == Vec2<bool>(true, false));
+        REQUIRE((b >= c) == Vec2<bool>(false, true));
     }
 
     SECTION("Vector element wise clamp")

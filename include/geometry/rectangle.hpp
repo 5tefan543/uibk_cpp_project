@@ -13,8 +13,8 @@ struct Rectangle {
 
     Rectangle<T> static centered(Vec2<T> center, Vec2<T> size) { return {center - (size / 2), size}; }
     Vec2<T> getCenter() const { return {position + (size / 2)}; }
-    void centerizeY(float yCenter) { position.y = yCenter + size.y / 2; }
-    void centerizeX(float xCenter) { position.x = xCenter + size.x / 2; }
+    void centerizeY(float yCenter) { position.y = yCenter - size.y / 2; }
+    void centerizeX(float xCenter) { position.x = xCenter - size.x / 2; }
 
     bool intersects(const Rectangle<T> &other) const
     {
