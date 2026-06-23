@@ -97,7 +97,7 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const config::Ga
     const config::EnemyClassConfig &enemyClass = config.enemyClasses.getByType(enemyType);
     EnemyStats enemyStats = createEnemyStats(wave, enemyClass, spawnConfig, context);
 
-    HitBox hitBox{{animationFrame.spriteConfig.hitBox.offset, animationFrame.spriteConfig.hitBox.size}};
+    HitBox hitBox{animationFrame.spriteConfig.hitBox.offset, animationFrame.spriteConfig.hitBox.size};
 
     Entity enemy = registry.createEntity();
     registry.addComponent<EnemyTag>(enemy, {});

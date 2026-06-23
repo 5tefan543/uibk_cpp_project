@@ -213,10 +213,10 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
         .x = attackDirection == AnimationDirection::Right ? playerSprite.size.x / 2 : -playerSprite.size.x / 2,
         .y = -(attackProfile.meleeArc.reach) * playerStats.attackRange};
 
-    const HitBox meleeHitBox{{
-        .position = hitBoxOffset,
+    const HitBox meleeHitBox{
+        .offset = hitBoxOffset,
         .size = attackProfile.meleeArc.hitBoxSize + 2 * attackProfile.meleeArc.reach * playerStats.attackRange,
-    }};
+    };
 
     // add melee attack entity with all components
     // component references may be invalid: retrieve again from registry if used after this point
@@ -275,7 +275,7 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
         .imagePath = projectileSpriteConfig.texture.path,
     };
 
-    const HitBox projectileHitBox{{projectileSpriteConfig.hitBox.offset, projectileSpriteConfig.hitBox.size}};
+    const HitBox projectileHitBox{projectileSpriteConfig.hitBox.offset, projectileSpriteConfig.hitBox.size};
 
     // add projectile entity with all components
     // component references may be invalid: retrieve again from registry if used after this point

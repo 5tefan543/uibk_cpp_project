@@ -31,13 +31,13 @@ bool CollisionDetectionSystem::checkCollision(const Entity &entityA, const Entit
     }
 
     const auto &positionA = registry.getComponent<Position>(entityA).p;
-    const auto &hitBoxA = registry.getComponent<HitBox>(entityA).rect;
+    const auto &hitBoxA = registry.getComponent<HitBox>(entityA);
 
     const auto &positionB = registry.getComponent<Position>(entityB).p;
-    const auto &hitBoxB = registry.getComponent<HitBox>(entityB).rect;
+    const auto &hitBoxB = registry.getComponent<HitBox>(entityB);
 
-    const geometry::Rectangle<float> hitBoxRectA{hitBoxA.position + positionA, hitBoxA.size};
-    const geometry::Rectangle<float> hitBoxRectB{hitBoxB.position + positionB, hitBoxB.size};
+    const geometry::Rectangle<float> hitBoxRectA{hitBoxA.offset + positionA, hitBoxA.size};
+    const geometry::Rectangle<float> hitBoxRectB{hitBoxB.offset + positionB, hitBoxB.size};
 
     return hitBoxRectA.intersects(hitBoxRectB);
 }
@@ -85,7 +85,7 @@ void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &r
     }
 
     auto &position = registry.getComponent<Position>(entity).p;
-    const auto &hitBox = registry.getComponent<HitBox>(entity).rect;
+    const auto &hitBox = registry.getComponent<HitBox>(entity);
 
     // Assuming there's only one map entity with a MapTag
     auto mapEntities = registry.view<MapTag, HitBox>();
@@ -95,13 +95,13 @@ void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &r
 
     Entity mapEntity = mapEntities.front();
     const auto &mapPosition = registry.getComponent<Position>(mapEntity).p;
-    const auto &mapHitBox = registry.getComponent<HitBox>(mapEntity).rect;
+    const auto &mapHitBox = registry.getComponent<HitBox>(mapEntity);
 
-    const geometry::Rectangle<float> mapHitBoxRect{mapHitBox.position + mapPosition, mapHitBox.size};
-    geometry::Rectangle<float> entityHitBoxRect{hitBox.position + position, hitBox.size};
+    const geometry::Rectangle<float> mapHitBoxRect{mapHitBox.offset + mapPosition, mapHitBox.size};
+    geometry::Rectangle<float> entityHitBoxRect{hitBox.offset + position, hitBox.size};
     entityHitBoxRect.snapBack(mapHitBoxRect);
 
-    position = entityHitBoxRect.position - hitBox.position;
+    position = entityHitBoxRect.position - hitBox.offset;
 }
 
 void CollisionDetectionSystem::update(Registry &registry)

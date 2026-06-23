@@ -23,8 +23,8 @@ void applySpriteConfig(Registry &registry, Entity entity, const config::SpriteCo
 
     if (registry.hasComponent<HitBox>(entity)) {
         HitBox &hitBox = registry.getComponent<HitBox>(entity);
-        hitBox.rect.position = spriteConfig.hitBox.offset;
-        hitBox.rect.size = spriteConfig.hitBox.size;
+        hitBox.offset = spriteConfig.hitBox.offset;
+        hitBox.size = spriteConfig.hitBox.size;
     }
 }
 

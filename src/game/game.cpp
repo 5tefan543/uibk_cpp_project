@@ -80,7 +80,7 @@ void Game::initMap()
     view::Sprite mapSprite = {.rect = {mapSpriteConfig.texture.position, mapSpriteConfig.texture.size},
                               .imagePath = mapSpriteConfig.texture.path};
 
-    HitBox mapHitBox{{mapSpriteConfig.hitBox.offset, mapSpriteConfig.hitBox.size}};
+    HitBox mapHitBox{mapSpriteConfig.hitBox.offset, mapSpriteConfig.hitBox.size};
 
     Entity map = registry_.createEntity();
     registry_.addComponent<MapTag>(map, {});
@@ -107,7 +107,8 @@ void Game::switchMap()
     mapSprite.rect = {mapSpriteConfig.texture.position, mapSpriteConfig.texture.size};
     mapSprite.imagePath = mapSpriteConfig.texture.path;
 
-    mapHitBox.rect = {mapSpriteConfig.hitBox.offset, mapSpriteConfig.hitBox.size};
+    mapHitBox.offset = mapSpriteConfig.hitBox.offset;
+    mapHitBox.size = mapSpriteConfig.hitBox.size;
 }
 
 void Game::initCamera(Position position)
@@ -149,7 +150,7 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
                                   },
                               .imagePath = animationFrame.spriteConfig.texture.path};
 
-    HitBox hitBox{{animationFrame.spriteConfig.hitBox.offset, animationFrame.spriteConfig.hitBox.size}};
+    HitBox hitBox{animationFrame.spriteConfig.hitBox.offset, animationFrame.spriteConfig.hitBox.size};
 
     registry_.addComponent<PlayerStats>(player, playerStats);
     registry_.addComponent<Position>(player, position);
@@ -364,7 +365,7 @@ void Game::updateView(view::View &view)
             const HitBox &hitbox = registry_.getComponent<HitBox>(entity);
 
             view::Rectangle hitboxRect = {
-                .rect = {position + hitbox.rect.position, hitbox.rect.size},
+                .rect = {position + hitbox.offset, hitbox.size},
                 .borderColor = {255, 0, 0},
                 .thickness = 3.0f,
             };
