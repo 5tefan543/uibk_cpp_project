@@ -91,9 +91,11 @@ void Renderer::renderViewElements(sf::RenderWindow &window, const std::vector<vi
 
 void Renderer::renderElement(sf::RenderWindow &window, const view::Rectangle &rectangle)
 {
+
     sf::RectangleShape rect;
-    rect.setSize({rectangle.width, rectangle.height});
-    rect.setPosition({rectangle.gridX, rectangle.gridY});
+
+    rect.setSize(rectangle.rect.size);
+    rect.setPosition(rectangle.rect.position);
     rect.setFillColor(sf::Color::Transparent);
     rect.setOutlineColor(toSfColor(rectangle.borderColor));
     rect.setOutlineThickness(rectangle.thickness);
@@ -104,8 +106,8 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Card &card)
 {
 
     sf::RectangleShape rect;
-    rect.setSize({card.width, card.height});
-    rect.setPosition({card.gridX, card.gridY});
+    rect.setSize(card.rect.size);
+    rect.setPosition(card.rect.position);
     rect.setFillColor(toSfColor(card.backgroundColor));
     window.draw(rect);
 
@@ -116,8 +118,8 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Card &card)
 void Renderer::renderElement(sf::RenderWindow &window, const view::Button &button)
 {
     sf::RectangleShape rect;
-    rect.setSize({button.width, button.height});
-    rect.setPosition({button.gridX, button.gridY});
+    rect.setSize(button.rect.size);
+    rect.setPosition(button.rect.position);
     rect.setFillColor(button.isSelected ? toSfColor(button.selectedColor) : toSfColor(button.backgroundColor));
     window.draw(rect);
 
@@ -127,12 +129,10 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Button &butto
 void Renderer::renderElement(sf::RenderWindow &window, const view::Text &text)
 {
     sf::Text t(toSfFont(text.font), text.text, text.size);
-    t.setPosition(sf::Vector2f(text.gridX, text.gridY));
+    t.setPosition(text.position);
     t.setFillColor(toSfColor(text.color));
 
-    sf::Vector2<float> pos = t.getLocalBounds().getCenter();
-    pos.x += text.originOffsetX;
-    pos.y += text.originOffsetY;
+    sf::Vector2<float> pos = t.getLocalBounds().getCenter() + static_cast<sf::Vector2<float>>(text.originOffset);
     t.setOrigin(pos);
 
     window.draw(t);
@@ -142,11 +142,11 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Sprite &sprit
 {
     sf::Sprite sfSprite(getTexture(sprite.imagePath));
 
-    sfSprite.setPosition({sprite.x, sprite.y});
+    sfSprite.setPosition(sprite.rect.position);
 
     auto spriteSize = sfSprite.getLocalBounds().size;
-    const float scaleFactorX = sprite.width / spriteSize.x;
-    const float scaleFactorY = sprite.height / spriteSize.y;
+    const float scaleFactorX = sprite.rect.size.x / spriteSize.x;
+    const float scaleFactorY = sprite.rect.size.y / spriteSize.y;
 
     sfSprite.setScale({scaleFactorX, scaleFactorY});
 

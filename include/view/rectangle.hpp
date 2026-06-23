@@ -1,14 +1,13 @@
 #pragma once
 #include "color.hpp"
-#include "grid.hpp"
+#include "geometry/rectangle.hpp"
+#include "view/grid.hpp"
 
 namespace view {
 
 struct Rectangle {
-    float width = gridWidth / 2;
-    float height = gridHeight / 2;
-    float gridX = (gridWidth / 2) - (width / 2);
-    float gridY = (gridHeight / 2) - (height / 2);
+    geometry::Rectangle<float> rect =
+        geometry::Rectangle<float>::centered(grid.getCenter(), grid.size / geometry::Vec2<float>{8, 20});
     Color borderColor = {250, 0, 10};
     float thickness = 20.0f;
 };

@@ -4,7 +4,7 @@
 
 namespace game {
 struct HitBox {
-    Vec2<float> offset;
-    Vec2<float> size;
+    geometry::Vec2<float> offset;
+    geometry::Vec2<float> size;
 };
 } // namespace game

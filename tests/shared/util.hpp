@@ -6,7 +6,7 @@ inline constexpr float dummyDeltaTime = 0.016f;
 
 enum INPUT { UP, DOWN, CONFIRM, NONE, LEFT, RIGHT };
 
-controller::InputState createInputWithMouse(float gridX, float gridY);
+controller::InputState createInputWithMouse(const geometry::Vec2<float> &position);
 
 template <typename T>
 controller::StateTransitionAction applyInput(std::unique_ptr<T> &state, const INPUT in)
@@ -38,18 +38,18 @@ controller::StateTransitionAction applyInput(std::unique_ptr<T> &state, const IN
 }
 
 template <typename T>
-controller::StateTransitionAction applyMouseMove(std::unique_ptr<T> &state, float gridX, float gridY)
+controller::StateTransitionAction applyMouseMove(std::unique_ptr<T> &state, const geometry::Vec2<float> &position)
 {
-    controller::InputState input = createInputWithMouse(gridX, gridY);
+    controller::InputState input = createInputWithMouse(position);
     input.mouseMoved = true;
 
     return state->update(input, dummyDeltaTime);
 }
 
 template <typename T>
-controller::StateTransitionAction applyMouseClick(std::unique_ptr<T> &state, float gridX, float gridY)
+controller::StateTransitionAction applyMouseClick(std::unique_ptr<T> &state, geometry::Vec2<float> position)
 {
-    controller::InputState input = createInputWithMouse(gridX, gridY);
+    controller::InputState input = createInputWithMouse(position);
     input.mouseLeftPressed = true;
 
     return state->update(input, dummyDeltaTime);

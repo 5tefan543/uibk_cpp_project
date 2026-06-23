@@ -8,10 +8,7 @@
 namespace view {
 struct View {
     Color backgroundColor = {0, 0, 0};
-
-    float cameraX = 0.0f;
-    float cameraY = 0.0f;
-
+    geometry::Vec2<float> cameraPosition = {0.0f, 0.0f};
     std::vector<ViewNode> nodes;
 };
 } // namespace view

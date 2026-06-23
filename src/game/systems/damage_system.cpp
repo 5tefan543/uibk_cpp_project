@@ -17,7 +17,7 @@ DamageInformation DamageSystem::updateProjectile(Registry &registry, Damage &dam
     DamageInformation amount = {.actualDamageAmount = damage.amount, .shouldBeRemoved = false};
     if (registry.hasComponent<Velocity>(damageEntity)) {
         const Velocity &velocity = registry.getComponent<Velocity>(damageEntity);
-        distanceThisFrame = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y) * dt;
+        distanceThisFrame = std::sqrt(velocity.v.x * velocity.v.x + velocity.v.y * velocity.v.y) * dt;
     }
     projectile.distanceTraveled += distanceThisFrame;
 

@@ -33,22 +33,16 @@ void DebugSelectionSystem::clearSelection(Registry &registry, GameDebugSession &
     }
 }
 
-bool contains(float mouseX, float mouseY, float x, float y, float width, float height)
-{
-    return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
-}
-
 std::optional<Entity> DebugSelectionSystem::getEntityAtMousePosition(Registry &registry,
                                                                      const controller::InputState &input)
 {
     std::optional<Entity> selectedMap = std::nullopt;
 
     for (auto entity : registry.view<Position, view::Sprite>()) {
-        const Position &position = registry.getComponent<Position>(entity);
+        const auto &position = registry.getComponent<Position>(entity).p;
         const view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
 
-        if (contains(input.mouseGridX, input.mouseGridY, position.x, position.y, sprite.width, sprite.height)) {
-
+        if (geometry::Rectangle{position, sprite.rect.size}.contains(input.mouseGrid)) {
             if (registry.hasComponent<MapTag>(entity)) {
                 selectedMap = entity;
                 continue;

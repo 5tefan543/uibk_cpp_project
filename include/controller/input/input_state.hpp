@@ -1,5 +1,7 @@
 #pragma once
 
+#include "geometry/vector.hpp"
+
 namespace controller {
 
 struct InputState {
@@ -22,8 +24,7 @@ struct InputState {
     bool mouseMiddleHeld = false;
 
     bool mouseMoved = false;
-    float mouseGridX = 0.0;
-    float mouseGridY = 0.0;
+    geometry::Vec2<float> mouseGrid{0, 0};
 
     bool confirmPressed = false;
     bool cancelPressed = false;

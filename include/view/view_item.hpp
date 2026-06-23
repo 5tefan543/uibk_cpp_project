@@ -20,36 +20,4 @@ struct ViewNode {
     ViewElement element;
 };
 
-// A ViewElement containing: gridX, gridY, width, height (could add sprite but currently not
-// necessary)
-template <typename T>
-concept CenterableViewElement = requires(T t) { std::is_same_v<T, Button> || std::is_same_v<T, Card>; };
-
-template <typename T>
-    requires CenterableViewElement<T>
-inline float getCenterX(const T &t)
-{
-    return t.gridX + t.width / 2;
-}
-template <typename T>
-    requires CenterableViewElement<T>
-inline float getCenterY(const T &t)
-{
-    return t.gridY + t.height / 2;
-}
-
-template <typename T>
-    requires CenterableViewElement<T>
-inline void setCenterizedX(T &t, float x)
-{
-    t.gridX = x - t.width / 2;
-}
-
-template <typename T>
-    requires CenterableViewElement<T>
-inline void setCenterizedY(T &t, float y)
-{
-    t.gridY = y - t.height / 2;
-}
-
 } // namespace view

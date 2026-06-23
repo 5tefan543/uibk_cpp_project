@@ -174,9 +174,11 @@
                     }
                 },
                 "meleeArc": {
-                    "reach": 10,
-                    "hitBoxWidth": 96,
-                    "hitBoxHeight": 128,
+                    "reach": 10.0,
+                    "hitBoxSize": {
+                        "x": 96.0,
+                        "y": 128.0
+                    },
                     "activeTimePaddingSec": 0.1
                 },
                 "beam": {
@@ -821,8 +823,10 @@
                 },
                 "meleeArc": {
                     "reach": 0,
-                    "hitBoxWidth": 64,
-                    "hitBoxHeight": 64,
+                    "hitBoxSize": {
+                        "x": 96.0,
+                        "y": 96.0
+                    },
                     "activeTimePaddingSec": 0.1
                 },
                 "beam": {
@@ -1438,9 +1442,11 @@
                     }
                 },
                 "meleeArc": {
-                    "reach": 0,
-                    "hitBoxWidth": 64,
-                    "hitBoxHeight": 64,
+                    "reach": 45.0,
+                    "hitBoxSize": {
+                        "x": 64.0,
+                        "y": 64.0
+                    },
                     "activeTimePaddingSec": 0.1
                 },
                 "beam": {
@@ -2156,9 +2162,11 @@
                     }
                 },
                 "meleeArc": {
-                    "reach": 80,
-                    "hitBoxWidth": 96,
-                    "hitBoxHeight": 96,
+                    "reach": 80.0,
+                    "hitBoxSize": {
+                        "x": 96.0,
+                        "y": 96.0
+                    },
                     "activeTimePaddingSec": 0.1
                 },
                 "beam": {

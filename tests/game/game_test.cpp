@@ -280,9 +280,7 @@ TEST_CASE_METHOD(TestFixture, "Game update skips system updates when debug is ac
     game::Entity player = players.front();
     REQUIRE(session.registry.hasComponent<game::Position>(player));
 
-    game::Position &positionBefore = session.registry.getComponent<game::Position>(player);
-    float positionBeforeX = positionBefore.x;
-    float positionBeforeY = positionBefore.y;
+    const geometry::Vec2<float> positionBefore = session.registry.getComponent<game::Position>(player).p;
 
     input.rightHeld = true;
 
@@ -292,9 +290,8 @@ TEST_CASE_METHOD(TestFixture, "Game update skips system updates when debug is ac
     // ASSERT
     REQUIRE(currentState == controller::StateTransitionAction::None);
 
-    game::Position &positionAfter = session.registry.getComponent<game::Position>(player);
-    REQUIRE(positionAfter.x == positionBeforeX);
-    REQUIRE(positionAfter.y == positionBeforeY);
+    const auto &positionAfter = session.registry.getComponent<game::Position>(player).p;
+    REQUIRE((positionAfter == positionBefore).all());
 }
 
 TEST_CASE_METHOD(TestFixture,
@@ -315,9 +312,7 @@ TEST_CASE_METHOD(TestFixture,
     game::Entity player = players.front();
     REQUIRE(session.registry.hasComponent<game::Position>(player));
 
-    game::Position &positionBefore = session.registry.getComponent<game::Position>(player);
-    float positionBeforeX = positionBefore.x;
-    float positionBeforeY = positionBefore.y;
+    const geometry::Vec2<float> positionBefore = session.registry.getComponent<game::Position>(player).p;
 
     input.rightHeld = true;
 
@@ -327,9 +322,9 @@ TEST_CASE_METHOD(TestFixture,
     // ASSERT
     REQUIRE(currentState == controller::StateTransitionAction::None);
 
-    game::Position &positionAfter = session.registry.getComponent<game::Position>(player);
-    REQUIRE(positionAfter.x != positionBeforeX);
-    REQUIRE(positionAfter.y == positionBeforeY);
+    const auto &positionAfter = session.registry.getComponent<game::Position>(player).p;
+    REQUIRE(positionAfter.x != positionBefore.x);
+    REQUIRE(positionAfter.y == positionBefore.y);
 }
 
 TEST_CASE_METHOD(TestFixture, "Game getView returns correct view")
@@ -343,8 +338,7 @@ TEST_CASE_METHOD(TestFixture, "Game getView returns correct view")
 
     // ASSERT
     REQUIRE(!view.nodes.empty());
-    REQUIRE(view.cameraX == 0.0f);
-    REQUIRE(view.cameraY == 0.0f);
+    REQUIRE((view.cameraPosition == geometry::Vec2{0.0f, 0.0f}).all());
 }
 
 TEST_CASE_METHOD(TestFixture, "Game updateView with hitbox debug enabled renders hitbox rectangles")

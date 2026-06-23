@@ -278,7 +278,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update keeps entity insi
 
     system.update(registry);
 
-    const auto &position = registry.getComponent<game::Position>(entity);
+    const auto &position = registry.getComponent<game::Position>(entity).p;
 
     REQUIRE(position.x == Catch::Approx(0.0f));
     REQUIRE(position.y == Catch::Approx(80.0f));
@@ -298,7 +298,7 @@ TEST_CASE_METHOD(TestFixture,
 
     system.update(registry);
 
-    const auto &position = registry.getComponent<game::Position>(entity);
+    const auto &position = registry.getComponent<game::Position>(entity).p;
 
     REQUIRE(position.x == Catch::Approx(-5.0f));
     REQUIRE(position.y == Catch::Approx(85.0f));
@@ -320,7 +320,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not enforce 
 
     system.update(registry);
 
-    const auto &position = registry.getComponent<game::Position>(damage);
+    const auto &position = registry.getComponent<game::Position>(damage).p;
 
     REQUIRE(position.x == Catch::Approx(-10.0f));
     REQUIRE(position.y == Catch::Approx(95.0f));
@@ -335,7 +335,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not change p
 
     system.update(registry);
 
-    const auto &position = registry.getComponent<game::Position>(entity);
+    const auto &position = registry.getComponent<game::Position>(entity).p;
 
     REQUIRE(position.x == Catch::Approx(-10.0f));
     REQUIRE(position.y == Catch::Approx(95.0f));

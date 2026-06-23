@@ -91,8 +91,7 @@ config::GameConfig makeInputSystemTestConfig()
     config.playerClasses.melee.attack.pushBackForce = 3.0f;
     config.playerClasses.melee.attack.stunChance = 0.25f;
     config.playerClasses.melee.attack.meleeArc.reach = 10.0f;
-    config.playerClasses.melee.attack.meleeArc.hitBoxWidth = 64.0f;
-    config.playerClasses.melee.attack.meleeArc.hitBoxHeight = 32.0f;
+    config.playerClasses.melee.attack.meleeArc.hitBoxSize = {64.0f, 32.0f};
     config.playerClasses.melee.attack.meleeArc.activeTimePaddingSec = 0.1f;
     addDefaultPlayerAnimations(config.playerClasses.melee);
 
@@ -128,8 +127,7 @@ view::Sprite makePlayerSprite()
 {
     view::Sprite sprite{};
     sprite.imagePath = "player.png";
-    sprite.width = 32.0f;
-    sprite.height = 48.0f;
+    sprite.rect.size = {32.0f, 48.0f};
     return sprite;
 }
 
@@ -175,7 +173,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem normalizes diagonal player movement")
 
     system.update(registry, config, input, 0.0f);
 
-    const auto &velocity = registry.getComponent<game::Velocity>(player);
+    const auto &velocity = registry.getComponent<game::Velocity>(player).v;
 
     const float expected = 100.0f / std::sqrt(2.0f);
 
@@ -247,7 +245,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem applies animation move speed multipli
 
     system.update(registry, config, input, 0.0f);
 
-    const auto &velocity = registry.getComponent<game::Velocity>(player);
+    const auto &velocity = registry.getComponent<game::Velocity>(player).v;
 
     REQUIRE(velocity.x == Catch::Approx(50.0f));
     REQUIRE(velocity.y == Catch::Approx(0.0f));
@@ -288,8 +286,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem spawns melee attack entity and starts
 
     controller::InputState input{};
     input.mouseLeftPressed = true;
-    input.mouseGridX = 200.0f;
-    input.mouseGridY = 100.0f;
+    input.mouseGrid = {200.0f, 100.0f};
 
     system.update(registry, config, input, 1.0f);
 
@@ -301,7 +298,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem spawns melee attack entity and starts
     const game::Entity attackEntity = attacks.front();
 
     const auto &damage = registry.getComponent<game::Damage>(attackEntity);
-    const auto &position = registry.getComponent<game::Position>(attackEntity);
+    const auto &position = registry.getComponent<game::Position>(attackEntity).p;
     const auto &hitBox = registry.getComponent<game::HitBox>(attackEntity);
 
     REQUIRE(damage.amount == Catch::Approx(12.0f));
@@ -345,13 +342,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem spawns projectile attack entity")
 
     controller::InputState input{};
     input.mouseLeftPressed = true;
-    input.mouseGridX = 200.0f;
-
-    // Player position y = 100.
-    // Player sprite height = 48.
-    // Projectile sprite height = 8.
-    // Projectile launch y = 100 + 24 - 4 = 120.
-    input.mouseGridY = 120.0f;
+    input.mouseGrid = {200.0f, 120.0f};
 
     system.update(registry, config, input, 1.0f);
 
@@ -363,8 +354,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem spawns projectile attack entity")
     const game::Entity projectile = projectiles.front();
 
     const auto &damage = registry.getComponent<game::Damage>(projectile);
-    const auto &position = registry.getComponent<game::Position>(projectile);
-    const auto &velocity = registry.getComponent<game::Velocity>(projectile);
+    const auto &position = registry.getComponent<game::Position>(projectile).p;
+    const auto &velocity = registry.getComponent<game::Velocity>(projectile).v;
     const auto &sprite = registry.getComponent<view::Sprite>(projectile);
     const auto &hitBox = registry.getComponent<game::HitBox>(projectile);
 
@@ -387,8 +378,8 @@ TEST_CASE_METHOD(TestFixture, "InputSystem spawns projectile attack entity")
     REQUIRE(velocity.y == Catch::Approx(0.0f));
 
     REQUIRE(sprite.imagePath == "projectile_idle_1.png");
-    REQUIRE(sprite.width == Catch::Approx(10.0f));
-    REQUIRE(sprite.height == Catch::Approx(8.0f));
+    REQUIRE(sprite.rect.size.x == Catch::Approx(10.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(8.0f));
 
     REQUIRE(hitBox.offset.x == Catch::Approx(1.0f));
     REQUIRE(hitBox.offset.y == Catch::Approx(2.0f));
@@ -412,8 +403,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem does not spawn another attack before 
 
     controller::InputState input{};
     input.mouseLeftPressed = true;
-    input.mouseGridX = 200.0f;
-    input.mouseGridY = 100.0f;
+    input.mouseGrid = {200.0f, 100.0f};
 
     system.update(registry, config, input, 1.0f);
 
@@ -446,8 +436,7 @@ TEST_CASE_METHOD(TestFixture, "InputSystem does not interrupt active attack anim
 
     controller::InputState attackInput{};
     attackInput.mouseLeftPressed = true;
-    attackInput.mouseGridX = 200.0f;
-    attackInput.mouseGridY = 100.0f;
+    attackInput.mouseGrid = {200.0f, 100.0f};
 
     system.update(registry, config, attackInput, 0.1f);
 

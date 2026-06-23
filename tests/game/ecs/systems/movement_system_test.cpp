@@ -23,7 +23,7 @@ TEST_CASE_METHOD(TestFixture, "MovementSystem updates position using velocity an
     system.update(registry, dt);
 
     // ASSERT
-    const auto &position = registry.getComponent<game::Position>(e);
+    const auto &position = registry.getComponent<game::Position>(e).p;
     REQUIRE(position.x == (10.0f + 4.0f * dt));
     REQUIRE(position.y == (20.0f - 6.0f * dt));
 }
@@ -42,7 +42,7 @@ TEST_CASE_METHOD(TestFixture, "MovementSystem does not touch entity without Velo
     system.update(registry, dt);
 
     // ASSERT
-    const auto &position = registry.getComponent<game::Position>(e);
+    const auto &position = registry.getComponent<game::Position>(e).p;
     REQUIRE(position.x == 10.0f);
     REQUIRE(position.y == 20.0f);
 }
@@ -82,9 +82,9 @@ TEST_CASE_METHOD(TestFixture, "MovementSystem updates multiple matching entities
     system.update(registry, dt);
 
     // ASSERT
-    REQUIRE(registry.getComponent<game::Position>(e1).x == (0.0f + 1.0f * dt));
-    REQUIRE(registry.getComponent<game::Position>(e1).y == (0.0f + 2.0f * dt));
+    REQUIRE(registry.getComponent<game::Position>(e1).p.x == (0.0f + 1.0f * dt));
+    REQUIRE(registry.getComponent<game::Position>(e1).p.y == (0.0f + 2.0f * dt));
 
-    REQUIRE(registry.getComponent<game::Position>(e2).x == (10.0f - 3.0f * dt));
-    REQUIRE(registry.getComponent<game::Position>(e2).y == (10.0f + 4.0f * dt));
+    REQUIRE(registry.getComponent<game::Position>(e2).p.x == (10.0f - 3.0f * dt));
+    REQUIRE(registry.getComponent<game::Position>(e2).p.y == (10.0f + 4.0f * dt));
 }

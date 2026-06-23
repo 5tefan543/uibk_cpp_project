@@ -62,9 +62,8 @@ const float enemyRepelRadius = 50;
 const float enemyRepelProximityRampParam = 1.5;
 const float enemyRelSpeedCutoffPercentage = 0.02;
 
-void EnemyAI::updateCoolDowns(Registry &registry, Entity enemyEntity, float dt)
+void EnemyAI::updateCoolDowns(Registry &, Entity enemyEntity, float dt)
 {
-    EnemyStats &enemyStats = registry.getComponent<EnemyStats>(enemyEntity);
     if (attackCoolDowns_.contains(enemyEntity)) {
         auto it = attackCoolDowns_.find(enemyEntity);
         if (it != attackCoolDowns_.end()) {
@@ -107,40 +106,46 @@ void EnemyAI::updateAttack(Registry &registry, const config::GameConfig &config,
 }
 
 void EnemyAI::updateEnemyVelocityTowardsPlayer(Registry &registry, LocationTable &locationTable,
-                                               const Position &playerPos, Entity enemy)
+                                               const Position &playerPosition, Entity enemy)
 {
-    const Vec2 playerPosVec{playerPos.x, playerPos.y};
+    using geometry::Vec2;
 
-    auto &[vx, vy] = registry.getComponent<Velocity>(enemy);
-    auto &[px, py] = registry.getComponent<Position>(enemy);
+    const float minDistanceEnemyPlayer = 5;
+    const float enemyRepelRadius = 50;
+    const float enemyRepelProximityRampParam = 1.5;
+    const float enemyRelSpeedCutoffPercentage = 0.02;
+
+    const Vec2<float> &playerPos = playerPosition.p;
+
+    Vec2<float> &v = registry.getComponent<Velocity>(enemy).v;
+    const Vec2<float> &enemyPos = registry.getComponent<Position>(enemy).p;
 
     EnemyStats &enemyStats = registry.getComponent<EnemyStats>(enemy);
     if (enemyStats.moveSpeed == 0) {
-        vx = 0;
-        vy = 0;
+        v = {0, 0};
         return;
     }
-    Vec2 enemyPosVec{px, py};
 
     // Set movement direction exactly towards player
-    Vec2 v = playerPosVec - enemyPosVec;
+    v = playerPos - enemyPos;
+
+    // TODO: add player attack: -> stwa: maybe not in this method and similar to input system ?
+    // if (v.length() < 30) {attack_player();}
 
     // Prevent shooting over target (player) position
     if (v.length() < minDistanceEnemyPlayer) {
-        vx = 0; // TODO: into Vec2
-        vy = 0; // TODO: into Vec2
+        v = {0, 0};
         return;
     }
 
     // Calc. repelling force between enemies
-    auto enemiesInRange = locationTable.getEntitiesInRange(enemyPosVec, enemyRepelRadius, registry);
+    auto enemiesInRange = locationTable.getEntitiesInRange(enemyPos, enemyRepelRadius, registry);
     Vec2<float> repelOffset = {0, 0};
-    for (auto [e, position] : enemiesInRange) {
-        if (e == enemy) {
+    for (const auto &[otherEnemy, otherPos] : enemiesInRange) {
+        if (otherEnemy == enemy) {
             continue;
         }
-        const auto p = Vec2{position.x, position.y}; // TODO: into Vec2
-        const auto pToOther = (enemyPosVec - p);
+        const auto pToOther = (enemyPos - otherPos.p);
         const auto b = (std::pow(pToOther.length(), enemyRepelProximityRampParam));
         if (b != 0) {
             repelOffset += pToOther / b; // increase repelling with proximity
@@ -160,20 +165,18 @@ void EnemyAI::updateEnemyVelocityTowardsPlayer(Registry &registry, LocationTable
     // - and stopping movement below a certaing percentage
     l *= std::pow(l / enemyStats.moveSpeed, 2);
     if (l / enemyStats.moveSpeed < enemyRelSpeedCutoffPercentage) {
-        vx = 0; // TODO: into Vec2
-        vy = 0; // TODO: into Vec2
+        v = {0, 0};
         return;
     }
     v.setLength(l);
-
-    vx = v.x; // TODO: into Vec2
-    vy = v.y; // TODO: into Vec2
 }
 
 void EnemyAI::updateEnemyAnimationState(Registry &registry, Entity enemy, float dt)
 {
+    using geometry::Vec2;
+
     Animation &animation = registry.getComponent<Animation>(enemy);
-    const Velocity &velocity = registry.getComponent<Velocity>(enemy);
+    const auto &velocity = registry.getComponent<Velocity>(enemy).v;
 
     if (animation.stateTimeRemaining > 0.0f) {
         animation.stateTimeRemaining = std::max(0.0f, animation.stateTimeRemaining - dt);
@@ -183,12 +186,12 @@ void EnemyAI::updateEnemyAnimationState(Registry &registry, Entity enemy, float 
         return;
     }
 
-    const bool isMoving = std::abs(velocity.x) > 0.1f || std::abs(velocity.y) > 0.1f;
+    const auto absVelocity = velocity.abs();
+    const bool isMoving = (absVelocity > Vec2{0.1f, 0.1f}).some();
     const AnimationState nextState = isMoving ? AnimationState::Walk : AnimationState::Idle;
 
     AnimationDirection direction = animation.direction;
 
-    const auto absVelocity = Vec2{velocity.x, velocity.y}.abs();
     bool isHorizMove = absVelocity.x >= absVelocity.y;
 
     if (isHorizMove && absVelocity.x > 0.1f) {
@@ -202,23 +205,22 @@ void EnemyAI::applyAnimationMoveSpeedModifier(Registry &registry, const config::
 {
     const Animation &enemyAnimation = registry.getComponent<Animation>(enemyEntity);
     const EnemyStats &enemyStats = registry.getComponent<EnemyStats>(enemyEntity);
-    Velocity &enemyVelocity = registry.getComponent<Velocity>(enemyEntity);
+    auto &enemyVelocity = registry.getComponent<Velocity>(enemyEntity).v;
 
     const config::AnimationFrame currentFrame = config::AnimationConfigHelper::getEnemyAnimationFrame(
         config, enemyStats.enemyType, enemyAnimation.state, enemyAnimation.direction, enemyAnimation.currentFrame);
 
-    enemyVelocity.x *= currentFrame.moveSpeedMultiplier;
-    enemyVelocity.y *= currentFrame.moveSpeedMultiplier;
+    enemyVelocity *= currentFrame.moveSpeedMultiplier;
 }
 
 void EnemyAI::blobAreaAttack(Registry &registry, const config::GameConfig &config, Entity blobEntity,
                              const Position &playerPosition)
 {
-    const Vec2 playerPosVec{playerPosition.x, playerPosition.y};
+    const geometry::Vec2 playerPosVec{playerPosition.p.x, playerPosition.p.y};
     const Position blobPosition = registry.getComponent<Position>(blobEntity);
-    Vec2 enemyPosVec{blobPosition.x, blobPosition.y};
+    geometry::Vec2 enemyPosVec{blobPosition.p.x, blobPosition.p.y};
 
-    Vec2 v = playerPosVec - enemyPosVec;
+    geometry::Vec2 v = playerPosVec - enemyPosVec;
     const config::AttackProfileConfig &attackProfile = config.enemyClasses.blob.attack;
     const EnemyStats &enemyStats = registry.getComponent<EnemyStats>(blobEntity);
 
@@ -227,7 +229,7 @@ void EnemyAI::blobAreaAttack(Registry &registry, const config::GameConfig &confi
     }
 
     const AnimationDirection attackDirection =
-        playerPosition.x >= blobPosition.x ? AnimationDirection::Right : AnimationDirection::Left;
+        playerPosition.p.x >= blobPosition.p.x ? AnimationDirection::Right : AnimationDirection::Left;
     applyAnimation(registry, config, blobEntity, AnimationState::Attack, enemyStats.enemyType, attackDirection);
 
     pendingAreaSpawns_.insert(blobEntity);
@@ -263,10 +265,11 @@ void EnemyAI::spawnPendingAreaAttack(Registry &registry, const config::GameConfi
     const config::AnimationFrame areaFrame = config::AnimationConfigHelper::getAreaAnimationFrame(
         config, attackProfile.area, AnimationState::Idle, AnimationDirection::None, 0);
     const config::SpriteConfig &areaSpriteConfig = areaFrame.spriteConfig;
-    const Position damagePosition{blobPosition.x, blobPosition.y};
-    const view::Sprite sprite{damagePosition.x, damagePosition.y, areaSpriteConfig.texture.path,
-                              areaSpriteConfig.texture.size.x * enemyStats.attackRange,
-                              areaSpriteConfig.texture.size.y * enemyStats.attackRange};
+    const Position damagePosition{blobPosition.p.x, blobPosition.p.y};
+    const view::Sprite sprite{.rect = {damagePosition.p,
+                                       {areaSpriteConfig.texture.size.x * enemyStats.attackRange,
+                                        areaSpriteConfig.texture.size.y * enemyStats.attackRange}},
+                              .imagePath = areaSpriteConfig.texture.path};
     const Animation areaAnimation{};
 
     const HitBox areaHitbox{.offset = {areaSpriteConfig.hitBox.offset.x, areaSpriteConfig.hitBox.offset.y},

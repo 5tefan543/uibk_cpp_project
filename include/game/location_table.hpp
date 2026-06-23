@@ -13,17 +13,18 @@ class LocationTable {
     std::vector<std::vector<Entity>> bucketGrid_;
 
     std::vector<Entity> &getBucket(const unsigned buckIx, const unsigned buckIy);
-    std::tuple<Vec2<unsigned>, Vec2<unsigned>> getBucketIndices(Vec2<float> startGrid, Vec2<float> stopGrid);
+    std::tuple<geometry::Vec2<unsigned>, geometry::Vec2<unsigned>> getBucketIndices(geometry::Vec2<float> startGrid,
+                                                                                    geometry::Vec2<float> stopGrid);
 
   public:
-    const Vec2<unsigned> numBuckets;
-    const Vec2<float> bucketSize;
+    const geometry::Vec2<unsigned> numBuckets;
+    const geometry::Vec2<float> bucketSize;
 
-    LocationTable(const Vec2<unsigned> numBuckets, const Vec2<float> totalGridSize);
+    LocationTable(const geometry::Vec2<unsigned> numBuckets, const geometry::Vec2<float> totalGridSize);
     void update(const Registry &registry);
-    std::unordered_set<Entity> getEntitiesNear(const Vec2<float> position, const float radius);
-    std::vector<std::tuple<Entity, Position>> getEntitiesInRange(const Vec2<float> position, const float radius,
-                                                                 const Registry &registry);
+    std::unordered_set<Entity> getEntitiesNear(const geometry::Vec2<float> position, const float radius);
+    std::vector<std::tuple<Entity, Position>> getEntitiesInRange(const geometry::Vec2<float> position,
+                                                                 const float radius, const Registry &registry);
     const std::vector<Entity> &cgetBucket(const unsigned buckIx, const unsigned buckIy) const;
     const std::vector<std::vector<Entity>> &cgetGrid();
 };
