@@ -1,6 +1,7 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state.hpp"
+#include "game/game.hpp"
 #include "shared/test_fixture.hpp"
 #include <catch2/catch_test_macros.hpp>
 
@@ -75,7 +76,8 @@ TEST_CASE_METHOD(TestFixture, "GameplayState::createNewGameplay can construct a 
 TEST_CASE_METHOD(TestFixture, "ProgressionStoreState::createStore constructs store state with expected properties")
 {
     // ACT
-    std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore();
+    game::Game game;
+    std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore(game);
 
     // ASSERT
     REQUIRE(state != nullptr);
@@ -92,7 +94,8 @@ TEST_CASE_METHOD(TestFixture, "MenuState selectedButtonChanged tracks navigation
 
 TEST_CASE_METHOD(TestFixture, "ProgressionStoreState selectedButtonChanged tracks navigation changes")
 {
-    auto state = ProgressionStoreState::createStore();
+    game::Game game;
+    auto state = ProgressionStoreState::createStore(game);
 
     REQUIRE_FALSE(state->selectedButtonChanged());
     REQUIRE(applyInput<controller::ProgressionStoreState>(state, DOWN) == StateTransitionAction::None);
@@ -453,7 +456,8 @@ TEST_CASE_METHOD(TestFixture, "Gameplay state update returns correct actions")
 
 TEST_CASE_METHOD(TestFixture, "ProgressionStoreState update returns correct actions")
 {
-    std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore();
+    game::Game game;
+    std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore(game);
 
     SECTION("confirmPressed triggers Pop")
     {
@@ -538,7 +542,8 @@ TEST_CASE_METHOD(TestFixture, "GameplayState::toString returns expected string")
 
 TEST_CASE_METHOD(TestFixture, "ProgressionStoreState::toString returns expected string")
 {
-    std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore();
+    game::Game game;
+    std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore(game);
     REQUIRE(state->toString() == "ProgressionStore");
 }
 
@@ -655,7 +660,8 @@ TEST_CASE_METHOD(TestFixture, "GameplayState::getView returns expected view")
 
 TEST_CASE_METHOD(TestFixture, "ProgressionStoreState::getView returns expected view")
 {
-    std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore();
+    game::Game game;
+    std::unique_ptr<ProgressionStoreState> state = ProgressionStoreState::createStore(game);
 
     const view::View &view = state->getView();
     REQUIRE(view.nodes.size() == 1);

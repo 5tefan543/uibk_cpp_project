@@ -93,10 +93,16 @@ void StateManager::applyAction(StateTransitionAction action)
         audioController_.playSound(config_.menuSoundConfig.buttonClickSound);
         push(MenuState::createMenu(MenuType::PauseMenu));
         break;
-    case StateTransitionAction::PushProgressionStore:
-        audioController_.pauseMusic();
-        push(ProgressionStoreState::createStore());
+    case StateTransitionAction::PushProgressionStore: {
+        BaseState &currentState = getCurrent();
+        if (auto *gameplayState = dynamic_cast<GameplayState *>(&currentState)) {
+            audioController_.pauseMusic();
+            push(ProgressionStoreState::createStore(gameplayState->game));
+        } else {
+            logger::log(logger::ERROR, "Cannot push ProgressionStoreState when current state is not GameplayState.");
+        }
         break;
+    }
     case StateTransitionAction::ReplaceCurrentWithGameOverMenu:
         audioController_.stopMusic();
         audioController_.playSound(config_.menuSoundConfig.gameOverSound);

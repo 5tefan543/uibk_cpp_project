@@ -324,7 +324,8 @@ TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for menu state when se
 TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for progression store when selection did not change")
 {
     StateManager stateManager;
-    stateManager.push(ProgressionStoreState::createStore());
+    game::Game game;
+    stateManager.push(ProgressionStoreState::createStore(game));
 
     REQUIRE_NOTHROW(stateManager.updateAudio());
 }
@@ -332,7 +333,8 @@ TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for progression store 
 TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for progression store when selection changed")
 {
     StateManager stateManager;
-    stateManager.push(ProgressionStoreState::createStore());
+    game::Game game;
+    stateManager.push(ProgressionStoreState::createStore(game));
 
     InputState input;
     input.downPressed = true;

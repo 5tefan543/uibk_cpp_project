@@ -63,6 +63,7 @@ add_library(roguelike_game
   src/game/systems/enemy_ai_system.cpp
   src/game/systems/sound_system.cpp
   src/game/location_table.cpp
+  src/game/progression_store.cpp
 )
 
 roguelike_cxx_flags(roguelike_game)
