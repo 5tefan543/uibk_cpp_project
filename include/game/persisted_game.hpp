@@ -9,6 +9,7 @@ struct PersistedGame {
     int wave = 0;
     Position position;
     PlayerStats playerStats;
+    bool shouldOpenStore = false;
 };
 
 } // namespace game

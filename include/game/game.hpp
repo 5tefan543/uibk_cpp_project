@@ -27,6 +27,7 @@ class Game {
     LocationTable locationTable_;
     GameDebugSession debugSession_{registry_, locationTable_};
     float currentWaveDuration_;
+    bool shouldOpenStore_ = false;
 
     AnimationSystem animationSystem_;
     CameraSystem cameraSystem_;
@@ -56,6 +57,7 @@ class Game {
     void updateSystems(const controller::InputState &input, float dt);
     void addScore(int score);
     bool isWaveFinished();
+    void saveGame();
 
   public:
     Game();

@@ -57,7 +57,8 @@ Game::Game(CharacterType characterType) : Game(1, characterType)
 
 Game::Game(const PersistedGame &persistedGame)
     : config_(controller::PersistenceManager::getConfig()),
-      locationTable_(config_.locationTableConfig.numBuckets, config_.mapConfig.mapSize)
+      locationTable_(config_.locationTableConfig.numBuckets, config_.mapConfig.mapSize),
+      shouldOpenStore_(persistedGame.shouldOpenStore)
 {
     logger::log(logger::DEBUG, "Game constructed from persisted game");
 
@@ -172,12 +173,7 @@ void Game::initWave(int waveNumber)
     debugSession_.stage = stage_;
 
     if (wave_ > 1) {
-        auto gameSave = getPersistedGame();
-
-        if (!controller::PersistenceManager::saveGame(gameSave)) {
-
-            // TODO error via gui not console
-        }
+        saveGame();
 
         if (stage_ != stageOld) {
             switchMap();
@@ -186,6 +182,15 @@ void Game::initWave(int waveNumber)
 
     spawnEnemySystem_.update(registry_, wave_, config_);
     logger::log(logger::DEBUG, std::format("Starting wave {} of stage {}", wave_, stage_));
+}
+
+void Game::Game::saveGame()
+{
+    PersistedGame persistedGame = getPersistedGame();
+    if (!controller::PersistenceManager::saveGame(persistedGame)) {
+        logger::log(logger::ERROR, "Failed to save game!");
+        // TODO error via gui not console
+    }
 }
 
 GameDebugSession &Game::getDebugSession()
@@ -197,6 +202,7 @@ PersistedGame Game::getPersistedGame() const
 {
     PersistedGame persistedGame;
     persistedGame.wave = wave_;
+    persistedGame.shouldOpenStore = shouldOpenStore_;
 
     auto players = registry_.view<Position, PlayerStats, PlayerTag>();
     if (!players.empty()) {
@@ -228,14 +234,19 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
     // update clock
     currentWaveDuration_ += dt;
 
+    if (shouldOpenStore_) {
+        shouldOpenStore_ = false;
+        return controller::StateTransitionAction::PushProgressionStore;
+    }
+
     if (isWaveFinished()) {
         cleanup();
         addScore(config_.waveDurationSeconds - (int)currentWaveDuration_);
 
-        bool shouldOpenStore = (wave_ % config_.wavesPerStage) == 0;
+        shouldOpenStore_ = (wave_ % config_.wavesPerStage) == 0;
         initWave(++wave_);
 
-        if (shouldOpenStore) {
+        if (shouldOpenStore_) {
             return controller::StateTransitionAction::PushProgressionStore;
         }
 
@@ -282,8 +293,7 @@ void Game::processDebugSession(float dt)
     if (debugSession_.isSaveGameRequested) {
         debugSession_.isSaveGameRequested = false;
         logger::log(logger::DEBUG, "Saving game!");
-        PersistedGame persistedGame = getPersistedGame();
-        controller::PersistenceManager::saveGame(persistedGame);
+        saveGame();
     }
 }
 
@@ -342,6 +352,10 @@ void Game::updateView(view::View &view)
     // Currently we simply clear everything and rebuilding the view from scratch.
     // Future improvements might only make changes and add/remove where necessary.
     view.nodes.clear();
+
+    if (shouldOpenStore_) {
+        return;
+    }
 
     // Get camera data
     auto cameraEntities = registry_.view<CameraTag, Position>();
