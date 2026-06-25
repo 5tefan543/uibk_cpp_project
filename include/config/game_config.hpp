@@ -20,13 +20,11 @@ struct WindowConfig {
 
 struct TextureConfig {
     std::string path;
-    // TODO: why not use Rectangle<>?
     geometry::Vec2<float> position = {0, 0};
     geometry::Vec2<float> size = {128.0f, 128.0f};
 };
 
 struct HitBoxConfig {
-    // TODO: why not use Rectangle<>?
     geometry::Vec2<float> offset = {0, 0};
     geometry::Vec2<float> size = {128.0f, 128.0f};
 };

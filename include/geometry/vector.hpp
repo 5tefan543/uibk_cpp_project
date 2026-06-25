@@ -11,8 +11,6 @@ struct Vec2 {
     T x;
     T y;
 
-    operator sf::Vector2<T>() const { return sf::Vector2<T>{x, y}; }
-
     Vec2<T> operator+(const Vec2<T> other) const { return {x + other.x, y + other.y}; }
     Vec2<T> operator+(T scalar) const { return {x + scalar, y + scalar}; }
 
