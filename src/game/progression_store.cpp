@@ -40,32 +40,32 @@ ProgressionStore::ProgressionStore(const Game &game) : game(game) {}
 
 void ProgressionStore::initView(view::View &view)
 {
-    view::Card &backgroundCard = createBackgroundCard(view);
+    view::Card &backgroundCard = createBackgroundCard();
 
-    view::Card &goldCard = createGoldCard(view);
+    view::Card &goldCard = createGoldCard();
     backgroundCard.elements.push_back(goldCard);
 
-    view::Card &statsCard = createPlayerStatsCard(view);
+    view::Card &statsCard = createPlayerStatsCard();
     backgroundCard.elements.push_back(statsCard);
 
-    view::Card &itemsCard = createStoreItemsCard(view);
+    view::Card &itemsCard = createStoreItemsCard();
     backgroundCard.elements.push_back(itemsCard);
 
-    view::Card &detailsCard = createSelectedItemDetailsCard(view);
+    view::Card &detailsCard = createSelectedItemDetailsCard();
     backgroundCard.elements.push_back(detailsCard);
 
     auto quitButtonRect = geometry::Rectangle<float>{.position = {contentX, bottomY}, .size = {230.0f, bottomButtonH}};
-    view::Button &quitButton = createButton(view, quitButtonRect, "QUIT", ButtonId::Quit);
+    view::Button &quitButton = createButton(quitButtonRect, "QUIT", ButtonId::Quit);
     backgroundCard.elements.push_back(quitButton);
 
     auto mainMenuButtonRect =
         geometry::Rectangle<float>{.position = {contentX + 260.0f, bottomY}, .size = {330.0f, bottomButtonH}};
-    view::Button &mainMenuButton = createButton(view, mainMenuButtonRect, "MAIN MENU", ButtonId::MainMenu);
+    view::Button &mainMenuButton = createButton(mainMenuButtonRect, "MAIN MENU", ButtonId::MainMenu);
     backgroundCard.elements.push_back(mainMenuButton);
 
     auto nextStageButtonRect = geometry::Rectangle<float>{
         .position = {screenX + screenW - outerPadding - 420.0f, bottomY}, .size = {420.0f, bottomButtonH}};
-    view::Button &nextStageButton = createButton(view, nextStageButtonRect, "NEXT STAGE", ButtonId::NextStage);
+    view::Button &nextStageButton = createButton(nextStageButtonRect, "NEXT STAGE", ButtonId::NextStage);
     backgroundCard.elements.push_back(nextStageButton);
 
     view.nodes.push_back({view::ViewMode::FixedToScreen, backgroundCard});
