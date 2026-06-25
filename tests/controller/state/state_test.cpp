@@ -293,7 +293,8 @@ TEST_CASE_METHOD(TestFixture, "Game over menu update returns correct actions")
 
     SECTION("confirm on initial selection returns to main menu")
     {
-        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithMainMenu);
+        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM)
+                == StateTransitionAction::ReplaceAllStatesWithMainMenu);
     }
 
     SECTION("down changes selection so confirm exits game")
@@ -306,7 +307,8 @@ TEST_CASE_METHOD(TestFixture, "Game over menu update returns correct actions")
     {
         REQUIRE(applyInput<controller::MenuState>(state, DOWN) == StateTransitionAction::None);
         REQUIRE(applyInput<controller::MenuState>(state, UP) == StateTransitionAction::None);
-        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM) == StateTransitionAction::ReplaceCurrentWithMainMenu);
+        REQUIRE(applyInput<controller::MenuState>(state, CONFIRM)
+                == StateTransitionAction::ReplaceAllStatesWithMainMenu);
     }
 
     SECTION("irrelevant input returns None")
@@ -335,7 +337,7 @@ TEST_CASE_METHOD(TestFixture, "Game over menu mouse input returns correct action
     SECTION("mouse click on main menu returns to main menu")
     {
         REQUIRE(applyMouseClick<controller::MenuState>(state, mainMenuButton.rect.getCenter())
-                == StateTransitionAction::ReplaceCurrentWithMainMenu);
+                == StateTransitionAction::ReplaceAllStatesWithMainMenu);
     }
 
     SECTION("mouse click on quit exits game")

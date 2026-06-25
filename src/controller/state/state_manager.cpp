@@ -113,9 +113,10 @@ void StateManager::applyAction(StateTransitionAction action)
         audioController_.playSound(config_.menuSoundConfig.buttonClickSound);
         pop();
         break;
-    case StateTransitionAction::ReplaceCurrentWithMainMenu:
+    case StateTransitionAction::ReplaceAllStatesWithMainMenu:
         audioController_.playSound(config_.menuSoundConfig.buttonClickSound);
-        replaceCurrent(MenuState::createMenu(MenuType::MainMenu));
+        clear();
+        push(MenuState::createMenu(MenuType::MainMenu));
         break;
     case StateTransitionAction::ReplaceAllStatesWithExit:
         clear();

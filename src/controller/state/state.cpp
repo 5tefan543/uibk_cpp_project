@@ -109,7 +109,7 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
         if (buttonPressed) {
             switch (selectedButtonId_) {
             case 0:
-                stateTransitionAction = StateTransitionAction::ReplaceCurrentWithMainMenu;
+                stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithMainMenu;
                 break;
             case 1:
                 stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
