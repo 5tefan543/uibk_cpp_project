@@ -55,4 +55,25 @@ struct EnemyStats : Stats {
     int scoreReward = 1;
 };
 
+inline game::PlayerStats getDefaultPlayerStatChanges()
+{
+    game::PlayerStats stats;
+
+    stats.maxHealth = 0.0f;
+    stats.health = 0.0f;
+    stats.attackPower = 0.0f;
+    stats.attackSpeed = 0.0f;
+    stats.defense = 0.0f;
+    stats.moveSpeed = 0.0f;
+    stats.speedOfAttack = 0.0f;
+    stats.attackRange = 0.0f;
+
+    stats.hasDash = false;
+    stats.enemiesPierced = 0;
+    stats.score = 0;
+    stats.currency = 0;
+
+    return stats;
+}
+
 } // namespace game

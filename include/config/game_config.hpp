@@ -6,6 +6,7 @@
 #include "geometry/vector.hpp"
 #include "logging/log.hpp"
 #include "view/font.hpp"
+#include <game/store_item.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -198,6 +199,24 @@ struct MenuSoundConfig {
     std::string waveOverSound;
 };
 
+struct StoreItemTypeConfig {
+    TextureConfig icon;
+    game::PlayerStats statChanges = game::getDefaultPlayerStatChanges();
+    float cost;
+    float randomWeight;
+};
+
+struct StoreItemConfig {
+    std::string name;
+    std::string description;
+    std::unordered_map<game::StoreItemType, StoreItemTypeConfig> typeToConfig;
+};
+
+struct StoreConfig {
+    std::vector<StoreItemConfig> items;
+    std::unordered_map<game::StoreItemType, float> typeToRandomWeight;
+};
+
 struct GameConfig {
     int initialStage;
     int initialWave;
@@ -215,6 +234,7 @@ struct GameConfig {
     EnemyClassConfigs enemyClasses;
     EnemySpawnConfig enemySpawnConfig;
     MenuSoundConfig menuSoundConfig;
+    StoreConfig storeConfig;
 };
 
 } // namespace config

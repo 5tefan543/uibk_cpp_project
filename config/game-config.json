@@ -2266,5 +2266,363 @@
         "buttonClickSound": "assets/audio/sounds/menu/menu_click.wav",
         "gameOverSound": "assets/audio/sounds/menu/game_over.wav",
         "waveOverSound": "assets/audio/sounds/wave_finished.wav"
+    },
+    "storeConfig": {
+        "items": [
+            {
+                "name": "Max Health",
+                "description": "Increases the maximum health of the player.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 20
+                        },
+                        "cost": 100
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 100
+                        },
+                        "cost": 500
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 40
+                        },
+                        "cost": 200
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 60
+                        },
+                        "cost": 300
+                    }
+                }
+            },
+            {
+                "name": "Move Speed",
+                "description": "Increases the movement speed of the player.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 5
+                        },
+                        "cost": 100
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 10
+                        },
+                        "cost": 500
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 15
+                        },
+                        "cost": 200
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 20
+                        },
+                        "cost": 300
+                    }
+                }
+            },
+            {
+                "name": "Max Health",
+                "description": "Increases the maximum health of the player.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 20
+                        },
+                        "cost": 100
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 100
+                        },
+                        "cost": 500
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 40
+                        },
+                        "cost": 200
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 60
+                        },
+                        "cost": 300
+                    }
+                }
+            },
+            {
+                "name": "Move Speed",
+                "description": "Increases the movement speed of the player.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 5
+                        },
+                        "cost": 100
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 10
+                        },
+                        "cost": 500
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 15
+                        },
+                        "cost": 200
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 20
+                        },
+                        "cost": 300
+                    }
+                }
+            },
+            {
+                "name": "Max Health",
+                "description": "Increases the maximum health of the player.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 20
+                        },
+                        "cost": 100
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 100
+                        },
+                        "cost": 500
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 40
+                        },
+                        "cost": 200
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 60
+                        },
+                        "cost": 300
+                    }
+                }
+            },
+            {
+                "name": "Move Speed",
+                "description": "Increases the movement speed of the player.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 5
+                        },
+                        "cost": 100
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 10
+                        },
+                        "cost": 500
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 15
+                        },
+                        "cost": 200
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 20
+                        },
+                        "cost": 300
+                    }
+                }
+            }
+        ],
+        "typeToRandomWeight": {
+            "Common": 0.45,
+            "Uncommon": 0.30,
+            "Rare": 0.15,
+            "Epic": 0.10
+        }
     }
 }

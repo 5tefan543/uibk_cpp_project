@@ -1,6 +1,7 @@
 #pragma once
 #include "game/ecs/components/animation.hpp"
 #include "game/persisted_game.hpp"
+#include "game/store_item.hpp"
 #include "logging/log.hpp"
 #include "view/font.hpp"
 #include <glaze/glaze.hpp>
@@ -59,4 +60,11 @@ struct glz::meta<game::AnimationState> {
     static constexpr auto value = glz::enumerate("Idle", game::AnimationState::Idle, "Walk", game::AnimationState::Walk,
                                                  "Attack", game::AnimationState::Attack, "Hit",
                                                  game::AnimationState::Hit, "Death", game::AnimationState::Death);
+};
+
+template <>
+struct glz::meta<game::StoreItemType> {
+    static constexpr auto value =
+        glz::enumerate("Common", game::StoreItemType::Common, "Uncommon", game::StoreItemType::Uncommon, "Rare",
+                       game::StoreItemType::Rare, "Epic", game::StoreItemType::Epic);
 };
