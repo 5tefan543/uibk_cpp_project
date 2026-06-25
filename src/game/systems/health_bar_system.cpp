@@ -27,7 +27,7 @@ void updateHealthBarsForTag(Registry &registry, float dt)
             const float dmgNorm = (bar.previousHealth - stats.health) / stats.maxHealth;
             const float currentMissingNorm = 1.0f - (stats.health / stats.maxHealth);
             bar.initialRedBarNorm = std::min(bar.initialRedBarNorm + dmgNorm, currentMissingNorm);
-            bar.redBarTimer = HealthBarState::RED_FLASH_DURATION;
+            bar.redBarTimer = HealthBarState::redFlashDuration;
         } else if (bar.redBarTimer > 0.0f) {
             bar.redBarTimer = std::max(0.0f, bar.redBarTimer - dt);
             if (bar.redBarTimer == 0.0f) {

@@ -19,9 +19,9 @@ TEST_CASE("HealthBarState default-constructed has uninitialized previousHealth")
     REQUIRE(bar.redBarTimer == 0.0f);
 }
 
-TEST_CASE("HealthBarState RED_FLASH_DURATION is positive")
+TEST_CASE("HealthBarState redFlashDuration is positive")
 {
-    REQUIRE(game::HealthBarState::RED_FLASH_DURATION > 0.0f);
+    REQUIRE(game::HealthBarState::redFlashDuration > 0.0f);
 }
 
 // ── HealthBarSystem ───────────────────────────────────────────────────────────
@@ -68,7 +68,7 @@ TEST_CASE_METHOD(TestFixture, "HealthBarSystem sets redBarTimer when player take
     system.update(registry, 0.016f);
 
     const auto &bar = registry.getComponent<game::HealthBarState>(entity);
-    REQUIRE(bar.redBarTimer == game::HealthBarState::RED_FLASH_DURATION);
+    REQUIRE(bar.redBarTimer == game::HealthBarState::redFlashDuration);
     REQUIRE(bar.initialRedBarNorm == Catch::Approx(0.2f)); // 20/100
     REQUIRE(bar.previousHealth == 80.0f);
 }
@@ -92,7 +92,7 @@ TEST_CASE_METHOD(TestFixture, "HealthBarSystem sets redBarTimer for enemy when i
     system.update(registry, 0.016f);
 
     const auto &bar = registry.getComponent<game::HealthBarState>(entity);
-    REQUIRE(bar.redBarTimer == game::HealthBarState::RED_FLASH_DURATION);
+    REQUIRE(bar.redBarTimer == game::HealthBarState::redFlashDuration);
     REQUIRE(bar.initialRedBarNorm == 0.5f); // 25/50
 }
 
@@ -119,7 +119,7 @@ TEST_CASE_METHOD(TestFixture, "HealthBarSystem decrements redBarTimer each updat
     system.update(registry, dt);
 
     const auto &bar = registry.getComponent<game::HealthBarState>(entity);
-    REQUIRE(bar.redBarTimer == game::HealthBarState::RED_FLASH_DURATION - dt);
+    REQUIRE(bar.redBarTimer == game::HealthBarState::redFlashDuration - dt);
 }
 
 TEST_CASE_METHOD(TestFixture, "HealthBarSystem clears red bar when timer reaches zero")
@@ -141,7 +141,7 @@ TEST_CASE_METHOD(TestFixture, "HealthBarSystem clears red bar when timer reaches
     system.update(registry, 0.016f);
 
     // Advance past the full duration in one step
-    system.update(registry, game::HealthBarState::RED_FLASH_DURATION + 1.0f);
+    system.update(registry, game::HealthBarState::redFlashDuration + 1.0f);
 
     const auto &bar = registry.getComponent<game::HealthBarState>(entity);
     REQUIRE(bar.redBarTimer == 0.0f);
@@ -212,5 +212,5 @@ TEST_CASE_METHOD(TestFixture, "HealthBarSystem accumulates red bar norm on rapid
     // Total missing = 20%, accumulated red should not exceed that
     REQUIRE(bar.initialRedBarNorm <= 0.2f + 1e-5f);
     REQUIRE(bar.initialRedBarNorm > 0.0f);
-    REQUIRE(bar.redBarTimer == game::HealthBarState::RED_FLASH_DURATION);
+    REQUIRE(bar.redBarTimer == game::HealthBarState::redFlashDuration);
 }

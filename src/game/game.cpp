@@ -387,7 +387,7 @@ void Game::updateView(view::View &view)
             if (bar.redBarTimer > 0.0f) {
                 const float greenWidth = (stats.health / stats.maxHealth) * barWidth;
                 const float currentRedNorm =
-                    bar.initialRedBarNorm * (bar.redBarTimer / HealthBarState::RED_FLASH_DURATION);
+                    bar.initialRedBarNorm * (bar.redBarTimer / HealthBarState::redFlashDuration);
                 const float redWidth = currentRedNorm * barWidth;
                 if (redWidth > 0.0f) {
                     view::Rectangle redRect = {
