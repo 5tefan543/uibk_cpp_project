@@ -1,5 +1,7 @@
 #pragma once
 
+#include "game/ecs/entity.hpp"
+
 namespace game {
 
 struct EnemyAttackTag {
