@@ -56,8 +56,11 @@ void StateManager::updateAudio()
             audioController_.playSound(config_.menuSoundConfig.buttonHoverSound);
         }
     } else if (auto *menu = dynamic_cast<ProgressionStoreState *>(&currentState)) {
-        if (menu->selectedButtonChanged()) {
+        if (menu->selectedButtonChanged() || menu->storeItemHoveredChanged()) {
             audioController_.playSound(config_.menuSoundConfig.buttonHoverSound);
+        }
+        if (menu->selectedStoreItemChanged()) {
+            audioController_.playSound(config_.menuSoundConfig.buttonClickSound);
         }
     } else if (auto *menu = dynamic_cast<GameplayState *>(&currentState)) {
         if (menu->hasWaveChanged()) {

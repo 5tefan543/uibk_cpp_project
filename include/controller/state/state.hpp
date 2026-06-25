@@ -74,6 +74,8 @@ class ProgressionStoreState : public BaseState {
   public:
     static std::unique_ptr<ProgressionStoreState> createStore(game::Game &game);
     bool selectedButtonChanged();
+    bool storeItemHoveredChanged();
+    bool selectedStoreItemChanged();
     StateTransitionAction update(const InputState &input, float dt) override;
     std::string toString() const override;
 };

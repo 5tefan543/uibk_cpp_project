@@ -386,6 +386,16 @@ bool ProgressionStoreState::selectedButtonChanged()
     return store_.selectedButtonChanged();
 }
 
+bool ProgressionStoreState::storeItemHoveredChanged()
+{
+    return store_.storeItemHoveredChanged();
+}
+
+bool ProgressionStoreState::selectedStoreItemChanged()
+{
+    return store_.selectedStoreItemChanged();
+}
+
 std::string ProgressionStoreState::toString() const
 {
     return "ProgressionStore";

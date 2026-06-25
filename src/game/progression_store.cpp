@@ -149,9 +149,19 @@ controller::StateTransitionAction ProgressionStore::update(const controller::Inp
     return stateTransitionAction;
 }
 
-bool ProgressionStore::selectedButtonChanged()
+bool ProgressionStore::selectedButtonChanged() const
 {
     return selectedButtonIndex_ != prevSelectedButtonIndex_;
+}
+
+bool ProgressionStore::storeItemHoveredChanged() const
+{
+    return hoveredStoreItemIndex_ != prevHoveredStoreItemIndex_;
+}
+
+bool ProgressionStore::selectedStoreItemChanged() const
+{
+    return selectedStoreItemIndex_ != prevSelectedStoreItemIndex_;
 }
 
 view::Card &ProgressionStore::createBackgroundCard()
@@ -312,6 +322,7 @@ view::Card &ProgressionStore::createStoreItemsCard()
         itemsCard.elements.push_back(itemCard);
 
         if (!selectedStoreItemIndex_.has_value()) {
+            prevSelectedStoreItemIndex_ = itemIndex;
             selectedStoreItemIndex_ = itemIndex;
         }
 
@@ -503,6 +514,9 @@ bool ProgressionStore::updateButtonSelection(const controller::InputState &input
 
 void ProgressionStore::updateStoreItemSelection(const controller::InputState &input)
 {
+    prevHoveredStoreItemIndex_ = hoveredStoreItemIndex_;
+    prevSelectedStoreItemIndex_ = selectedStoreItemIndex_;
+
     if (!input.mouseMoved && !input.mouseLeftPressed) {
         return;
     }

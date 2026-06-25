@@ -40,7 +40,9 @@ class ProgressionStore {
 
     size_t selectedButtonIndex_ = 0;
     size_t prevSelectedButtonIndex_ = 0;
+    std::optional<std::size_t> prevHoveredStoreItemIndex_ = std::nullopt;
     std::optional<std::size_t> hoveredStoreItemIndex_ = std::nullopt;
+    std::optional<std::size_t> prevSelectedStoreItemIndex_ = std::nullopt;
     std::optional<std::size_t> selectedStoreItemIndex_ = std::nullopt;
 
     view::Card &createBackgroundCard();
@@ -70,7 +72,9 @@ class ProgressionStore {
 
     void initView(view::View &view);
     controller::StateTransitionAction update(const controller::InputState &input);
-    bool selectedButtonChanged();
+    bool selectedButtonChanged() const;
+    bool storeItemHoveredChanged() const;
+    bool selectedStoreItemChanged() const;
 };
 
 } // namespace game
