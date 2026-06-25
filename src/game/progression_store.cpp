@@ -72,7 +72,7 @@ void ProgressionStore::initView(view::View &view)
     updateButtonSelection();
 }
 
-view::Card &ProgressionStore::createBackgroundCard(view::View &view)
+view::Card &ProgressionStore::createBackgroundCard()
 {
     view::Card &backgroundCard = cards_.emplace_back(view::Card());
     backgroundCard.rect = screen;
@@ -86,7 +86,7 @@ view::Card &ProgressionStore::createBackgroundCard(view::View &view)
     return backgroundCard;
 }
 
-view::Card &ProgressionStore::createGoldCard(view::View &view)
+view::Card &ProgressionStore::createGoldCard()
 {
     // gold card top right corner
     view::Card &goldCard = cards_.emplace_back(view::Card());
@@ -102,7 +102,7 @@ view::Card &ProgressionStore::createGoldCard(view::View &view)
     return goldCard;
 }
 
-view::Card &ProgressionStore::createPlayerStatsCard(view::View &view)
+view::Card &ProgressionStore::createPlayerStatsCard()
 {
     view::Card &statsCard = cards_.emplace_back(view::Card());
     statsCard.rect = geometry::Rectangle<float>{.position = {statsX, contentY}, .size = {statsW, contentH}};
@@ -131,7 +131,7 @@ view::Card &ProgressionStore::createPlayerStatsCard(view::View &view)
     return statsCard;
 }
 
-view::Card &ProgressionStore::createStoreItemsCard(view::View &view)
+view::Card &ProgressionStore::createStoreItemsCard()
 {
     view::Card &itemsCard = cards_.emplace_back(view::Card());
     itemsCard.rect = geometry::Rectangle<float>{.position = {itemsX, contentY}, .size = {itemsW, contentH}};
@@ -186,7 +186,7 @@ view::Card &ProgressionStore::createStoreItemsCard(view::View &view)
     return itemsCard;
 }
 
-view::Card &ProgressionStore::createSelectedItemDetailsCard(view::View &view)
+view::Card &ProgressionStore::createSelectedItemDetailsCard()
 {
     view::Card &detailsCard = cards_.emplace_back(view::Card());
     detailsCard.rect = geometry::Rectangle<float>{.position = {detailsX, contentY}, .size = {detailsW, contentH}};
@@ -242,8 +242,8 @@ view::Card &ProgressionStore::createSelectedItemDetailsCard(view::View &view)
     return detailsCard;
 }
 
-view::Button &ProgressionStore::createButton(view::View &view, const geometry::Rectangle<float> &rect,
-                                             const std::string &text, ButtonId buttonId)
+view::Button &ProgressionStore::createButton(const geometry::Rectangle<float> &rect, const std::string &text,
+                                             ButtonId buttonId)
 {
     view::Button &button = buttons_.emplace_back(view::Button());
     button.rect = rect;

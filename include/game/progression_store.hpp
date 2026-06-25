@@ -21,13 +21,12 @@ class ProgressionStore {
     size_t prevSelectedButtonId_ = ButtonId::MainMenu;
     void updateButtonSelection();
 
-    view::Card &createBackgroundCard(view::View &view);
-    view::Card &createGoldCard(view::View &view);
-    view::Card &createPlayerStatsCard(view::View &view);
-    view::Card &createStoreItemsCard(view::View &view);
-    view::Card &createSelectedItemDetailsCard(view::View &view);
-    view::Button &createButton(view::View &view, const geometry::Rectangle<float> &rect, const std::string &text,
-                               ButtonId buttonId);
+    view::Card &createBackgroundCard();
+    view::Card &createGoldCard();
+    view::Card &createPlayerStatsCard();
+    view::Card &createStoreItemsCard();
+    view::Card &createSelectedItemDetailsCard();
+    view::Button &createButton(const geometry::Rectangle<float> &rect, const std::string &text, ButtonId buttonId);
 
   public:
     explicit ProgressionStore(const Game &game);
