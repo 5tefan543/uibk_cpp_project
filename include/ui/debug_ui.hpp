@@ -4,6 +4,7 @@
 #include "controller/input/input_state.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/camera_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
@@ -24,6 +25,8 @@ class DebugUI {
     void renderComponent(game::CameraTag &c);
     void renderComponent(game::Stats &c);
     void renderComponent(game::PlayerStats &c);
+    void renderComponent(game::HitBox &c);
+    void renderComponent(game::HitBox &c, const std::string &texturePath);
     void renderComponent(game::EnemyStats &c);
     void renderComponent(game::Position &c);
     void renderComponent(game::Velocity &c);

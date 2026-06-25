@@ -1,9 +1,12 @@
 #include "config/game_config.hpp"
 #include "game/ecs/components/animation.hpp"
+#include "game/ecs/components/damage.hpp"
+#include "game/ecs/components/enemy_attack_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/stats.hpp"
+#include "game/ecs/entity.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
 #include "shared/test_fixture.hpp"
@@ -66,6 +69,21 @@ config::GameConfig makeAnimationSystemTestConfig()
                     {
                         makeSpriteConfig("enemy_walk_left_1.png", 64.0f, 64.0f, 5.0f, 6.0f, 30.0f, 31.0f),
                         makeSpriteConfig("enemy_walk_left_2.png", 65.0f, 65.0f, 7.0f, 8.0f, 32.0f, 33.0f),
+                    },
+                },
+            },
+    };
+
+    config.enemyClasses.blob.attack.area.animations.stateToStateConfig[game::AnimationState::Idle] = {
+        .frameDuration = 0.4f,
+        .moveSpeedMultiplier = 1.0f,
+        .directionToFrames =
+            {
+                {
+                    game::AnimationDirection::None,
+                    {
+                        makeSpriteConfig("enemy_area_idle_1.png", 40.0f, 44.0f, 1.0f, 2.0f, 18.0f, 22.0f),
+                        makeSpriteConfig("enemy_area_idle_2.png", 41.0f, 45.0f, 3.0f, 4.0f, 19.0f, 23.0f),
                     },
                 },
             },
@@ -326,4 +344,108 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem skips entity when no animation fr
     REQUIRE(sprite.imagePath == "unchanged.png");
     REQUIRE(sprite.rect.size.x == Catch::Approx(10.0f));
     REQUIRE(sprite.rect.size.y == Catch::Approx(20.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem applies area attack animation for enemy attack entities")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity sourceEnemy = registry.createEntity();
+    registry.addComponent<game::EnemyStats>(sourceEnemy, makeEnemyStats(game::EnemyType::Blob));
+
+    const game::Entity attackEntity = registry.createEntity();
+    registry.addComponent<game::EnemyAttackTag>(attackEntity, {.source = sourceEnemy});
+    registry.addComponent<game::Damage>(attackEntity, {
+                                                          .amount = 5.0f,
+                                                          .pushBackForce = 0.0f,
+                                                          .stunChance = 0.0f,
+                                                          .kind = game::DamageKind::Area,
+                                                          .params =
+                                                              game::AreaDamage{
+                                                                  .radius = 50.0f,
+                                                                  .activeTimeSec = 1.0f,
+                                                                  .elapsedSec = 0.0f,
+                                                                  .initialHit = 0.5f,
+                                                                  .damageTicks = 3,
+                                                                  .elapsedSecSinceLastTick = 0.0f,
+                                                              },
+                                                      });
+    registry.addComponent<game::Animation>(attackEntity, {
+                                                             .state = game::AnimationState::Attack,
+                                                             .direction = game::AnimationDirection::Left,
+                                                             .currentFrame = 0,
+                                                             .frameTimer = 0.0f,
+                                                         });
+    registry.addComponent<view::Sprite>(attackEntity, {});
+    registry.addComponent<game::HitBox>(attackEntity, {});
+
+    system.update(registry, config, 0.0f);
+
+    const auto &sprite = registry.getComponent<view::Sprite>(attackEntity);
+    const auto &hitBox = registry.getComponent<game::HitBox>(attackEntity);
+    const auto &animation = registry.getComponent<game::Animation>(attackEntity);
+
+    REQUIRE(sprite.imagePath == "enemy_area_idle_1.png");
+    REQUIRE(sprite.rect.size.x == Catch::Approx(40.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(44.0f));
+
+    REQUIRE(hitBox.offset.x == Catch::Approx(1.0f));
+    REQUIRE(hitBox.offset.y == Catch::Approx(2.0f));
+    REQUIRE(hitBox.size.x == Catch::Approx(18.0f));
+    REQUIRE(hitBox.size.y == Catch::Approx(22.0f));
+
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem skips enemy area attack entity when source enemy stats are missing")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity missingSourceEnemy = registry.createEntity();
+
+    const game::Entity attackEntity = registry.createEntity();
+    registry.addComponent<game::EnemyAttackTag>(attackEntity, {.source = missingSourceEnemy});
+    registry.addComponent<game::Damage>(attackEntity, {
+                                                          .amount = 3.0f,
+                                                          .pushBackForce = 0.0f,
+                                                          .stunChance = 0.0f,
+                                                          .kind = game::DamageKind::Area,
+                                                          .params =
+                                                              game::AreaDamage{
+                                                                  .radius = 30.0f,
+                                                                  .activeTimeSec = 1.0f,
+                                                                  .elapsedSec = 0.0f,
+                                                                  .initialHit = 0.5f,
+                                                                  .damageTicks = 2,
+                                                                  .elapsedSecSinceLastTick = 0.0f,
+                                                              },
+                                                      });
+    registry.addComponent<game::Animation>(attackEntity, {
+                                                             .state = game::AnimationState::Idle,
+                                                             .direction = game::AnimationDirection::None,
+                                                             .currentFrame = 0,
+                                                             .frameTimer = 0.1f,
+                                                         });
+    registry.addComponent<view::Sprite>(attackEntity, {});
+
+    auto &spriteBeforeUpdate = registry.getComponent<view::Sprite>(attackEntity);
+    spriteBeforeUpdate.imagePath = "unchanged_attack.png";
+    spriteBeforeUpdate.rect.size = {11.0f, 22.0f};
+
+    system.update(registry, config, 0.2f);
+
+    const auto &animation = registry.getComponent<game::Animation>(attackEntity);
+    const auto &sprite = registry.getComponent<view::Sprite>(attackEntity);
+
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.1f));
+
+    REQUIRE(sprite.imagePath == "unchanged_attack.png");
+    REQUIRE(sprite.rect.size.x == Catch::Approx(11.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(22.0f));
 }

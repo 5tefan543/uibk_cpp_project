@@ -123,6 +123,7 @@ void DebugUI::renderEcsManagement(controller::DebugContext &debug, game::GameDeb
         std::string updateSystemsLabel = gameSession.isSystemUpdateActive ? "Pause Simulation" : "Resume Simulation";
         if (ImGui::Button(updateSystemsLabel.c_str())) {
             debug.gameSession->isSystemUpdateActive = !debug.gameSession->isSystemUpdateActive;
+            logger::log(logger::DEBUG, "pause game!");
         }
 
         ImGui::SeparatorText("Entity Management");
@@ -175,6 +176,14 @@ void DebugUI::renderEcsManagement(controller::DebugContext &debug, game::GameDeb
                 if (gameSession.registry.hasComponent<view::Sprite>(entity)) {
                     renderComponent(gameSession.registry.getComponent<view::Sprite>(entity));
                 }
+                if (gameSession.registry.hasComponent<game::HitBox>(entity)) {
+                    if (gameSession.registry.hasComponent<view::Sprite>(entity)) {
+                        renderComponent(gameSession.registry.getComponent<game::HitBox>(entity),
+                                        gameSession.registry.getComponent<view::Sprite>(entity).imagePath);
+                    } else {
+                        renderComponent(gameSession.registry.getComponent<game::HitBox>(entity));
+                    }
+                }
             } else {
                 gameSession.selectedEntity.reset();
             }
@@ -196,19 +205,21 @@ void DebugUI::renderComponent(game::CameraTag &c)
 
 void DebugUI::renderComponent(game::Stats &c)
 {
-    ImGui::PushID("StatsComponent");
+    if (ImGui::CollapsingHeader("Stats")) {
 
-    ImGui::SeparatorText("Stats");
-    ImGui::InputFloat("maxHealth", &c.maxHealth);
-    ImGui::InputFloat("health", &c.health);
-    ImGui::InputFloat("attackPower", &c.attackPower);
-    ImGui::InputFloat("attackSpeed", &c.attackSpeed);
-    ImGui::InputFloat("speedOfAttack", &c.speedOfAttack);
-    ImGui::InputFloat("attackRange", &c.attackRange);
-    ImGui::InputFloat("defense", &c.defense);
-    ImGui::InputFloat("moveSpeed", &c.moveSpeed);
+        ImGui::PushID("StatsComponent");
 
-    ImGui::PopID();
+        ImGui::InputFloat("maxHealth", &c.maxHealth);
+        ImGui::InputFloat("health", &c.health);
+        ImGui::InputFloat("attackPower", &c.attackPower);
+        ImGui::InputFloat("attackSpeed", &c.attackSpeed);
+        ImGui::InputFloat("speedOfAttack", &c.speedOfAttack);
+        ImGui::InputFloat("attackRange", &c.attackRange);
+        ImGui::InputFloat("defense", &c.defense);
+        ImGui::InputFloat("moveSpeed", &c.moveSpeed);
+
+        ImGui::PopID();
+    }
 }
 
 void DebugUI::renderComponent(game::PlayerStats &c)
@@ -259,27 +270,173 @@ void DebugUI::renderComponent(game::Velocity &c)
 
 void DebugUI::renderComponent(game::Animation &c)
 {
-    ImGui::PushID("AnimationComponent");
+    if (ImGui::CollapsingHeader("Animation", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-    ImGui::SeparatorText("Animation");
-    ImGui::InputFloat("frameTimer", &c.frameTimer);
-    ImGui::InputFloat("stateTimeRemaining", &c.stateTimeRemaining);
-    ImGui::Text("state: %s", toString(c.state));
-    ImGui::Text("direction: %s", toString(c.direction));
+        ImGui::PushID("AnimationComponent");
 
-    ImGui::PopID();
+        ImGui::InputFloat("frameTimer", &c.frameTimer);
+        ImGui::InputFloat("stateTimeRemaining", &c.stateTimeRemaining);
+        ImGui::Text("state: %s", toString(c.state));
+        ImGui::Text("direction: %s", toString(c.direction));
+
+        ImGui::PopID();
+    }
 }
 
 void DebugUI::renderComponent(view::Sprite &c)
 {
-    ImGui::PushID("SpriteComponent");
+    if (ImGui::CollapsingHeader("Sprite", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::PushID("SpriteComponent");
 
-    ImGui::SeparatorText("Sprite");
-    ImGui::InputFloat("width", &c.rect.size.x);
-    ImGui::InputFloat("height", &c.rect.size.y);
-    ImGui::Text("imagePath: %s", c.imagePath.c_str());
+        ImGui::SeparatorText("Sprite");
+        ImGui::InputFloat("width", &c.rect.size.x);
+        ImGui::InputFloat("height", &c.rect.size.y);
+        ImGui::Text("imagePath: %s", c.imagePath.c_str());
 
-    ImGui::PopID();
+        ImGui::PopID();
+    }
+}
+
+void DebugUI::renderComponent(game::HitBox &c)
+{
+    if (ImGui::CollapsingHeader("HitBox", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+        ImGui::PushID("HitboxComponent");
+
+        ImGui::InputFloat("width", &c.size.x);
+        ImGui::InputFloat("height", &c.size.y);
+
+        ImGui::InputFloat("offset x", &c.offset.x);
+        ImGui::InputFloat("offset y", &c.offset.y);
+        ImGui::PopID();
+    }
+}
+
+void DebugUI::renderComponent(game::HitBox &c, const std::string &texturePath)
+{
+
+    if (ImGui::CollapsingHeader("HitBox", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+        ImGui::PushID("Hitbox");
+
+        ImGui::InputFloat("width", &c.size.x);
+        ImGui::InputFloat("height", &c.size.y);
+
+        ImGui::InputFloat("offset x", &c.offset.x);
+        ImGui::InputFloat("offset y", &c.offset.y);
+
+        auto searchAnimConfig = [&](const config::AnimationConfig &animCfg) -> const config::HitBoxConfig * {
+            for (const auto &[state, stateCfg] : animCfg.stateToStateConfig) {
+                for (const auto &[dir, frames] : stateCfg.directionToFrames) {
+                    for (const auto &spriteCfg : frames) {
+                        if (spriteCfg.texture.path == texturePath) {
+                            return &spriteCfg.hitBox;
+                        }
+                    }
+                }
+            }
+            return nullptr;
+        };
+
+        if (ImGui::Button("Load from Config")) {
+            const config::GameConfig &cfg = controller::PersistenceManager::getConfig();
+            const config::HitBoxConfig *found = nullptr;
+
+            for (const auto *playerCfg : {&cfg.playerClasses.melee, &cfg.playerClasses.ranged}) {
+                if (!found)
+                    found = searchAnimConfig(playerCfg->animations);
+                if (!found)
+                    found = searchAnimConfig(playerCfg->attack.projectile.animations);
+                if (!found)
+                    found = searchAnimConfig(playerCfg->attack.beam.animations);
+                if (!found)
+                    found = searchAnimConfig(playerCfg->attack.area.animations);
+            }
+            for (const auto *enemyCfg : {&cfg.enemyClasses.blob, &cfg.enemyClasses.boss}) {
+                if (!found)
+                    found = searchAnimConfig(enemyCfg->animations);
+                if (!found)
+                    found = searchAnimConfig(enemyCfg->attack.projectile.animations);
+                if (!found)
+                    found = searchAnimConfig(enemyCfg->attack.beam.animations);
+                if (!found)
+                    found = searchAnimConfig(enemyCfg->attack.area.animations);
+            }
+            for (const auto &spriteCfg : cfg.mapConfig.mapSprites) {
+                if (!found && spriteCfg.texture.path == texturePath) {
+                    found = &spriteCfg.hitBox;
+                }
+            }
+            if (!found && cfg.fallbackSprite.texture.path == texturePath) {
+                found = &cfg.fallbackSprite.hitBox;
+            }
+
+            if (found) {
+                c.size = found->size;
+                c.offset = found->offset;
+                logger::log(logger::DEBUG, "HitBox loaded from config for texture: " + texturePath);
+            } else {
+                logger::log(logger::DEBUG, "No config entry found for texture: " + texturePath);
+            }
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("Save to Config")) {
+            config::GameConfig cfg = controller::PersistenceManager::getConfig();
+            const config::HitBoxConfig hb{c.offset, c.size};
+            int updateCount = 0;
+
+            auto countedUpdate = [&](config::AnimationConfig &animCfg) {
+                for (auto &[state, stateCfg] : animCfg.stateToStateConfig) {
+                    for (auto &[dir, frames] : stateCfg.directionToFrames) {
+                        for (auto &spriteCfg : frames) {
+                            if (spriteCfg.texture.path == texturePath) {
+                                spriteCfg.hitBox = hb;
+                                ++updateCount;
+                            }
+                        }
+                    }
+                }
+            };
+
+            for (auto *playerCfg : {&cfg.playerClasses.melee, &cfg.playerClasses.ranged}) {
+                countedUpdate(playerCfg->animations);
+                countedUpdate(playerCfg->attack.projectile.animations);
+                countedUpdate(playerCfg->attack.beam.animations);
+                countedUpdate(playerCfg->attack.area.animations);
+            }
+            for (auto *enemyCfg : {&cfg.enemyClasses.blob, &cfg.enemyClasses.boss}) {
+                countedUpdate(enemyCfg->animations);
+                countedUpdate(enemyCfg->attack.projectile.animations);
+                countedUpdate(enemyCfg->attack.beam.animations);
+                countedUpdate(enemyCfg->attack.area.animations);
+            }
+            for (auto &spriteCfg : cfg.mapConfig.mapSprites) {
+                if (spriteCfg.texture.path == texturePath) {
+                    spriteCfg.hitBox = hb;
+                    ++updateCount;
+                }
+            }
+            if (cfg.fallbackSprite.texture.path == texturePath) {
+                cfg.fallbackSprite.hitBox = hb;
+                ++updateCount;
+            }
+
+            if (updateCount > 0) {
+                if (controller::PersistenceManager::saveConfig(cfg)) {
+                    logger::log(logger::DEBUG, "HitBox saved to config for texture: " + texturePath + " ("
+                                                   + std::to_string(updateCount) + " entries updated)");
+                } else {
+                    logger::log(logger::ERROR, "Failed to save config for texture: " + texturePath);
+                }
+            } else {
+                logger::log(logger::DEBUG, "No config entry found to save for texture: " + texturePath);
+            }
+        }
+
+        ImGui::PopID();
+    }
 }
 
 } // namespace ui
