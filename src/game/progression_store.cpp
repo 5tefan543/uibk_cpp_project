@@ -41,6 +41,13 @@ constexpr const char *quitButtonText = "QUIT";
 constexpr const char *mainMenuButtonText = "MAIN MENU";
 constexpr const char *nextStageButtonText = "NEXT STAGE";
 
+const view::Color buyButtonColor = {100, 100, 100};
+const view::Color buyButtonSelectedColor = {0, 255, 0};
+const view::Color disabledBuyButtonColor = {65, 65, 65};
+const view::Color disabledBuyButtonSelectedColor = {85, 85, 85};
+const view::Color disabledBuyButtonTextColor = {150, 150, 150};
+const view::Color enabledBuyButtonTextColor = {255, 255, 255};
+
 std::string floatToPrettyString(float value)
 {
     std::ostringstream stream;
@@ -137,6 +144,7 @@ controller::StateTransitionAction ProgressionStore::update(const controller::Inp
     updateDynamicTexts();
     updateStoreItemLayouts();
     updateSelectedItemIcon();
+    updateBuyButtonState();
 
     return stateTransitionAction;
 }
@@ -387,8 +395,8 @@ view::Card &ProgressionStore::createSelectedItemDetailsCard()
     auto buyButtonRect = geometry::Rectangle<float>{.position = {detailsX + 36.0f, contentY + contentH - 92.0f},
                                                     .size = {detailsW - 72.0f, 64.0f}};
 
-    view::Button &buyButton = createButton(buyButtonRect, ButtonTypeId::Buy, buyButtonText);
-    detailsCard.elements.push_back(buyButton);
+    buyButton_ = &createButton(buyButtonRect, ButtonTypeId::Buy, buyButtonText);
+    detailsCard.elements.push_back(*buyButton_);
 
     return detailsCard;
 }
@@ -483,6 +491,11 @@ bool ProgressionStore::updateButtonSelection(const controller::InputState &input
 
     for (std::size_t i = 0; i < buttons_.size(); ++i) {
         buttons_[i].isSelected = i == selectedButtonIndex_;
+    }
+
+    const view::Button &selectedButton = buttons_[selectedButtonIndex_];
+    if (selectedButton.id == ButtonTypeId::Buy && !canBuySelectedStoreItem()) {
+        return false;
     }
 
     return buttonPressed;
@@ -608,6 +621,23 @@ void ProgressionStore::applyStatChanges(const PlayerStats &statChanges)
     }
 
     playerStats_.enemiesPierced += statChanges.enemiesPierced;
+}
+
+void ProgressionStore::updateBuyButtonState()
+{
+    if (buyButton_ == nullptr) {
+        return;
+    }
+
+    if (canBuySelectedStoreItem()) {
+        buyButton_->backgroundColor = buyButtonColor;
+        buyButton_->selectedColor = buyButtonSelectedColor;
+        buyButton_->text.color = enabledBuyButtonTextColor;
+    } else {
+        buyButton_->backgroundColor = disabledBuyButtonColor;
+        buyButton_->selectedColor = disabledBuyButtonSelectedColor;
+        buyButton_->text.color = disabledBuyButtonTextColor;
+    }
 }
 
 } // namespace game

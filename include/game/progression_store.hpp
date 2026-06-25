@@ -36,6 +36,7 @@ class ProgressionStore {
     std::deque<DynamicText> dynamicTexts_;
     std::deque<StoreItem> storeItems_;
     view::Sprite selectedItemIcon_;
+    view::Button *buyButton_ = nullptr;
 
     size_t selectedButtonIndex_ = 0;
     size_t prevSelectedButtonIndex_ = 0;
@@ -62,6 +63,7 @@ class ProgressionStore {
     bool canBuySelectedStoreItem() const;
     bool buySelectedStoreItem();
     void applyStatChanges(const PlayerStats &statChanges);
+    void updateBuyButtonState();
 
   public:
     explicit ProgressionStore(Game &game);
