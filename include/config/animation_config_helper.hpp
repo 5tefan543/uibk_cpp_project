@@ -31,6 +31,10 @@ class AnimationConfigHelper {
                                                       const ProjectileAttackConfig &projectileConfig,
                                                       const game::AnimationState state,
                                                       const game::AnimationDirection direction, const size_t frameNum);
+
+    static AnimationFrame getAreaAnimationFrame(const GameConfig &config, const AreaAttackConfig &areaConfig,
+                                                const game::AnimationState state,
+                                                const game::AnimationDirection direction, const size_t frameNum);
 };
 
 } // namespace config

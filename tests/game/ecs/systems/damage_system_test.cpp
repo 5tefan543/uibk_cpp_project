@@ -6,6 +6,7 @@
 #include "game/ecs/systems/damage_system.hpp"
 #include "shared/test_fixture.hpp"
 
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE_METHOD(TestFixture, "DamageSystem destroys projectile after max range")
@@ -184,21 +185,29 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem destroys beam and area damage entiti
     game::DamageSystem system;
 
     const game::Entity beam = registry.createEntity();
-    registry.addComponent<game::Damage>(
-        beam, {.amount = 3.0f,
-               .pushBackForce = 0.0f,
-               .stunChance = 0.0f,
-               .kind = game::DamageKind::Beam,
-               .params = game::BeamDamage{.length = 80.0f, .width = 12.0f, .activeTimeSec = 0.2f, .elapsedSec = 0.0f}});
+    registry.addComponent<game::Damage>(beam, {.amount = 3.0f,
+                                               .pushBackForce = 0.0f,
+                                               .stunChance = 0.0f,
+                                               .kind = game::DamageKind::Beam,
+                                               .params = game::BeamDamage{.length = 80.0f,
+                                                                          .width = 12.0f,
+                                                                          .activeTimeSec = 0.2f,
+                                                                          .elapsedSec = 0.0f,
+                                                                          .damageTicks = 1,
+                                                                          .elapsedSecSinceLastTick = 0.0f}});
     registry.addComponent<game::DamageTag>(beam, {});
 
     const game::Entity area = registry.createEntity();
-    registry.addComponent<game::Damage>(
-        area, {.amount = 3.0f,
-               .pushBackForce = 0.0f,
-               .stunChance = 0.0f,
-               .kind = game::DamageKind::Area,
-               .params = game::AreaDamage{.radius = 40.0f, .activeTimeSec = 0.4f, .elapsedSec = 0.0f}});
+    registry.addComponent<game::Damage>(area, {.amount = 3.0f,
+                                               .pushBackForce = 0.0f,
+                                               .stunChance = 0.0f,
+                                               .kind = game::DamageKind::Area,
+                                               .params = game::AreaDamage{.radius = 40.0f,
+                                                                          .activeTimeSec = 0.4f,
+                                                                          .elapsedSec = 0.0f,
+                                                                          .initialHit = 0.0f,
+                                                                          .damageTicks = 1,
+                                                                          .elapsedSecSinceLastTick = 0.0f}});
     registry.addComponent<game::DamageTag>(area, {});
 
     system.update(registry, 0.21f);
@@ -207,4 +216,155 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem destroys beam and area damage entiti
 
     system.update(registry, 0.2f);
     REQUIRE_FALSE(registry.isEntityAlive(area));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem projectile is removed after reaching max targets")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity projectile = registry.createEntity();
+    registry.addComponent<game::Damage>(
+        projectile, {.amount = 4.0f,
+                     .pushBackForce = 0.0f,
+                     .stunChance = 0.0f,
+                     .kind = game::DamageKind::Projectile,
+                     .params = game::ProjectileDamage{
+                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .maxTargets = 1}});
+
+    const game::Entity enemyA = registry.createEntity();
+    game::EnemyStats enemyAStats;
+    enemyAStats.health = 10.0f;
+    enemyAStats.scoreReward = 1;
+    registry.addComponent<game::EnemyStats>(enemyA, enemyAStats);
+
+    const game::Entity enemyB = registry.createEntity();
+    game::EnemyStats enemyBStats;
+    enemyBStats.health = 10.0f;
+    enemyBStats.scoreReward = 1;
+    registry.addComponent<game::EnemyStats>(enemyB, enemyBStats);
+
+    registry.addComponent<game::DamageTag>(projectile, {.targets = {enemyA, enemyB}});
+
+    system.update(registry, 0.016f);
+
+    REQUIRE_FALSE(registry.isEntityAlive(projectile));
+    REQUIRE(registry.isEntityAlive(enemyA));
+    REQUIRE(registry.isEntityAlive(enemyB));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem removes dead tagged targets from projectile cleanup")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity projectile = registry.createEntity();
+    registry.addComponent<game::Damage>(
+        projectile, {.amount = 1.0f,
+                     .pushBackForce = 0.0f,
+                     .stunChance = 0.0f,
+                     .kind = game::DamageKind::Projectile,
+                     .params = game::ProjectileDamage{
+                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .maxTargets = 3}});
+
+    const game::Entity aliveTarget = registry.createEntity();
+    game::EnemyStats aliveStats;
+    aliveStats.health = 10.0f;
+    aliveStats.scoreReward = 1;
+    registry.addComponent<game::EnemyStats>(aliveTarget, aliveStats);
+
+    const game::Entity deadTarget = registry.createEntity();
+    game::EnemyStats deadStats;
+    deadStats.health = 10.0f;
+    deadStats.scoreReward = 1;
+    registry.addComponent<game::EnemyStats>(deadTarget, deadStats);
+    registry.destroyEntity(deadTarget);
+
+    registry.addComponent<game::DamageTag>(projectile, {.targets = {deadTarget, aliveTarget}});
+
+    system.update(registry, 0.016f);
+
+    REQUIRE(registry.isEntityAlive(projectile));
+    const auto &tag = registry.getComponent<game::DamageTag>(projectile);
+    REQUIRE(tag.targets.contains(aliveTarget));
+    REQUIRE_FALSE(tag.targets.contains(deadTarget));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem beam clears targets and periodically resets hit cache")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity player = registry.createEntity();
+    game::PlayerStats playerStats;
+    playerStats.health = 100.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+
+    const game::Entity beam = registry.createEntity();
+    registry.addComponent<game::Damage>(beam, {.amount = 12.0f,
+                                               .pushBackForce = 0.0f,
+                                               .stunChance = 0.0f,
+                                               .kind = game::DamageKind::Beam,
+                                               .params = game::BeamDamage{.length = 80.0f,
+                                                                          .width = 12.0f,
+                                                                          .activeTimeSec = 2.0f,
+                                                                          .elapsedSec = 0.0f,
+                                                                          .damageTicks = 2,
+                                                                          .elapsedSecSinceLastTick = 0.0f}});
+    registry.addComponent<game::DamageTag>(beam, {.targets = {player}, .targetsHit = {player}});
+
+    system.update(registry, 0.2f);
+
+    auto &beamTag = registry.getComponent<game::DamageTag>(beam);
+    REQUIRE(beamTag.targets.empty());
+    REQUIRE(beamTag.targetsHit.empty());
+
+    beamTag.targetsHit.insert(player);
+    system.update(registry, 0.1f);
+
+    REQUIRE(beamTag.targets.empty());
+    REQUIRE(beamTag.targetsHit.contains(player));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem area damage applies initial and tick damage and clears targets")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity player = registry.createEntity();
+    game::PlayerStats playerStats;
+    playerStats.health = 100.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+
+    const game::Entity area = registry.createEntity();
+    registry.addComponent<game::Damage>(area, {.amount = 10.0f,
+                                               .pushBackForce = 0.0f,
+                                               .stunChance = 0.0f,
+                                               .kind = game::DamageKind::Area,
+                                               .params = game::AreaDamage{.radius = 40.0f,
+                                                                          .activeTimeSec = 1.0f,
+                                                                          .elapsedSec = 0.0f,
+                                                                          .initialHit = 0.4f,
+                                                                          .damageTicks = 2,
+                                                                          .elapsedSecSinceLastTick = 0.0f}});
+    registry.addComponent<game::DamageTag>(area, {.targets = {player}});
+
+    system.update(registry, 0.05f);
+
+    auto &updatedPlayer = registry.getComponent<game::PlayerStats>(player);
+    REQUIRE(updatedPlayer.health == Catch::Approx(96.0f));
+    auto &areaTag = registry.getComponent<game::DamageTag>(area);
+    REQUIRE(areaTag.targets.empty());
+    REQUIRE(areaTag.targetsHit.contains(player));
+
+    areaTag.targets.insert(player);
+    system.update(registry, 0.05f);
+    REQUIRE(updatedPlayer.health == Catch::Approx(96.0f));
+
+    areaTag.targets.insert(player);
+    system.update(registry, 0.5f);
+
+    REQUIRE(updatedPlayer.health == Catch::Approx(92.0f));
+    REQUIRE(areaTag.targets.empty());
+    REQUIRE(areaTag.targetsHit.contains(player));
 }

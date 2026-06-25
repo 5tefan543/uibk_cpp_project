@@ -1,6 +1,7 @@
 #include "game/ecs/systems/animation_system.hpp"
 #include "config/animation_config_helper.hpp"
 #include "game/ecs/components/animation.hpp"
+#include "game/ecs/components/enemy_attack_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/player_tag.hpp"
@@ -43,6 +44,25 @@ std::optional<config::AnimationFrame> getAnimationFrameForEntity(Registry &regis
         const EnemyStats &stats = registry.getComponent<EnemyStats>(entity);
         return config::AnimationConfigHelper::getEnemyAnimationFrame(config, stats.enemyType, animation.state,
                                                                      animation.direction, animation.currentFrame);
+    }
+
+    if (registry.hasComponent<EnemyAttackTag>(entity) && registry.hasComponent<Damage>(entity)) {
+        const Damage &damage = registry.getComponent<Damage>(entity);
+        Entity enemyId = registry.getComponent<EnemyAttackTag>(entity).source;
+        if (!registry.hasComponent<EnemyStats>(enemyId))
+            return std::nullopt;
+
+        const EnemyStats &stats = registry.getComponent<EnemyStats>(enemyId);
+
+        switch (damage.kind) {
+        case DamageKind::Area: {
+            const config::AreaAttackConfig &area = config.enemyClasses.getByType(stats.enemyType).attack.area;
+            return config::AnimationConfigHelper::getAreaAnimationFrame(
+                config, area, AnimationState::Idle, AnimationDirection::None, animation.currentFrame);
+        }
+        default:
+            break;
+        }
     }
 
     return std::nullopt;

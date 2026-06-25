@@ -5,13 +5,6 @@
     "waveDurationSeconds": 1000,
     "wavesPerStage": 2,
     "maxEnemyCount": 500,
-    "menuSoundConfig": {
-        "gameMusic": "assets/audio/music/game_loop.ogg",
-        "buttonHoverSound": "assets/audio/sounds/menu/menu_hover.wav",
-        "buttonClickSound": "assets/audio/sounds/menu/menu_click.wav",
-        "gameOverSound": "assets/audio/sounds/menu/game_over.wav",
-        "waveOverSound": "assets/audio/sounds/wave_finished.wav"
-    },
     "windowConfig": {
         "width": 1920,
         "height": 1080,
@@ -23,83 +16,99 @@
     },
     "mapConfig": {
         "mapSize": {
-            "x": 3840.0,
-            "y": 2160.0
+            "x": 3840,
+            "y": 2160
         },
         "mapSprites": [
             {
                 "texture": {
                     "path": "assets/maps/map0.png",
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
                     "size": {
-                        "x": 3840.0,
-                        "y": 2160.0
+                        "x": 3840,
+                        "y": 2160
                     }
                 },
                 "hitBox": {
                     "offset": {
-                        "x": 0.0,
-                        "y": 0.0
+                        "x": 0,
+                        "y": 0
                     },
                     "size": {
-                        "x": 3840.0,
-                        "y": 2160.0
+                        "x": 3840,
+                        "y": 2160
                     }
                 }
             },
             {
                 "texture": {
                     "path": "assets/maps/map1.png",
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
                     "size": {
-                        "x": 3840.0,
-                        "y": 2160.0
+                        "x": 3840,
+                        "y": 2160
                     }
                 },
                 "hitBox": {
                     "offset": {
-                        "x": 0.0,
-                        "y": 0.0
+                        "x": 0,
+                        "y": 0
                     },
                     "size": {
-                        "x": 3840.0,
-                        "y": 2160.0
+                        "x": 3840,
+                        "y": 2160
                     }
                 }
             },
             {
                 "texture": {
                     "path": "assets/maps/map2.png",
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
                     "size": {
-                        "x": 3840.0,
-                        "y": 2160.0
+                        "x": 3840,
+                        "y": 2160
                     }
                 },
                 "hitBox": {
                     "offset": {
-                        "x": 0.0,
-                        "y": 0.0
+                        "x": 0,
+                        "y": 0
                     },
                     "size": {
-                        "x": 3840.0,
-                        "y": 2160.0
+                        "x": 3840,
+                        "y": 2160
                     }
                 }
             },
             {
                 "texture": {
                     "path": "assets/maps/map3.png",
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
                     "size": {
-                        "x": 3840.0,
-                        "y": 2160.0
+                        "x": 3840,
+                        "y": 2160
                     }
                 },
                 "hitBox": {
                     "offset": {
-                        "x": 0.0,
-                        "y": 0.0
+                        "x": 0,
+                        "y": 0
                     },
                     "size": {
-                        "x": 3840.0,
-                        "y": 2160.0
+                        "x": 3840,
+                        "y": 2160
                     }
                 }
             }
@@ -118,32 +127,52 @@
     },
     "fallbackSprite": {
         "texture": {
-            "path": "assets/icons/question_mark.png"
+            "path": "assets/icons/question_mark.png",
+            "position": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "x": 128,
+                "y": 128
+            }
         },
-        "hitBox": {}
+        "hitBox": {
+            "offset": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "x": 128,
+                "y": 128
+            }
+        }
     },
     "playerClasses": {
         "melee": {
             "characterType": "Melee",
             "hasDash": true,
             "stats": {
-                "maxHealth": 100.0,
-                "attackPower": 14.0,
+                "maxHealth": 100,
+                "attackPower": 14,
                 "attackSpeed": 1.25,
-                "defense": 0.0,
-                "moveSpeed": 700.0,
-                "speedOfAttack": 220.0,
+                "defense": 0,
+                "moveSpeed": 700,
+                "speedOfAttack": 220,
                 "attackRange": 1
-            },
-            "sounds": {
-                "attack": "assets/audio/sounds/character/melee_attack.wav"
             },
             "attack": {
                 "kind": "MeleeArc",
-                "amount": 14.0,
+                "amount": 14,
                 "isMultiHit": false,
-                "pushBackForce": 0.0,
-                "stunChance": 0.0,
+                "pushBackForce": 0,
+                "stunChance": 0,
+                "projectile": {
+                    "velocityScale": 10,
+                    "animations": {
+                        "stateToStateConfig": {}
+                    }
+                },
                 "meleeArc": {
                     "reach": 10.0,
                     "hitBoxSize": {
@@ -152,28 +181,52 @@
                     },
                     "activeTimePaddingSec": 0.1
                 },
+                "beam": {
+                    "length": 0,
+                    "width": 0,
+                    "activeTimeSec": 0,
+                    "damageTicks": 0,
+                    "animations": {
+                        "stateToStateConfig": {}
+                    }
+                },
                 "area": {
-                    "radius": 80.0,
-                    "activeTimeSec": 0.2
+                    "radius": 80,
+                    "activeTimeSec": 0.2,
+                    "damageTicks": 0,
+                    "initialHit": 4.1878E-41,
+                    "animations": {
+                        "stateToStateConfig": {}
+                    }
                 }
             },
             "animations": {
                 "stateToStateConfig": {
                     "Idle": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_left_1.png"
+                                        "path": "assets/characters/melee/character_melee_left_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 72.0,
-                                            "y": 32.0
+                                            "x": 72,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 44.0,
-                                            "y": 84.0
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 }
@@ -181,16 +234,24 @@
                             "Right": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_right_1.png"
+                                        "path": "assets/characters/melee/character_melee_right_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 12.0,
-                                            "y": 32.0
+                                            "x": 12,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 44.0,
-                                            "y": 84.0
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 }
@@ -198,65 +259,99 @@
                         }
                     },
                     "Walk": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_left_1.png"
+                                        "path": "assets/characters/melee/character_melee_left_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 72.0,
-                                            "y": 32.0
+                                            "x": 72,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 44.0,
-                                            "y": 84.0
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_left_2.png"
+                                        "path": "assets/characters/melee/character_melee_left_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 68.0,
-                                            "y": 32.0
+                                            "x": 68,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 44.0,
-                                            "y": 84.0
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_left_3.png"
+                                        "path": "assets/characters/melee/character_melee_left_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 72.0,
-                                            "y": 32.0
+                                            "x": 72,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 44.0,
-                                            "y": 84.0
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_left_4.png"
+                                        "path": "assets/characters/melee/character_melee_left_4.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 72.0,
-                                            "y": 32.0
+                                            "x": 72,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 44.0,
-                                            "y": 84.0
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 }
@@ -264,61 +359,93 @@
                             "Right": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_right_1.png"
+                                        "path": "assets/characters/melee/character_melee_right_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 12.0,
-                                            "y": 32.0
+                                            "x": 12,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 44.0,
-                                            "y": 84.0
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_right_2.png"
+                                        "path": "assets/characters/melee/character_melee_right_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 16.0,
-                                            "y": 32.0
+                                            "x": 16,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 44.0,
-                                            "y": 84.0
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_right_3.png"
+                                        "path": "assets/characters/melee/character_melee_right_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 12.0,
-                                            "y": 32.0
+                                            "x": 12,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 44.0,
-                                            "y": 84.0
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_right_4.png"
+                                        "path": "assets/characters/melee/character_melee_right_4.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 12.0,
-                                            "y": 32.0
+                                            "x": 12,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 44.0,
-                                            "y": 84.0
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 }
@@ -326,147 +453,365 @@
                         }
                     },
                     "Attack": {
+                        "frameDuration": 0.16,
                         "moveSpeedMultiplier": 0.5,
                         "directionToFrames": {
                             "Left": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_atk_left_1.png"
+                                        "path": "assets/characters/melee/character_melee_atk_left_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 72,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 44,
+                                            "y": 84
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_atk_left_2.png"
+                                        "path": "assets/characters/melee/character_melee_atk_left_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 72,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 44,
+                                            "y": 84
+                                        }
+                                    }
                                 }
                             ],
                             "Right": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_atk_right_1.png"
+                                        "path": "assets/characters/melee/character_melee_atk_right_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 12,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 44,
+                                            "y": 84
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_atk_right_2.png"
+                                        "path": "assets/characters/melee/character_melee_atk_right_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 12,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 44,
+                                            "y": 84
+                                        }
+                                    }
                                 }
                             ]
                         }
                     },
                     "Hit": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_hit_left_1.png"
+                                        "path": "assets/characters/melee/character_melee_hit_left_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_hit_left_2.png"
+                                        "path": "assets/characters/melee/character_melee_hit_left_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_hit_left_3.png"
+                                        "path": "assets/characters/melee/character_melee_hit_left_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_hit_left_4.png"
+                                        "path": "assets/characters/melee/character_melee_hit_left_4.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 }
                             ],
                             "Right": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_hit_right_1.png"
+                                        "path": "assets/characters/melee/character_melee_hit_right_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_hit_right_2.png"
+                                        "path": "assets/characters/melee/character_melee_hit_right_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_hit_right_3.png"
+                                        "path": "assets/characters/melee/character_melee_hit_right_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/melee/character_melee_hit_right_4.png"
+                                        "path": "assets/characters/melee/character_melee_hit_right_4.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 }
                             ]
                         }
                     },
                     "Death": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
                         }
                     }
                 }
+            },
+            "sounds": {
+                "attack": "assets/audio/sounds/character/melee_attack.wav",
+                "special": "",
+                "hit": "",
+                "dash": ""
             }
         },
         "ranged": {
             "characterType": "Ranged",
             "hasDash": false,
             "stats": {
-                "maxHealth": 100.0,
-                "attackPower": 100.0,
-                "attackSpeed": 3.0,
-                "defense": 0.0,
-                "moveSpeed": 750.0,
-                "speedOfAttack": 240.0,
-                "attackRange": 1000.0
-            },
-            "sounds": {
-                "attack": "assets/audio/sounds/character/ranged_attack.wav"
+                "maxHealth": 100,
+                "attackPower": 100,
+                "attackSpeed": 3,
+                "defense": 0,
+                "moveSpeed": 750,
+                "speedOfAttack": 240,
+                "attackRange": 1000
             },
             "attack": {
                 "kind": "Projectile",
-                "amount": 10.0,
+                "amount": 10,
                 "isMultiHit": false,
-                "pushBackForce": 0.0,
-                "stunChance": 0.0,
+                "pushBackForce": 0,
+                "stunChance": 0,
                 "projectile": {
-                    "velocityScale": 10.0,
+                    "velocityScale": 10,
                     "animations": {
                         "stateToStateConfig": {
                             "Idle": {
+                                "frameDuration": 0.16,
+                                "moveSpeedMultiplier": 1,
                                 "directionToFrames": {
                                     "None": [
                                         {
                                             "texture": {
                                                 "path": "assets/effects/base_projectile_1.png",
+                                                "position": {
+                                                    "x": 0,
+                                                    "y": 0
+                                                },
                                                 "size": {
-                                                    "x": 16.0,
-                                                    "y": 16.0
+                                                    "x": 16,
+                                                    "y": 16
                                                 }
                                             },
                                             "hitBox": {
                                                 "offset": {
-                                                    "x": 5.0,
-                                                    "y": 5.0
+                                                    "x": 5,
+                                                    "y": 5
                                                 },
                                                 "size": {
-                                                    "x": 6.0,
-                                                    "y": 6.0
+                                                    "x": 6,
+                                                    "y": 6
                                                 }
                                             }
                                         }
@@ -476,209 +821,626 @@
                         }
                     }
                 },
+                "meleeArc": {
+                    "reach": 0,
+                    "hitBoxSize": {
+                        "x": 96.0,
+                        "y": 96.0
+                    },
+                    "activeTimePaddingSec": 0.1
+                },
                 "beam": {
-                    "length": 120.0,
-                    "width": 16.0,
-                    "activeTimeSec": 0.2
+                    "length": 120,
+                    "width": 16,
+                    "activeTimeSec": 0.2,
+                    "damageTicks": 0,
+                    "animations": {
+                        "stateToStateConfig": {}
+                    }
+                },
+                "area": {
+                    "radius": 0,
+                    "activeTimeSec": 0,
+                    "damageTicks": 0,
+                    "initialHit": 0,
+                    "animations": {
+                        "stateToStateConfig": {}
+                    }
                 }
             },
             "animations": {
                 "stateToStateConfig": {
                     "Idle": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_left_1.png"
+                                        "path": "assets/characters/ranged/ranged_character_left_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 80,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 }
                             ],
                             "Right": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_right_1.png"
+                                        "path": "assets/characters/ranged/ranged_character_right_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 18,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 }
                             ]
                         }
                     },
                     "Walk": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_left_1.png"
+                                        "path": "assets/characters/ranged/ranged_character_left_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 80,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_left_2.png"
+                                        "path": "assets/characters/ranged/ranged_character_left_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 80,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_left_3.png"
+                                        "path": "assets/characters/ranged/ranged_character_left_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 80,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_left_4.png"
+                                        "path": "assets/characters/ranged/ranged_character_left_4.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 80,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 }
                             ],
                             "Right": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_right_1.png"
+                                        "path": "assets/characters/ranged/ranged_character_right_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 18,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_right_2.png"
+                                        "path": "assets/characters/ranged/ranged_character_right_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 18,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_right_3.png"
+                                        "path": "assets/characters/ranged/ranged_character_right_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 18,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_right_4.png"
+                                        "path": "assets/characters/ranged/ranged_character_right_4.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 18,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 }
                             ]
                         }
                     },
                     "Attack": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_atk_left_1.png"
+                                        "path": "assets/characters/ranged/ranged_character_atk_left_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 80,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_atk_left_2.png"
+                                        "path": "assets/characters/ranged/ranged_character_atk_left_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 80,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 }
                             ],
                             "Right": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_atk_right_1.png"
+                                        "path": "assets/characters/ranged/ranged_character_atk_right_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 18,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_atk_right_2.png"
+                                        "path": "assets/characters/ranged/ranged_character_atk_right_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 18,
+                                            "y": 32
+                                        },
+                                        "size": {
+                                            "x": 30,
+                                            "y": 80
+                                        }
+                                    }
                                 }
                             ]
                         }
                     },
                     "Hit": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_hit_left_1.png"
+                                        "path": "assets/characters/ranged/ranged_character_hit_left_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_hit_left_2.png"
+                                        "path": "assets/characters/ranged/ranged_character_hit_left_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_hit_left_3.png"
+                                        "path": "assets/characters/ranged/ranged_character_hit_left_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_hit_left_4.png"
+                                        "path": "assets/characters/ranged/ranged_character_hit_left_4.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 }
                             ],
                             "Right": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_hit_right_1.png"
+                                        "path": "assets/characters/ranged/ranged_character_hit_right_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_hit_right_2.png"
+                                        "path": "assets/characters/ranged/ranged_character_hit_right_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_hit_right_3.png"
+                                        "path": "assets/characters/ranged/ranged_character_hit_right_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/ranged/ranged_character_hit_right_4.png"
+                                        "path": "assets/characters/ranged/ranged_character_hit_right_4.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 }
                             ]
                         }
                     },
                     "Death": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
                         }
                     }
                 }
+            },
+            "sounds": {
+                "attack": "assets/audio/sounds/character/ranged_attack.wav",
+                "special": "",
+                "hit": "",
+                "dash": ""
             }
         }
     },
     "enemyClasses": {
         "blob": {
             "enemyType": "Blob",
-            "spawnWeight": 1.0,
-            "combatScaleMultiplier": 1.0,
+            "spawnWeight": 1,
+            "combatScaleMultiplier": 1,
             "moveSpeedRatioOfPlayer": 0.9,
             "stats": {
-                "maxHealth": 10.0,
-                "attackPower": 2.0,
-                "attackSpeed": 1.0,
+                "maxHealth": 10,
+                "attackPower": 2,
+                "attackSpeed": 1,
                 "defense": 0.25,
-                "moveSpeed": 100.0,
-                "speedOfAttack": 0.0,
-                "attackRange": 0.0
+                "moveSpeed": 100,
+                "speedOfAttack": 0,
+                "attackRange": 1
             },
             "attack": {
-                "kind": "MeleeArc",
-                "amount": 2.0,
+                "kind": "Area",
+                "amount": 30,
                 "isMultiHit": false,
-                "pushBackForce": 0.0,
-                "stunChance": 0.0,
+                "pushBackForce": 0,
+                "stunChance": 0,
+                "projectile": {
+                    "velocityScale": 10,
+                    "animations": {
+                        "stateToStateConfig": {}
+                    }
+                },
                 "meleeArc": {
                     "reach": 45.0,
                     "hitBoxSize": {
@@ -687,231 +1449,718 @@
                     },
                     "activeTimePaddingSec": 0.1
                 },
+                "beam": {
+                    "length": 0,
+                    "width": 0,
+                    "activeTimeSec": 0,
+                    "damageTicks": 0,
+                    "animations": {
+                        "stateToStateConfig": {}
+                    }
+                },
                 "area": {
-                    "radius": 80.0,
-                    "activeTimeSec": 0.2
+                    "radius": 64,
+                    "activeTimeSec": 5,
+                    "damageTicks": 5,
+                    "initialHit": 0.3333,
+                    "animations": {
+                        "stateToStateConfig": {
+                            "Idle": {
+                                "frameDuration": 0.16,
+                                "moveSpeedMultiplier": 1,
+                                "directionToFrames": {
+                                    "None": [
+                                        {
+                                            "texture": {
+                                                "path": "assets/characters/blob_enemy/blob_atk_1.png",
+                                                "position": {
+                                                    "x": 0,
+                                                    "y": 0
+                                                },
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 18,
+                                                    "y": 18
+                                                },
+                                                "size": {
+                                                    "x": 94,
+                                                    "y": 94
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/characters/blob_enemy/blob_atk_2.png",
+                                                "position": {
+                                                    "x": 0,
+                                                    "y": 0
+                                                },
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 18,
+                                                    "y": 18
+                                                },
+                                                "size": {
+                                                    "x": 94,
+                                                    "y": 94
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 }
             },
             "scoreReward": 1,
             "animations": {
                 "stateToStateConfig": {
                     "Idle": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_left_1.png"
+                                        "path": "assets/characters/blob_enemy/blob_left_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 48,
+                                            "y": 50
+                                        },
+                                        "size": {
+                                            "x": 32,
+                                            "y": 40
+                                        }
+                                    }
                                 }
                             ],
                             "Right": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_right_1.png"
+                                        "path": "assets/characters/blob_enemy/blob_right_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 46,
+                                            "y": 56
+                                        },
+                                        "size": {
+                                            "x": 36,
+                                            "y": 40
+                                        }
+                                    }
                                 }
                             ]
                         }
                     },
                     "Walk": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_left_1.png"
+                                        "path": "assets/characters/blob_enemy/blob_left_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 48,
+                                            "y": 50
+                                        },
+                                        "size": {
+                                            "x": 32,
+                                            "y": 40
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_left_2.png"
+                                        "path": "assets/characters/blob_enemy/blob_left_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 70,
+                                            "y": 58
+                                        },
+                                        "size": {
+                                            "x": 32,
+                                            "y": 32
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_left_3.png"
+                                        "path": "assets/characters/blob_enemy/blob_left_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 58,
+                                            "y": 50
+                                        },
+                                        "size": {
+                                            "x": 36,
+                                            "y": 40
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_left_4.png"
+                                        "path": "assets/characters/blob_enemy/blob_left_4.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 50,
+                                            "y": 50
+                                        },
+                                        "size": {
+                                            "x": 40,
+                                            "y": 40
+                                        }
+                                    }
                                 }
                             ],
                             "Right": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_right_1.png"
+                                        "path": "assets/characters/blob_enemy/blob_right_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 46,
+                                            "y": 56
+                                        },
+                                        "size": {
+                                            "x": 36,
+                                            "y": 40
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_right_2.png"
+                                        "path": "assets/characters/blob_enemy/blob_right_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 30,
+                                            "y": 58
+                                        },
+                                        "size": {
+                                            "x": 32,
+                                            "y": 38
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_right_3.png"
+                                        "path": "assets/characters/blob_enemy/blob_right_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 30,
+                                            "y": 50
+                                        },
+                                        "size": {
+                                            "x": 40,
+                                            "y": 40
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_right_4.png"
+                                        "path": "assets/characters/blob_enemy/blob_right_4.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 40,
+                                            "y": 50
+                                        },
+                                        "size": {
+                                            "x": 40,
+                                            "y": 44
+                                        }
+                                    }
                                 }
                             ]
                         }
                     },
                     "Attack": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_atk_left_1.png"
+                                        "path": "assets/characters/blob_enemy/blob_atk_left_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 50,
+                                            "y": 50
+                                        },
+                                        "size": {
+                                            "x": 40,
+                                            "y": 40
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_atk_left_2.png"
+                                        "path": "assets/characters/blob_enemy/blob_atk_left_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 50,
+                                            "y": 50
+                                        },
+                                        "size": {
+                                            "x": 40,
+                                            "y": 40
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_atk_left_3.png"
+                                        "path": "assets/characters/blob_enemy/blob_atk_left_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
-                                },
-                                {
-                                    "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_atk_left_4.png"
-                                    },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 50,
+                                            "y": 46
+                                        },
+                                        "size": {
+                                            "x": 32,
+                                            "y": 48
+                                        }
+                                    }
                                 }
                             ],
                             "Right": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_atk_right_1.png"
+                                        "path": "assets/characters/blob_enemy/blob_atk_right_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 50,
+                                            "y": 50
+                                        },
+                                        "size": {
+                                            "x": 40,
+                                            "y": 40
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_atk_right_2.png"
+                                        "path": "assets/characters/blob_enemy/blob_atk_right_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 50,
+                                            "y": 50
+                                        },
+                                        "size": {
+                                            "x": 40,
+                                            "y": 40
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_atk_right_3.png"
+                                        "path": "assets/characters/blob_enemy/blob_atk_right_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
-                                },
-                                {
-                                    "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_atk_right_4.png"
-                                    },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 50,
+                                            "y": 50
+                                        },
+                                        "size": {
+                                            "x": 40,
+                                            "y": 40
+                                        }
+                                    }
                                 }
                             ]
                         }
                     },
                     "Hit": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_hit_left_1.png"
+                                        "path": "assets/characters/blob_enemy/blob_hit_left_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_hit_left_2.png"
+                                        "path": "assets/characters/blob_enemy/blob_hit_left_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_hit_left_3.png"
+                                        "path": "assets/characters/blob_enemy/blob_hit_left_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_hit_left_4.png"
+                                        "path": "assets/characters/blob_enemy/blob_hit_left_4.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 }
                             ],
                             "Right": [
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_hit_right_1.png"
+                                        "path": "assets/characters/blob_enemy/blob_hit_right_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_hit_right_2.png"
+                                        "path": "assets/characters/blob_enemy/blob_hit_right_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_hit_right_3.png"
+                                        "path": "assets/characters/blob_enemy/blob_hit_right_3.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 },
                                 {
                                     "texture": {
-                                        "path": "assets/characters/blob_enemy/blob_atk_right_4.png"
+                                        "path": "assets/characters/blob_enemy/blob_atk_right_4.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
                                     },
-                                    "hitBox": {}
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
                                 }
                             ]
                         }
                     },
                     "Death": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
                         }
                     }
                 }
+            },
+            "sounds": {
+                "attack": "",
+                "special": "",
+                "hit": "",
+                "dash": ""
             }
         },
         "boss": {
             "enemyType": "Boss",
-            "spawnWeight": 1.0,
-            "combatScaleMultiplier": 4.0,
+            "spawnWeight": 1,
+            "combatScaleMultiplier": 4,
             "moveSpeedRatioOfPlayer": 0.5,
             "stats": {
-                "maxHealth": 10.0,
-                "attackPower": 2.0,
-                "attackSpeed": 1.0,
+                "maxHealth": 10,
+                "attackPower": 2,
+                "attackSpeed": 1,
                 "defense": 0.25,
-                "moveSpeed": 100.0,
-                "speedOfAttack": 0.0,
-                "attackRange": 0.0
+                "moveSpeed": 100,
+                "speedOfAttack": 0,
+                "attackRange": 0
             },
             "attack": {
                 "kind": "MeleeArc",
-                "amount": 2.0,
+                "amount": 2,
                 "isMultiHit": false,
-                "pushBackForce": 0.0,
-                "stunChance": 0.0,
+                "pushBackForce": 0,
+                "stunChance": 0,
+                "projectile": {
+                    "velocityScale": 10,
+                    "animations": {
+                        "stateToStateConfig": {}
+                    }
+                },
                 "meleeArc": {
                     "reach": 80.0,
                     "hitBoxSize": {
@@ -920,65 +2169,102 @@
                     },
                     "activeTimePaddingSec": 0.1
                 },
+                "beam": {
+                    "length": 0,
+                    "width": 0,
+                    "activeTimeSec": 0,
+                    "damageTicks": 0,
+                    "animations": {
+                        "stateToStateConfig": {}
+                    }
+                },
                 "area": {
-                    "radius": 80.0,
-                    "activeTimeSec": 0.2
+                    "radius": 80,
+                    "activeTimeSec": 0.2,
+                    "damageTicks": 0,
+                    "initialHit": 0,
+                    "animations": {
+                        "stateToStateConfig": {}
+                    }
                 }
             },
             "scoreReward": 4,
             "animations": {
                 "stateToStateConfig": {
                     "Idle": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
                         }
                     },
                     "Walk": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
                         }
                     },
                     "Attack": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
                         }
                     },
                     "Hit": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
                         }
                     },
                     "Death": {
+                        "frameDuration": 0.16,
+                        "moveSpeedMultiplier": 1,
                         "directionToFrames": {
                             "Left": [],
                             "Right": []
                         }
                     }
                 }
+            },
+            "sounds": {
+                "attack": "",
+                "special": "",
+                "hit": "",
+                "dash": ""
             }
         }
     },
     "enemySpawnConfig": {
-        "baseEnemyCount": 2.0,
+        "baseEnemyCount": 2,
         "enemyCountGrowthPerWave": 1.5,
         "enemyCountVariationRatio": 0.25,
-        "minBossSpawnDistanceFromPlayer": 280.0,
-        "maxBossSpawnDistanceFromPlayer": 570.0,
-        "baseEnemyScaling": 1.0,
+        "minBossSpawnDistanceFromPlayer": 280,
+        "maxBossSpawnDistanceFromPlayer": 570,
+        "baseEnemyScaling": 1,
         "enemyScalingGrowthPerWave": 0.15,
-        "enemyScalingVariationMean": 1.0,
+        "enemyScalingVariationMean": 1,
         "enemyScalingVariationStddev": 0.1,
         "minEnemyScalingVariation": 0.8,
         "maxEnemyScalingVariation": 1.2,
-        "baseEnemyMoveSpeed": 100.0,
-        "enemyMoveSpeedGrowthPerWave": 3.0,
-        "enemyMoveSpeedVariationMean": 1.0,
+        "baseEnemyMoveSpeed": 100,
+        "enemyMoveSpeedGrowthPerWave": 3,
+        "enemyMoveSpeedVariationMean": 1,
         "enemyMoveSpeedVariationStddev": 0.08,
         "minEnemyMoveSpeedVariation": 0.9,
         "maxEnemyMoveSpeedVariation": 1.1
+    },
+    "menuSoundConfig": {
+        "gameMusic": "assets/audio/music/game_loop.ogg",
+        "buttonHoverSound": "assets/audio/sounds/menu/menu_hover.wav",
+        "buttonClickSound": "assets/audio/sounds/menu/menu_click.wav",
+        "gameOverSound": "assets/audio/sounds/menu/game_over.wav",
+        "waveOverSound": "assets/audio/sounds/wave_finished.wav"
     }
 }
