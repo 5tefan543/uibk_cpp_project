@@ -173,7 +173,7 @@ void Game::initWave(int waveNumber)
     debugSession_.stage = stage_;
 
     if (wave_ > 1) {
-        saveGame();
+        save();
 
         if (stage_ != stageOld) {
             switchMap();
@@ -184,13 +184,18 @@ void Game::initWave(int waveNumber)
     logger::log(logger::DEBUG, std::format("Starting wave {} of stage {}", wave_, stage_));
 }
 
-void Game::Game::saveGame()
+void Game::Game::save()
 {
     PersistedGame persistedGame = getPersistedGame();
     if (!controller::PersistenceManager::saveGame(persistedGame)) {
         logger::log(logger::ERROR, "Failed to save game!");
         // TODO error via gui not console
     }
+}
+
+void Game::setShouldOpenStore(bool shouldOpenStore)
+{
+    shouldOpenStore_ = shouldOpenStore;
 }
 
 GameDebugSession &Game::getDebugSession()
@@ -304,7 +309,7 @@ void Game::processDebugSession(float dt)
     if (debugSession_.isSaveGameRequested) {
         debugSession_.isSaveGameRequested = false;
         logger::log(logger::DEBUG, "Saving game!");
-        saveGame();
+        save();
     }
 }
 

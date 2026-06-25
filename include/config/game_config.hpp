@@ -202,7 +202,7 @@ struct MenuSoundConfig {
 struct StoreItemTypeConfig {
     TextureConfig icon;
     game::PlayerStats statChanges = game::getDefaultPlayerStatChanges();
-    float cost;
+    int cost;
     float randomWeight;
 };
 

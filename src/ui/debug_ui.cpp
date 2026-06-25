@@ -40,7 +40,7 @@ void DebugUI::renderStats(float fps, const controller::InputState &input, contro
     prevFps_ = smoothedFps;
     float frameTimeMs = smoothedFps > 0.0f ? 1000.0f / smoothedFps : 0.0f;
 
-    if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader("Game Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::Text("FPS: %.0f", smoothedFps);
         ImGui::Text("Frame time: %.0f ms", frameTimeMs);
         ImGui::Text("Mouse position: (%f, %f)", input.mouseGrid.x, input.mouseGrid.y);
@@ -230,6 +230,8 @@ void DebugUI::renderComponent(game::PlayerStats &c)
 
     ImGui::SeparatorText("PlayerStats");
     ImGui::Checkbox("hasDash", &c.hasDash);
+    ImGui::InputInt("currency", &c.currency);
+    ImGui::InputInt("score", &c.score);
 
     ImGui::PopID();
 }

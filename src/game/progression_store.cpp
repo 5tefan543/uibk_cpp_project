@@ -41,7 +41,7 @@ constexpr const char *quitButtonText = "QUIT";
 constexpr const char *mainMenuButtonText = "MAIN MENU";
 constexpr const char *nextStageButtonText = "NEXT STAGE";
 
-std::string floatToString(float value)
+std::string floatToPrettyString(float value)
 {
     std::ostringstream stream;
     stream << std::fixed << std::setprecision(1) << value;
@@ -95,7 +95,55 @@ void ProgressionStore::initView(view::View &view)
     backgroundCard.elements.push_back(nextStageButton);
 
     view.nodes.push_back({view::ViewMode::FixedToScreen, backgroundCard});
-    updateButtonSelection();
+}
+
+controller::StateTransitionAction ProgressionStore::update(const controller::InputState &input)
+{
+    bool buttonPressed = updateButtonSelection(input);
+    updateStoreItemSelection(input);
+
+    controller::StateTransitionAction stateTransitionAction = controller::StateTransitionAction::None;
+    controller::DebugContext &debug = controller::DebugContext::get();
+
+    if (buttonPressed) {
+        const view::Button &selectedButton = buttons_[selectedButtonIndex_];
+
+        switch (selectedButton.id) {
+        case ButtonTypeId::Buy:
+            buySelectedStoreItem();
+            break;
+
+        case ButtonTypeId::Quit:
+            stateTransitionAction = controller::StateTransitionAction::ReplaceAllStatesWithExit;
+            debug.gameSession = nullptr;
+            break;
+
+        case ButtonTypeId::MainMenu:
+            stateTransitionAction = controller::StateTransitionAction::ReplaceAllStatesWithMainMenu;
+            debug.gameSession = nullptr;
+            break;
+
+        case ButtonTypeId::NextStage:
+            stateTransitionAction = controller::StateTransitionAction::Pop;
+            game_.setShouldOpenStore(false);
+            game_.save();
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    updateDynamicTexts();
+    updateStoreItemLayouts();
+    updateSelectedItemIcon();
+
+    return stateTransitionAction;
+}
+
+bool ProgressionStore::selectedButtonChanged()
+{
+    return selectedButtonIndex_ != prevSelectedButtonIndex_;
 }
 
 view::Card &ProgressionStore::createBackgroundCard()
@@ -123,7 +171,7 @@ view::Card &ProgressionStore::createGoldCard()
     view::Text &goldText = texts_.emplace_back(view::Text());
     goldText.position = goldCard.rect.getCenter();
 
-    statsTexts_.push_back(StatsText{
+    dynamicTexts_.push_back(DynamicText{
         .textView = goldText,
         .getText = [this]() { return "Gold: " + std::to_string(playerStats_.currency); },
     });
@@ -168,7 +216,7 @@ view::Card &ProgressionStore::createPlayerStatsCard()
         valueText.alignment = view::TextAlignment::Right;
         valueText.size = statTextSize;
 
-        statsTexts_.push_back(StatsText{
+        dynamicTexts_.push_back(DynamicText{
             .textView = valueText,
             .getText = getValueText,
         });
@@ -179,13 +227,13 @@ view::Card &ProgressionStore::createPlayerStatsCard()
         statY += rowSpacing;
     };
 
-    addStatsRow("Max Health", [this]() { return floatToString(playerStats_.maxHealth); });
-    addStatsRow("Attack", [this]() { return floatToString(playerStats_.attackPower); });
-    addStatsRow("Attack Speed", [this]() { return floatToString(playerStats_.attackSpeed); });
-    addStatsRow("Defense", [this]() { return floatToString(playerStats_.defense); });
-    addStatsRow("Move Speed", [this]() { return floatToString(playerStats_.moveSpeed); });
-    addStatsRow("Speed of Attack", [this]() { return floatToString(playerStats_.speedOfAttack); });
-    addStatsRow("Attack Range", [this]() { return floatToString(playerStats_.attackRange); });
+    addStatsRow("Max Health", [this]() { return floatToPrettyString(playerStats_.maxHealth); });
+    addStatsRow("Attack", [this]() { return floatToPrettyString(playerStats_.attackPower); });
+    addStatsRow("Attack Speed", [this]() { return floatToPrettyString(playerStats_.attackSpeed); });
+    addStatsRow("Defense", [this]() { return floatToPrettyString(playerStats_.defense); });
+    addStatsRow("Move Speed", [this]() { return floatToPrettyString(playerStats_.moveSpeed); });
+    addStatsRow("Speed of Attack", [this]() { return floatToPrettyString(playerStats_.speedOfAttack); });
+    addStatsRow("Attack Range", [this]() { return floatToPrettyString(playerStats_.attackRange); });
     addStatsRow("Dash", [this]() { return std::string(playerStats_.hasDash ? "Yes" : "No"); });
 
     return statsCard;
@@ -265,145 +313,6 @@ view::Card &ProgressionStore::createStoreItemsCard()
     return itemsCard;
 }
 
-view::Card &ProgressionStore::createSelectedItemDetailsCard()
-{
-    view::Card &detailsCard = cards_.emplace_back(view::Card());
-    detailsCard.rect = geometry::Rectangle<float>{.position = {detailsX, contentY}, .size = {detailsW, contentH}};
-    detailsCard.backgroundColor = view::Color{28, 28, 28};
-
-    selectedItemNameText_ = &texts_.emplace_back(view::Text());
-    selectedItemNameText_->position = {detailsCard.rect.getCenter().x, contentY + 55.0f};
-    selectedItemNameText_->size = 28;
-    detailsCard.elements.push_back(*selectedItemNameText_);
-
-    view::Card &selectedItemCard = cards_.emplace_back(view::Card());
-    selectedItemCard.rect = geometry::Rectangle<float>{
-        .position = {detailsCard.rect.getCenter().x - 48.0f, contentY + 110.0f}, .size = {96.0f, 96.0f}};
-    selectedItemCard.backgroundColor = view::Color{55, 45, 55};
-
-    selectedItemIcon_.rect = geometry::Rectangle<float>{
-        .position = {selectedItemCard.rect.position.x + 8.0f, selectedItemCard.rect.position.y + 8.0f},
-        .size = {80.0f, 80.0f}};
-
-    selectedItemCard.elements.push_back(selectedItemIcon_);
-    detailsCard.elements.push_back(selectedItemCard);
-
-    selectedItemTypeText_ = &texts_.emplace_back(view::Text());
-    selectedItemTypeText_->position = {detailsCard.rect.getCenter().x, contentY + 235.0f};
-    selectedItemTypeText_->size = 22;
-
-    selectedItemDescriptionText_ = &texts_.emplace_back(view::Text());
-    selectedItemDescriptionText_->position = {detailsCard.rect.getCenter().x, contentY + 290.0f};
-    selectedItemDescriptionText_->size = 20;
-
-    selectedItemStatChangesText_ = &texts_.emplace_back(view::Text());
-    selectedItemStatChangesText_->position = {detailsCard.rect.getCenter().x, contentY + 365.0f};
-    selectedItemStatChangesText_->size = 20;
-
-    selectedItemCostText_ = &texts_.emplace_back(view::Text());
-    selectedItemCostText_->position = {detailsCard.rect.getCenter().x, contentY + 455.0f};
-    selectedItemCostText_->size = 22;
-
-    detailsCard.elements.push_back(*selectedItemTypeText_);
-    detailsCard.elements.push_back(*selectedItemDescriptionText_);
-    detailsCard.elements.push_back(*selectedItemStatChangesText_);
-    detailsCard.elements.push_back(*selectedItemCostText_);
-
-    auto buyButtonRect = geometry::Rectangle<float>{.position = {detailsX + 36.0f, contentY + contentH - 92.0f},
-                                                    .size = {detailsW - 72.0f, 64.0f}};
-
-    view::Button &buyButton = createButton(buyButtonRect, ButtonTypeId::Buy, buyButtonText);
-    detailsCard.elements.push_back(buyButton);
-
-    return detailsCard;
-}
-
-view::Button &ProgressionStore::createButton(const geometry::Rectangle<float> &rect, const ButtonTypeId id,
-                                             const std::string &text)
-{
-    view::Button &button = buttons_.emplace_back(view::Button());
-    button.id = id;
-    button.rect = rect;
-    button.text.text = text;
-    button.text.position = button.rect.getCenter();
-    return button;
-}
-
-controller::StateTransitionAction ProgressionStore::update(const controller::InputState &input)
-{
-    updateStoreItemSelection(input);
-
-    prevSelectedButtonIndex_ = selectedButtonIndex_;
-
-    controller::StateTransitionAction stateTransitionAction = controller::StateTransitionAction::None;
-
-    const bool isMouseSelectionActive = input.mouseMoved || input.mouseLeftPressed;
-
-    const std::optional<std::size_t> hoveredButtonIndex = controller::MouseUtil::getHoveredButtonId(input, buttons_);
-
-    if (isMouseSelectionActive && hoveredButtonIndex.has_value()) {
-        selectedButtonIndex_ = hoveredButtonIndex.value();
-    }
-
-    const bool isButtonHovered = hoveredButtonIndex.has_value();
-    const bool buttonPressed = input.confirmPressed || (input.mouseLeftPressed && isButtonHovered);
-
-    controller::DebugContext &debug = controller::DebugContext::get();
-
-    if (buttonPressed) {
-        const view::Button &selectedButton = buttons_[selectedButtonIndex_];
-
-        switch (selectedButton.id) {
-        case ButtonTypeId::Buy:
-            // TODO: buy selected upgrade
-            break;
-
-        case ButtonTypeId::Quit:
-            stateTransitionAction = controller::StateTransitionAction::ReplaceAllStatesWithExit;
-            debug.gameSession = nullptr;
-            break;
-
-        case ButtonTypeId::MainMenu:
-            stateTransitionAction = controller::StateTransitionAction::ReplaceAllStatesWithMainMenu;
-            debug.gameSession = nullptr;
-            break;
-
-        case ButtonTypeId::NextStage:
-            stateTransitionAction = controller::StateTransitionAction::Pop;
-            break;
-
-        default:
-            break;
-        }
-    }
-
-    updateButtonSelection();
-    updatePlayerStatsTexts();
-    updateStoreItemViews();
-    updateSelectedItemDetails();
-
-    return stateTransitionAction;
-}
-
-void ProgressionStore::updateButtonSelection()
-{
-    for (std::size_t i = 0; i < buttons_.size(); ++i) {
-        buttons_[i].isSelected = i == selectedButtonIndex_;
-    }
-}
-
-void ProgressionStore::updatePlayerStatsTexts()
-{
-    for (StatsText &statsText : statsTexts_) {
-        statsText.textView.text = statsText.getText();
-    }
-}
-
-bool ProgressionStore::selectedButtonChanged()
-{
-    return selectedButtonIndex_ != prevSelectedButtonIndex_;
-}
-
 StoreItemType ProgressionStore::selectStoreItemType(const config::StoreItemConfig &storeItemConfig)
 {
     std::vector<StoreItemType> availableTypes;
@@ -418,15 +327,165 @@ StoreItemType ProgressionStore::selectStoreItemType(const config::StoreItemConfi
     return availableTypes[distribution(randomEngine_)];
 }
 
-std::optional<std::size_t> ProgressionStore::getHoveredStoreItemIndex(const controller::InputState &input) const
+view::Card &ProgressionStore::createSelectedItemDetailsCard()
 {
-    for (std::size_t i = 0; i < storeItems_.size(); ++i) {
-        if (storeItems_[i].baseCardRect.contains(input.mouseGrid)) {
-            return i;
+    view::Card &detailsCard = cards_.emplace_back(view::Card());
+    detailsCard.rect = geometry::Rectangle<float>{.position = {detailsX, contentY}, .size = {detailsW, contentH}};
+    detailsCard.backgroundColor = view::Color{28, 28, 28};
+
+    auto addDynamicText = [this, &detailsCard](geometry::Vec2<float> position, unsigned int size,
+                                               std::function<std::string()> getText) {
+        view::Text &text = texts_.emplace_back(view::Text());
+        text.position = position;
+        text.size = size;
+
+        dynamicTexts_.push_back(DynamicText{
+            .textView = text,
+            .getText = getText,
+        });
+
+        detailsCard.elements.push_back(text);
+    };
+
+    addDynamicText({detailsCard.rect.getCenter().x, contentY + 55.0f}, 28, [this]() {
+        const StoreItem *item = getSelectedStoreItem();
+        return item != nullptr ? item->itemConfig.name : "No item selected";
+    });
+
+    view::Card &selectedItemCard = cards_.emplace_back(view::Card());
+    selectedItemCard.rect = geometry::Rectangle<float>{
+        .position = {detailsCard.rect.getCenter().x - 48.0f, contentY + 110.0f}, .size = {96.0f, 96.0f}};
+    selectedItemCard.backgroundColor = view::Color{55, 45, 55};
+
+    selectedItemIcon_.rect = geometry::Rectangle<float>{
+        .position = {selectedItemCard.rect.position.x + 8.0f, selectedItemCard.rect.position.y + 8.0f},
+        .size = {80.0f, 80.0f}};
+
+    selectedItemCard.elements.push_back(selectedItemIcon_);
+    detailsCard.elements.push_back(selectedItemCard);
+
+    addDynamicText({detailsCard.rect.getCenter().x, contentY + 235.0f}, 22, [this]() {
+        const StoreItem *item = getSelectedStoreItem();
+        return item != nullptr ? toString(item->type) : "";
+    });
+
+    addDynamicText({detailsCard.rect.getCenter().x, contentY + 290.0f}, 20, [this]() {
+        const StoreItem *item = getSelectedStoreItem();
+        return item != nullptr ? item->itemConfig.description : "";
+    });
+
+    addDynamicText({detailsCard.rect.getCenter().x, contentY + 365.0f}, 20, [this]() {
+        const StoreItem *item = getSelectedStoreItem();
+        return item != nullptr ? getStatChangesText(item->typeConfig.statChanges) : "";
+    });
+
+    addDynamicText({detailsCard.rect.getCenter().x, contentY + 455.0f}, 22, [this]() {
+        const StoreItem *item = getSelectedStoreItem();
+        return item != nullptr ? "Cost: " + floatToPrettyString(item->typeConfig.cost) + " Gold" : "";
+    });
+
+    auto buyButtonRect = geometry::Rectangle<float>{.position = {detailsX + 36.0f, contentY + contentH - 92.0f},
+                                                    .size = {detailsW - 72.0f, 64.0f}};
+
+    view::Button &buyButton = createButton(buyButtonRect, ButtonTypeId::Buy, buyButtonText);
+    detailsCard.elements.push_back(buyButton);
+
+    return detailsCard;
+}
+
+const StoreItem *ProgressionStore::getSelectedStoreItem() const
+{
+    if (!selectedStoreItemIndex_.has_value()) {
+        return nullptr;
+    }
+
+    const std::size_t index = selectedStoreItemIndex_.value();
+
+    if (index >= storeItems_.size()) {
+        return nullptr;
+    }
+
+    return &storeItems_[index];
+}
+
+std::string ProgressionStore::getStatChangesText(const PlayerStats &statChanges) const
+{
+    std::vector<std::string> changes;
+
+    auto addFloatChange = [&changes](const std::string &label, float value) {
+        if (value != 0.0f) {
+            const std::string sign = value > 0.0f ? "+" : "";
+            changes.push_back(label + ": " + sign + floatToPrettyString(value));
+        }
+    };
+
+    auto addIntChange = [&changes](const std::string &label, int value) {
+        if (value != 0) {
+            const std::string sign = value > 0 ? "+" : "";
+            changes.push_back(label + ": " + sign + std::to_string(value));
+        }
+    };
+
+    addFloatChange("Max Health", statChanges.maxHealth);
+    addFloatChange("Attack", statChanges.attackPower);
+    addFloatChange("Attack Speed", statChanges.attackSpeed);
+    addFloatChange("Defense", statChanges.defense);
+    addFloatChange("Move Speed", statChanges.moveSpeed);
+    addFloatChange("Speed of Attack", statChanges.speedOfAttack);
+    addFloatChange("Attack Range", statChanges.attackRange);
+    addIntChange("Pierce", statChanges.enemiesPierced);
+
+    if (statChanges.hasDash) {
+        changes.push_back("Dash: unlocked");
+    }
+
+    if (changes.empty()) {
+        return "No stat changes";
+    }
+
+    std::string result;
+
+    for (std::size_t i = 0; i < changes.size(); ++i) {
+        result += changes[i];
+
+        if (i + 1 < changes.size()) {
+            result += "\n";
         }
     }
 
-    return std::nullopt;
+    return result;
+}
+
+view::Button &ProgressionStore::createButton(const geometry::Rectangle<float> &rect, const ButtonTypeId id,
+                                             const std::string &text)
+{
+    view::Button &button = buttons_.emplace_back(view::Button());
+    button.id = id;
+    button.rect = rect;
+    button.text.text = text;
+    button.text.position = button.rect.getCenter();
+    return button;
+}
+
+bool ProgressionStore::updateButtonSelection(const controller::InputState &input)
+{
+    prevSelectedButtonIndex_ = selectedButtonIndex_;
+
+    const bool isMouseSelectionActive = input.mouseMoved || input.mouseLeftPressed;
+    const std::optional<std::size_t> hoveredButtonIndex = controller::MouseUtil::getHoveredButtonId(input, buttons_);
+
+    if (isMouseSelectionActive && hoveredButtonIndex.has_value()) {
+        selectedButtonIndex_ = hoveredButtonIndex.value();
+    }
+
+    const bool isButtonHovered = hoveredButtonIndex.has_value();
+    const bool buttonPressed = input.confirmPressed || (input.mouseLeftPressed && isButtonHovered);
+
+    for (std::size_t i = 0; i < buttons_.size(); ++i) {
+        buttons_[i].isSelected = i == selectedButtonIndex_;
+    }
+
+    return buttonPressed;
 }
 
 void ProgressionStore::updateStoreItemSelection(const controller::InputState &input)
@@ -439,11 +498,35 @@ void ProgressionStore::updateStoreItemSelection(const controller::InputState &in
 
     if (input.mouseLeftPressed && hoveredStoreItemIndex_.has_value()) {
         selectedStoreItemIndex_ = hoveredStoreItemIndex_;
-        updateSelectedItemDetails();
+        updateSelectedItemIcon();
     }
 }
 
-void ProgressionStore::updateStoreItemViews()
+std::optional<std::size_t> ProgressionStore::getHoveredStoreItemIndex(const controller::InputState &input) const
+{
+    for (std::size_t i = 0; i < storeItems_.size(); ++i) {
+        if (storeItems_[i].baseCardRect.contains(input.mouseGrid)) {
+            return i;
+        }
+    }
+
+    return std::nullopt;
+}
+
+void ProgressionStore::updateSelectedItemIcon()
+{
+    const StoreItem *item = getSelectedStoreItem();
+    selectedItemIcon_.imagePath = item != nullptr ? item->typeConfig.icon.path : "";
+}
+
+void ProgressionStore::updateDynamicTexts()
+{
+    for (DynamicText &dynamicText : dynamicTexts_) {
+        dynamicText.textView.text = dynamicText.getText();
+    }
+}
+
+void ProgressionStore::updateStoreItemLayouts()
 {
     constexpr float iconPadding = 8.0f;
 
@@ -477,87 +560,54 @@ void ProgressionStore::updateStoreItemViews()
     }
 }
 
-void ProgressionStore::updateSelectedItemDetails()
+bool ProgressionStore::canBuySelectedStoreItem() const
 {
-    if (!selectedStoreItemIndex_.has_value() || selectedStoreItemIndex_.value() >= storeItems_.size()) {
-        if (selectedItemNameText_ != nullptr) {
-            selectedItemNameText_->text = "No item selected";
-        }
-
-        return;
-    }
-
-    const StoreItem &item = storeItems_[selectedStoreItemIndex_.value()];
-
-    if (selectedItemNameText_ != nullptr) {
-        selectedItemNameText_->text = item.itemConfig.name;
-    }
-
-    if (selectedItemTypeText_ != nullptr) {
-        selectedItemTypeText_->text = toString(item.type);
-    }
-
-    if (selectedItemDescriptionText_ != nullptr) {
-        selectedItemDescriptionText_->text = item.itemConfig.description;
-    }
-
-    if (selectedItemStatChangesText_ != nullptr) {
-        selectedItemStatChangesText_->text = getStatChangesText(item.typeConfig.statChanges);
-    }
-
-    if (selectedItemCostText_ != nullptr) {
-        selectedItemCostText_->text = "Cost: " + floatToString(item.typeConfig.cost) + " Gold";
-    }
-
-    selectedItemIcon_.imagePath = item.typeConfig.icon.path;
+    const StoreItem *item = getSelectedStoreItem();
+    return item != nullptr && playerStats_.currency >= item->typeConfig.cost;
 }
 
-std::string ProgressionStore::getStatChangesText(const PlayerStats &statChanges) const
+bool ProgressionStore::buySelectedStoreItem()
 {
-    std::vector<std::string> changes;
+    const StoreItem *item = getSelectedStoreItem();
 
-    auto addFloatChange = [&changes](const std::string &label, float value) {
-        if (value != 0.0f) {
-            const std::string sign = value > 0.0f ? "+" : "-";
-            changes.push_back(label + ": " + sign + floatToString(value));
-        }
-    };
+    if (item == nullptr) {
+        return false;
+    }
 
-    auto addIntChange = [&changes](const std::string &label, int value) {
-        if (value != 0) {
-            const std::string sign = value > 0 ? "+" : "-";
-            changes.push_back(label + ": " + sign + std::to_string(value));
-        }
-    };
+    if (!canBuySelectedStoreItem()) {
+        logger::log(logger::LogLevel::INFO,
+                    std::format("Cannot buy store item '{}'. Cost: {}, Currency: {}.", item->itemConfig.name,
+                                item->typeConfig.cost, playerStats_.currency));
 
-    addFloatChange("Max Health", statChanges.maxHealth);
-    addFloatChange("Attack", statChanges.attackPower);
-    addFloatChange("Attack Speed", statChanges.attackSpeed);
-    addFloatChange("Defense", statChanges.defense);
-    addFloatChange("Move Speed", statChanges.moveSpeed);
-    addFloatChange("Speed of Attack", statChanges.speedOfAttack);
-    addFloatChange("Attack Range", statChanges.attackRange);
-    addIntChange("Pierce", statChanges.enemiesPierced);
+        return false;
+    }
+
+    playerStats_.currency -= item->typeConfig.cost;
+    applyStatChanges(item->typeConfig.statChanges);
+    game_.save();
+
+    logger::log(logger::LogLevel::INFO, std::format("Bought store item '{}' ({}) for {} gold.", item->itemConfig.name,
+                                                    toString(item->type), item->typeConfig.cost));
+
+    return true;
+}
+
+void ProgressionStore::applyStatChanges(const PlayerStats &statChanges)
+{
+    playerStats_.maxHealth += statChanges.maxHealth;
+    playerStats_.health += statChanges.health;
+    playerStats_.attackPower += statChanges.attackPower;
+    playerStats_.attackSpeed += statChanges.attackSpeed;
+    playerStats_.defense += statChanges.defense;
+    playerStats_.moveSpeed += statChanges.moveSpeed;
+    playerStats_.speedOfAttack += statChanges.speedOfAttack;
+    playerStats_.attackRange += statChanges.attackRange;
 
     if (statChanges.hasDash) {
-        changes.push_back("Dash: unlocked");
+        playerStats_.hasDash = true;
     }
 
-    if (changes.empty()) {
-        return "No stat changes";
-    }
-
-    std::string result;
-
-    for (std::size_t i = 0; i < changes.size(); ++i) {
-        result += changes[i];
-
-        if (i + 1 < changes.size()) {
-            result += "\n";
-        }
-    }
-
-    return result;
+    playerStats_.enemiesPierced += statChanges.enemiesPierced;
 }
 
 } // namespace game

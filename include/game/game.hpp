@@ -57,7 +57,6 @@ class Game {
     void updateSystems(const controller::InputState &input, float dt);
     void addScore(int score);
     bool isWaveFinished();
-    void saveGame();
 
   public:
     Game();
@@ -73,6 +72,8 @@ class Game {
     controller::StateTransitionAction update(const controller::InputState &input, float dt);
     bool isGameOver();
     int getWaveNumber();
+    void save();
+    void setShouldOpenStore(bool shouldOpenStore);
     void updateView(view::View &view);
 };
 
