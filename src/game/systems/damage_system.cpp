@@ -1,4 +1,5 @@
 #include "game/ecs/systems/damage_system.hpp"
+#include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/stats.hpp"
@@ -9,6 +10,22 @@
 #include <cmath>
 
 namespace game {
+
+namespace {
+
+constexpr float hitAnimationDurationSec = 0.16f;
+
+void triggerHitAnimation(Registry &registry, Entity targetEntity)
+{
+    if (!registry.hasComponent<Animation>(targetEntity)) {
+        return;
+    }
+
+    Animation &animation = registry.getComponent<Animation>(targetEntity);
+    startTimedAnimation(animation, AnimationState::Hit, animation.direction, hitAnimationDurationSec);
+}
+
+} // namespace
 
 DamageInformation DamageSystem::updateProjectile(Registry &registry, Damage &damage, ProjectileDamage &projectile,
                                                  Entity damageEntity, float dt)
@@ -130,7 +147,6 @@ void DamageSystem::update(Registry &registry, float dt)
 
         for (Entity targetEntity : taggedTargets) {
             if (damageTag.targetsHit.contains(targetEntity)) {
-                logger::log(logger::LogLevel::DEBUG, std::format("target: {} already hit", targetEntity));
                 continue; // Already hit
             }
 
@@ -146,6 +162,8 @@ void DamageSystem::update(Registry &registry, float dt)
                 playerStats.health -= currentDamage.actualDamageAmount;
                 if (playerStats.health <= 0.0f) {
                     registry.destroyEntity(targetEntity);
+                } else {
+                    triggerHitAnimation(registry, targetEntity);
                 }
             } else if (registry.hasComponent<EnemyStats>(targetEntity)) {
                 EnemyStats &enemyStats = registry.getComponent<EnemyStats>(targetEntity);
@@ -158,6 +176,8 @@ void DamageSystem::update(Registry &registry, float dt)
                         playerStats.currency += enemyStats.scoreReward;
                     }
                     registry.destroyEntity(targetEntity);
+                } else {
+                    triggerHitAnimation(registry, targetEntity);
                 }
             }
 
