@@ -90,12 +90,10 @@ const controller::InputState &UI::pollInput()
     return inputState_;
 }
 
-void UI::render(const view::View &view)
+void UI::render(const view::View &view, const frametimeDelta &dt)
 {
     // 1. Start ImGui frame
-    sf::Time deltaTime = imguiClock_.restart();
-    fps_ = 1.0f / deltaTime.asSeconds();
-    ImGui::SFML::Update(window_, deltaTime);
+    ImGui::SFML::Update(window_, std::chrono::duration_cast<std::chrono::microseconds>(dt));
 
     // 2. Normal rendering
     window_.clear(renderer_.toSfColor(view.backgroundColor));
@@ -104,7 +102,7 @@ void UI::render(const view::View &view)
     // 3. Render debug UI on top
     setSfmlView(view.cameraPosition);
     renderer_.renderDebugContext(window_);
-    debugUI_.render(inputState_, fps_);
+    debugUI_.render(inputState_, dt);
     ImGui::SFML::Render(window_);
 
     // 4. Display everything

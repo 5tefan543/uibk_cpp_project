@@ -2,6 +2,7 @@
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "logging/log.hpp"
+#include "ui/frametime.hpp"
 #include "ui/ui.hpp"
 #include "view/view.hpp"
 #include <atomic>
@@ -32,18 +33,23 @@ int main()
         controller::Controller controller;
         ui::UI ui;
 
-        const float fixedDt = 1.0f / 60.0f; // Fixed time step for updates
+        std::chrono::high_resolution_clock::time_point endFrameTime;
+        std::chrono::high_resolution_clock::time_point startFrameTime = std::chrono::high_resolution_clock::now();
 
         while (ui.isOpen() && !shutdownRequested) {
             const controller::InputState &input = ui.pollInput();
 
-            controller.update(input, fixedDt);
+            endFrameTime = std::chrono::high_resolution_clock::now();
+            const ui::frametimeDelta dt = endFrameTime - startFrameTime;
+            startFrameTime = endFrameTime;
+            controller.update(input, std::chrono::duration<double, std::milli>(dt).count() / (double)1e3);
+
             controller::BaseState &currentState = controller.getCurrentState();
             if (typeid(currentState) == typeid(controller::ExitState)) {
                 break;
             }
             const view::View &view = currentState.getView();
-            ui.render(view);
+            ui.render(view, dt);
         }
         return EXIT_SUCCESS;
     } catch (const std::exception &e) {

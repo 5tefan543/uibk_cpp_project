@@ -16,7 +16,7 @@ Controller::~Controller()
     logger::log(logger::DEBUG, "Controller destructed");
 }
 
-void Controller::update(const InputState &input, float dt)
+void Controller::update(const InputState &input, float dtSec)
 {
     stateManager_.updateAudio();
 
@@ -27,7 +27,7 @@ void Controller::update(const InputState &input, float dt)
     }
 
     BaseState &currentState = stateManager_.getCurrent();
-    StateTransitionAction action = currentState.update(input, dt);
+    StateTransitionAction action = currentState.update(input, dtSec);
     stateManager_.applyAction(action);
 
     if (debug.active) {

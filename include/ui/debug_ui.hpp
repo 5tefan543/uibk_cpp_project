@@ -9,6 +9,7 @@
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
+#include "ui/frametime.hpp"
 #include "view/sprite.hpp"
 
 namespace ui {
@@ -17,7 +18,7 @@ class DebugUI {
   private:
     float prevFps_ = 0.0f;
 
-    void renderStats(float fps, const controller::InputState &input, controller::DebugContext &debug);
+    void renderStats(const frametimeDelta &dt, const controller::InputState &input, controller::DebugContext &debug);
     void renderGameSettings(controller::DebugContext &debug);
     void renderGameSession(controller::DebugContext &debug);
     void renderEcsManagement(controller::DebugContext &debug, game::GameDebugSession &gameSession);
@@ -37,7 +38,7 @@ class DebugUI {
     DebugUI();
     ~DebugUI();
 
-    void render(const controller::InputState &input, float fps);
+    void render(const controller::InputState &input, const frametimeDelta &dtSec);
 };
 
 } // namespace ui

@@ -19,13 +19,13 @@ TEST_CASE_METHOD(TestFixture, "MovementSystem updates position using velocity an
     registry.addComponent(e, game::PlayerTag{});
 
     // ACT
-    float dt = 0.5f;
-    system.update(registry, dt);
+    float dtSec = 0.5f;
+    system.update(registry, dtSec);
 
     // ASSERT
     const auto &position = registry.getComponent<game::Position>(e).p;
-    REQUIRE(position.x == (10.0f + 4.0f * dt));
-    REQUIRE(position.y == (20.0f - 6.0f * dt));
+    REQUIRE(position.x == (10.0f + 4.0f * dtSec));
+    REQUIRE(position.y == (20.0f - 6.0f * dtSec));
 }
 
 TEST_CASE_METHOD(TestFixture, "MovementSystem does not touch entity without Velocity")
@@ -38,8 +38,8 @@ TEST_CASE_METHOD(TestFixture, "MovementSystem does not touch entity without Velo
     registry.addComponent<game::Position>(e, {10.0f, 20.0f});
 
     // ACT
-    float dt = 1.0f;
-    system.update(registry, dt);
+    float dtSec = 1.0f;
+    system.update(registry, dtSec);
 
     // ASSERT
     const auto &position = registry.getComponent<game::Position>(e).p;
@@ -57,8 +57,8 @@ TEST_CASE_METHOD(TestFixture, "MovementSystem does not touch entity without Posi
     registry.addComponent<game::Velocity>(e, {4.0f, 5.0f});
 
     // ACT & ASSERT
-    float dt = 1.0f;
-    REQUIRE_NOTHROW(system.update(registry, dt));
+    float dtSec = 1.0f;
+    REQUIRE_NOTHROW(system.update(registry, dtSec));
 }
 
 TEST_CASE_METHOD(TestFixture, "MovementSystem updates multiple matching entities")
@@ -78,13 +78,13 @@ TEST_CASE_METHOD(TestFixture, "MovementSystem updates multiple matching entities
     registry.addComponent(e2, game::PlayerTag{});
 
     // ACT
-    float dt = 2.0f;
-    system.update(registry, dt);
+    float dtSec = 2.0f;
+    system.update(registry, dtSec);
 
     // ASSERT
-    REQUIRE(registry.getComponent<game::Position>(e1).p.x == (0.0f + 1.0f * dt));
-    REQUIRE(registry.getComponent<game::Position>(e1).p.y == (0.0f + 2.0f * dt));
+    REQUIRE(registry.getComponent<game::Position>(e1).p.x == (0.0f + 1.0f * dtSec));
+    REQUIRE(registry.getComponent<game::Position>(e1).p.y == (0.0f + 2.0f * dtSec));
 
-    REQUIRE(registry.getComponent<game::Position>(e2).p.x == (10.0f - 3.0f * dt));
-    REQUIRE(registry.getComponent<game::Position>(e2).p.y == (10.0f + 4.0f * dt));
+    REQUIRE(registry.getComponent<game::Position>(e2).p.x == (10.0f - 3.0f * dtSec));
+    REQUIRE(registry.getComponent<game::Position>(e2).p.y == (10.0f + 4.0f * dtSec));
 }

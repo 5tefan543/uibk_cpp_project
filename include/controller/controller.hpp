@@ -13,7 +13,7 @@ class Controller {
   public:
     Controller();
     ~Controller();
-    void update(const InputState &input, float dt);
+    void update(const InputState &input, float dtSec);
     BaseState &getCurrentState();
 };
 

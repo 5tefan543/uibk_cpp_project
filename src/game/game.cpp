@@ -220,13 +220,13 @@ void Game::cleanup()
     }
 }
 
-controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
+controller::StateTransitionAction Game::update(const controller::InputState &input, float dtSec)
 {
-    processDebugSession(dt);
-    updateSystems(input, dt);
+    processDebugSession(dtSec);
+    updateSystems(input, dtSec);
 
     // update clock
-    currentWaveDuration_ += dt;
+    currentWaveDuration_ += dtSec;
 
     if (isWaveFinished()) {
         cleanup();
@@ -250,7 +250,7 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
     return controller::StateTransitionAction::None;
 }
 
-void Game::processDebugSession(float dt)
+void Game::processDebugSession(float dtSec)
 {
     controller::DebugContext &debug = controller::DebugContext::get();
 
@@ -259,7 +259,7 @@ void Game::processDebugSession(float dt)
     }
 
     if (debugSession_.isClockPaused) {
-        currentWaveDuration_ -= dt;
+        currentWaveDuration_ -= dtSec;
     }
 
     // Handle stage/wave reload request
@@ -287,7 +287,7 @@ void Game::processDebugSession(float dt)
     }
 }
 
-void Game::updateSystems(const controller::InputState &input, float dt)
+void Game::updateSystems(const controller::InputState &input, float dtSec)
 {
     controller::DebugContext &debug = controller::DebugContext::get();
 
@@ -299,13 +299,13 @@ void Game::updateSystems(const controller::InputState &input, float dt)
     }
 
     locationTable_.update(registry_);
-    enemyAI_.update(registry_, config_, locationTable_, dt);
-    inputSystem_.update(registry_, config_, input, dt);
-    movementSystem_.update(registry_, dt);
-    animationSystem_.update(registry_, config_, dt);
+    enemyAI_.update(registry_, config_, locationTable_, dtSec);
+    inputSystem_.update(registry_, config_, input, dtSec);
+    movementSystem_.update(registry_, dtSec);
+    animationSystem_.update(registry_, config_, dtSec);
     cameraSystem_.update(registry_);
     collisionDetectionSystem_.update(registry_);
-    damageSystem_.update(registry_, dt);
+    damageSystem_.update(registry_, dtSec);
     soundSystem_.update(registry_);
 }
 

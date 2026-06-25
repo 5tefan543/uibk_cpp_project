@@ -70,7 +70,7 @@ std::optional<config::AnimationFrame> getAnimationFrameForEntity(Registry &regis
 
 } // namespace
 
-void AnimationSystem::update(Registry &registry, const config::GameConfig &config, float dt)
+void AnimationSystem::update(Registry &registry, const config::GameConfig &config, float dtSec)
 {
     for (auto entity : registry.view<Animation, view::Sprite>()) {
         Animation &animation = registry.getComponent<Animation>(entity);
@@ -84,7 +84,7 @@ void AnimationSystem::update(Registry &registry, const config::GameConfig &confi
 
         applySpriteConfig(registry, entity, frame->spriteConfig);
 
-        animation.frameTimer += dt;
+        animation.frameTimer += dtSec;
 
         if (animation.frameTimer >= frame->frameDuration) {
             animation.frameTimer -= frame->frameDuration;

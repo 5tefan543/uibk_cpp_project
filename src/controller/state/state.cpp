@@ -22,7 +22,7 @@ std::unique_ptr<MenuState> MenuState::createMenu(const MenuType menuType)
     return std::unique_ptr<MenuState>(new MenuState(menuType));
 }
 
-StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]] float dt)
+StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]] float dtSec)
 {
     StateTransitionAction stateTransitionAction = StateTransitionAction::None;
     prevSelectedButtonId_ = selectedButtonId_;
@@ -326,7 +326,7 @@ bool GameplayState::hasWaveChanged()
     return true;
 }
 
-StateTransitionAction GameplayState::update(const InputState &input, float dt)
+StateTransitionAction GameplayState::update(const InputState &input, float dtSec)
 {
     DebugContext &debug = DebugContext::get();
     debug.gameSession = &game.getDebugSession();
@@ -335,7 +335,7 @@ StateTransitionAction GameplayState::update(const InputState &input, float dt)
         return controller::StateTransitionAction::PushPauseMenu;
     }
 
-    StateTransitionAction action = game.update(input, dt);
+    StateTransitionAction action = game.update(input, dtSec);
 
     if (game.isGameOver()) {
         debug.gameSession = nullptr;
@@ -403,7 +403,7 @@ void ProgressionStoreState::initView()
     buttons_[selectedButtonId_].isSelected = true;
 }
 
-StateTransitionAction ProgressionStoreState::update(const InputState &input, [[maybe_unused]] float dt)
+StateTransitionAction ProgressionStoreState::update(const InputState &input, [[maybe_unused]] float dtSec)
 {
     prevSelectedButtonId_ = selectedButtonId_;
 
@@ -459,7 +459,7 @@ std::unique_ptr<ExitState> ExitState::createExitState()
     return exitState;
 }
 
-StateTransitionAction ExitState::update([[maybe_unused]] const InputState &input, [[maybe_unused]] float dt)
+StateTransitionAction ExitState::update([[maybe_unused]] const InputState &input, [[maybe_unused]] float dtSec)
 {
     return StateTransitionAction::ReplaceAllStatesWithExit;
 }
