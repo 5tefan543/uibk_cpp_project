@@ -43,12 +43,11 @@ void UI::initImGuiSfml()
     }
 }
 
-// TODO: could use Vec2<float> cameraPosition as param
-void UI::setSfmlView(float cameraX, float cameraY)
+void UI::setSfmlView(geometry::Vec2<float> cameraPosition)
 {
     sf::View view;
-    view.setSize({view::grid.size});
-    view.setCenter((view::grid.size / 2.0f) + geometry::Vec2{cameraX, cameraY});
+    view.setSize(toSFML(view::grid.size));
+    view.setCenter(toSFML((view::grid.size / 2.0f) + cameraPosition));
     view.setViewport(getLetterboxViewport());
     window_.setView(view);
 }
@@ -103,7 +102,7 @@ void UI::render(const view::View &view)
     renderView(window_, view);
 
     // 3. Render debug UI on top
-    setSfmlView(view.cameraPosition.x, view.cameraPosition.y);
+    setSfmlView(view.cameraPosition);
     renderer_.renderDebugContext(window_);
     debugUI_.render(inputState_, fps_);
     ImGui::SFML::Render(window_);
@@ -113,7 +112,7 @@ void UI::render(const view::View &view)
 
     // 5. Set view to camera-relative for next frame's input polling
     // Otherwise mouse input is not correctly mapped to grid coordinates when camera is moved
-    setSfmlView(view.cameraPosition.x, view.cameraPosition.y);
+    setSfmlView(view.cameraPosition);
 }
 
 void UI::renderView(sf::RenderWindow &window, const view::View &view)
@@ -124,9 +123,9 @@ void UI::renderView(sf::RenderWindow &window, const view::View &view)
         if (currentViewMode != node.mode) {
             currentViewMode = node.mode;
             if (node.mode == view::ViewMode::FixedToWorld) {
-                setSfmlView(view.cameraPosition.x, view.cameraPosition.y);
+                setSfmlView(view.cameraPosition);
             } else {
-                setSfmlView(0.0f, 0.0f);
+                setSfmlView({0.0f, 0.0f});
             }
         }
 
