@@ -130,7 +130,6 @@ void DamageSystem::update(Registry &registry, float dt)
 
         for (Entity targetEntity : taggedTargets) {
             if (damageTag.targetsHit.contains(targetEntity)) {
-                logger::log(logger::LogLevel::DEBUG, std::format("target: {} already hit", targetEntity));
                 continue; // Already hit
             }
 
