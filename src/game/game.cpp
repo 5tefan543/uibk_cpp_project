@@ -299,7 +299,6 @@ void Game::updateSystems(const controller::InputState &input, float dt)
     if (debug.active && !debugSession_.isSystemUpdateActive) {
         return;
     }
-    logger::log(logger::DEBUG, "update game!");
 
     locationTable_.update(registry_);
     enemyAI_.update(registry_, config_, locationTable_, dt);
