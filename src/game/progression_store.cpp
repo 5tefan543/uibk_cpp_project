@@ -106,6 +106,7 @@ void ProgressionStore::initView(view::View &view)
 
 controller::StateTransitionAction ProgressionStore::update(const controller::InputState &input)
 {
+    buyButtonPressed_ = false;
     bool buttonPressed = updateButtonSelection(input);
     updateStoreItemSelection(input);
 
@@ -162,6 +163,11 @@ bool ProgressionStore::storeItemHoveredChanged() const
 bool ProgressionStore::selectedStoreItemChanged() const
 {
     return selectedStoreItemIndex_ != prevSelectedStoreItemIndex_;
+}
+
+bool ProgressionStore::buyButtonPressed() const
+{
+    return buyButtonPressed_;
 }
 
 view::Card &ProgressionStore::createBackgroundCard()
@@ -612,6 +618,7 @@ bool ProgressionStore::buySelectedStoreItem()
     playerStats_.currency -= item->typeConfig.cost;
     applyStatChanges(item->typeConfig.statChanges);
     game_.save();
+    buyButtonPressed_ = true;
 
     logger::log(logger::LogLevel::INFO, std::format("Bought store item '{}' ({}) for {} gold.", item->itemConfig.name,
                                                     toString(item->type), item->typeConfig.cost));

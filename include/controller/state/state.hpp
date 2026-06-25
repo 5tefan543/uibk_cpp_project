@@ -76,6 +76,7 @@ class ProgressionStoreState : public BaseState {
     bool selectedButtonChanged();
     bool storeItemHoveredChanged();
     bool selectedStoreItemChanged();
+    bool buyButtonPressed();
     StateTransitionAction update(const InputState &input, float dt) override;
     std::string toString() const override;
 };

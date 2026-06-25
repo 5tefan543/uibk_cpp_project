@@ -59,7 +59,7 @@ void StateManager::updateAudio()
         if (menu->selectedButtonChanged() || menu->storeItemHoveredChanged()) {
             audioController_.playSound(config_.menuSoundConfig.buttonHoverSound);
         }
-        if (menu->selectedStoreItemChanged()) {
+        if (menu->selectedStoreItemChanged() || menu->buyButtonPressed()) {
             audioController_.playSound(config_.menuSoundConfig.buttonClickSound);
         }
     } else if (auto *menu = dynamic_cast<GameplayState *>(&currentState)) {

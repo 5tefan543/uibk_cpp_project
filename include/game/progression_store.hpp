@@ -37,6 +37,7 @@ class ProgressionStore {
     std::deque<StoreItem> storeItems_;
     view::Sprite selectedItemIcon_;
     view::Button *buyButton_ = nullptr;
+    bool buyButtonPressed_ = false;
 
     size_t selectedButtonIndex_ = 0;
     size_t prevSelectedButtonIndex_ = 0;
@@ -75,6 +76,7 @@ class ProgressionStore {
     bool selectedButtonChanged() const;
     bool storeItemHoveredChanged() const;
     bool selectedStoreItemChanged() const;
+    bool buyButtonPressed() const;
 };
 
 } // namespace game
