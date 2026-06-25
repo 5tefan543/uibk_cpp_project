@@ -53,17 +53,15 @@ struct Rectangle {
 
     std::optional<Rectangle<T>> findIntersection(const Rectangle<T> &other) const
     {
-        // TODO: use Vec operators
+        using geometry::Vec2;
         if (!intersects(other)) {
             return std::nullopt;
         }
 
-        T intersectX = std::max(position.x, other.position.x);
-        T intersectY = std::max(position.y, other.position.y);
-        T intersectWidth = std::min(position.x + size.x, other.position.x + other.size.x) - intersectX;
-        T intersectHeight = std::min(position.y + size.y, other.position.y + other.size.y) - intersectY;
+        Vec2<T> intersect = Vec2<T>::max(position, other.position);
+        Vec2<T> intersectWidth = Vec2<T>::min(position + size, other.position + other.size) - intersect;
 
-        return Rectangle<T>{{intersectX, intersectY}, {intersectWidth, intersectHeight}};
+        return Rectangle<T>{intersect, intersectWidth};
     }
 };
 } // namespace geometry
