@@ -68,15 +68,14 @@ class ProgressionStoreState : public BaseState {
 
     game::ProgressionStore store_;
 
-    ProgressionStoreState(const game::Game &game);
+    ProgressionStoreState(game::Game &game);
     void initView();
 
   public:
-    static std::unique_ptr<ProgressionStoreState> createStore(const game::Game &game);
+    static std::unique_ptr<ProgressionStoreState> createStore(game::Game &game);
     bool selectedButtonChanged();
     StateTransitionAction update(const InputState &input, float dt) override;
     std::string toString() const override;
-    const view::View &getView() override;
 };
 
 class ExitState : public BaseState {

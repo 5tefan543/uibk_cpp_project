@@ -9,6 +9,7 @@
 namespace view {
 
 struct Button {
+    size_t id = 0;
     Color backgroundColor = {100, 100, 100};
     geometry::Rectangle<float> rect =
         geometry::Rectangle<float>::centered(grid.getCenter(), grid.size / geometry::Vec2<float>{8, 20});

@@ -34,9 +34,22 @@ const float detailsX = itemsX + itemsW + panelGap;
 
 const float bottomY = screenY + screenH - bottomBarHeight + 24.0f;
 const float bottomButtonH = 70.0f;
+
+constexpr const char *buyButtonText = "BUY";
+constexpr const char *quitButtonText = "QUIT";
+constexpr const char *mainMenuButtonText = "MAIN MENU";
+constexpr const char *nextStageButtonText = "NEXT STAGE";
+
+std::string floatToString(float value)
+{
+    std::ostringstream stream;
+    stream << std::fixed << std::setprecision(1) << value;
+    return stream.str();
+}
+
 } // namespace
 
-ProgressionStore::ProgressionStore(const Game &game) : game(game) {}
+ProgressionStore::ProgressionStore(Game &game) : game_(game), playerStats_(game.getPlayerStats()) {}
 
 void ProgressionStore::initView(view::View &view)
 {
@@ -55,17 +68,17 @@ void ProgressionStore::initView(view::View &view)
     backgroundCard.elements.push_back(detailsCard);
 
     auto quitButtonRect = geometry::Rectangle<float>{.position = {contentX, bottomY}, .size = {230.0f, bottomButtonH}};
-    view::Button &quitButton = createButton(quitButtonRect, "QUIT", ButtonId::Quit);
+    view::Button &quitButton = createButton(quitButtonRect, ButtonTypeId::Quit, quitButtonText);
     backgroundCard.elements.push_back(quitButton);
 
     auto mainMenuButtonRect =
         geometry::Rectangle<float>{.position = {contentX + 260.0f, bottomY}, .size = {330.0f, bottomButtonH}};
-    view::Button &mainMenuButton = createButton(mainMenuButtonRect, "MAIN MENU", ButtonId::MainMenu);
+    view::Button &mainMenuButton = createButton(mainMenuButtonRect, ButtonTypeId::MainMenu, mainMenuButtonText);
     backgroundCard.elements.push_back(mainMenuButton);
 
     auto nextStageButtonRect = geometry::Rectangle<float>{
         .position = {screenX + screenW - outerPadding - 420.0f, bottomY}, .size = {420.0f, bottomButtonH}};
-    view::Button &nextStageButton = createButton(nextStageButtonRect, "NEXT STAGE", ButtonId::NextStage);
+    view::Button &nextStageButton = createButton(nextStageButtonRect, ButtonTypeId::NextStage, nextStageButtonText);
     backgroundCard.elements.push_back(nextStageButton);
 
     view.nodes.push_back({view::ViewMode::FixedToScreen, backgroundCard});
@@ -95,8 +108,13 @@ view::Card &ProgressionStore::createGoldCard()
     goldCard.backgroundColor = view::Color{25, 25, 25};
 
     view::Text &goldText = texts_.emplace_back(view::Text());
-    goldText.text = "Gold  100";
     goldText.position = goldCard.rect.getCenter();
+
+    statsTexts_.push_back(StatsText{
+        .textView = goldText,
+        .getText = [this]() { return "Gold: " + std::to_string(playerStats_.currency); },
+    });
+
     goldCard.elements.push_back(goldText);
 
     return goldCard;
@@ -111,23 +129,52 @@ view::Card &ProgressionStore::createPlayerStatsCard()
     view::Text &statsTitle = texts_.emplace_back(view::Text());
     statsTitle.text = "PLAYER STATS";
     statsTitle.position = {statsCard.rect.getCenter().x, contentY + 45.0f};
+    statsTitle.alignment = view::TextAlignment::Center;
 
     statsCard.elements.push_back(statsTitle);
 
-    const std::array<std::string, 8> statLines = {"Attack        10",  "Defense        5", "Attack Speed  1.2",
-                                                  "Max Health   100",  "Move Speed     7", "Crit Chance    5%",
-                                                  "Block Chance  10%", "Life Regen    1/s"};
-
     float statY = contentY + 105.0f;
 
-    for (const std::string &line : statLines) {
-        view::Text &statText = texts_.emplace_back(view::Text());
-        statText.text = line;
-        statText.position = {statsX + statsW * 0.5f, statY};
+    const float rowPadding = 24.0f;
+    const float labelX = statsCard.rect.position.x + rowPadding;
+    const float valueX = statsCard.rect.position.x + statsCard.rect.size.x - rowPadding;
 
-        statsCard.elements.push_back(statText);
-        statY += 50.0f;
-    }
+    constexpr unsigned int statTextSize = 22;
+    constexpr float rowSpacing = 50.0f;
+
+    auto addStatsRow = [this, &statsCard, &statY, labelX, valueX](const std::string &label,
+                                                                  std::function<std::string()> getValueText) {
+        view::Text &labelText = texts_.emplace_back(view::Text());
+        labelText.text = label;
+        labelText.position = {labelX, statY};
+        labelText.alignment = view::TextAlignment::Right;
+        labelText.size = statTextSize;
+
+        view::Text &valueText = texts_.emplace_back(view::Text());
+        valueText.position = {valueX, statY};
+        valueText.alignment = view::TextAlignment::Left;
+        valueText.size = statTextSize;
+
+        statsTexts_.push_back(StatsText{
+            .textView = valueText,
+            .getText = getValueText,
+        });
+
+        statsCard.elements.push_back(labelText);
+        statsCard.elements.push_back(valueText);
+
+        statY += rowSpacing;
+    };
+
+    addStatsRow("Max Health", [this]() { return floatToString(playerStats_.maxHealth); });
+    addStatsRow("Attack", [this]() { return floatToString(playerStats_.attackPower); });
+    addStatsRow("Attack Speed", [this]() { return floatToString(playerStats_.attackSpeed); });
+    addStatsRow("Defense", [this]() { return floatToString(playerStats_.defense); });
+    addStatsRow("Move Speed", [this]() { return floatToString(playerStats_.moveSpeed); });
+    addStatsRow("Speed of Attack", [this]() { return floatToString(playerStats_.speedOfAttack); });
+    addStatsRow("Attack Range", [this]() { return floatToString(playerStats_.attackRange); });
+    addStatsRow("Dash", [this]() { return std::string(playerStats_.hasDash ? "Yes" : "No"); });
+
     return statsCard;
 }
 
@@ -231,72 +278,63 @@ view::Card &ProgressionStore::createSelectedItemDetailsCard()
     detailsCard.elements.push_back(upgradeValueText);
     detailsCard.elements.push_back(upgradeCostText);
 
-    view::Button &buyButton = buttons_.emplace_back(view::Button());
-    buyButton.rect = geometry::Rectangle<float>{.position = {detailsX + 36.0f, contentY + contentH - 92.0f},
-                                                .size = {detailsW - 72.0f, 64.0f}};
-    buyButton.text.text = "BUY";
-    buyButton.text.position = buyButton.rect.getCenter();
-    buyButton.isSelected = selectedButtonId_ == ButtonId::Buy;
-
+    auto buyButtonRect = geometry::Rectangle<float>{.position = {detailsX + 36.0f, contentY + contentH - 92.0f},
+                                                    .size = {detailsW - 72.0f, 64.0f}};
+    view::Button &buyButton = createButton(buyButtonRect, ButtonTypeId::Buy, buyButtonText);
     detailsCard.elements.push_back(buyButton);
+
     return detailsCard;
 }
 
-view::Button &ProgressionStore::createButton(const geometry::Rectangle<float> &rect, const std::string &text,
-                                             ButtonId buttonId)
+view::Button &ProgressionStore::createButton(const geometry::Rectangle<float> &rect, const ButtonTypeId id,
+                                             const std::string &text)
 {
     view::Button &button = buttons_.emplace_back(view::Button());
+    button.id = id;
     button.rect = rect;
     button.text.text = text;
     button.text.position = button.rect.getCenter();
-    button.isSelected = selectedButtonId_ == buttonId;
     return button;
 }
 
 controller::StateTransitionAction ProgressionStore::update(const controller::InputState &input)
 {
-    prevSelectedButtonId_ = selectedButtonId_;
+    prevSelectedButtonIndex_ = selectedButtonIndex_;
 
     controller::StateTransitionAction stateTransitionAction = controller::StateTransitionAction::None;
 
     const bool isMouseSelectionActive = input.mouseMoved || input.mouseLeftPressed;
 
-    const std::optional<std::size_t> hoveredButtonId = controller::MouseUtil::getHoveredButtonId(input, buttons_);
+    const std::optional<std::size_t> hoveredButtonIndex = controller::MouseUtil::getHoveredButtonId(input, buttons_);
 
-    if (isMouseSelectionActive && hoveredButtonId.has_value()) {
-        selectedButtonId_ = hoveredButtonId.value();
+    if (isMouseSelectionActive && hoveredButtonIndex.has_value()) {
+        selectedButtonIndex_ = hoveredButtonIndex.value();
     }
 
-    const bool isButtonHovered = hoveredButtonId.has_value();
+    const bool isButtonHovered = hoveredButtonIndex.has_value();
     const bool buttonPressed = input.confirmPressed || (input.mouseLeftPressed && isButtonHovered);
-
-    if (input.downPressed) {
-        selectedButtonId_ = (selectedButtonId_ + 1) % buttons_.size();
-    }
-
-    if (input.upPressed) {
-        selectedButtonId_ = (selectedButtonId_ + buttons_.size() - 1) % buttons_.size();
-    }
 
     controller::DebugContext &debug = controller::DebugContext::get();
 
     if (buttonPressed) {
-        switch (selectedButtonId_) {
-        case ButtonId::Buy:
+        const view::Button &selectedButton = buttons_[selectedButtonIndex_];
+
+        switch (selectedButton.id) {
+        case ButtonTypeId::Buy:
             // TODO: buy selected upgrade
             break;
 
-        case ButtonId::Quit:
+        case ButtonTypeId::Quit:
             stateTransitionAction = controller::StateTransitionAction::ReplaceAllStatesWithExit;
-            debug.gameSession = nullptr; // Reset the game session when quitting
+            debug.gameSession = nullptr;
             break;
 
-        case ButtonId::MainMenu:
+        case ButtonTypeId::MainMenu:
             stateTransitionAction = controller::StateTransitionAction::ReplaceAllStatesWithMainMenu;
-            debug.gameSession = nullptr; // Reset the game session when returning to main menu
+            debug.gameSession = nullptr;
             break;
 
-        case ButtonId::NextStage:
+        case ButtonTypeId::NextStage:
             stateTransitionAction = controller::StateTransitionAction::Pop;
             break;
 
@@ -306,6 +344,7 @@ controller::StateTransitionAction ProgressionStore::update(const controller::Inp
     }
 
     updateButtonSelection();
+    updatePlayerStatsTexts();
 
     return stateTransitionAction;
 }
@@ -313,18 +352,20 @@ controller::StateTransitionAction ProgressionStore::update(const controller::Inp
 void ProgressionStore::updateButtonSelection()
 {
     for (std::size_t i = 0; i < buttons_.size(); ++i) {
-        buttons_[i].isSelected = i == selectedButtonId_;
+        buttons_[i].isSelected = i == selectedButtonIndex_;
     }
 }
 
-void ProgressionStore::updateView(view::View &view)
+void ProgressionStore::updatePlayerStatsTexts()
 {
-    // Not needed for now because the view references the objects owned by ProgressionStore.
+    for (StatsText &statsText : statsTexts_) {
+        statsText.textView.text = statsText.getText();
+    }
 }
 
 bool ProgressionStore::selectedButtonChanged()
 {
-    return selectedButtonId_ != prevSelectedButtonId_;
+    return selectedButtonIndex_ != prevSelectedButtonIndex_;
 }
 
 } // namespace game

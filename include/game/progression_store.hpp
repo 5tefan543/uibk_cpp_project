@@ -8,17 +8,24 @@
 
 namespace game {
 
-enum ButtonId { Buy, Quit, MainMenu, NextStage };
+struct StatsText {
+    view::Text &textView;
+    std::function<std::string()> getText;
+};
+
+enum ButtonTypeId : std::size_t { Buy = 0, Quit, MainMenu, NextStage };
 
 class ProgressionStore {
-    const Game &game;
+    Game &game_;
+    PlayerStats &playerStats_;
 
     std::deque<view::Button> buttons_;
     std::deque<view::Card> cards_;
     std::deque<view::Text> texts_;
+    std::deque<StatsText> statsTexts_;
 
-    size_t selectedButtonId_ = ButtonId::MainMenu;
-    size_t prevSelectedButtonId_ = ButtonId::MainMenu;
+    size_t selectedButtonIndex_ = 0;
+    size_t prevSelectedButtonIndex_ = 0;
     void updateButtonSelection();
 
     view::Card &createBackgroundCard();
@@ -26,15 +33,15 @@ class ProgressionStore {
     view::Card &createPlayerStatsCard();
     view::Card &createStoreItemsCard();
     view::Card &createSelectedItemDetailsCard();
-    view::Button &createButton(const geometry::Rectangle<float> &rect, const std::string &text, ButtonId buttonId);
+    view::Button &createButton(const geometry::Rectangle<float> &rect, const ButtonTypeId id, const std::string &text);
+
+    void updatePlayerStatsTexts();
 
   public:
-    explicit ProgressionStore(const Game &game);
+    explicit ProgressionStore(Game &game);
 
     void initView(view::View &view);
     controller::StateTransitionAction update(const controller::InputState &input);
-    void updateView(view::View &view);
-
     bool selectedButtonChanged();
 };
 

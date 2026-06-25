@@ -361,12 +361,12 @@ const view::View &GameplayState::getView()
     return view_;
 }
 
-ProgressionStoreState::ProgressionStoreState(const game::Game &game) : store_(game)
+ProgressionStoreState::ProgressionStoreState(game::Game &game) : store_(game)
 {
     initView();
 }
 
-std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore(const game::Game &game)
+std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore(game::Game &game)
 {
     return std::unique_ptr<ProgressionStoreState>(new ProgressionStoreState(game));
 }
@@ -389,12 +389,6 @@ bool ProgressionStoreState::selectedButtonChanged()
 std::string ProgressionStoreState::toString() const
 {
     return "ProgressionStore";
-}
-
-const view::View &ProgressionStoreState::getView()
-{
-    store_.updateView(view_);
-    return view_;
 }
 
 std::unique_ptr<ExitState> ExitState::createExitState()

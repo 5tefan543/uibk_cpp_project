@@ -129,12 +129,30 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Button &butto
 void Renderer::renderElement(sf::RenderWindow &window, const view::Text &text)
 {
     sf::Text t(toSfFont(text.font), text.text, text.size);
-    t.setPosition(text.position);
     t.setFillColor(toSfColor(text.color));
 
-    sf::Vector2<float> pos = t.getLocalBounds().getCenter() + static_cast<sf::Vector2<float>>(text.originOffset);
-    t.setOrigin(pos);
+    const sf::FloatRect bounds = t.getLocalBounds();
 
+    sf::Vector2<float> origin;
+
+    switch (text.alignment) {
+    case view::TextAlignment::Left:
+        origin = {bounds.position.x, bounds.position.y + bounds.size.y / 2.0f};
+        break;
+
+    case view::TextAlignment::Center:
+        origin = bounds.getCenter();
+        break;
+
+    case view::TextAlignment::Right:
+        origin = {bounds.position.x + bounds.size.x, bounds.position.y + bounds.size.y / 2.0f};
+        break;
+    }
+
+    origin += static_cast<sf::Vector2<float>>(text.originOffset);
+
+    t.setOrigin(origin);
+    t.setPosition(text.position);
     window.draw(t);
 }
 

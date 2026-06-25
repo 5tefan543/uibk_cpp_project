@@ -69,6 +69,7 @@ class Game {
 
     GameDebugSession &getDebugSession();
     PersistedGame getPersistedGame() const;
+    PlayerStats &getPlayerStats();
     controller::StateTransitionAction update(const controller::InputState &input, float dt);
     bool isGameOver();
     int getWaveNumber();

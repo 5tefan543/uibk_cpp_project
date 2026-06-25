@@ -214,6 +214,17 @@ PersistedGame Game::getPersistedGame() const
 
     return persistedGame;
 }
+
+PlayerStats &Game::getPlayerStats()
+{
+    auto players = registry_.view<PlayerStats, PlayerTag>();
+    if (!players.empty()) {
+        return registry_.getComponent<PlayerStats>(players.front());
+    }
+
+    throw std::runtime_error("No player entity found when trying to get player stats");
+}
+
 void Game::cleanup()
 {
     std::vector<Entity> enemyEntities = registry_.view<EnemyTag>();
