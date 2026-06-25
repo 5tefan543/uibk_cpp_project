@@ -4,13 +4,43 @@
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
+#include "game/ecs/components/health_bar_state.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
+#include "game/ecs/components/stats.hpp"
 #include "game/game.hpp"
 #include "shared/test_fixture.hpp"
 
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
+
+namespace {
+
+std::vector<view::Rectangle> collectWorldRectangles(const view::View &view)
+{
+    std::vector<view::Rectangle> rectangles;
+    for (const auto &node : view.nodes) {
+        if (node.mode != view::ViewMode::FixedToWorld) {
+            continue;
+        }
+
+        if (const auto *rect = std::get_if<view::Rectangle>(&node.element)) {
+            rectangles.push_back(*rect);
+        }
+    }
+    return rectangles;
+}
+
+bool isColor(const std::optional<view::Color> &color, std::uint8_t r, std::uint8_t g, std::uint8_t b)
+{
+    if (!color.has_value()) {
+        return false;
+    }
+    return color->red == r && color->green == g && color->blue == b;
+}
+
+} // namespace
 
 TEST_CASE_METHOD(TestFixture, "Game can be constructed")
 {
@@ -364,6 +394,147 @@ TEST_CASE_METHOD(TestFixture, "Game updateView with hitbox debug enabled renders
     game.updateView(withHitboxes);
 
     REQUIRE(withHitboxes.nodes.size() > nodesWithoutHitboxes);
+}
+
+TEST_CASE_METHOD(TestFixture, "Game updateView renders player health bar even at full health")
+{
+    game::Game game;
+    game::GameDebugSession &session = game.getDebugSession();
+
+    const game::Entity player = session.registry.view<game::PlayerTag>().front();
+    auto &playerStats = session.registry.getComponent<game::PlayerStats>(player);
+    auto &playerBar = session.registry.getComponent<game::HealthBarState>(player);
+    const auto &playerPos = session.registry.getComponent<game::Position>(player).p;
+    const auto &playerSprite = session.registry.getComponent<view::Sprite>(player);
+
+    playerStats.health = playerStats.maxHealth;
+    playerBar.initialRedBarNorm = 0.0f;
+    playerBar.redBarTimer = 0.0f;
+
+    view::View view;
+    game.updateView(view);
+
+    const auto rectangles = collectWorldRectangles(view);
+    const float expectedBarY = playerPos.y - 10.0f - 5.0f;
+
+    bool foundBackground = false;
+    bool foundGreen = false;
+    bool foundRed = false;
+
+    for (const auto &rect : rectangles) {
+        const bool samePosition = rect.rect.position.x == playerPos.x && rect.rect.position.y == expectedBarY;
+        if (!samePosition) {
+            continue;
+        }
+
+        if (isColor(rect.fillColor, 0, 0, 0) && rect.thickness == 2.0f) {
+            foundBackground = true;
+            REQUIRE(rect.rect.size.x == Catch::Approx(playerSprite.rect.size.x));
+            REQUIRE(rect.rect.size.y == Catch::Approx(10.0f));
+        }
+
+        if (isColor(rect.fillColor, 0, 200, 0) && rect.thickness == 0.0f) {
+            foundGreen = true;
+            REQUIRE(rect.rect.size.x == Catch::Approx(playerSprite.rect.size.x));
+            REQUIRE(rect.rect.size.y == Catch::Approx(10.0f));
+        }
+
+        if (isColor(rect.fillColor, 220, 0, 0)) {
+            foundRed = true;
+        }
+    }
+
+    REQUIRE(foundBackground);
+    REQUIRE(foundGreen);
+    REQUIRE_FALSE(foundRed);
+}
+
+TEST_CASE_METHOD(TestFixture, "Game updateView does not render enemy health bar at full health")
+{
+    game::Game game;
+    game::GameDebugSession &session = game.getDebugSession();
+
+    const game::Entity enemy = session.registry.createEntity();
+    session.registry.addComponent<game::EnemyTag>(enemy, {});
+    session.registry.addComponent<game::Position>(enemy, {{700.0f, 400.0f}});
+    session.registry.addComponent<view::Sprite>(enemy, {.rect = {{0.0f, 0.0f}, {80.0f, 40.0f}}});
+
+    game::EnemyStats stats;
+    stats.maxHealth = 100.0f;
+    stats.health = 100.0f;
+    session.registry.addComponent<game::EnemyStats>(enemy, stats);
+    session.registry.addComponent<game::HealthBarState>(enemy, {});
+
+    view::View view;
+    game.updateView(view);
+
+    const auto rectangles = collectWorldRectangles(view);
+    const float enemyBarY = 400.0f - 10.0f - 5.0f;
+
+    bool enemyBarFound = false;
+    for (const auto &rect : rectangles) {
+        if (rect.rect.position.x == 700.0f && rect.rect.position.y == enemyBarY) {
+            enemyBarFound = true;
+            break;
+        }
+    }
+
+    REQUIRE_FALSE(enemyBarFound);
+}
+
+TEST_CASE_METHOD(TestFixture, "Game updateView renders damaged enemy green and red health sections")
+{
+    game::Game game;
+    game::GameDebugSession &session = game.getDebugSession();
+
+    const game::Entity enemy = session.registry.createEntity();
+    session.registry.addComponent<game::EnemyTag>(enemy, {});
+    session.registry.addComponent<game::Position>(enemy, {{777.0f, 333.0f}});
+    session.registry.addComponent<view::Sprite>(enemy, {.rect = {{0.0f, 0.0f}, {80.0f, 40.0f}}});
+
+    game::EnemyStats stats;
+    stats.maxHealth = 100.0f;
+    stats.health = 50.0f;
+    session.registry.addComponent<game::EnemyStats>(enemy, stats);
+    session.registry.addComponent<game::HealthBarState>(
+        enemy,
+        {.previousHealth = 80.0f, .initialRedBarNorm = 0.25f, .redBarTimer = game::HealthBarState::redFlashDuration});
+
+    view::View view;
+    game.updateView(view);
+
+    const auto rectangles = collectWorldRectangles(view);
+    const float barX = 777.0f;
+    const float barY = 333.0f - 10.0f - 5.0f;
+
+    bool foundBackground = false;
+    bool foundGreen = false;
+    bool foundRed = false;
+
+    for (const auto &rect : rectangles) {
+        if (isColor(rect.fillColor, 0, 0, 0) && rect.rect.position.x == barX && rect.rect.position.y == barY) {
+            foundBackground = true;
+            REQUIRE(rect.rect.size.x == Catch::Approx(80.0f));
+            REQUIRE(rect.rect.size.y == Catch::Approx(10.0f));
+        }
+
+        if (isColor(rect.fillColor, 0, 200, 0) && rect.rect.position.x == barX && rect.rect.position.y == barY) {
+            foundGreen = true;
+            REQUIRE(rect.rect.size.x == Catch::Approx(40.0f));
+            REQUIRE(rect.rect.size.y == Catch::Approx(10.0f));
+        }
+
+        if (isColor(rect.fillColor, 220, 0, 0) && rect.rect.position.y == barY) {
+            foundRed = true;
+            REQUIRE(rect.rect.position.x == Catch::Approx(817.0f));
+            REQUIRE(rect.rect.size.x == Catch::Approx(20.0f));
+            REQUIRE(rect.rect.size.y == Catch::Approx(10.0f));
+        }
+    }
+
+    REQUIRE(foundBackground);
+    REQUIRE(foundGreen);
+    REQUIRE(foundRed);
 }
 
 TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted values")
