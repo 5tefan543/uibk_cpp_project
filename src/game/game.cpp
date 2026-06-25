@@ -363,22 +363,22 @@ void Game::updateView(view::View &view)
 
     // Render health bars
     {
-        constexpr float BAR_HEIGHT = 10.0f;
-        constexpr float BAR_GAP = 5.0f;
-        constexpr float BORDER_THICKNESS = 2.0f;
+        constexpr float barHeight = 10.0f;
+        constexpr float barGap = 5.0f;
+        constexpr float borderThickness = 2.0f;
 
         auto renderHealthBar = [&](Entity entity, const game::Stats &stats, const HealthBarState &bar) {
             const auto &pos = registry_.getComponent<Position>(entity).p;
             const auto &sprite = registry_.getComponent<view::Sprite>(entity);
             const float barWidth = sprite.rect.size.x;
             const float barX = pos.x;
-            const float barY = pos.y - BAR_HEIGHT - BAR_GAP;
+            const float barY = pos.y - barHeight - barGap;
 
             // 1. Black background with green border (full bar width)
             view::Rectangle bgRect = {
-                .rect = {{barX, barY}, {barWidth, BAR_HEIGHT}},
+                .rect = {{barX, barY}, {barWidth, barHeight}},
                 .borderColor = {0, 200, 0},
-                .thickness = BORDER_THICKNESS,
+                .thickness = borderThickness,
                 .fillColor = view::Color{0, 0, 0},
             };
             view.nodes.push_back({view::ViewMode::FixedToWorld, bgRect});
@@ -391,7 +391,7 @@ void Game::updateView(view::View &view)
                 const float redWidth = currentRedNorm * barWidth;
                 if (redWidth > 0.0f) {
                     view::Rectangle redRect = {
-                        .rect = {{barX + greenWidth, barY}, {redWidth, BAR_HEIGHT}},
+                        .rect = {{barX + greenWidth, barY}, {redWidth, barHeight}},
                         .borderColor = {0, 0, 0},
                         .thickness = 0.0f,
                         .fillColor = view::Color{220, 0, 0},
@@ -404,7 +404,7 @@ void Game::updateView(view::View &view)
             const float greenWidth = (stats.health / stats.maxHealth) * barWidth;
             if (greenWidth > 0.0f) {
                 view::Rectangle greenRect = {
-                    .rect = {{barX, barY}, {greenWidth, BAR_HEIGHT}},
+                    .rect = {{barX, barY}, {greenWidth, barHeight}},
                     .borderColor = {0, 0, 0},
                     .thickness = 0.0f,
                     .fillColor = view::Color{0, 200, 0},
