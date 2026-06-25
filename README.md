@@ -51,6 +51,17 @@ The player controls a character fighting against continuously spawning enemies i
     - progression store
         - trade xp with weapons / abilities / upgrades
 
+## Project Structure
+
+```
+apps/       application entry points
+cmake/      cmake helper files
+images/     documentation images
+include/    public headers
+src/        game source code
+tests/      unit tests
+```
+
 ## Development Setup
 
 ### 📦 Prerequisites
@@ -86,6 +97,15 @@ The hook automatically formats code before every commit.
 
 ## Build & Run
 
+**Note:** This project requires VCPKG to be installed. Before configuring the project, make sure that the environment variable `VCPKG_ROOT` is defined and points to your VCPKG installation directory. The CMake presets use:
+
+ ```cmake
+ $env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake
+ ```
+
+ If `VCPKG_ROOT` is missing or incorrect, the configure step will fail.
+
+
 ### Configure the project with CMake presets:
 
 ```bash
@@ -113,16 +133,4 @@ cmake --build --preset release
 ```bash
 ctest --preset debug
 ctest --preset release
-```
-
-
-## Project Structure
-
-```
-apps/       application entry points
-cmake/      cmake helper files
-images/     documentation images
-include/    public headers
-src/        game source code
-tests/      unit tests
 ```
