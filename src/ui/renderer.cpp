@@ -96,7 +96,7 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Rectangle &re
 
     rect.setSize(rectangle.rect.size);
     rect.setPosition(rectangle.rect.position);
-    rect.setFillColor(sf::Color::Transparent);
+    rect.setFillColor(rectangle.fillColor ? toSfColor(*rectangle.fillColor) : sf::Color::Transparent);
     rect.setOutlineColor(toSfColor(rectangle.borderColor));
     rect.setOutlineThickness(rectangle.thickness);
     window.draw(rect);
