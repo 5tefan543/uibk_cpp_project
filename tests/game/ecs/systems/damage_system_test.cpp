@@ -1,3 +1,4 @@
+#include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/stats.hpp"
@@ -367,4 +368,69 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem area damage applies initial and tick
     REQUIRE(updatedPlayer.health == Catch::Approx(92.0f));
     REQUIRE(areaTag.targets.empty());
     REQUIRE(areaTag.targetsHit.contains(player));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem sets player animation to Hit when damaged")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity player = registry.createEntity();
+    game::PlayerStats playerStats;
+    playerStats.health = 100.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+    registry.addComponent<game::Animation>(
+        player, {.state = game::AnimationState::Attack, .direction = game::AnimationDirection::Left});
+
+    const game::Entity projectile = registry.createEntity();
+    registry.addComponent<game::Damage>(
+        projectile, {.amount = 10.0f,
+                     .pushBackForce = 0.0f,
+                     .stunChance = 0.0f,
+                     .kind = game::DamageKind::Projectile,
+                     .params = game::ProjectileDamage{
+                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .maxTargets = 1}});
+    registry.addComponent<game::DamageTag>(projectile, {.targets = {player}});
+
+    system.update(registry, 0.016f);
+
+    const game::Animation &animation = registry.getComponent<game::Animation>(player);
+    REQUIRE(animation.state == game::AnimationState::Hit);
+    REQUIRE(animation.direction == game::AnimationDirection::Left);
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+    REQUIRE(animation.stateTimeRemaining == Catch::Approx(0.16f));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem sets enemy animation to Hit when damaged")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity enemy = registry.createEntity();
+    game::EnemyStats enemyStats;
+    enemyStats.health = 100.0f;
+    enemyStats.scoreReward = 1;
+    registry.addComponent<game::EnemyStats>(enemy, enemyStats);
+    registry.addComponent<game::Animation>(
+        enemy, {.state = game::AnimationState::Walk, .direction = game::AnimationDirection::Right});
+
+    const game::Entity projectile = registry.createEntity();
+    registry.addComponent<game::Damage>(
+        projectile, {.amount = 10.0f,
+                     .pushBackForce = 0.0f,
+                     .stunChance = 0.0f,
+                     .kind = game::DamageKind::Projectile,
+                     .params = game::ProjectileDamage{
+                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .maxTargets = 1}});
+    registry.addComponent<game::DamageTag>(projectile, {.targets = {enemy}});
+
+    system.update(registry, 0.016f);
+
+    const game::Animation &animation = registry.getComponent<game::Animation>(enemy);
+    REQUIRE(animation.state == game::AnimationState::Hit);
+    REQUIRE(animation.direction == game::AnimationDirection::Right);
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+    REQUIRE(animation.stateTimeRemaining == Catch::Approx(0.16f));
 }

@@ -20,27 +20,6 @@ namespace game {
 
 namespace {
 
-void setAnimationState(Animation &animation, AnimationState state, AnimationDirection direction)
-{
-    if (animation.state == state && animation.direction == direction) {
-        return;
-    }
-
-    animation.state = state;
-    animation.direction = direction;
-    animation.currentFrame = 0;
-    animation.frameTimer = 0.0f;
-}
-
-void startTimedAnimation(Animation &animation, AnimationState state, AnimationDirection direction, float durationSec)
-{
-    animation.state = state;
-    animation.direction = direction;
-    animation.currentFrame = 0;
-    animation.frameTimer = 0.0f;
-    animation.stateTimeRemaining = durationSec;
-}
-
 float applyAnimation(Registry &registry, const config::GameConfig &config, const Entity entity,
                      const AnimationState attackState, const CharacterType characterType,
                      const AnimationDirection direction)
