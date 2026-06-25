@@ -33,4 +33,10 @@ class Renderer {
     void renderDebugContext(sf::RenderWindow &window);
 };
 
+template <typename T>
+sf::Vector2<T> toSFML(geometry::Vec2<T> v)
+{
+    return {v.x, v.y};
+}
+
 } // namespace ui

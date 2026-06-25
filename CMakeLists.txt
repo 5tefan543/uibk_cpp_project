@@ -36,14 +36,8 @@ target_include_directories(roguelike_logger PUBLIC include)
 add_library(roguelike_config
   src/config/animation_config_helper.cpp
 )
-target_link_libraries(roguelike_config
-  PUBLIC
-    SFML::Graphics
-)
-
 roguelike_cxx_flags(roguelike_config)
 target_include_directories(roguelike_config PUBLIC include)
-
 target_link_libraries(roguelike_config
   PUBLIC
     roguelike_logger

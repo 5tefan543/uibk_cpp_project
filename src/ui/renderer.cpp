@@ -94,8 +94,8 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Rectangle &re
 
     sf::RectangleShape rect;
 
-    rect.setSize(rectangle.rect.size);
-    rect.setPosition(rectangle.rect.position);
+    rect.setSize(toSFML(rectangle.rect.size));
+    rect.setPosition(toSFML(rectangle.rect.position));
     rect.setFillColor(sf::Color::Transparent);
     rect.setOutlineColor(toSfColor(rectangle.borderColor));
     rect.setOutlineThickness(rectangle.thickness);
@@ -106,8 +106,8 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Card &card)
 {
 
     sf::RectangleShape rect;
-    rect.setSize(card.rect.size);
-    rect.setPosition(card.rect.position);
+    rect.setSize(toSFML(card.rect.size));
+    rect.setPosition(toSFML(card.rect.position));
     rect.setFillColor(toSfColor(card.backgroundColor));
     window.draw(rect);
 
@@ -118,8 +118,8 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Card &card)
 void Renderer::renderElement(sf::RenderWindow &window, const view::Button &button)
 {
     sf::RectangleShape rect;
-    rect.setSize(button.rect.size);
-    rect.setPosition(button.rect.position);
+    rect.setSize(toSFML(button.rect.size));
+    rect.setPosition(toSFML(button.rect.position));
     rect.setFillColor(button.isSelected ? toSfColor(button.selectedColor) : toSfColor(button.backgroundColor));
     window.draw(rect);
 
@@ -149,10 +149,10 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Text &text)
         break;
     }
 
-    origin += static_cast<sf::Vector2<float>>(text.originOffset);
+    origin += toSFML(text.originOffset);
 
     t.setOrigin(origin);
-    t.setPosition(text.position);
+    t.setPosition(toSFML(text.position));
     window.draw(t);
 }
 
@@ -160,7 +160,7 @@ void Renderer::renderElement(sf::RenderWindow &window, const view::Sprite &sprit
 {
     sf::Sprite sfSprite(getTexture(sprite.imagePath));
 
-    sfSprite.setPosition(sprite.rect.position);
+    sfSprite.setPosition(toSFML(sprite.rect.position));
 
     auto spriteSize = sfSprite.getLocalBounds().size;
     const float scaleFactorX = sprite.rect.size.x / spriteSize.x;
