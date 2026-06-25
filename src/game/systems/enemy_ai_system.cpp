@@ -3,7 +3,9 @@
 #include "config/game_config.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/damage_tag.hpp"
+#include "game/ecs/components/enemy_attack_cooldown.hpp"
 #include "game/ecs/components/enemy_attack_tag.hpp"
+#include "game/ecs/components/enemy_pending_area_spawn_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/player_tag.hpp"
@@ -62,16 +64,16 @@ const float enemyRepelRadius = 50;
 const float enemyRepelProximityRampParam = 1.5;
 const float enemyRelSpeedCutoffPercentage = 0.02;
 
-void EnemyAI::updateCoolDowns(Registry &, Entity enemyEntity, float dt)
+void EnemyAI::updateCoolDowns(Registry &registry, Entity enemyEntity, float dt)
 {
-    if (attackCoolDowns_.contains(enemyEntity)) {
-        auto it = attackCoolDowns_.find(enemyEntity);
-        if (it != attackCoolDowns_.end()) {
-            it->second -= dt;
-        }
-        if (it->second <= 0.0f) {
-            attackCoolDowns_.erase(enemyEntity);
-        }
+    if (!registry.hasComponent<EnemyAttackCooldown>(enemyEntity)) {
+        return;
+    }
+
+    EnemyAttackCooldown &cooldown = registry.getComponent<EnemyAttackCooldown>(enemyEntity);
+    cooldown.remainingSec -= dt;
+    if (cooldown.remainingSec <= 0.0f) {
+        registry.removeComponent<EnemyAttackCooldown>(enemyEntity);
     }
 }
 
@@ -97,10 +99,13 @@ void EnemyAI::update(Registry &registry, const config::GameConfig &config, Locat
 void EnemyAI::updateAttack(Registry &registry, const config::GameConfig &config, Entity enemy,
                            const Position &playerPos)
 {
-    if (attackCoolDowns_.contains(enemy)) {
+    if (registry.hasComponent<EnemyAttackCooldown>(enemy)) {
         return;
     }
-    attackCoolDowns_[enemy] = 1 / config.enemyClasses.blob.stats.attackSpeed;
+    registry.addComponent<EnemyAttackCooldown>(enemy,
+                                               {
+                                                   .remainingSec = 1 / config.enemyClasses.blob.stats.attackSpeed,
+                                               });
 
     blobAreaAttack(registry, config, enemy, playerPos);
 }
@@ -232,12 +237,14 @@ void EnemyAI::blobAreaAttack(Registry &registry, const config::GameConfig &confi
         playerPosition.p.x >= blobPosition.p.x ? AnimationDirection::Right : AnimationDirection::Left;
     applyAnimation(registry, config, blobEntity, AnimationState::Attack, enemyStats.enemyType, attackDirection);
 
-    pendingAreaSpawns_.insert(blobEntity);
+    if (!registry.hasComponent<EnemyPendingAreaSpawnTag>(blobEntity)) {
+        registry.addComponent<EnemyPendingAreaSpawnTag>(blobEntity, {});
+    }
 }
 
 void EnemyAI::spawnPendingAreaAttack(Registry &registry, const config::GameConfig &config, Entity blobEntity)
 {
-    if (!pendingAreaSpawns_.contains(blobEntity)) {
+    if (!registry.hasComponent<EnemyPendingAreaSpawnTag>(blobEntity)) {
         return;
     }
 
@@ -246,7 +253,7 @@ void EnemyAI::spawnPendingAreaAttack(Registry &registry, const config::GameConfi
         return;
     }
 
-    pendingAreaSpawns_.erase(blobEntity);
+    registry.removeComponent<EnemyPendingAreaSpawnTag>(blobEntity);
 
     const config::AttackProfileConfig &attackProfile = config.enemyClasses.blob.attack;
     const EnemyStats &enemyStats = registry.getComponent<EnemyStats>(blobEntity);
