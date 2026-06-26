@@ -99,7 +99,7 @@ void StateManager::applyAction(StateTransitionAction action)
     case StateTransitionAction::PushProgressionStore: {
         BaseState &currentState = getCurrent();
         if (auto *gameplayState = dynamic_cast<GameplayState *>(&currentState)) {
-            audioController_.pauseMusic();
+            audioController_.playMusic(config_.menuSoundConfig.storeMusic);
             push(ProgressionStoreState::createStore(gameplayState->game));
         } else {
             logger::log(logger::ERROR, "Cannot push ProgressionStoreState when current state is not GameplayState.");

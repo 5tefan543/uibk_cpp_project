@@ -2265,7 +2265,8 @@
         "buttonHoverSound": "assets/audio/sounds/menu/menu_hover.wav",
         "buttonClickSound": "assets/audio/sounds/menu/menu_click.wav",
         "gameOverSound": "assets/audio/sounds/menu/game_over.wav",
-        "waveOverSound": "assets/audio/sounds/wave_finished.wav"
+        "waveOverSound": "assets/audio/sounds/wave_finished.wav",
+        "storeMusic": "assets/audio/music/store_loop.mp3"
     },
     "storeConfig": {
         "items": [

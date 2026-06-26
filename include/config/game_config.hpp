@@ -195,6 +195,7 @@ struct MenuSoundConfig {
     std::string buttonClickSound;
     std::string gameOverSound;
     std::string waveOverSound;
+    std::string storeMusic;
 };
 
 struct StoreItemTypeConfig {
