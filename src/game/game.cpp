@@ -180,6 +180,9 @@ void Game::initWave(int waveNumber)
         }
     }
 
+    Entity player = registry_.view<PlayerStats>().front();
+    PlayerStats &stats = registry_.getComponent<PlayerStats>(player);
+    stats.health = stats.maxHealth;
     spawnEnemySystem_.update(registry_, wave_, config_);
     logger::log(logger::DEBUG, std::format("Starting wave {} of stage {}", wave_, stage_));
 }

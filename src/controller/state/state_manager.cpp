@@ -112,7 +112,7 @@ void StateManager::applyAction(StateTransitionAction action)
         replaceCurrent(MenuState::createMenu(MenuType::GameOverMenu));
         break;
     case StateTransitionAction::Pop:
-        audioController_.resumeMusic();
+        audioController_.playMusic(config_.menuSoundConfig.gameMusic);
         audioController_.playSound(config_.menuSoundConfig.buttonClickSound);
         pop();
         break;
