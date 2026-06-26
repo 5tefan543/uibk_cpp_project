@@ -2445,7 +2445,7 @@
                 }
             },
             {
-                "name": "Attack Power",
+                "name": "Attack",
                 "description": "Increases the attack power of the player.",
                 "typeToConfig": {
                     "Common": {
