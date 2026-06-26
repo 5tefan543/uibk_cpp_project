@@ -406,7 +406,7 @@ view::Card &ProgressionStore::createSelectedItemDetailsCard()
 
     addDynamicText({detailsCard.rect.getCenter().x, contentY + 455.0f}, 22, [this]() {
         const StoreItem *item = getSelectedStoreItem();
-        return item != nullptr ? "Cost: " + floatToPrettyString(item->typeConfig.cost) + " Gold" : "";
+        return item != nullptr ? "Cost: " + std::to_string(item->typeConfig.cost) + " Gold" : "";
     });
 
     auto buyButtonRect = geometry::Rectangle<float>{.position = {detailsX + 36.0f, contentY + contentH - 92.0f},

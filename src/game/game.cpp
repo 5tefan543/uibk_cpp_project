@@ -251,7 +251,6 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
     currentWaveDuration_ += dt;
 
     if (shouldOpenStore_) {
-        shouldOpenStore_ = false;
         return controller::StateTransitionAction::PushProgressionStore;
     }
 
