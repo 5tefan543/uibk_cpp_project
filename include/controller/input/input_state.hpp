@@ -31,6 +31,9 @@ struct InputState {
     bool controlHeld = false;
 
     bool toggleDebugPressed = false;
+    // Text input support
+    std::string textEntered;
+    bool backspacePressed = false;
 };
 
 } // namespace controller

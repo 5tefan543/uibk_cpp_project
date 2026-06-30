@@ -100,7 +100,15 @@ void StateManager::applyAction(StateTransitionAction action)
     case StateTransitionAction::ReplaceCurrentWithGameOverMenu:
         audioController_.stopMusic();
         audioController_.playSound(config_.menuSoundConfig.gameOverSound);
-        replaceCurrent(MenuState::createMenu(MenuType::GameOverMenu));
+        // If we're currently in a GameplayState, pass its game context to the GameOver menu
+        {
+            BaseState &current = getCurrent();
+            if (auto *gameplay = dynamic_cast<GameplayState *>(&current)) {
+                replaceCurrent(MenuState::createMenu(gameplay->game));
+            } else {
+                replaceCurrent(MenuState::createMenu(MenuType::GameOverMenu));
+            }
+        }
         break;
     case StateTransitionAction::Pop:
         audioController_.resumeMusic();

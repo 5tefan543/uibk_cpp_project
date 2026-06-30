@@ -46,6 +46,9 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
             case sf::Keyboard::Key::Escape:
                 input.cancelPressed = true;
                 break;
+            case sf::Keyboard::Key::Backspace:
+                input.backspacePressed = true;
+                break;
             case sf::Keyboard::Key::Up:
             case sf::Keyboard::Key::W:
                 input.upPressed = true;
@@ -64,6 +67,17 @@ controller::InputState InputHandler::pollInput(sf::RenderWindow &window)
                 break;
             default:
                 break;
+            }
+        }
+
+        if (const auto *textEntered = event->getIf<sf::Event::TextEntered>()) {
+            if (imGuiIO.WantCaptureKeyboard) {
+                continue;
+            }
+            // Accept printable ASCII characters
+            uint32_t code = textEntered->unicode;
+            if (code >= 32 && code < 127) {
+                input.textEntered.push_back(static_cast<char>(code));
             }
         }
 

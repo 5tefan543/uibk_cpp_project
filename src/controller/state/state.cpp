@@ -4,6 +4,8 @@
 #include "controller/persistence/persistence_manager.hpp"
 #include "logging/log.hpp"
 #include "view/text.hpp"
+#include <algorithm>
+#include <cctype>
 
 namespace controller {
 
@@ -17,9 +19,41 @@ MenuState::MenuState(MenuType type) : type(type)
     initView();
 }
 
+MenuState::MenuState(const game::Game &game) : type(MenuType::GameOverMenu)
+{
+    gameOverData_.emplace();
+    GameOverData &gd = *gameOverData_;
+    // use persisted snapshot (public API) for score/wave
+    const auto persisted = game.getPersistedGame();
+    gd.score = persisted.playerStats.score;
+    gd.wave = persisted.wave;
+    // load top 10 entries
+    gd.leaderboardEntries = PersistenceManager::getTopNLeaderboardEntries(10);
+    // compute player position among all entries
+    LeaderboardEntry temp;
+    temp.playerName = std::string();
+    temp.score = gd.score;
+    temp.wave = gd.wave;
+    auto allEntries = PersistenceManager::getLeaderboardEntries();
+    std::sort(allEntries.begin(), allEntries.end());
+    gd.playerPosition = static_cast<int>(std::count_if(allEntries.begin(), allEntries.end(), [&](const LeaderboardEntry &e) {
+        return e < temp;
+    })) + 1;
+
+    // reserve name buffer up to 25 chars
+    gd.nameBuffer.reserve(25);
+
+    initView();
+}
+
 std::unique_ptr<MenuState> MenuState::createMenu(const MenuType menuType)
 {
     return std::unique_ptr<MenuState>(new MenuState(menuType));
+}
+
+std::unique_ptr<MenuState> MenuState::createMenu(const game::Game &game)
+{
+    return std::unique_ptr<MenuState>(new MenuState(game));
 }
 
 StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]] float dt)
@@ -102,18 +136,78 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
         break;
 
     case MenuType::GameOverMenu:
-        if (input.downPressed || input.upPressed) {
-            selectedButtonId_ ^= 1;
-        }
+        // If the player hasn't submitted their name yet, accept typed letters/backspace up to 25 chars.
+        if (gameOverData_.has_value() && !gameOverData_->nameSubmitted) {
+            GameOverData &gd = *gameOverData_;
 
-        if (buttonPressed) {
-            switch (selectedButtonId_) {
-            case 0:
-                stateTransitionAction = StateTransitionAction::ReplaceCurrentWithMainMenu;
-                break;
-            case 1:
-                stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
-                break;
+            // backspace handling
+            if (input.backspacePressed && !gd.nameBuffer.empty()) {
+                gd.nameBuffer.pop_back();
+            }
+
+            // append typed chars (letters only)
+            for (char c : input.textEntered) {
+                if (gd.nameBuffer.size() >= 25) break;
+                if (std::isalpha(static_cast<unsigned char>(c))) {
+                    gd.nameBuffer.push_back(static_cast<char>(std::toupper(static_cast<unsigned char>(c))));
+                }
+            }
+
+            // update displayed name
+            if (gd.nameTextIndex < texts_.size()) {
+                texts_[gd.nameTextIndex].text = std::string("Enter name: ") + gd.nameBuffer;
+            }
+
+            if (input.confirmPressed) {
+                controller::LeaderboardEntry entry;
+                entry.playerName = gd.nameBuffer.empty() ? std::string("---") : gd.nameBuffer;
+                entry.score = gd.score;
+                entry.wave = gd.wave;
+                PersistenceManager::storeLeaderboardEntry(entry);
+
+                // refresh leaderboard and player position
+                gd.leaderboardEntries = PersistenceManager::getTopNLeaderboardEntries(10);
+                auto allEntries = PersistenceManager::getLeaderboardEntries();
+                std::sort(allEntries.begin(), allEntries.end());
+                gd.playerPosition = static_cast<int>(std::count_if(allEntries.begin(), allEntries.end(), [&](const LeaderboardEntry &e) {
+                    LeaderboardEntry temp{entry.playerName, entry.score, entry.wave};
+                    return e < temp;
+                })) + 1;
+
+                // update leaderboard texts
+                for (std::size_t i = 0; i < gd.leaderboardEntries.size(); ++i) {
+                    std::size_t idx = gd.leaderboardTextStartIndex + i;
+                    if (idx < texts_.size()) {
+                        const auto &e = gd.leaderboardEntries[i];
+                        texts_[idx].text = std::to_string(i + 1) + std::string(". ") + e.playerName +
+                            std::string(" ") + std::to_string(e.score) + std::string(" (W") + std::to_string(e.wave) + std::string(")");
+                    }
+                }
+
+                // update position text (it's right before nameTextIndex_)
+                if (gd.nameTextIndex >= 1) {
+                    std::size_t posTextIdx = gd.nameTextIndex - 1;
+                    if (posTextIdx < texts_.size()) {
+                        texts_[posTextIdx].text = std::string("Your position: ") + (gd.playerPosition > 0 ? std::to_string(gd.playerPosition) : std::string("-"));
+                    }
+                }
+
+                gd.nameSubmitted = true;
+            }
+        } else {
+            if (input.downPressed || input.upPressed) {
+                selectedButtonId_ ^= 1;
+            }
+
+            if (buttonPressed) {
+                switch (selectedButtonId_) {
+                case 0:
+                    stateTransitionAction = StateTransitionAction::ReplaceCurrentWithMainMenu;
+                    break;
+                case 1:
+                    stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
+                    break;
+                }
             }
         }
         break;
@@ -243,6 +337,47 @@ void MenuState::initView()
         title.position.y = (mainMenuCard.rect.position.y + mainMenuCard.rect.size.y / 10);
         title.text = std::string("Game Over!");
         title.color = {255, 0, 0};
+        // show score and wave if available
+        if (gameOverData_.has_value()) {
+            GameOverData &gd = *gameOverData_;
+            view::Text &scoreText = texts_.emplace_back(view::Text());
+            scoreText.position.y = title.position.y + 24;
+            scoreText.text = std::string("Score: ") + std::to_string(gd.score) +
+                std::string("  Wave: ") + std::to_string(gd.wave);
+            mainMenuCard.elements.push_back(scoreText);
+
+            // Leaderboard header
+            view::Text &lbHeader = texts_.emplace_back(view::Text());
+            lbHeader.position.y = scoreText.position.y + 24;
+            lbHeader.text = std::string("Leaderboard (Top 10):");
+            mainMenuCard.elements.push_back(lbHeader);
+
+            // leaderboard entries
+            gd.leaderboardTextStartIndex = texts_.size();
+            gd.leaderboardTextCount = gd.leaderboardEntries.size();
+            int entryY = lbHeader.position.y + 20;
+            for (std::size_t i = 0; i < gd.leaderboardEntries.size(); ++i) {
+                const auto &entry = gd.leaderboardEntries[i];
+                view::Text &entryText = texts_.emplace_back(view::Text());
+                entryText.position.y = entryY + static_cast<int>(i) * 18;
+                entryText.text = std::to_string(i + 1) + std::string(". ") + entry.playerName +
+                    std::string(" ") + std::to_string(entry.score) + std::string(" (W") + std::to_string(entry.wave) + std::string(")");
+                mainMenuCard.elements.push_back(entryText);
+            }
+
+            // player's position
+            view::Text &posText = texts_.emplace_back(view::Text());
+            posText.position.y = entryY + static_cast<int>(gd.leaderboardEntries.size()) * 18 + 8;
+            posText.text = std::string("Your position: ") + (gd.playerPosition > 0 ? std::to_string(gd.playerPosition) : std::string("-"));
+            mainMenuCard.elements.push_back(posText);
+
+            // name entry prompt
+            view::Text &namePrompt = texts_.emplace_back(view::Text());
+            namePrompt.position.y = posText.position.y + 22;
+            namePrompt.text = std::string("Enter name: ") + gd.nameBuffer;
+            gd.nameTextIndex = texts_.size() - 1;
+            mainMenuCard.elements.push_back(namePrompt);
+        }
 
         view::Button &mainMenuButton = buttons_.emplace_back(view::Button());
         mainMenuButton.rect.centerizeY(mainMenuCardCenter.y - mainMenuButton.rect.size.y);

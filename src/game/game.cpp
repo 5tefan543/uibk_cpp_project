@@ -223,7 +223,7 @@ void Game::cleanup()
 }
 int Game::getScore(){
 
-    Entity player = registry_.view<PlayerTag>().front()) {
+    Entity player = registry_.view<PlayerTag>().front();
     PlayerStats &playerStats = registry_.getComponent<PlayerStats>(player);
     return playerStats.score;
 }
