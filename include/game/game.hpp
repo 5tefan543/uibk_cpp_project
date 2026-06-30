@@ -57,6 +57,7 @@ class Game {
     void processDebugSession(float dt);
     void updateSystems(const controller::InputState &input, float dt);
     void addScore(int score);
+    int getScore();
     bool isWaveFinished();
 
   public:

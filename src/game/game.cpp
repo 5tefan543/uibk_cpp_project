@@ -221,6 +221,12 @@ void Game::cleanup()
         registry_.destroyEntity(damage);
     }
 }
+int Game::getScore(){
+
+    Entity player = registry_.view<PlayerTag>().front()) {
+    PlayerStats &playerStats = registry_.getComponent<PlayerStats>(player);
+    return playerStats.score;
+}
 
 controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
 {

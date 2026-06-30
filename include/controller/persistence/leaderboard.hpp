@@ -1,6 +1,11 @@
 #pragma once
 #include <string>
+#include <vector>
 namespace controller {
+
+struct Leaderboard {
+    std::vector<LeaderboardEntry> entries;
+}
 
 struct LeaderboardEntry {
     std::string playerName;
