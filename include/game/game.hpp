@@ -10,6 +10,7 @@
 #include "game/ecs/systems/damage_system.hpp"
 #include "game/ecs/systems/debug_selection_system.hpp"
 #include "game/ecs/systems/enemy_ai_system.hpp"
+#include "game/ecs/systems/health_bar_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
 #include "game/ecs/systems/sound_system.hpp"
@@ -37,6 +38,7 @@ class Game {
     SpawnEnemySystem spawnEnemySystem_;
     CollisionDetectionSystem collisionDetectionSystem_;
     DamageSystem damageSystem_;
+    HealthBarSystem healthBarSystem_;
     SoundSystem soundSystem_;
 
     int stage_ = 1;

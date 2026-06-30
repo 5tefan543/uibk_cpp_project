@@ -56,6 +56,7 @@ add_library(roguelike_game
   src/game/systems/damage_system.cpp
   src/game/systems/enemy_ai_system.cpp
   src/game/systems/sound_system.cpp
+  src/game/systems/health_bar_system.cpp
   src/game/location_table.cpp
 )
 
@@ -178,6 +179,7 @@ add_executable(roguelike_test_runner
   tests/game/ecs/systems/sound_system_test.cpp
   tests/game/ecs/systems/collision_detection_system_test.cpp
   tests/game/ecs/systems/damage_system_test.cpp
+  tests/game/ecs/systems/health_bar_system_test.cpp
   tests/game/ecs/systems/enemy_ai_system_test.cpp
   tests/game/location_table_test.cpp
   tests/geometry/vector_test.cpp
