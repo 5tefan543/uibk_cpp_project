@@ -309,8 +309,8 @@ void Game::updateSystems(const controller::InputState &input, const controller::
     animationSystem_.update(registry_, config_, dtSec);
     cameraSystem_.update(registry_);
     collisionDetectionSystem_.update(registry_);
-    damageSystem_.update(registry_, dt);
-    healthBarSystem_.update(registry_, dt);
+    damageSystem_.update(registry_, dtSec);
+    healthBarSystem_.update(registry_, dtSec);
     soundSystem_.update(registry_);
 }
 
