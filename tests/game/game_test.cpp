@@ -119,7 +119,7 @@ TEST_CASE_METHOD(TestFixture, "Game update returns PushProgressionStore when a s
     session.isStageWaveReloadRequested = true;
 
     // Apply stage/wave reload before defeating the enemies of that wave.
-    game.update(input, 0.0f);
+    game.update(input, std::chrono::milliseconds(0));
 
     // Defeat the current wave by removing all enemies.
     for (game::Entity enemy : session.registry.view<game::EnemyTag>()) {
@@ -150,7 +150,7 @@ TEST_CASE_METHOD(TestFixture,
     session.isStageWaveReloadRequested = true;
 
     // Apply stage/wave reload before defeating the enemies of that wave.
-    game.update(input, 0.0f);
+    game.update(input, std::chrono::milliseconds(0));
 
     for (game::Entity enemy : session.registry.view<game::EnemyTag>()) {
         session.registry.destroyEntity(enemy);
@@ -182,7 +182,7 @@ TEST_CASE_METHOD(TestFixture, "Game update cleanup destroys damage entities when
     session.stage = 1;
     session.isStageWaveReloadRequested = true;
 
-    game.update(input, 0.0f);
+    game.update(input, std::chrono::milliseconds(0));
 
     for (game::Entity enemy : session.registry.view<game::EnemyTag>()) {
         session.registry.destroyEntity(enemy);
@@ -354,7 +354,7 @@ TEST_CASE_METHOD(TestFixture, "Game updateView with hitbox debug enabled renders
     game.updateView(withoutHitboxes);
     const size_t nodesWithoutHitboxes = withoutHitboxes.nodes.size();
 
-    game.update(input, 0.0f);
+    game.update(input, std::chrono::milliseconds(0));
 
     auto hitboxEntities = game.getDebugSession().registry.view<game::HitBox>();
     REQUIRE_FALSE(hitboxEntities.empty());

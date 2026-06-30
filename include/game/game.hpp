@@ -3,6 +3,7 @@
 #include "config/game_config.hpp"
 #include "controller/input/input_state.hpp"
 #include "controller/state/state_transition_action.hpp"
+#include "controller/timing.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
 #include "game/ecs/systems/camera_system.hpp"
@@ -26,7 +27,7 @@ class Game {
     config::GameConfig config_;
     LocationTable locationTable_;
     GameDebugSession debugSession_{registry_, locationTable_};
-    float currentWaveDuration_;
+    controller::timeDelta currentWaveDuration_;
 
     AnimationSystem animationSystem_;
     CameraSystem cameraSystem_;
@@ -52,8 +53,8 @@ class Game {
     void initPlayer(CharacterType characterType);
     void initPlayer(Position position, PlayerStats playerStats);
     void initWave(int waveNumber);
-    void processDebugSession(float dtSec);
-    void updateSystems(const controller::InputState &input, float dtSec);
+    void processDebugSession(const controller::timeDelta &dt);
+    void updateSystems(const controller::InputState &input, const controller::timeDelta &dt);
     void addScore(int score);
     bool isWaveFinished();
 
@@ -67,7 +68,7 @@ class Game {
 
     GameDebugSession &getDebugSession();
     PersistedGame getPersistedGame() const;
-    controller::StateTransitionAction update(const controller::InputState &input, float dtSec);
+    controller::StateTransitionAction update(const controller::InputState &input, const controller::timeDelta &dt);
     bool isGameOver();
     int getWaveNumber();
     void updateView(view::View &view);

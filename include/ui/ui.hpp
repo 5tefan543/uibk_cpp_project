@@ -1,7 +1,7 @@
 #pragma once
 
+#include "controller/timing.hpp"
 #include "ui/debug_ui.hpp"
-#include "ui/frametime.hpp"
 #include "ui/input_handler.hpp"
 #include "ui/renderer.hpp"
 #include "view/view.hpp"
@@ -31,7 +31,7 @@ class UI {
     bool isOpen() const;
     const controller::InputState &pollInput();
 
-    void render(const view::View &view, const frametimeDelta &dtSec);
+    void render(const view::View &view, const controller::timeDelta &dtSec);
 };
 
 } // namespace ui

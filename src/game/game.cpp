@@ -3,6 +3,7 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state_transition_action.hpp"
+#include "controller/timing.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/camera_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
@@ -162,7 +163,7 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
 
 void Game::initWave(int waveNumber)
 {
-    currentWaveDuration_ = 0.0f;
+    currentWaveDuration_ = std::chrono::seconds(0);
     wave_ = waveNumber;
     debugSession_.wave = waveNumber;
 
@@ -220,17 +221,17 @@ void Game::cleanup()
     }
 }
 
-controller::StateTransitionAction Game::update(const controller::InputState &input, float dtSec)
+controller::StateTransitionAction Game::update(const controller::InputState &input, const controller::timeDelta &dt)
 {
-    processDebugSession(dtSec);
-    updateSystems(input, dtSec);
+    processDebugSession(dt);
+    updateSystems(input, dt);
 
     // update clock
-    currentWaveDuration_ += dtSec;
+    currentWaveDuration_ += dt;
 
     if (isWaveFinished()) {
         cleanup();
-        addScore(config_.waveDurationSeconds - (int)currentWaveDuration_);
+        addScore(config_.waveDurationSeconds - (int)controller::toSeconds(currentWaveDuration_));
 
         bool shouldOpenStore = (wave_ % config_.wavesPerStage) == 0;
         initWave(++wave_);
@@ -250,7 +251,7 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
     return controller::StateTransitionAction::None;
 }
 
-void Game::processDebugSession(float dtSec)
+void Game::processDebugSession(const controller::timeDelta &dt)
 {
     controller::DebugContext &debug = controller::DebugContext::get();
 
@@ -259,7 +260,7 @@ void Game::processDebugSession(float dtSec)
     }
 
     if (debugSession_.isClockPaused) {
-        currentWaveDuration_ -= dtSec;
+        currentWaveDuration_ -= dt;
     }
 
     // Handle stage/wave reload request
@@ -287,7 +288,7 @@ void Game::processDebugSession(float dtSec)
     }
 }
 
-void Game::updateSystems(const controller::InputState &input, float dtSec)
+void Game::updateSystems(const controller::InputState &input, const controller::timeDelta &dt)
 {
     controller::DebugContext &debug = controller::DebugContext::get();
 
@@ -298,6 +299,7 @@ void Game::updateSystems(const controller::InputState &input, float dtSec)
         return;
     }
 
+    const float dtSec = controller::toSeconds(dt);
     locationTable_.update(registry_);
     enemyAI_.update(registry_, config_, locationTable_, dtSec);
     inputSystem_.update(registry_, config_, input, dtSec);
@@ -311,7 +313,7 @@ void Game::updateSystems(const controller::InputState &input, float dtSec)
 
 bool Game::isWaveFinished()
 {
-    bool isWaveTimeFinished = currentWaveDuration_ >= config_.waveDurationSeconds;
+    bool isWaveTimeFinished = currentWaveDuration_ >= std::chrono::seconds(config_.waveDurationSeconds);
     bool isWaveDefeated = registry_.view<EnemyTag>().empty();
 
     return isWaveDefeated | isWaveTimeFinished;
@@ -376,7 +378,9 @@ void Game::updateView(view::View &view)
 
     stageWaveInfo_ = {
         .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_) + " Time remaining: "
-                + std::to_string(config_.waveDurationSeconds - static_cast<int>(currentWaveDuration_)) + " score: "
+                + std::to_string(config_.waveDurationSeconds
+                                 - static_cast<int>(controller::toSeconds(currentWaveDuration_)))
+                + " score: "
                 + std::to_string(registry_.getComponent<PlayerStats>(registry_.view<PlayerTag>().front()).score)
                 + " currency: "
                 + std::to_string(registry_.getComponent<PlayerStats>(registry_.view<PlayerTag>().front()).currency),

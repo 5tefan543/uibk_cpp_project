@@ -90,7 +90,7 @@ const controller::InputState &UI::pollInput()
     return inputState_;
 }
 
-void UI::render(const view::View &view, const frametimeDelta &dt)
+void UI::render(const view::View &view, const controller::timeDelta &dt)
 {
     // 1. Start ImGui frame
     ImGui::SFML::Update(window_, std::chrono::duration_cast<std::chrono::microseconds>(dt));

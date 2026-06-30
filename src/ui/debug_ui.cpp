@@ -1,7 +1,6 @@
 #include "ui/debug_ui.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "logging/log.hpp"
-#include "ui/frametime.hpp"
 #include <imgui.h>
 #include <vector>
 
@@ -17,7 +16,7 @@ DebugUI::~DebugUI()
     logger::log(logger::DEBUG, "DebugUI destructed");
 }
 
-void DebugUI::render(const controller::InputState &input, const frametimeDelta &dtSec)
+void DebugUI::render(const controller::InputState &input, const controller::timeDelta &dtSec)
 {
     controller::DebugContext &debug = controller::DebugContext::get();
     if (!debug.active) {
@@ -35,7 +34,7 @@ void DebugUI::render(const controller::InputState &input, const frametimeDelta &
     ImGui::End();
 }
 
-void DebugUI::renderStats(const frametimeDelta &dt, const controller::InputState &input,
+void DebugUI::renderStats(const controller::timeDelta &dt, const controller::InputState &input,
                           controller::DebugContext &debug)
 {
     float frameTimeMs = std::chrono::duration<double, std::milli>(dt).count();

@@ -2,14 +2,13 @@
 
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/input_state.hpp"
+#include "controller/timing.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/camera_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
-#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
-#include "ui/frametime.hpp"
 #include "view/sprite.hpp"
 
 namespace ui {
@@ -18,7 +17,8 @@ class DebugUI {
   private:
     float prevFps_ = 0.0f;
 
-    void renderStats(const frametimeDelta &dt, const controller::InputState &input, controller::DebugContext &debug);
+    void renderStats(const controller::timeDelta &dt, const controller::InputState &input,
+                     controller::DebugContext &debug);
     void renderGameSettings(controller::DebugContext &debug);
     void renderGameSession(controller::DebugContext &debug);
     void renderEcsManagement(controller::DebugContext &debug, game::GameDebugSession &gameSession);
@@ -38,7 +38,7 @@ class DebugUI {
     DebugUI();
     ~DebugUI();
 
-    void render(const controller::InputState &input, const frametimeDelta &dtSec);
+    void render(const controller::InputState &input, const controller::timeDelta &dtSec);
 };
 
 } // namespace ui
