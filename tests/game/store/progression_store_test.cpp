@@ -2,6 +2,7 @@
 #include "game/store/progression_store.hpp"
 #include "game/store/progression_store_helper.hpp"
 #include "shared/test_fixture.hpp"
+#include <numeric>
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
