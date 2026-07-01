@@ -2,7 +2,7 @@
 
 #include "controller/state/state.hpp"
 
-inline constexpr float dummyDeltaTime = 0.016f;
+inline constexpr auto dummyDeltaTime = std::chrono::milliseconds(16);
 
 enum INPUT { UP, DOWN, CONFIRM, NONE, LEFT, RIGHT };
 

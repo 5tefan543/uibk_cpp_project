@@ -43,20 +43,20 @@ const float enemyRepelRadius = 50;
 const float enemyRepelProximityRampParam = 1.5;
 const float enemyRelSpeedCutoffPercentage = 0.02;
 
-void EnemyAI::updateCoolDowns(Registry &registry, Entity enemyEntity, float dt)
+void EnemyAI::updateCoolDowns(Registry &registry, Entity enemyEntity, float dtSec)
 {
     if (!registry.hasComponent<EnemyAttackCooldown>(enemyEntity)) {
         return;
     }
 
     EnemyAttackCooldown &cooldown = registry.getComponent<EnemyAttackCooldown>(enemyEntity);
-    cooldown.remainingSec -= dt;
+    cooldown.remainingSec -= dtSec;
     if (cooldown.remainingSec <= 0.0f) {
         registry.removeComponent<EnemyAttackCooldown>(enemyEntity);
     }
 }
 
-void EnemyAI::update(Registry &registry, const config::GameConfig &config, LocationTable &locationTable, float dt)
+void EnemyAI::update(Registry &registry, const config::GameConfig &config, LocationTable &locationTable, float dtSec)
 {
     const auto players = registry.view<PlayerTag, Position>();
     if (players.empty()) {
@@ -68,10 +68,10 @@ void EnemyAI::update(Registry &registry, const config::GameConfig &config, Locat
     for (auto enemy : registry.view<EnemyTag, Velocity, EnemyStats, Position, Animation>()) {
         spawnPendingAreaAttack(registry, config, enemy);
         updateEnemyVelocityTowardsPlayer(registry, locationTable, playerPos, enemy);
-        updateEnemyAnimationState(registry, enemy, dt);
+        updateEnemyAnimationState(registry, enemy, dtSec);
         updateAttack(registry, config, enemy, playerPos);
         applyAnimationMoveSpeedModifier(registry, config, enemy);
-        updateCoolDowns(registry, enemy, dt);
+        updateCoolDowns(registry, enemy, dtSec);
     }
 }
 
@@ -155,7 +155,7 @@ void EnemyAI::updateEnemyVelocityTowardsPlayer(Registry &registry, LocationTable
     v.setLength(l);
 }
 
-void EnemyAI::updateEnemyAnimationState(Registry &registry, Entity enemy, float dt)
+void EnemyAI::updateEnemyAnimationState(Registry &registry, Entity enemy, float dtSec)
 {
     using geometry::Vec2;
 
@@ -163,7 +163,7 @@ void EnemyAI::updateEnemyAnimationState(Registry &registry, Entity enemy, float 
     const auto &velocity = registry.getComponent<Velocity>(enemy).v;
 
     if (animation.stateTimeRemaining > 0.0f) {
-        animation.stateTimeRemaining = std::max(0.0f, animation.stateTimeRemaining - dt);
+        animation.stateTimeRemaining = std::max(0.0f, animation.stateTimeRemaining - dtSec);
     }
 
     if (animation.stateTimeRemaining > 0.0f) {

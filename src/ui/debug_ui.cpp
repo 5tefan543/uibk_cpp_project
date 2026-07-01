@@ -16,7 +16,7 @@ DebugUI::~DebugUI()
     logger::log(logger::DEBUG, "DebugUI destructed");
 }
 
-void DebugUI::render(const controller::InputState &input, float fps)
+void DebugUI::render(const controller::InputState &input, const controller::timeDelta &dt)
 {
     controller::DebugContext &debug = controller::DebugContext::get();
     if (!debug.active) {
@@ -27,18 +27,21 @@ void DebugUI::render(const controller::InputState &input, float fps)
     ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Once);
     ImGui::Begin("Debug", &debug.active, ImGuiWindowFlags_AlwaysAutoResize);
 
-    renderStats(fps, input, debug);
+    renderStats(dt, input, debug);
     renderGameSettings(debug);
     renderGameSession(debug);
 
     ImGui::End();
 }
 
-void DebugUI::renderStats(float fps, const controller::InputState &input, controller::DebugContext &debug)
+void DebugUI::renderStats(const controller::timeDelta &dt, const controller::InputState &input,
+                          controller::DebugContext &debug)
 {
+    float frameTimeMs = std::chrono::duration<double, std::milli>(dt).count();
+    float fps = 1.0f / frameTimeMs * (double)1e3;
     float smoothedFps = (prevFps_ > 0.0f) ? 0.99f * prevFps_ + 0.01f * fps : fps;
     prevFps_ = smoothedFps;
-    float frameTimeMs = smoothedFps > 0.0f ? 1000.0f / smoothedFps : 0.0f;
+    frameTimeMs = smoothedFps > 0.0f ? 1000.0f / smoothedFps : 0.0f;
 
     if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::Text("FPS: %.0f", smoothedFps);

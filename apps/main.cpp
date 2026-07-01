@@ -1,6 +1,5 @@
 #include "controller/controller.hpp"
-#include "game/ecs/components/animation.hpp"
-#include "game/ecs/components/stats.hpp"
+#include "controller/timing.hpp"
 #include "logging/log.hpp"
 #include "ui/ui.hpp"
 #include "view/view.hpp"
@@ -32,18 +31,23 @@ int main()
         controller::Controller controller;
         ui::UI ui;
 
-        const float fixedDt = 1.0f / 60.0f; // Fixed time step for updates
+        std::chrono::steady_clock::time_point endFrameTime;
+        std::chrono::steady_clock::time_point startFrameTime = std::chrono::steady_clock::now();
 
         while (ui.isOpen() && !shutdownRequested) {
             const controller::InputState &input = ui.pollInput();
 
-            controller.update(input, fixedDt);
+            endFrameTime = std::chrono::steady_clock::now();
+            const controller::timeDelta dt = endFrameTime - startFrameTime;
+            startFrameTime = endFrameTime;
+            controller.update(input, dt);
+
             controller::BaseState &currentState = controller.getCurrentState();
             if (typeid(currentState) == typeid(controller::ExitState)) {
                 break;
             }
             const view::View &view = currentState.getView();
-            ui.render(view);
+            ui.render(view, dt);
         }
         return EXIT_SUCCESS;
     } catch (const std::exception &e) {

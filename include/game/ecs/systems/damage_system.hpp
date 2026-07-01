@@ -13,15 +13,15 @@ struct DamageInformation {
 
 class DamageSystem {
   private:
-    DamageInformation updateMelee(Damage &damage, MeleeArcDamage &melee, float dt);
+    DamageInformation updateMelee(Damage &damage, MeleeArcDamage &melee, float dtSec);
     DamageInformation updateProjectile(Registry &registry, Damage &damage, ProjectileDamage &projectile,
-                                       Entity damageEntity, float dt);
-    DamageInformation updateBeam(Damage &damage, BeamDamage &beam, DamageTag &tag, float dt);
-    DamageInformation updateArea(Damage &damage, AreaDamage &area, DamageTag &tag, float dt);
+                                       Entity damageEntity, float dtSec);
+    DamageInformation updateBeam(Damage &damage, BeamDamage &beam, DamageTag &tag, float dtSec);
+    DamageInformation updateArea(Damage &damage, AreaDamage &area, DamageTag &tag, float dtSec);
 
   public:
     DamageSystem() = default;
-    void update(Registry &registry, float dt);
+    void update(Registry &registry, float dtSec);
 };
 
 } // namespace game

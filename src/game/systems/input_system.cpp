@@ -38,9 +38,9 @@ float applyAnimation(Registry &registry, const config::GameConfig &config, const
 } // namespace
 
 void InputSystem::update(Registry &registry, const config::GameConfig &config, const controller::InputState &input,
-                         float dt)
+                         float dtSec)
 {
-    updateCooldown(dt);
+    updateCooldown(dtSec);
 
     auto players = registry.view<PlayerTag, Velocity, PlayerStats, view::Sprite, Position, Animation>();
 
@@ -56,17 +56,17 @@ void InputSystem::update(Registry &registry, const config::GameConfig &config, c
     Entity playerEntity = players.front();
 
     updatePlayerVelocity(registry, playerEntity, input);
-    updatePlayerAnimationState(registry, playerEntity, dt);
+    updatePlayerAnimationState(registry, playerEntity, dtSec);
     handleAttack(registry, config, playerEntity, input);
     applyAnimationMoveSpeedModifier(registry, config, playerEntity);
 }
 
-void InputSystem::updateCooldown(float dt)
+void InputSystem::updateCooldown(float dtSec)
 {
     // possible since we have only one player
-    timeSinceLastAttack_ += dt;
-    timeSinceLastSpecialMove_ += dt;
-    timeSinceLastDash_ += dt;
+    timeSinceLastAttack_ += dtSec;
+    timeSinceLastSpecialMove_ += dtSec;
+    timeSinceLastDash_ += dtSec;
 }
 
 void InputSystem::updatePlayerVelocity(Registry &registry, const Entity entity, const controller::InputState &input)
@@ -91,13 +91,13 @@ void InputSystem::updatePlayerVelocity(Registry &registry, const Entity entity, 
     v.setLength(playerStats.moveSpeed);
 }
 
-void InputSystem::updatePlayerAnimationState(Registry &registry, Entity enemy, float dt)
+void InputSystem::updatePlayerAnimationState(Registry &registry, Entity enemy, float dtSec)
 {
     Animation &animation = registry.getComponent<Animation>(enemy);
     const auto &velocity = registry.getComponent<Velocity>(enemy).v;
 
     if (animation.stateTimeRemaining > 0.0f) {
-        animation.stateTimeRemaining = std::max(0.0f, animation.stateTimeRemaining - dt);
+        animation.stateTimeRemaining = std::max(0.0f, animation.stateTimeRemaining - dtSec);
     }
 
     if (animation.stateTimeRemaining > 0.0f) {

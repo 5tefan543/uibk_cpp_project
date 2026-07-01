@@ -5,7 +5,7 @@
 namespace game {
 
 struct MovementSystem {
-    void update(Registry &registry, float dt);
+    void update(Registry &registry, float dtSec);
 };
 
 } // namespace game
