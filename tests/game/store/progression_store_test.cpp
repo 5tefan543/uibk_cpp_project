@@ -83,14 +83,6 @@ geometry::Vec2<float> getBuyButtonCenter(const view::View &view)
     return buyButton.rect.getCenter();
 }
 
-controller::InputState mouseMoveTo(const geometry::Vec2<float> &position)
-{
-    controller::InputState input;
-    input.mouseMoved = true;
-    input.mouseGrid = position;
-    return input;
-}
-
 controller::InputState mouseClickAt(const geometry::Vec2<float> &position)
 {
     controller::InputState input;
