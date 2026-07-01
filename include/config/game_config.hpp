@@ -3,7 +3,6 @@
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/store/store_item.hpp"
-#include "geometry/rectangle.hpp"
 #include "geometry/vector.hpp"
 #include "logging/log.hpp"
 #include "view/font.hpp"

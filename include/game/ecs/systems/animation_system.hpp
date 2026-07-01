@@ -7,7 +7,7 @@ namespace game {
 
 class AnimationSystem {
   public:
-    void update(Registry &registry, const config::GameConfig &config, float dt);
+    void update(Registry &registry, const config::GameConfig &config, float dtSec);
 };
 
 } // namespace game

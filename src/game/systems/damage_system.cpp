@@ -28,13 +28,13 @@ void triggerHitAnimation(Registry &registry, Entity targetEntity)
 } // namespace
 
 DamageInformation DamageSystem::updateProjectile(Registry &registry, Damage &damage, ProjectileDamage &projectile,
-                                                 Entity damageEntity, float dt)
+                                                 Entity damageEntity, float dtSec)
 {
-    float distanceThisFrame = projectile.speed * dt;
+    float distanceThisFrame = projectile.speed * dtSec;
     DamageInformation amount = {.actualDamageAmount = damage.amount, .shouldBeRemoved = false};
     if (registry.hasComponent<Velocity>(damageEntity)) {
         const Velocity &velocity = registry.getComponent<Velocity>(damageEntity);
-        distanceThisFrame = std::sqrt(velocity.v.x * velocity.v.x + velocity.v.y * velocity.v.y) * dt;
+        distanceThisFrame = std::sqrt(velocity.v.x * velocity.v.x + velocity.v.y * velocity.v.y) * dtSec;
     }
     projectile.distanceTraveled += distanceThisFrame;
 
@@ -44,25 +44,25 @@ DamageInformation DamageSystem::updateProjectile(Registry &registry, Damage &dam
     return amount;
 }
 
-DamageInformation DamageSystem::updateMelee(Damage &damage, MeleeArcDamage &melee, float dt)
+DamageInformation DamageSystem::updateMelee(Damage &damage, MeleeArcDamage &melee, float dtSec)
 {
     DamageInformation result;
     result.actualDamageAmount = damage.amount;
     result.shouldBeRemoved = false;
-    melee.elapsedSec += dt;
+    melee.elapsedSec += dtSec;
     if (melee.elapsedSec > melee.activeTimeSec)
         result.shouldBeRemoved = true;
 
     return result;
 }
 
-DamageInformation DamageSystem::updateBeam(Damage &damage, BeamDamage &beam, DamageTag &tag, float dt)
+DamageInformation DamageSystem::updateBeam(Damage &damage, BeamDamage &beam, DamageTag &tag, float dtSec)
 {
     DamageInformation result;
     result.actualDamageAmount = damage.amount / beam.damageTicks;
     result.shouldBeRemoved = false;
-    beam.elapsedSec += dt;
-    beam.elapsedSecSinceLastTick += dt;
+    beam.elapsedSec += dtSec;
+    beam.elapsedSecSinceLastTick += dtSec;
     bool resetTargets = beam.elapsedSecSinceLastTick > beam.elapsedSec / beam.damageTicks;
     tag.targets = {};
     if (resetTargets) {
@@ -75,7 +75,7 @@ DamageInformation DamageSystem::updateBeam(Damage &damage, BeamDamage &beam, Dam
     return result;
 }
 
-DamageInformation DamageSystem::updateArea(Damage &damage, AreaDamage &area, DamageTag &tag, float dt)
+DamageInformation DamageSystem::updateArea(Damage &damage, AreaDamage &area, DamageTag &tag, float dtSec)
 {
     float graceTimeSec = 0.1f;
 
@@ -87,8 +87,8 @@ DamageInformation DamageSystem::updateArea(Damage &damage, AreaDamage &area, Dam
         result.actualDamageAmount = damage.amount * (1.0f - area.initialHit) / area.damageTicks;
     }
     result.shouldBeRemoved = false;
-    area.elapsedSec += dt;
-    area.elapsedSecSinceLastTick += dt;
+    area.elapsedSec += dtSec;
+    area.elapsedSecSinceLastTick += dtSec;
     bool resetHitTargets = area.elapsedSecSinceLastTick > area.elapsedSec / area.damageTicks;
     if (resetHitTargets) {
         tag.targetsHit = {};
@@ -99,7 +99,7 @@ DamageInformation DamageSystem::updateArea(Damage &damage, AreaDamage &area, Dam
     }
     return result;
 }
-void DamageSystem::update(Registry &registry, float dt)
+void DamageSystem::update(Registry &registry, float dtSec)
 {
     auto damageEntities = registry.view<Damage, DamageTag>();
     for (Entity damageEntity : damageEntities) {
@@ -115,25 +115,25 @@ void DamageSystem::update(Registry &registry, float dt)
         case DamageKind::MeleeArc:
             if (std::holds_alternative<MeleeArcDamage>(damage.params)) {
                 auto &melee = std::get<MeleeArcDamage>(damage.params);
-                currentDamage = updateMelee(damage, melee, dt);
+                currentDamage = updateMelee(damage, melee, dtSec);
             }
             break;
         case DamageKind::Projectile:
             if (std::holds_alternative<ProjectileDamage>(damage.params)) {
                 auto &projectile = std::get<ProjectileDamage>(damage.params);
-                currentDamage = updateProjectile(registry, damage, projectile, damageEntity, dt);
+                currentDamage = updateProjectile(registry, damage, projectile, damageEntity, dtSec);
             }
             break;
         case DamageKind::Beam:
             if (std::holds_alternative<BeamDamage>(damage.params)) {
                 auto &beam = std::get<BeamDamage>(damage.params);
-                currentDamage = updateBeam(damage, beam, damageTag, dt);
+                currentDamage = updateBeam(damage, beam, damageTag, dtSec);
             }
             break;
         case DamageKind::Area:
             if (std::holds_alternative<AreaDamage>(damage.params)) {
                 auto &area = std::get<AreaDamage>(damage.params);
-                currentDamage = updateArea(damage, area, damageTag, dt);
+                currentDamage = updateArea(damage, area, damageTag, dtSec);
             }
             break;
         default:

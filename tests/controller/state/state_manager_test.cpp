@@ -200,7 +200,9 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay crea
     REQUIRE(gameplayState->isLoadedFromPersistedGame());
 
     const game::PersistedGame loaded = gameplayState->game.getPersistedGame();
-    gameplayState->game.update(input, 0.1f); // update once to ensure game session is initialized and values are applied
+    gameplayState->game.update(
+        input,
+        std::chrono::milliseconds(100)); // update once to ensure game session is initialized and values are applied
     const int expectedWave = game.wave;
     const int wavesPerStage = PersistenceManager::getConfig().wavesPerStage;
     const int expectedStage = ((expectedWave - 1) / wavesPerStage) + 1;
@@ -318,7 +320,7 @@ TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for menu state when se
     // Navigate so selectedButtonChanged() returns true on the next updateAudio call
     InputState input;
     input.downPressed = true;
-    stateManager.getCurrent().update(input, 0.0f);
+    stateManager.getCurrent().update(input, std::chrono::milliseconds(0));
 
     REQUIRE_NOTHROW(stateManager.updateAudio());
 }
@@ -340,7 +342,7 @@ TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for progression store 
 
     InputState input;
     input.downPressed = true;
-    stateManager.getCurrent().update(input, 0.0f);
+    stateManager.getCurrent().update(input, std::chrono::milliseconds(0));
 
     REQUIRE_NOTHROW(stateManager.updateAudio());
 }

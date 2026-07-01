@@ -8,6 +8,7 @@
 
 #include "controller/input/input_state.hpp"
 #include "controller/state/state_transition_action.hpp"
+#include "controller/timing.hpp"
 #include "game/game.hpp"
 #include "game/store/progression_store.hpp"
 #include "view/view.hpp"
@@ -21,7 +22,7 @@ class BaseState {
   public:
     virtual ~BaseState() = default;
 
-    virtual StateTransitionAction update(const InputState &input, float dt) = 0;
+    virtual StateTransitionAction update(const InputState &input, const controller::timeDelta &dt) = 0;
     virtual const view::View &getView();
     virtual std::string toString() const = 0;
 };
@@ -42,7 +43,7 @@ class MenuState : public BaseState {
     const MenuType type;
     static std::unique_ptr<MenuState> createMenu(const MenuType menuType);
     bool selectedButtonChanged();
-    StateTransitionAction update(const InputState &input, float dt) override;
+    StateTransitionAction update(const InputState &input, const controller::timeDelta &dt) override;
     std::string toString() const override;
 };
 
@@ -59,7 +60,7 @@ class GameplayState : public BaseState {
     static std::unique_ptr<GameplayState> createLoadedGameplay();
     bool isLoadedFromPersistedGame() const;
     bool hasWaveChanged();
-    StateTransitionAction update(const InputState &input, float dt) override;
+    StateTransitionAction update(const InputState &input, const controller::timeDelta &dt) override;
     std::string toString() const override;
     const view::View &getView() override;
 };
@@ -77,14 +78,14 @@ class ProgressionStoreState : public BaseState {
     bool storeItemHoveredChanged();
     bool selectedStoreItemChanged();
     bool buyButtonPressed();
-    StateTransitionAction update(const InputState &input, float dt) override;
+    StateTransitionAction update(const InputState &input, const controller::timeDelta &dt) override;
     std::string toString() const override;
 };
 
 class ExitState : public BaseState {
   public:
     static std::unique_ptr<ExitState> createExitState();
-    StateTransitionAction update(const InputState &input, float dt) override;
+    StateTransitionAction update(const InputState &input, const controller::timeDelta &dt) override;
     std::string toString() const override;
 };
 

@@ -3,9 +3,11 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state_transition_action.hpp"
+#include "controller/timing.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/camera_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
+#include "game/ecs/components/health_bar_state.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/map_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
@@ -159,11 +161,12 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
     registry_.addComponent<Animation>(player, playerAnimation);
     registry_.addComponent<view::Sprite>(player, playerSprite);
     registry_.addComponent<HitBox>(player, hitBox);
+    registry_.addComponent<HealthBarState>(player, {});
 }
 
 void Game::initWave(int waveNumber)
 {
-    currentWaveDuration_ = 0.0f;
+    currentWaveDuration_ = std::chrono::seconds(0);
     wave_ = waveNumber;
     debugSession_.wave = waveNumber;
 
@@ -245,7 +248,7 @@ void Game::cleanup()
     }
 }
 
-controller::StateTransitionAction Game::update(const controller::InputState &input, float dt)
+controller::StateTransitionAction Game::update(const controller::InputState &input, const controller::timeDelta &dt)
 {
     processDebugSession(dt);
     updateSystems(input, dt);
@@ -259,7 +262,7 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
 
     if (isWaveFinished()) {
         cleanup();
-        addScore(config_.waveDurationSeconds - (int)currentWaveDuration_);
+        addScore(config_.waveDurationSeconds - (int)controller::toSeconds(currentWaveDuration_));
 
         shouldOpenStore_ = (wave_ % config_.wavesPerStage) == 0;
         initWave(++wave_);
@@ -279,7 +282,7 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
     return controller::StateTransitionAction::None;
 }
 
-void Game::processDebugSession(float dt)
+void Game::processDebugSession(const controller::timeDelta &dt)
 {
     controller::DebugContext &debug = controller::DebugContext::get();
 
@@ -315,7 +318,7 @@ void Game::processDebugSession(float dt)
     }
 }
 
-void Game::updateSystems(const controller::InputState &input, float dt)
+void Game::updateSystems(const controller::InputState &input, const controller::timeDelta &dt)
 {
     controller::DebugContext &debug = controller::DebugContext::get();
 
@@ -326,20 +329,22 @@ void Game::updateSystems(const controller::InputState &input, float dt)
         return;
     }
 
+    const float dtSec = controller::toSeconds(dt);
     locationTable_.update(registry_);
-    enemyAI_.update(registry_, config_, locationTable_, dt);
-    inputSystem_.update(registry_, config_, input, dt);
-    movementSystem_.update(registry_, dt);
-    animationSystem_.update(registry_, config_, dt);
+    enemyAI_.update(registry_, config_, locationTable_, dtSec);
+    inputSystem_.update(registry_, config_, input, dtSec);
+    movementSystem_.update(registry_, dtSec);
+    animationSystem_.update(registry_, config_, dtSec);
     cameraSystem_.update(registry_);
     collisionDetectionSystem_.update(registry_);
-    damageSystem_.update(registry_, dt);
+    damageSystem_.update(registry_, dtSec);
+    healthBarSystem_.update(registry_, dtSec);
     soundSystem_.update(registry_);
 }
 
 bool Game::isWaveFinished()
 {
-    bool isWaveTimeFinished = currentWaveDuration_ >= config_.waveDurationSeconds;
+    bool isWaveTimeFinished = currentWaveDuration_ >= std::chrono::seconds(config_.waveDurationSeconds);
     bool isWaveDefeated = registry_.view<EnemyTag>().empty();
 
     return isWaveDefeated | isWaveTimeFinished;
@@ -390,6 +395,76 @@ void Game::updateView(view::View &view)
         view.nodes.push_back({view::ViewMode::FixedToWorld, sprite});
     }
 
+    // Render health bars
+    {
+        constexpr float barHeight = 10.0f;
+        constexpr float barGap = 5.0f;
+        constexpr float borderThickness = 2.0f;
+
+        auto renderHealthBar = [&](Entity entity, const game::Stats &stats, const HealthBarState &bar) {
+            const auto &pos = registry_.getComponent<Position>(entity).p;
+            const auto &sprite = registry_.getComponent<view::Sprite>(entity);
+            const float barWidth = sprite.rect.size.x;
+            const float barX = pos.x;
+            const float barY = pos.y - barHeight - barGap;
+
+            // 1. Black background with green border (full bar width)
+            view::Rectangle bgRect = {
+                .rect = {{barX, barY}, {barWidth, barHeight}},
+                .borderColor = {0, 200, 0},
+                .thickness = borderThickness,
+                .fillColor = view::Color{0, 0, 0},
+            };
+            view.nodes.push_back({view::ViewMode::FixedToWorld, bgRect});
+
+            // 2. Red flash section (right of the green portion)
+            if (bar.redBarTimer > 0.0f) {
+                const float greenWidth = (stats.health / stats.maxHealth) * barWidth;
+                const float currentRedNorm =
+                    bar.initialRedBarNorm * (bar.redBarTimer / HealthBarState::redFlashDuration);
+                const float redWidth = currentRedNorm * barWidth;
+                if (redWidth > 0.0f) {
+                    view::Rectangle redRect = {
+                        .rect = {{barX + greenWidth, barY}, {redWidth, barHeight}},
+                        .borderColor = {0, 0, 0},
+                        .thickness = 0.0f,
+                        .fillColor = view::Color{220, 0, 0},
+                    };
+                    view.nodes.push_back({view::ViewMode::FixedToWorld, redRect});
+                }
+            }
+
+            // 3. Green current-health section
+            const float greenWidth = (stats.health / stats.maxHealth) * barWidth;
+            if (greenWidth > 0.0f) {
+                view::Rectangle greenRect = {
+                    .rect = {{barX, barY}, {greenWidth, barHeight}},
+                    .borderColor = {0, 0, 0},
+                    .thickness = 0.0f,
+                    .fillColor = view::Color{0, 200, 0},
+                };
+                view.nodes.push_back({view::ViewMode::FixedToWorld, greenRect});
+            }
+        };
+
+        // Player — always show
+        for (auto entity : registry_.view<PlayerTag, Position, view::Sprite, PlayerStats, HealthBarState>()) {
+            const auto &stats = registry_.getComponent<PlayerStats>(entity);
+            const auto &bar = registry_.getComponent<HealthBarState>(entity);
+            renderHealthBar(entity, stats, bar);
+        }
+
+        // Enemies — only when not at full health
+        for (auto entity : registry_.view<EnemyTag, Position, view::Sprite, EnemyStats, HealthBarState>()) {
+            const auto &stats = registry_.getComponent<EnemyStats>(entity);
+            if (stats.health >= stats.maxHealth) {
+                continue;
+            }
+            const auto &bar = registry_.getComponent<HealthBarState>(entity);
+            renderHealthBar(entity, stats, bar);
+        }
+    }
+
     controller::DebugContext &debug = controller::DebugContext::get();
     if (debug.active && debug.gameSettings.showHitboxes) {
         for (auto entity : registry_.view<Position, HitBox>()) {
@@ -408,7 +483,9 @@ void Game::updateView(view::View &view)
 
     stageWaveInfo_ = {
         .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_) + " Time remaining: "
-                + std::to_string(config_.waveDurationSeconds - static_cast<int>(currentWaveDuration_)) + " score: "
+                + std::to_string(config_.waveDurationSeconds
+                                 - static_cast<int>(controller::toSeconds(currentWaveDuration_)))
+                + " score: "
                 + std::to_string(registry_.getComponent<PlayerStats>(registry_.view<PlayerTag>().front()).score)
                 + " currency: "
                 + std::to_string(registry_.getComponent<PlayerStats>(registry_.view<PlayerTag>().front()).currency),
