@@ -245,6 +245,21 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager deleteStore is safe when no st
     REQUIRE_FALSE(PersistenceManager::getStore().has_value());
 }
 
+TEST_CASE_METHOD(TestFixture, "PersistenceManager getStore first load reads from disk when cache is empty")
+{
+    game::PersistedStore diskStore;
+    diskStore.nameToSelectedType["Disk Upgrade"] = game::StoreItemType::Rare;
+
+    REQUIRE(Serializer::writeJsonToFile(diskStore, Serializer::storeFilePath));
+
+    const auto output = PersistenceManager::getStore();
+
+    REQUIRE(output.has_value());
+    REQUIRE(output->nameToSelectedType.size() == 1);
+    REQUIRE(output->nameToSelectedType.contains("Disk Upgrade"));
+    REQUIRE(output->nameToSelectedType.at("Disk Upgrade") == game::StoreItemType::Rare);
+}
+
 TEST_CASE_METHOD(TestFixture, "PersistenceManager getStore prefers cached store after first load")
 {
     game::PersistedStore cachedStore;
