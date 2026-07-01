@@ -183,11 +183,18 @@ void Game::initWave(int waveNumber)
         }
     }
 
-    Entity player = registry_.view<PlayerStats>().front();
-    PlayerStats &stats = registry_.getComponent<PlayerStats>(player);
-    stats.health = stats.maxHealth;
+    resetPlayerHealth();
     spawnEnemySystem_.update(registry_, wave_, config_);
     logger::log(logger::DEBUG, std::format("Starting wave {} of stage {}", wave_, stage_));
+}
+
+void Game::resetPlayerHealth()
+{
+    auto players = registry_.view<PlayerStats, PlayerTag>();
+    if (!players.empty()) {
+        PlayerStats &playerStats = registry_.getComponent<PlayerStats>(players.front());
+        playerStats.health = playerStats.maxHealth;
+    }
 }
 
 void Game::Game::save()

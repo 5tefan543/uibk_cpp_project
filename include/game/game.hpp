@@ -75,6 +75,7 @@ class Game {
     controller::StateTransitionAction update(const controller::InputState &input, const controller::timeDelta &dt);
     bool isGameOver();
     int getWaveNumber();
+    void resetPlayerHealth();
     void save();
     void setShouldOpenStore(bool shouldOpenStore);
     void updateView(view::View &view);

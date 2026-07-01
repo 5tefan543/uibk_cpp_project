@@ -119,6 +119,7 @@ controller::StateTransitionAction ProgressionStore::update(const controller::Inp
         switch (selectedButton.id) {
         case ButtonTypeId::Buy:
             buySelectedStoreItem();
+            game_.resetPlayerHealth(); // reset player health after possible max health increase
             break;
 
         case ButtonTypeId::Quit:
