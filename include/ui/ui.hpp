@@ -31,7 +31,7 @@ class UI {
     bool isOpen() const;
     const controller::InputState &pollInput();
 
-    void render(const view::View &view, const controller::timeDelta &dtSec);
+    void render(const view::View &view, const controller::timeDelta &dt);
 };
 
 } // namespace ui

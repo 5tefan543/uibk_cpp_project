@@ -38,7 +38,7 @@ class DebugUI {
     DebugUI();
     ~DebugUI();
 
-    void render(const controller::InputState &input, const controller::timeDelta &dtSec);
+    void render(const controller::InputState &input, const controller::timeDelta &dt);
 };
 
 } // namespace ui

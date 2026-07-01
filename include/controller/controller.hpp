@@ -13,7 +13,7 @@ class Controller {
   public:
     Controller();
     ~Controller();
-    void update(const InputState &input, const controller::timeDelta &dtSec);
+    void update(const InputState &input, const controller::timeDelta &dt);
     BaseState &getCurrentState();
 };
 

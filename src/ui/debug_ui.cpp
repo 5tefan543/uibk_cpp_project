@@ -16,7 +16,7 @@ DebugUI::~DebugUI()
     logger::log(logger::DEBUG, "DebugUI destructed");
 }
 
-void DebugUI::render(const controller::InputState &input, const controller::timeDelta &dtSec)
+void DebugUI::render(const controller::InputState &input, const controller::timeDelta &dt)
 {
     controller::DebugContext &debug = controller::DebugContext::get();
     if (!debug.active) {
