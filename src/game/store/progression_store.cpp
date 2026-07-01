@@ -1,4 +1,4 @@
-#include "game/progression_store.hpp"
+#include "game/store/progression_store.hpp"
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/mouse_util.hpp"
 #include "controller/persistence/persistence_manager.hpp"
@@ -135,6 +135,7 @@ controller::StateTransitionAction ProgressionStore::update(const controller::Inp
             stateTransitionAction = controller::StateTransitionAction::Pop;
             game_.setShouldOpenStore(false);
             game_.save();
+            controller::PersistenceManager::deleteStore();
             break;
 
         default:
@@ -290,6 +291,10 @@ view::Card &ProgressionStore::createStoreItemsCard()
 
     int visibleItemIndex = 0;
 
+    std::optional<PersistedStore> persistedStoreOpt = controller::PersistenceManager::getStore();
+    bool isStorePersisted = persistedStoreOpt.has_value();
+    PersistedStore persistedStore = persistedStoreOpt.value_or(PersistedStore{});
+
     for (const config::StoreItemConfig &storeItemConfig : config_.storeConfig.items) {
         if (storeItemConfig.typeToConfig.empty()) {
             logger::log(logger::LogLevel::ERROR,
@@ -297,8 +302,29 @@ view::Card &ProgressionStore::createStoreItemsCard()
             continue;
         }
 
-        const StoreItemType selectedType = selectStoreItemType(storeItemConfig);
-        const config::StoreItemTypeConfig &typeConfig = storeItemConfig.typeToConfig.at(selectedType);
+        StoreItemType selectedType;
+
+        if (isStorePersisted) {
+            auto nameToTypeIt = persistedStore.nameToSelectedType.find(storeItemConfig.name);
+            if (nameToTypeIt == persistedStore.nameToSelectedType.end()) {
+                logger::log(
+                    logger::LogLevel::ERROR,
+                    std::format("Store item {} has no selected type in persisted store.", storeItemConfig.name));
+                continue;
+            }
+            selectedType = nameToTypeIt->second;
+        } else {
+            selectedType = selectStoreItemType(storeItemConfig);
+            persistedStore.nameToSelectedType.emplace(storeItemConfig.name, selectedType);
+        }
+
+        auto typeToConfigIt = storeItemConfig.typeToConfig.find(selectedType);
+        if (typeToConfigIt == storeItemConfig.typeToConfig.end()) {
+            logger::log(logger::LogLevel::ERROR, std::format("Store item {} has no configuration for selected type {}.",
+                                                             storeItemConfig.name, toString(selectedType)));
+            continue;
+        }
+        const config::StoreItemTypeConfig &typeConfig = typeToConfigIt->second;
 
         const int row = visibleItemIndex / itemColumns;
         const int col = visibleItemIndex % itemColumns;
@@ -333,6 +359,10 @@ view::Card &ProgressionStore::createStoreItemsCard()
         }
 
         ++visibleItemIndex;
+    }
+
+    if (!isStorePersisted) {
+        controller::PersistenceManager::saveStore(persistedStore);
     }
 
     return itemsCard;

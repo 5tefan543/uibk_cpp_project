@@ -1,7 +1,7 @@
 #pragma once
 #include "game/ecs/components/animation.hpp"
 #include "game/persisted_game.hpp"
-#include "game/store_item.hpp"
+#include "game/store/store_item.hpp"
 #include "logging/log.hpp"
 #include "view/font.hpp"
 #include <glaze/glaze.hpp>

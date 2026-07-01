@@ -9,7 +9,7 @@
 #include "controller/input/input_state.hpp"
 #include "controller/state/state_transition_action.hpp"
 #include "game/game.hpp"
-#include "game/progression_store.hpp"
+#include "game/store/progression_store.hpp"
 #include "view/view.hpp"
 
 namespace controller {
