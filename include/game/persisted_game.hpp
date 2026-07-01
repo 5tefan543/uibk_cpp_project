@@ -7,7 +7,7 @@ namespace game {
 
 struct PersistedGame {
     int wave = 0;
-    Position position;
+    Position position = {{0.0f, 0.0f}};
     PlayerStats playerStats;
     bool shouldOpenStore = false;
 };

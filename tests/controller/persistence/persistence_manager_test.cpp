@@ -92,7 +92,7 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager stores leaderboard entries sor
 
 TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk when cache is empty")
 {
-    config::GameConfig input;
+    config::GameConfig input = controller::PersistenceManager::getConfig();
     input.initialStage = 13;
     input.initialWave = 8;
     input.initialCurrency = 456;
@@ -101,6 +101,8 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager loadConfig reads from disk whe
     input.windowConfig.title = "Disk Config";
     input.logConfig.level = logger::WARNING;
     input.logConfig.useColor = false;
+
+    controller::PersistenceManager::resetConfig();
 
     REQUIRE(Serializer::writeJsonToFile(input, Serializer::configFilePath));
 
