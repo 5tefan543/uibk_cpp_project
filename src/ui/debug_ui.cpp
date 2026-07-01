@@ -27,7 +27,7 @@ void DebugUI::render(const controller::InputState &input, const controller::time
     ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Once);
     ImGui::Begin("Debug", &debug.active, ImGuiWindowFlags_AlwaysAutoResize);
 
-    renderStats(dtSec, input, debug);
+    renderStats(dt, input, debug);
     renderGameSettings(debug);
     renderGameSession(debug);
 
