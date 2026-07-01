@@ -1,5 +1,6 @@
 #include "controller/controller.hpp"
 #include "controller/debug/debug_context.hpp"
+#include "controller/timing.hpp"
 #include "logging/log.hpp"
 
 namespace controller {
@@ -16,7 +17,7 @@ Controller::~Controller()
     logger::log(logger::DEBUG, "Controller destructed");
 }
 
-void Controller::update(const InputState &input, float dt)
+void Controller::update(const InputState &input, const controller::timeDelta &dt)
 {
     stateManager_.updateAudio();
 

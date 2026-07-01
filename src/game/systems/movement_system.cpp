@@ -4,12 +4,12 @@
 
 namespace game {
 
-void MovementSystem::update(Registry &registry, float dt)
+void MovementSystem::update(Registry &registry, float dtSec)
 {
     for (auto entity : registry.view<Position, Velocity>()) {
         auto &position = registry.getComponent<Position>(entity).p;
         auto &velocity = registry.getComponent<Velocity>(entity).v;
-        position += velocity * dt;
+        position += velocity * dtSec;
     }
 }
 
