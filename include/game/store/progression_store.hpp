@@ -50,7 +50,7 @@ class ProgressionStore {
     view::Card &createGoldCard();
     view::Card &createPlayerStatsCard();
     view::Card &createStoreItemsCard();
-    StoreItemType selectStoreItemType(const config::StoreItemConfig &storeItemConfig);
+    StoreItemType selectRandomStoreItemType(const config::StoreItemConfig &storeItemConfig);
     view::Card &createSelectedItemDetailsCard();
     const StoreItem *getSelectedStoreItem() const;
     std::string getStatChangesText(const PlayerStats &statChanges) const;

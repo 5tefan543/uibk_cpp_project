@@ -1,5 +1,6 @@
 #include "controller/persistence/persistence_manager.hpp"
 #include "game/store/progression_store.hpp"
+#include "game/store/progression_store_helper.hpp"
 #include "shared/test_fixture.hpp"
 
 #include <catch2/catch_approx.hpp>
@@ -246,4 +247,48 @@ TEST_CASE_METHOD(TestFixture, "ProgressionStore uses persisted store item type")
     REQUIRE(store.buyButtonPressed());
     REQUIRE(game.getPlayerStats().currency == 100);
     REQUIRE(game.getPlayerStats().attackPower == Catch::Approx(60.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "Store item probabilities match config weights at wave one")
+{
+    const std::vector<float> baseWeights = {
+        0.5f,  // Common
+        0.3f,  // Uncommon
+        0.15f, // Rare
+        0.05f, // Epic
+    };
+
+    std::size_t wave = 1;
+    const std::vector<float> probabilities = game::getWaveAdjustedProbabilities(baseWeights, wave);
+
+    REQUIRE(probabilities.size() == 4);
+    REQUIRE(probabilities[0] == Catch::Approx(0.5f));
+    REQUIRE(probabilities[1] == Catch::Approx(0.3f));
+    REQUIRE(probabilities[2] == Catch::Approx(0.15f));
+    REQUIRE(probabilities[3] == Catch::Approx(0.05f));
+}
+
+TEST_CASE_METHOD(TestFixture, "Store item probabilities increase for rarer item types with increasing waves")
+{
+    const std::vector<float> baseWeights = {
+        0.5f,  // Common
+        0.3f,  // Uncommon
+        0.15f, // Rare
+        0.05f, // Epic
+    };
+
+    std::size_t wave = 1;
+    const std::vector<float> waveOneProbabilities = game::getWaveAdjustedProbabilities(baseWeights, wave);
+
+    wave = 100;
+    const std::vector<float> laterWaveProbabilities = game::getWaveAdjustedProbabilities(baseWeights, wave);
+
+    REQUIRE(laterWaveProbabilities.size() == 4);
+    REQUIRE(laterWaveProbabilities[0] < waveOneProbabilities[0]); // Common decreases
+    REQUIRE(laterWaveProbabilities[1] < waveOneProbabilities[1]); // Uncommon decreases
+    REQUIRE(laterWaveProbabilities[2] > waveOneProbabilities[2]); // Rare increases
+    REQUIRE(laterWaveProbabilities[3] > waveOneProbabilities[3]); // Epic increases
+
+    const float laterWaveSum = std::accumulate(laterWaveProbabilities.begin(), laterWaveProbabilities.end(), 0.0f);
+    REQUIRE(laterWaveSum == Catch::Approx(1.0f));
 }

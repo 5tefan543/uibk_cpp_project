@@ -59,6 +59,7 @@ add_library(roguelike_game
   src/game/systems/health_bar_system.cpp
   src/game/location_table.cpp
   src/game/store/progression_store.cpp
+  src/game/store/progression_store_helper.cpp
 )
 
 roguelike_cxx_flags(roguelike_game)

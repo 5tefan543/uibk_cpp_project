@@ -2,6 +2,7 @@
 #include "controller/debug/debug_context.hpp"
 #include "controller/input/mouse_util.hpp"
 #include "controller/persistence/persistence_manager.hpp"
+#include "game/store/progression_store_helper.hpp"
 #include "logging/log.hpp"
 #include <string>
 
@@ -46,81 +47,6 @@ const view::Color disabledBuyButtonColor = {65, 65, 65};
 const view::Color disabledBuyButtonSelectedColor = {85, 85, 85};
 const view::Color disabledBuyButtonTextColor = {150, 150, 150};
 const view::Color enabledBuyButtonTextColor = {255, 255, 255};
-
-constexpr float rarityBoostPerWave = 0.005f;
-constexpr float maxRarityBoost = 0.5f;
-
-std::string floatToPrettyString(float value)
-{
-    std::ostringstream stream;
-    stream << std::fixed << std::setprecision(1) << value;
-    return stream.str();
-}
-
-geometry::Rectangle<float> scaleRectCentered(const geometry::Rectangle<float> &rect, float scale)
-{
-    const geometry::Vec2<float> center = rect.getCenter();
-    const geometry::Vec2<float> scaledSize = rect.size * scale;
-
-    return geometry::Rectangle<float>{.position = center - scaledSize / 2.0f, .size = scaledSize};
-}
-
-float getRarityBoostForWave(std::size_t waveNumber)
-{
-    if (waveNumber <= 1) {
-        return 0.0f;
-    }
-
-    // The rarity boost increases with each wave, but is capped at a maximum value to prevent excessive scaling.
-    return std::min(maxRarityBoost, static_cast<float>(waveNumber - 1) * rarityBoostPerWave);
-}
-
-std::vector<float> normalizeWeights(const std::vector<float> &weights)
-{
-    std::vector<float> probabilities = weights;
-
-    const float sum = std::accumulate(probabilities.begin(), probabilities.end(), 0.0f);
-
-    if (probabilities.empty()) {
-        return probabilities;
-    }
-
-    if (sum <= 0.0f) {
-        const float uniformProbability = 1.0f / static_cast<float>(probabilities.size());
-        std::fill(probabilities.begin(), probabilities.end(), uniformProbability);
-        return probabilities;
-    }
-
-    for (float &probability : probabilities) {
-        probability /= sum;
-    }
-
-    return probabilities;
-}
-
-std::vector<float> getWaveAdjustedProbabilities(const std::vector<float> &baseWeights, std::size_t waveNumber)
-{
-    if (baseWeights.empty()) {
-        return {};
-    }
-
-    const float rarityBoost = getRarityBoostForWave(waveNumber);
-
-    std::vector<float> adjustedWeights;
-    adjustedWeights.reserve(baseWeights.size());
-
-    for (float baseWeight : baseWeights) {
-        if (baseWeight <= 0.0f) {
-            adjustedWeights.push_back(0.0f);
-            continue;
-        }
-
-        const float adjustedWeight = std::pow(baseWeight, 1.0f - rarityBoost);
-        adjustedWeights.push_back(adjustedWeight);
-    }
-
-    return normalizeWeights(adjustedWeights);
-}
 
 } // namespace
 
@@ -374,7 +300,7 @@ view::Card &ProgressionStore::createStoreItemsCard()
             }
             selectedType = nameToTypeIt->second;
         } else {
-            selectedType = selectStoreItemType(storeItemConfig);
+            selectedType = selectRandomStoreItemType(storeItemConfig);
             persistedStore.nameToSelectedType.emplace(storeItemConfig.name, selectedType);
         }
 
@@ -428,7 +354,7 @@ view::Card &ProgressionStore::createStoreItemsCard()
     return itemsCard;
 }
 
-StoreItemType ProgressionStore::selectStoreItemType(const config::StoreItemConfig &storeItemConfig)
+StoreItemType ProgressionStore::selectRandomStoreItemType(const config::StoreItemConfig &storeItemConfig)
 {
     std::vector<StoreItemType> availableTypes;
     std::vector<float> baseWeights;
