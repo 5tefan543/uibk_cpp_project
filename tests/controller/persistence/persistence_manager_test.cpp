@@ -194,3 +194,77 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager returns empty leaderboard for 
     REQUIRE(PersistenceManager::getTopNLeaderboardEntries(0).empty());
     REQUIRE(PersistenceManager::getTopNLeaderboardEntries(-4).empty());
 }
+
+TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads store")
+{
+    game::PersistedStore input;
+    input.nameToSelectedType["Attack Upgrade"] = game::StoreItemType::Common;
+    input.nameToSelectedType["Defense Upgrade"] = game::StoreItemType::Rare;
+
+    REQUIRE(PersistenceManager::saveStore(input));
+
+    const auto output = PersistenceManager::getStore();
+
+    REQUIRE(output.has_value());
+    REQUIRE(output->nameToSelectedType.size() == 2);
+    REQUIRE(output->nameToSelectedType.contains("Attack Upgrade"));
+    REQUIRE(output->nameToSelectedType.contains("Defense Upgrade"));
+    REQUIRE(output->nameToSelectedType.at("Attack Upgrade") == game::StoreItemType::Common);
+    REQUIRE(output->nameToSelectedType.at("Defense Upgrade") == game::StoreItemType::Rare);
+}
+
+TEST_CASE_METHOD(TestFixture, "PersistenceManager getStore returns nullopt when store is missing")
+{
+    PersistenceManager::deleteStore();
+
+    const auto output = PersistenceManager::getStore();
+
+    REQUIRE_FALSE(output.has_value());
+}
+
+TEST_CASE_METHOD(TestFixture, "PersistenceManager deleteStore removes stored store")
+{
+    game::PersistedStore input;
+    input.nameToSelectedType["Attack Upgrade"] = game::StoreItemType::Uncommon;
+
+    REQUIRE(PersistenceManager::saveStore(input));
+    REQUIRE(PersistenceManager::getStore().has_value());
+
+    PersistenceManager::deleteStore();
+
+    REQUIRE_FALSE(PersistenceManager::getStore().has_value());
+}
+
+TEST_CASE_METHOD(TestFixture, "PersistenceManager deleteStore is safe when no store exists")
+{
+    PersistenceManager::deleteStore();
+
+    REQUIRE_NOTHROW(PersistenceManager::deleteStore());
+    REQUIRE_FALSE(PersistenceManager::getStore().has_value());
+}
+
+TEST_CASE_METHOD(TestFixture, "PersistenceManager getStore prefers cached store after first load")
+{
+    game::PersistedStore cachedStore;
+    cachedStore.nameToSelectedType["Cached Upgrade"] = game::StoreItemType::Epic;
+
+    REQUIRE(PersistenceManager::saveStore(cachedStore));
+
+    const auto firstOutput = PersistenceManager::getStore();
+
+    REQUIRE(firstOutput.has_value());
+    REQUIRE(firstOutput->nameToSelectedType.contains("Cached Upgrade"));
+    REQUIRE(firstOutput->nameToSelectedType.at("Cached Upgrade") == game::StoreItemType::Epic);
+
+    game::PersistedStore diskStore;
+    diskStore.nameToSelectedType["Disk Upgrade"] = game::StoreItemType::Common;
+
+    REQUIRE(Serializer::writeJsonToFile(diskStore, Serializer::storeFilePath));
+
+    const auto secondOutput = PersistenceManager::getStore();
+
+    REQUIRE(secondOutput.has_value());
+    REQUIRE(secondOutput->nameToSelectedType.contains("Cached Upgrade"));
+    REQUIRE(secondOutput->nameToSelectedType.at("Cached Upgrade") == game::StoreItemType::Epic);
+    REQUIRE_FALSE(secondOutput->nameToSelectedType.contains("Disk Upgrade"));
+}

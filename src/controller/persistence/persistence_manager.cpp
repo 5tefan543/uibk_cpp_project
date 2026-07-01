@@ -104,7 +104,11 @@ static std::optional<game::PersistedStore> storeCache = std::nullopt;
 
 bool PersistenceManager::saveStore(const game::PersistedStore &persistedStore)
 {
-    return Serializer::writeJsonToFile(persistedStore, Serializer::storeFilePath);
+    if (Serializer::writeJsonToFile(persistedStore, Serializer::storeFilePath)) {
+        storeCache = persistedStore;
+        return true;
+    }
+    return false;
 }
 
 std::optional<game::PersistedStore> PersistenceManager::getStore()
