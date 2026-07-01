@@ -144,6 +144,26 @@ class Registry {
 
         return matchingEntities;
     }
+
+    template <typename... Components>
+    class FilterIncl {};
+
+    template <typename... Components>
+    class FilterExcl {};
+
+    template <typename... Incl, typename... Excl>
+    std::vector<Entity> view(FilterIncl<Incl...>, FilterExcl<Excl...>) const
+    {
+        std::vector<Entity> matchingEntities;
+
+        for (Entity entity : aliveEntities_) {
+            if ((hasComponent<Incl>(entity) && ...) && (!hasComponent<Excl>(entity) && ...)) {
+                matchingEntities.push_back(entity);
+            }
+        }
+
+        return matchingEntities;
+    }
 };
 
 } // namespace game

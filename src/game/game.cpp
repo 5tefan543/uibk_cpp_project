@@ -306,7 +306,7 @@ void Game::updateSystems(const controller::InputState &input, float dt)
     movementSystem_.update(registry_, dt);
     animationSystem_.update(registry_, config_, dt);
     cameraSystem_.update(registry_);
-    collisionDetectionSystem_.update(registry_);
+    collisionDetectionSystem_.update(registry_, locationTable_);
     damageSystem_.update(registry_, dt);
     healthBarSystem_.update(registry_, dt);
     soundSystem_.update(registry_);
