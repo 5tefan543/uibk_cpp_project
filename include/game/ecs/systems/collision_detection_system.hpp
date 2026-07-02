@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/ecs/registry.hpp"
+#include "game/location_table.hpp"
 
 namespace game {
 
@@ -12,7 +13,7 @@ class CollisionDetectionSystem {
     void addTarget(const Entity &target, const Entity &source, Registry &registry);
 
   public:
-    void update(Registry &registry);
+    void update(Registry &registry, const LocationTable &locationTable);
 };
 
 } // namespace game

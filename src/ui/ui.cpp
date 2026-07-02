@@ -23,7 +23,7 @@ void UI::initSfmlWindow()
     sf::VideoMode videoMode({(unsigned)view::grid.size.x, (unsigned)view::grid.size.y});
     window_.create(videoMode, "My Game", sf::State::Windowed);
     window_.setPosition({0, 0});
-    window_.setFramerateLimit(60);
+    window_.setFramerateLimit(0);
 
     // Print all available video modes - maybe interesting later if we want to support multiple resolutions with same
     // ratio as internal grid

@@ -74,6 +74,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update activates player 
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
+    game::LocationTable locTab({5, 5}, {100, 100});
 
     const game::Entity attack = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 10.0f, 10.0f);
 
@@ -84,7 +85,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update activates player 
 
     registry.addComponent<game::EnemyTag>(enemy, {});
 
-    system.update(registry);
+    locTab.update(registry);
+    system.update(registry, locTab);
 
     REQUIRE(registry.hasComponent<game::DamageTag>(attack));
 
@@ -96,7 +98,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update activates player 
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
-
+    game::LocationTable locTab({5, 5}, {100, 100});
     const game::Entity attack = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 10.0f, 10.0f);
 
     registry.addComponent<game::Damage>(attack, makeProjectileDamage(12.0f));
@@ -106,7 +108,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update activates player 
 
     registry.addComponent<game::EnemyTag>(enemy, {});
 
-    system.update(registry);
+    locTab.update(registry);
+    system.update(registry, locTab);
 
     REQUIRE(registry.hasComponent<game::DamageTag>(attack));
 
@@ -118,6 +121,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not activate
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
+    game::LocationTable locTab({5, 5}, {100, 100});
 
     const game::Entity attack = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 10.0f, 10.0f);
 
@@ -128,7 +132,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not activate
 
     registry.addComponent<game::EnemyTag>(enemy, {});
 
-    system.update(registry);
+    locTab.update(registry);
+    system.update(registry, locTab);
 
     REQUIRE_FALSE(registry.hasComponent<game::DamageTag>(attack));
 }
@@ -137,6 +142,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update detects collision
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
+    game::LocationTable locTab({5, 5}, {100, 100});
 
     const game::Entity attack = addEntityWithHitBox(registry, 0.0f, 0.0f, 5.0f, 0.0f, 10.0f, 10.0f);
 
@@ -147,7 +153,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update detects collision
 
     registry.addComponent<game::EnemyTag>(enemy, {});
 
-    system.update(registry);
+    locTab.update(registry);
+    system.update(registry, locTab);
 
     REQUIRE(registry.hasComponent<game::DamageTag>(attack));
 
@@ -159,6 +166,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update collects multiple
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
+    game::LocationTable locTab({5, 5}, {100, 100});
 
     const game::Entity attack = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 20.0f, 20.0f);
 
@@ -172,7 +180,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update collects multiple
     registry.addComponent<game::EnemyTag>(enemyA, {});
     registry.addComponent<game::EnemyTag>(enemyB, {});
 
-    system.update(registry);
+    locTab.update(registry);
+    system.update(registry, locTab);
 
     REQUIRE(registry.hasComponent<game::DamageTag>(attack));
 
@@ -186,6 +195,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not activate
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
+    game::LocationTable locTab({5, 5}, {100, 100});
 
     const game::Entity attack = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 10.0f, 10.0f);
 
@@ -196,7 +206,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not activate
 
     registry.addComponent<game::PlayerTag>(player, {});
 
-    system.update(registry);
+    locTab.update(registry);
+    system.update(registry, locTab);
 
     REQUIRE_FALSE(registry.hasComponent<game::DamageTag>(attack));
 }
@@ -205,6 +216,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not activate
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
+    game::LocationTable locTab({5, 5}, {100, 100});
 
     const game::Entity attack = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 10.0f, 10.0f);
 
@@ -215,7 +227,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not activate
 
     registry.addComponent<game::EnemyTag>(enemy, {});
 
-    system.update(registry);
+    locTab.update(registry);
+    system.update(registry, locTab);
 
     REQUIRE_FALSE(registry.hasComponent<game::DamageTag>(attack));
 }
@@ -224,6 +237,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not activate
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
+    game::LocationTable locTab({5, 5}, {100, 100});
 
     const game::Entity attackA = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 10.0f, 10.0f);
 
@@ -235,7 +249,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not activate
     registry.addComponent<game::Damage>(attackB, makeProjectileDamage());
     registry.addComponent<game::EnemyAttackTag>(attackB, {});
 
-    system.update(registry);
+    locTab.update(registry);
+    system.update(registry, locTab);
 
     REQUIRE_FALSE(registry.hasComponent<game::DamageTag>(attackA));
     REQUIRE_FALSE(registry.hasComponent<game::DamageTag>(attackB));
@@ -245,6 +260,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not duplicat
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
+    game::LocationTable locTab({5, 5}, {100, 100});
 
     const game::Entity attack = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 10.0f, 10.0f);
 
@@ -255,8 +271,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not duplicat
 
     registry.addComponent<game::EnemyTag>(enemy, {});
 
-    system.update(registry);
-    system.update(registry);
+    locTab.update(registry);
+    system.update(registry, locTab);
 
     REQUIRE(registry.hasComponent<game::DamageTag>(attack));
 
@@ -269,6 +285,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update keeps entity insi
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
+    game::LocationTable locTab({10, 10}, {100, 100});
 
     const game::Entity map = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f, 100.0f);
 
@@ -276,7 +293,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update keeps entity insi
 
     const game::Entity entity = addEntityWithHitBox(registry, -10.0f, 95.0f, 0.0f, 0.0f, 20.0f, 20.0f);
 
-    system.update(registry);
+    locTab.update(registry);
+    system.update(registry, locTab);
 
     const auto &position = registry.getComponent<game::Position>(entity).p;
 
@@ -289,6 +307,7 @@ TEST_CASE_METHOD(TestFixture,
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
+    game::LocationTable locTab({5, 5}, {100, 100});
 
     const game::Entity map = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f, 100.0f);
 
@@ -296,7 +315,8 @@ TEST_CASE_METHOD(TestFixture,
 
     const game::Entity entity = addEntityWithHitBox(registry, -15.0f, 95.0f, 5.0f, -5.0f, 20.0f, 20.0f);
 
-    system.update(registry);
+    locTab.update(registry);
+    system.update(registry, locTab);
 
     const auto &position = registry.getComponent<game::Position>(entity).p;
 
@@ -308,6 +328,7 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not enforce 
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
+    game::LocationTable locTab({5, 5}, {100, 100});
 
     const game::Entity map = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f, 100.0f);
 
@@ -318,7 +339,8 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not enforce 
     registry.addComponent<game::Damage>(damage, makeMeleeDamage());
     registry.addComponent<game::PlayerAttackTag>(damage, {});
 
-    system.update(registry);
+    locTab.update(registry);
+    system.update(registry, locTab);
 
     const auto &position = registry.getComponent<game::Position>(damage).p;
 
@@ -330,10 +352,12 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not change p
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
+    game::LocationTable locTab({5, 5}, {100, 100});
 
     const game::Entity entity = addEntityWithHitBox(registry, -10.0f, 95.0f, 0.0f, 0.0f, 20.0f, 20.0f);
 
-    system.update(registry);
+    locTab.update(registry);
+    system.update(registry, locTab);
 
     const auto &position = registry.getComponent<game::Position>(entity).p;
 

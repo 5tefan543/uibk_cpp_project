@@ -104,20 +104,37 @@ void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &r
     position = entityHitBoxRect.position - hitBox.offset;
 }
 
-void CollisionDetectionSystem::update(Registry &registry)
+void CollisionDetectionSystem::update(Registry &registry, const LocationTable &locationTable)
 {
-    const std::vector<Entity> &entitiesWithHitBoxes = registry.view<HitBox, Position>();
+    constexpr float locTableLookupRadius = 130;
 
-    for (size_t i = 0; i < entitiesWithHitBoxes.size(); ++i) {
-        enforceMapBound(entitiesWithHitBoxes.at(i), registry);
-        if (registry.hasComponent<MapTag>(entitiesWithHitBoxes.at(i))) {
-            continue; // Skip map for collision detection
+    // === Check/Activate Collision/Damage Player's -> Enemies'
+    const std::vector<Entity> nonEnemies = registry.view(Registry::HasAllOf<HitBox, Position>(), Registry::HasAnyOf<>(),
+                                                         Registry::HasNoneOf<MapTag, EnemyTag>());
+
+    for (const Entity nonEnemy : nonEnemies) {
+        enforceMapBound(nonEnemy, registry);
+
+        // TODO: simply leave radius hardcoded? Currently all enemy sprites are of size 128x128
+        const auto p = registry.getComponent<Position>(nonEnemy).p;
+        for (const auto enemyNear : locationTable.getEntitiesNear(p, locTableLookupRadius)) {
+            if (checkCollision(nonEnemy, enemyNear, registry)) {
+                activateDamage(nonEnemy, enemyNear, registry);
+            }
         }
-        for (size_t j = 0; j < entitiesWithHitBoxes.size(); ++j) {
-            Entity source = entitiesWithHitBoxes.at(i);
-            Entity target = entitiesWithHitBoxes.at(j);
-            if (checkCollision(source, target, registry)) {
-                activateDamage(source, target, registry);
+    }
+
+    // === Check/Activate Collision/Damage Enemies' -> Player
+    const std::vector<Entity> enemies =
+        registry.view(Registry::HasAllOf<HitBox, Position>(), Registry::HasAnyOf<EnemyAttackTag, EnemyTag>(),
+                      Registry::HasNoneOf<MapTag>());
+
+    for (const Entity enemy : enemies) {
+        enforceMapBound(enemy, registry);
+
+        for (const auto nonEnemy : nonEnemies) {
+            if (checkCollision(enemy, nonEnemy, registry)) {
+                activateDamage(enemy, nonEnemy, registry);
             }
         }
     }
