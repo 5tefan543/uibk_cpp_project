@@ -23,13 +23,13 @@ float getRarityBoostForWave(std::size_t wave)
 
 std::vector<float> normalizeWeights(const std::vector<float> &weights)
 {
+    if (weights.empty()) {
+        return weights;
+    }
+
     std::vector<float> probabilities = weights;
 
     const float sum = std::accumulate(probabilities.begin(), probabilities.end(), 0.0f);
-
-    if (probabilities.empty()) {
-        return probabilities;
-    }
 
     if (sum <= 0.0f) {
         const float uniformProbability = 1.0f / static_cast<float>(probabilities.size());
