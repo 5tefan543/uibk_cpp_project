@@ -59,7 +59,8 @@ Game::Game(CharacterType characterType) : Game(1, characterType)
 
 Game::Game(const PersistedGame &persistedGame)
     : config_(controller::PersistenceManager::getConfig()),
-      locationTable_(config_.locationTableConfig.numBuckets, config_.mapConfig.mapSize)
+      locationTable_(config_.locationTableConfig.numBuckets, config_.mapConfig.mapSize),
+      shouldOpenStore_(persistedGame.shouldOpenStore)
 {
     logger::log(logger::DEBUG, "Game constructed from persisted game");
 
@@ -175,20 +176,39 @@ void Game::initWave(int waveNumber)
     debugSession_.stage = stage_;
 
     if (wave_ > 1) {
-        auto gameSave = getPersistedGame();
-
-        if (!controller::PersistenceManager::saveGame(gameSave)) {
-
-            // TODO error via gui not console
-        }
+        save();
 
         if (stage_ != stageOld) {
             switchMap();
         }
     }
 
+    resetPlayerHealth();
     spawnEnemySystem_.update(registry_, wave_, config_);
     logger::log(logger::DEBUG, std::format("Starting wave {} of stage {}", wave_, stage_));
+}
+
+void Game::resetPlayerHealth()
+{
+    auto players = registry_.view<PlayerStats, PlayerTag>();
+    if (!players.empty()) {
+        PlayerStats &playerStats = registry_.getComponent<PlayerStats>(players.front());
+        playerStats.health = playerStats.maxHealth;
+    }
+}
+
+void Game::Game::save()
+{
+    PersistedGame persistedGame = getPersistedGame();
+    if (!controller::PersistenceManager::saveGame(persistedGame)) {
+        logger::log(logger::ERROR, "Failed to save game!");
+        // TODO error via gui not console
+    }
+}
+
+void Game::setShouldOpenStore(bool shouldOpenStore)
+{
+    shouldOpenStore_ = shouldOpenStore;
 }
 
 GameDebugSession &Game::getDebugSession()
@@ -200,6 +220,7 @@ PersistedGame Game::getPersistedGame() const
 {
     PersistedGame persistedGame;
     persistedGame.wave = wave_;
+    persistedGame.shouldOpenStore = shouldOpenStore_;
 
     auto players = registry_.view<Position, PlayerStats, PlayerTag>();
     if (!players.empty()) {
@@ -211,6 +232,17 @@ PersistedGame Game::getPersistedGame() const
 
     return persistedGame;
 }
+
+PlayerStats &Game::getPlayerStats()
+{
+    auto players = registry_.view<PlayerStats, PlayerTag>();
+    if (!players.empty()) {
+        return registry_.getComponent<PlayerStats>(players.front());
+    }
+
+    throw std::runtime_error("No player entity found when trying to get player stats");
+}
+
 void Game::cleanup()
 {
     std::vector<Entity> enemyEntities = registry_.view<EnemyTag>();
@@ -231,14 +263,18 @@ controller::StateTransitionAction Game::update(const controller::InputState &inp
     // update clock
     currentWaveDuration_ += dt;
 
+    if (shouldOpenStore_) {
+        return controller::StateTransitionAction::PushProgressionStore;
+    }
+
     if (isWaveFinished()) {
         cleanup();
         addScore(config_.waveDurationSeconds - (int)controller::toSeconds(currentWaveDuration_));
 
-        bool shouldOpenStore = (wave_ % config_.wavesPerStage) == 0;
+        shouldOpenStore_ = (wave_ % config_.wavesPerStage) == 0;
         initWave(++wave_);
 
-        if (shouldOpenStore) {
+        if (shouldOpenStore_) {
             return controller::StateTransitionAction::PushProgressionStore;
         }
 
@@ -285,8 +321,7 @@ void Game::processDebugSession(const controller::timeDelta &dt)
     if (debugSession_.isSaveGameRequested) {
         debugSession_.isSaveGameRequested = false;
         logger::log(logger::DEBUG, "Saving game!");
-        PersistedGame persistedGame = getPersistedGame();
-        controller::PersistenceManager::saveGame(persistedGame);
+        save();
     }
 }
 
@@ -348,6 +383,10 @@ void Game::updateView(view::View &view)
     // Future improvements might only make changes and add/remove where necessary.
     view.nodes.clear();
 
+    if (shouldOpenStore_) {
+        return;
+    }
+
     // Get camera data
     auto cameraEntities = registry_.view<CameraTag, Position>();
     if (!cameraEntities.empty()) {
@@ -379,9 +418,9 @@ void Game::updateView(view::View &view)
             // 1. Black background with green border (full bar width)
             view::Rectangle bgRect = {
                 .rect = {{barX, barY}, {barWidth, barHeight}},
-                .borderColor = {0, 200, 0},
+                .borderColor = view::color::mediumGreen,
                 .thickness = borderThickness,
-                .fillColor = view::Color{0, 0, 0},
+                .fillColor = view::color::black,
             };
             view.nodes.push_back({view::ViewMode::FixedToWorld, bgRect});
 
@@ -394,9 +433,9 @@ void Game::updateView(view::View &view)
                 if (redWidth > 0.0f) {
                     view::Rectangle redRect = {
                         .rect = {{barX + greenWidth, barY}, {redWidth, barHeight}},
-                        .borderColor = {0, 0, 0},
+                        .borderColor = view::color::black,
                         .thickness = 0.0f,
-                        .fillColor = view::Color{220, 0, 0},
+                        .fillColor = view::color::strongRed,
                     };
                     view.nodes.push_back({view::ViewMode::FixedToWorld, redRect});
                 }
@@ -407,9 +446,9 @@ void Game::updateView(view::View &view)
             if (greenWidth > 0.0f) {
                 view::Rectangle greenRect = {
                     .rect = {{barX, barY}, {greenWidth, barHeight}},
-                    .borderColor = {0, 0, 0},
+                    .borderColor = view::color::black,
                     .thickness = 0.0f,
-                    .fillColor = view::Color{0, 200, 0},
+                    .fillColor = view::color::mediumGreen,
                 };
                 view.nodes.push_back({view::ViewMode::FixedToWorld, greenRect});
             }
@@ -441,7 +480,7 @@ void Game::updateView(view::View &view)
 
             view::Rectangle hitboxRect = {
                 .rect = {position + hitbox.offset, hitbox.size},
-                .borderColor = {255, 0, 0},
+                .borderColor = view::color::red,
                 .thickness = 3.0f,
             };
 

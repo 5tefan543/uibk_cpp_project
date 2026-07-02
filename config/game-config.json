@@ -2265,6 +2265,249 @@
         "buttonHoverSound": "assets/audio/sounds/menu/menu_hover.wav",
         "buttonClickSound": "assets/audio/sounds/menu/menu_click.wav",
         "gameOverSound": "assets/audio/sounds/menu/game_over.wav",
-        "waveOverSound": "assets/audio/sounds/wave_finished.wav"
+        "waveOverSound": "assets/audio/sounds/wave_finished.wav",
+        "storeMusic": "assets/audio/music/store_loop.mp3"
+    },
+    "storeConfig": {
+        "items": [
+            {
+                "name": "Max Health",
+                "description": "Increases the maximum health of the player.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 20
+                        },
+                        "cost": 100
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 100
+                        },
+                        "cost": 500
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 40
+                        },
+                        "cost": 200
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_3.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "maxHealth": 60
+                        },
+                        "cost": 300
+                    }
+                }
+            },
+            {
+                "name": "Move Speed",
+                "description": "Increases the movement speed of the player.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 5
+                        },
+                        "cost": 100
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 10
+                        },
+                        "cost": 500
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 15
+                        },
+                        "cost": 200
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_7.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "moveSpeed": 20
+                        },
+                        "cost": 300
+                    }
+                }
+            },
+            {
+                "name": "Attack Range",
+                "description": "Increases the attack range of the player.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_9.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "attackRange": 0.125
+                        },
+                        "cost": 100
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_9.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "attackRange": 0.25
+                        },
+                        "cost": 100
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_9.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "attackRange": 0.3
+                        },
+                        "cost": 200
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_9.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "attackRange": 0.4
+                        },
+                        "cost": 300
+                    }
+                }
+            },
+            {
+                "name": "Attack",
+                "description": "Increases the attack power of the player.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_10.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "attackPower": 1
+                        },
+                        "cost": 100
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_10.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "attackPower": 2
+                        },
+                        "cost": 500
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_10.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "attackPower": 3
+                        },
+                        "cost": 200
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_10.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "attackPower": 4
+                        },
+                        "cost": 300
+                    }
+                }
+            }
+        ],
+        "typeToRandomWeight": {
+            "Common": 0.45,
+            "Uncommon": 0.30,
+            "Rare": 0.15,
+            "Epic": 0.10
+        }
     }
 }

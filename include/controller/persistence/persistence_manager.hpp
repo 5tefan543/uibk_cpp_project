@@ -1,6 +1,7 @@
 #pragma once
 #include "config/game_config.hpp"
 #include "game/persisted_game.hpp"
+#include "game/store/persisted_store.hpp"
 #include "leaderboard.hpp"
 #include <optional>
 #include <string>
@@ -24,6 +25,10 @@ class PersistenceManager {
     static bool saveConfig(const config::GameConfig &config);
     static const config::GameConfig &getConfig();
     static void resetConfig();
+
+    static bool saveStore(const game::PersistedStore &persistedStore);
+    static std::optional<game::PersistedStore> getStore();
+    static void deleteStore();
 };
 
 } // namespace controller

@@ -29,6 +29,7 @@ class Game {
     LocationTable locationTable_;
     GameDebugSession debugSession_{registry_, locationTable_};
     controller::timeDelta currentWaveDuration_;
+    bool shouldOpenStore_ = false;
 
     AnimationSystem animationSystem_;
     CameraSystem cameraSystem_;
@@ -70,9 +71,13 @@ class Game {
 
     GameDebugSession &getDebugSession();
     PersistedGame getPersistedGame() const;
+    PlayerStats &getPlayerStats();
     controller::StateTransitionAction update(const controller::InputState &input, const controller::timeDelta &dt);
     bool isGameOver();
     int getWaveNumber();
+    void resetPlayerHealth();
+    void save();
+    void setShouldOpenStore(bool shouldOpenStore);
     void updateView(view::View &view);
 };
 

@@ -100,4 +100,43 @@ void PersistenceManager::resetConfig()
     configCache.reset();
 }
 
+static std::optional<game::PersistedStore> storeCache = std::nullopt;
+
+bool PersistenceManager::saveStore(const game::PersistedStore &persistedStore)
+{
+    if (Serializer::writeJsonToFile(persistedStore, Serializer::storeFilePath)) {
+        storeCache = persistedStore;
+        return true;
+    }
+    return false;
+}
+
+std::optional<game::PersistedStore> PersistenceManager::getStore()
+{
+    if (storeCache.has_value()) {
+        return storeCache;
+    }
+
+    game::PersistedStore persistedStore;
+
+    if (!Serializer::readJsonFromFile(persistedStore, Serializer::storeFilePath)) {
+        return std::nullopt;
+    }
+
+    storeCache = std::move(persistedStore);
+
+    return storeCache;
+}
+
+void PersistenceManager::deleteStore()
+{
+    std::error_code ec;
+    fs::remove(Serializer::storeFilePath, ec);
+    if (ec) {
+        logger::log(logger::DEBUG, std::format("Failed to delete store file: {}", Serializer::storeFilePath.string()));
+        return;
+    }
+    storeCache.reset();
+}
+
 } // namespace controller

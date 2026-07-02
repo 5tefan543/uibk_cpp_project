@@ -9,12 +9,13 @@
 namespace view {
 
 struct Button {
-    Color backgroundColor = {100, 100, 100};
+    size_t id = 0;
+    Color backgroundColor = color::gray;
     geometry::Rectangle<float> rect =
         geometry::Rectangle<float>::centered(grid.getCenter(), grid.size / geometry::Vec2<float>{8, 20});
     Text text = {.position = rect.getCenter()};
     bool isSelected = false;
-    Color selectedColor = {0, 255, 0};
+    Color selectedColor = color::green;
 };
 
 } // namespace view

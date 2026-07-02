@@ -12,7 +12,7 @@ enum class StateTransitionAction {
     PushProgressionStore,
     ReplaceCurrentWithGameOverMenu,
     Pop,
-    ReplaceCurrentWithMainMenu,
+    ReplaceAllStatesWithMainMenu,
     ReplaceAllStatesWithExit,
 };
 

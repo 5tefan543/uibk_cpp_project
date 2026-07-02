@@ -56,8 +56,11 @@ void StateManager::updateAudio()
             audioController_.playSound(config_.menuSoundConfig.buttonHoverSound);
         }
     } else if (auto *menu = dynamic_cast<ProgressionStoreState *>(&currentState)) {
-        if (menu->selectedButtonChanged()) {
+        if (menu->selectedButtonChanged() || menu->storeItemHoveredChanged()) {
             audioController_.playSound(config_.menuSoundConfig.buttonHoverSound);
+        }
+        if (menu->selectedStoreItemChanged() || menu->buyButtonPressed()) {
+            audioController_.playSound(config_.menuSoundConfig.buttonClickSound);
         }
     } else if (auto *menu = dynamic_cast<GameplayState *>(&currentState)) {
         if (menu->hasWaveChanged()) {
@@ -93,23 +96,31 @@ void StateManager::applyAction(StateTransitionAction action)
         audioController_.playSound(config_.menuSoundConfig.buttonClickSound);
         push(MenuState::createMenu(MenuType::PauseMenu));
         break;
-    case StateTransitionAction::PushProgressionStore:
-        audioController_.pauseMusic();
-        push(ProgressionStoreState::createStore());
+    case StateTransitionAction::PushProgressionStore: {
+        BaseState &currentState = getCurrent();
+        if (auto *gameplayState = dynamic_cast<GameplayState *>(&currentState)) {
+            audioController_.playMusic(config_.menuSoundConfig.storeMusic);
+            push(ProgressionStoreState::createStore(gameplayState->game));
+        } else {
+            logger::log(logger::ERROR, "Cannot push ProgressionStoreState when current state is not GameplayState.");
+        }
         break;
+    }
     case StateTransitionAction::ReplaceCurrentWithGameOverMenu:
         audioController_.stopMusic();
         audioController_.playSound(config_.menuSoundConfig.gameOverSound);
         replaceCurrent(MenuState::createMenu(MenuType::GameOverMenu));
         break;
     case StateTransitionAction::Pop:
-        audioController_.resumeMusic();
+        audioController_.playMusic(config_.menuSoundConfig.gameMusic);
         audioController_.playSound(config_.menuSoundConfig.buttonClickSound);
         pop();
         break;
-    case StateTransitionAction::ReplaceCurrentWithMainMenu:
+    case StateTransitionAction::ReplaceAllStatesWithMainMenu:
         audioController_.playSound(config_.menuSoundConfig.buttonClickSound);
-        replaceCurrent(MenuState::createMenu(MenuType::MainMenu));
+        audioController_.stopMusic();
+        clear();
+        push(MenuState::createMenu(MenuType::MainMenu));
         break;
     case StateTransitionAction::ReplaceAllStatesWithExit:
         clear();

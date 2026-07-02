@@ -266,17 +266,19 @@ TEST_CASE_METHOD(TestFixture, "applyAction Pop removes the top state")
     REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::MainMenu);
 }
 
-TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithMainMenu replaces current state with main menu")
+TEST_CASE_METHOD(TestFixture, "applyAction ReplaceAllStatesWithMainMenu replaces all states with main menu")
 {
     // ARRANGE
     StateManager stateManager;
     stateManager.push(MenuState::createMenu(MenuType::MainMenu));
 
     // ACT
-    stateManager.applyAction(StateTransitionAction::ReplaceCurrentWithMainMenu);
+    stateManager.applyAction(StateTransitionAction::ReplaceAllStatesWithMainMenu);
 
     // ASSERT
     REQUIRE(dynamic_cast<MenuState *>(&stateManager.getCurrent())->type == MenuType::MainMenu);
+    stateManager.pop();
+    REQUIRE(stateManager.isEmpty());
 }
 
 TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithExitState clears all states and adds exit state")
@@ -326,7 +328,8 @@ TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for menu state when se
 TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for progression store when selection did not change")
 {
     StateManager stateManager;
-    stateManager.push(ProgressionStoreState::createStore());
+    game::Game game;
+    stateManager.push(ProgressionStoreState::createStore(game));
 
     REQUIRE_NOTHROW(stateManager.updateAudio());
 }
@@ -334,7 +337,8 @@ TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for progression store 
 TEST_CASE_METHOD(TestFixture, "updateAudio does not throw for progression store when selection changed")
 {
     StateManager stateManager;
-    stateManager.push(ProgressionStoreState::createStore());
+    game::Game game;
+    stateManager.push(ProgressionStoreState::createStore(game));
 
     InputState input;
     input.downPressed = true;

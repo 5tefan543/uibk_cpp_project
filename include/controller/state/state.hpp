@@ -10,6 +10,7 @@
 #include "controller/state/state_transition_action.hpp"
 #include "controller/timing.hpp"
 #include "game/game.hpp"
+#include "game/store/progression_store.hpp"
 #include "view/view.hpp"
 
 namespace controller {
@@ -65,18 +66,18 @@ class GameplayState : public BaseState {
 };
 
 class ProgressionStoreState : public BaseState {
-    std::deque<view::Button> buttons_;
-    std::deque<view::Card> cards_;
-    std::deque<view::Text> texts_;
-    std::size_t selectedButtonId_ = 0;
-    std::size_t prevSelectedButtonId_ = 0;
 
-    ProgressionStoreState();
+    game::ProgressionStore store_;
+
+    ProgressionStoreState(game::Game &game);
     void initView();
 
   public:
-    static std::unique_ptr<ProgressionStoreState> createStore();
+    static std::unique_ptr<ProgressionStoreState> createStore(game::Game &game);
     bool selectedButtonChanged();
+    bool storeItemHoveredChanged();
+    bool selectedStoreItemChanged();
+    bool buyButtonPressed();
     StateTransitionAction update(const InputState &input, const controller::timeDelta &dt) override;
     std::string toString() const override;
 };
