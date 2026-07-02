@@ -146,19 +146,30 @@ class Registry {
     }
 
     template <typename... Components>
-    class FilterIncl {};
+    class HasAllOf {};
 
     template <typename... Components>
-    class FilterExcl {};
+    class HasOneOrMore {};
 
-    template <typename... Incl, typename... Excl>
-    std::vector<Entity> view(FilterIncl<Incl...>, FilterExcl<Excl...>) const
+    template <typename... Components>
+    class HasNoneOf {};
+
+    template <typename... InclAnd, typename... InclOr, typename... Excl>
+    std::vector<Entity> view(HasAllOf<InclAnd...>, HasOneOrMore<InclOr...>, HasNoneOf<Excl...>) const
     {
         std::vector<Entity> matchingEntities;
 
         for (Entity entity : aliveEntities_) {
-            if ((hasComponent<Incl>(entity) && ...) && (!hasComponent<Excl>(entity) && ...)) {
-                matchingEntities.push_back(entity);
+            // Chaining boolean expressions instead of nexting for short-circuit evaluation
+            if constexpr (sizeof...(InclOr) == 0) {
+                if ((!hasComponent<Excl>(entity) && ...) && (hasComponent<InclAnd>(entity) && ...)) {
+                    matchingEntities.push_back(entity);
+                }
+            } else {
+                if ((!hasComponent<Excl>(entity) && ...) && (hasComponent<InclAnd>(entity) && ...)
+                    && (hasComponent<InclOr>(entity) || ...)) {
+                    matchingEntities.push_back(entity);
+                }
             }
         }
 

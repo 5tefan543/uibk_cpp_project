@@ -107,47 +107,33 @@ void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &r
 void CollisionDetectionSystem::update(Registry &registry, const LocationTable &locationTable)
 {
 
-    const std::vector<Entity> entitiesNoEnemies =
-        registry.view(Registry::FilterIncl<HitBox, Position>(), Registry::FilterExcl<MapTag, EnemyTag>());
+    // === Check/Activate Collision/Damage Player's -> Enemies'
+    const std::vector<Entity> nonEnemies = registry.view(
+        Registry::HasAllOf<HitBox, Position>(), Registry::HasOneOrMore<>(), Registry::HasNoneOf<MapTag, EnemyTag>());
 
-    for (size_t i = 0; i < entitiesNoEnemies.size(); ++i) {
-        const Entity source = entitiesNoEnemies.at(i);
+    for (const Entity nonEnemy : nonEnemies) {
+        enforceMapBound(nonEnemy, registry);
 
-        enforceMapBound(source, registry);
-
-        // TODO: do we want a dynamic radius for getEntitiesNear() which is updated to always be large enough to
-        // encompass the biggest hitboxes used by the location table? E.g.: update maxRadius = max(max(hitbox.width),
-        // max(hitbox.height))
-        //
-        // ->  in LocationTable::update()? -> easiest, unecessary, big overhead for info that currently could be
-        // given in advance.
-        //
-        // ->  add LocationTable::init()? -> called by/after SpawnEnemySystem::update() or by extention by/after
-        // Game::initWave(). Since enemies are only added once, at the begining of the wave by SpawnEnemySystem this
-        // would eliminate all unecessary overhead.
-        // Note sure when the call would be best. One introduces inter-system-dependencies, the other requires
-        // remembering the dependency on code changes.
-        //
-        // -> simply leave it hardcoded? Currently all enemy sprites are of size 128x128
-        const auto p = registry.getComponent<Position>(source).p;
-        for (const auto target : locationTable.getEntitiesNear(p, 130)) {
-            if (checkCollision(source, target, registry)) {
-                activateDamage(source, target, registry);
+        // TODO: simply leave radius hardcoded? Currently all enemy sprites are of size 128x128
+        const auto p = registry.getComponent<Position>(nonEnemy).p;
+        for (const auto enemyNear : locationTable.getEntitiesNear(p, 130)) {
+            if (checkCollision(nonEnemy, enemyNear, registry)) {
+                activateDamage(nonEnemy, enemyNear, registry);
             }
         }
     }
 
-    const std::vector<Entity> entitiesEnemies =
-        registry.view(Registry::FilterIncl<HitBox, Position, EnemyTag>(), Registry::FilterExcl<MapTag>());
+    // === Check/Activate Collision/Damage Enemies' -> Player
+    const std::vector<Entity> enemies =
+        registry.view(Registry::HasAllOf<HitBox, Position>(), Registry::HasOneOrMore<EnemyAttackTag, EnemyTag>(),
+                      Registry::HasNoneOf<MapTag>());
 
-    for (size_t i = 0; i < entitiesEnemies.size(); ++i) {
-        const Entity source = entitiesEnemies.at(i);
+    for (const Entity enemy : enemies) {
+        enforceMapBound(enemy, registry);
 
-        enforceMapBound(source, registry);
-
-        for (const auto target : entitiesNoEnemies) {
-            if (checkCollision(source, target, registry)) {
-                activateDamage(source, target, registry);
+        for (const auto nonEnemy : nonEnemies) {
+            if (checkCollision(enemy, nonEnemy, registry)) {
+                activateDamage(enemy, nonEnemy, registry);
             }
         }
     }
