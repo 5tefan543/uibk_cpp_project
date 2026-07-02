@@ -281,6 +281,10 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
     registry.addComponent<HitBox>(rangedObjEntity, rangedObjHitBox);
     registry.addComponent<PlayerAttackTag>(rangedObjEntity, {}); // Mark as player's attack for collision detection
     registry.addComponent<DamageTag>(rangedObjEntity, {});
+
+    if (specialAttack) {
+        registry.addComponent<Animation>(rangedObjEntity, {AnimationState::Walk, attackDirection, 0, 0});
+    }
 }
 
 void InputSystem::applyAnimationMoveSpeedModifier(Registry &registry, const config::GameConfig &config,
