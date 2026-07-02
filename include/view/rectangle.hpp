@@ -9,7 +9,7 @@ namespace view {
 struct Rectangle {
     geometry::Rectangle<float> rect =
         geometry::Rectangle<float>::centered(grid.getCenter(), grid.size / geometry::Vec2<float>{8, 20});
-    Color borderColor = {250, 0, 10};
+    Color borderColor = color::brightRed;
     float thickness = 20.0f;
     std::optional<Color> fillColor = std::nullopt;
 };

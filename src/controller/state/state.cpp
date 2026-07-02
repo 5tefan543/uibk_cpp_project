@@ -137,7 +137,7 @@ void MenuState::initView()
         backgroundCard.rect = {.position = {0, 0}, .size = view::grid.size};
 
         view::Card &mainMenuCard = cards_.emplace_back(view::Card());
-        mainMenuCard.backgroundColor = {50, 50, 50};
+        mainMenuCard.backgroundColor = view::color::deepGray;
         const auto mainMenuCardCenter = mainMenuCard.rect.getCenter();
 
         view::Text &title = texts_.emplace_back(view::Text());
@@ -176,7 +176,7 @@ void MenuState::initView()
         backgroundCard.rect = view::grid;
 
         view::Card &mainMenuCard = cards_.emplace_back(view::Card());
-        mainMenuCard.backgroundColor = {50, 50, 50};
+        mainMenuCard.backgroundColor = view::color::deepGray;
         const auto mainMenuCardCenter = mainMenuCard.rect.getCenter();
 
         view::Text &title = texts_.emplace_back(view::Text());
@@ -206,7 +206,7 @@ void MenuState::initView()
         backgroundCard.rect = view::grid;
 
         view::Card &mainMenuCard = cards_.emplace_back(view::Card());
-        mainMenuCard.backgroundColor = {50, 50, 50};
+        mainMenuCard.backgroundColor = view::color::deepGray;
         const auto mainMenuCardCenter = mainMenuCard.rect.getCenter();
 
         view::Text &title = texts_.emplace_back(view::Text());
@@ -236,13 +236,13 @@ void MenuState::initView()
         backgroundCard.rect = view::grid;
 
         view::Card &mainMenuCard = cards_.emplace_back(view::Card());
-        mainMenuCard.backgroundColor = {50, 50, 50};
+        mainMenuCard.backgroundColor = view::color::deepGray;
         const auto mainMenuCardCenter = mainMenuCard.rect.getCenter();
 
         view::Text &title = texts_.emplace_back(view::Text());
         title.position.y = (mainMenuCard.rect.position.y + mainMenuCard.rect.size.y / 10);
         title.text = std::string("Game Over!");
-        title.color = {255, 0, 0};
+        title.color = view::color::red;
 
         view::Button &mainMenuButton = buttons_.emplace_back(view::Button());
         mainMenuButton.rect.centerizeY(mainMenuCardCenter.y - mainMenuButton.rect.size.y);

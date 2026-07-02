@@ -418,9 +418,9 @@ void Game::updateView(view::View &view)
             // 1. Black background with green border (full bar width)
             view::Rectangle bgRect = {
                 .rect = {{barX, barY}, {barWidth, barHeight}},
-                .borderColor = {0, 200, 0},
+                .borderColor = view::color::mediumGreen,
                 .thickness = borderThickness,
-                .fillColor = view::Color{0, 0, 0},
+                .fillColor = view::color::black,
             };
             view.nodes.push_back({view::ViewMode::FixedToWorld, bgRect});
 
@@ -433,9 +433,9 @@ void Game::updateView(view::View &view)
                 if (redWidth > 0.0f) {
                     view::Rectangle redRect = {
                         .rect = {{barX + greenWidth, barY}, {redWidth, barHeight}},
-                        .borderColor = {0, 0, 0},
+                        .borderColor = view::color::black,
                         .thickness = 0.0f,
-                        .fillColor = view::Color{220, 0, 0},
+                        .fillColor = view::color::strongRed,
                     };
                     view.nodes.push_back({view::ViewMode::FixedToWorld, redRect});
                 }
@@ -446,9 +446,9 @@ void Game::updateView(view::View &view)
             if (greenWidth > 0.0f) {
                 view::Rectangle greenRect = {
                     .rect = {{barX, barY}, {greenWidth, barHeight}},
-                    .borderColor = {0, 0, 0},
+                    .borderColor = view::color::black,
                     .thickness = 0.0f,
-                    .fillColor = view::Color{0, 200, 0},
+                    .fillColor = view::color::mediumGreen,
                 };
                 view.nodes.push_back({view::ViewMode::FixedToWorld, greenRect});
             }
@@ -480,7 +480,7 @@ void Game::updateView(view::View &view)
 
             view::Rectangle hitboxRect = {
                 .rect = {position + hitbox.offset, hitbox.size},
-                .borderColor = {255, 0, 0},
+                .borderColor = view::color::red,
                 .thickness = 3.0f,
             };
 

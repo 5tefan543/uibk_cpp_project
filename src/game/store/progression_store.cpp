@@ -41,12 +41,22 @@ constexpr const char *quitButtonText = "QUIT";
 constexpr const char *mainMenuButtonText = "MAIN MENU";
 constexpr const char *nextStageButtonText = "NEXT STAGE";
 
-const view::Color buyButtonColor = {100, 100, 100};
-const view::Color buyButtonSelectedColor = {0, 255, 0};
-const view::Color disabledBuyButtonColor = {65, 65, 65};
-const view::Color disabledBuyButtonSelectedColor = {85, 85, 85};
-const view::Color disabledBuyButtonTextColor = {150, 150, 150};
-const view::Color enabledBuyButtonTextColor = {255, 255, 255};
+constexpr view::Color backgroundCardColor = view::color::nearBlack;
+constexpr view::Color goldCardColor = view::color::veryDarkGray;
+constexpr view::Color statsCardColor = view::color::charcoal;
+constexpr view::Color itemsCardColor = view::color::almostBlack;
+constexpr view::Color detailsCardColor = view::color::charcoal;
+
+constexpr view::Color storeItemCardColor = view::color::darkMutedPurple;
+constexpr view::Color hoveredStoreItemCardColor = view::color::mutedPurple;
+constexpr view::Color selectedStoreItemCardColor = view::color::lightMutedPurple;
+
+constexpr view::Color buyButtonColor = view::color::gray;
+constexpr view::Color buyButtonSelectedColor = view::color::green;
+constexpr view::Color disabledBuyButtonColor = view::color::darkGray;
+constexpr view::Color disabledBuyButtonSelectedColor = view::color::dimGray;
+constexpr view::Color disabledBuyButtonTextColor = view::color::lightGray;
+constexpr view::Color enabledBuyButtonTextColor = view::color::white;
 
 } // namespace
 
@@ -161,7 +171,7 @@ view::Card &ProgressionStore::createBackgroundCard()
 {
     view::Card &backgroundCard = cards_.emplace_back(view::Card());
     backgroundCard.rect = screen;
-    backgroundCard.backgroundColor = view::Color{12, 12, 12};
+    backgroundCard.backgroundColor = backgroundCardColor;
 
     view::Text &title = texts_.emplace_back(view::Text());
     title.text = "PROGRESSION STORE";
@@ -177,7 +187,7 @@ view::Card &ProgressionStore::createGoldCard()
     view::Card &goldCard = cards_.emplace_back(view::Card());
     goldCard.rect = geometry::Rectangle<float>{.position = {screenX + screenW - outerPadding - 300.0f, screenY + 24.0f},
                                                .size = {300.0f, 68.0f}};
-    goldCard.backgroundColor = view::Color{25, 25, 25};
+    goldCard.backgroundColor = goldCardColor;
 
     view::Text &goldText = texts_.emplace_back(view::Text());
     goldText.position = goldCard.rect.getCenter();
@@ -196,7 +206,7 @@ view::Card &ProgressionStore::createPlayerStatsCard()
 {
     view::Card &statsCard = cards_.emplace_back(view::Card());
     statsCard.rect = geometry::Rectangle<float>{.position = {statsX, contentY}, .size = {statsW, contentH}};
-    statsCard.backgroundColor = view::Color{28, 28, 28};
+    statsCard.backgroundColor = statsCardColor;
 
     view::Text &statsTitle = texts_.emplace_back(view::Text());
     statsTitle.text = "PLAYER STATS";
@@ -254,7 +264,7 @@ view::Card &ProgressionStore::createStoreItemsCard()
 {
     view::Card &itemsCard = cards_.emplace_back(view::Card());
     itemsCard.rect = geometry::Rectangle<float>{.position = {itemsX, contentY}, .size = {itemsW, contentH}};
-    itemsCard.backgroundColor = view::Color{22, 22, 22};
+    itemsCard.backgroundColor = itemsCardColor;
 
     view::Text &itemsTitle = texts_.emplace_back(view::Text());
     itemsTitle.text = "UPGRADES";
@@ -320,7 +330,7 @@ view::Card &ProgressionStore::createStoreItemsCard()
 
         view::Card &itemCard = cards_.emplace_back(view::Card());
         itemCard.rect = geometry::Rectangle<float>{.position = {itemX, itemY}, .size = {itemSize, itemSize}};
-        itemCard.backgroundColor = view::Color{55, 45, 55};
+        itemCard.backgroundColor = storeItemCardColor;
 
         const std::size_t itemIndex = storeItems_.size();
 
@@ -374,7 +384,7 @@ view::Card &ProgressionStore::createSelectedItemDetailsCard()
 {
     view::Card &detailsCard = cards_.emplace_back(view::Card());
     detailsCard.rect = geometry::Rectangle<float>{.position = {detailsX, contentY}, .size = {detailsW, contentH}};
-    detailsCard.backgroundColor = view::Color{28, 28, 28};
+    detailsCard.backgroundColor = detailsCardColor;
 
     auto addDynamicText = [this, &detailsCard](geometry::Vec2<float> position, unsigned int size,
                                                std::function<std::string()> getText) {
@@ -398,7 +408,7 @@ view::Card &ProgressionStore::createSelectedItemDetailsCard()
     view::Card &selectedItemCard = cards_.emplace_back(view::Card());
     selectedItemCard.rect = geometry::Rectangle<float>{
         .position = {detailsCard.rect.getCenter().x - 48.0f, contentY + 110.0f}, .size = {96.0f, 96.0f}};
-    selectedItemCard.backgroundColor = view::Color{55, 45, 55};
+    selectedItemCard.backgroundColor = storeItemCardColor;
 
     selectedItemIcon_.rect = geometry::Rectangle<float>{
         .position = {selectedItemCard.rect.position.x + 8.0f, selectedItemCard.rect.position.y + 8.0f},
@@ -602,11 +612,11 @@ void ProgressionStore::updateStoreItemLayouts()
             .size = {item.card.rect.size.x - 2.0f * iconPadding, item.card.rect.size.y - 2.0f * iconPadding}};
 
         if (isSelected) {
-            item.card.backgroundColor = view::Color{90, 70, 110};
+            item.card.backgroundColor = selectedStoreItemCardColor;
         } else if (isHovered) {
-            item.card.backgroundColor = view::Color{75, 60, 90};
+            item.card.backgroundColor = hoveredStoreItemCardColor;
         } else {
-            item.card.backgroundColor = view::Color{55, 45, 55};
+            item.card.backgroundColor = storeItemCardColor;
         }
     }
 }
