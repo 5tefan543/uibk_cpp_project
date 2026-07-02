@@ -106,17 +106,18 @@ void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &r
 
 void CollisionDetectionSystem::update(Registry &registry, const LocationTable &locationTable)
 {
+    constexpr float locTableLookupRadius = 130;
 
     // === Check/Activate Collision/Damage Player's -> Enemies'
-    const std::vector<Entity> nonEnemies = registry.view(
-        Registry::HasAllOf<HitBox, Position>(), Registry::HasOneOrMore<>(), Registry::HasNoneOf<MapTag, EnemyTag>());
+    const std::vector<Entity> nonEnemies = registry.view(Registry::HasAllOf<HitBox, Position>(), Registry::HasAnyOf<>(),
+                                                         Registry::HasNoneOf<MapTag, EnemyTag>());
 
     for (const Entity nonEnemy : nonEnemies) {
         enforceMapBound(nonEnemy, registry);
 
         // TODO: simply leave radius hardcoded? Currently all enemy sprites are of size 128x128
         const auto p = registry.getComponent<Position>(nonEnemy).p;
-        for (const auto enemyNear : locationTable.getEntitiesNear(p, 130)) {
+        for (const auto enemyNear : locationTable.getEntitiesNear(p, locTableLookupRadius)) {
             if (checkCollision(nonEnemy, enemyNear, registry)) {
                 activateDamage(nonEnemy, enemyNear, registry);
             }
@@ -125,7 +126,7 @@ void CollisionDetectionSystem::update(Registry &registry, const LocationTable &l
 
     // === Check/Activate Collision/Damage Enemies' -> Player
     const std::vector<Entity> enemies =
-        registry.view(Registry::HasAllOf<HitBox, Position>(), Registry::HasOneOrMore<EnemyAttackTag, EnemyTag>(),
+        registry.view(Registry::HasAllOf<HitBox, Position>(), Registry::HasAnyOf<EnemyAttackTag, EnemyTag>(),
                       Registry::HasNoneOf<MapTag>());
 
     for (const Entity enemy : enemies) {

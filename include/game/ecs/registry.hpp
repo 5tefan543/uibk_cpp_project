@@ -149,13 +149,13 @@ class Registry {
     class HasAllOf {};
 
     template <typename... Components>
-    class HasOneOrMore {};
+    class HasAnyOf {};
 
     template <typename... Components>
     class HasNoneOf {};
 
     template <typename... InclAnd, typename... InclOr, typename... Excl>
-    std::vector<Entity> view(HasAllOf<InclAnd...>, HasOneOrMore<InclOr...>, HasNoneOf<Excl...>) const
+    std::vector<Entity> view(HasAllOf<InclAnd...>, HasAnyOf<InclOr...>, HasNoneOf<Excl...>) const
     {
         std::vector<Entity> matchingEntities;
 
