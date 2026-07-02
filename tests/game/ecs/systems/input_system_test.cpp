@@ -86,7 +86,6 @@ config::GameConfig makeInputSystemTestConfig()
     config.fallbackSprite = makeSpriteConfig("fallback.png", 16.0f, 16.0f);
 
     config.playerClasses.melee.characterType = game::CharacterType::Melee;
-    config.playerClasses.melee.attack.kind = game::DamageKind::MeleeArc;
     config.playerClasses.melee.attack.amount = 12.0f;
     config.playerClasses.melee.attack.pushBackForce = 3.0f;
     config.playerClasses.melee.attack.stunChance = 0.25f;
@@ -96,7 +95,6 @@ config::GameConfig makeInputSystemTestConfig()
     addDefaultPlayerAnimations(config.playerClasses.melee);
 
     config.playerClasses.ranged.characterType = game::CharacterType::Ranged;
-    config.playerClasses.ranged.attack.kind = game::DamageKind::Projectile;
     config.playerClasses.ranged.attack.amount = 8.0f;
     config.playerClasses.ranged.attack.pushBackForce = 2.0f;
     config.playerClasses.ranged.attack.stunChance = 0.1f;

@@ -85,6 +85,15 @@ AnimationFrame config::AnimationConfigHelper::getProjectileAnimationFrame(
                              config.fallbackSprite);
 }
 
+AnimationFrame config::AnimationConfigHelper::getUnicornAnimationFrame(const GameConfig &config,
+                                                                       const UnicornAttackConfig &unicornConfig,
+                                                                       const game::AnimationState state,
+                                                                       const game::AnimationDirection direction,
+                                                                       const size_t frameNum)
+{
+    return getAnimationFrame("unicorn", unicornConfig.animations, state, direction, frameNum, config.fallbackSprite);
+}
+
 AnimationFrame config::AnimationConfigHelper::getAreaAnimationFrame(const GameConfig &config,
                                                                     const AreaAttackConfig &areaConfig,
                                                                     const game::AnimationState state,

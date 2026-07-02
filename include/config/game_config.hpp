@@ -59,6 +59,11 @@ struct ProjectileAttackConfig {
     AnimationConfig animations;
 };
 
+struct UnicornAttackConfig {
+    float velocityScale = 10.0f;
+    AnimationConfig animations;
+};
+
 struct MeleeArcAttackConfig {
     float reach = 0.0f;
     geometry::Vec2<float> hitBoxSize = {64.0f, 64.0f};
@@ -82,12 +87,12 @@ struct AreaAttackConfig {
 };
 
 struct AttackProfileConfig {
-    game::DamageKind kind = game::DamageKind::Projectile;
     float amount = 1.0f;
     bool isMultiHit = false;
     float pushBackForce = 0.0f;
     float stunChance = 0.0f;
     ProjectileAttackConfig projectile;
+    UnicornAttackConfig unicorn;
     MeleeArcAttackConfig meleeArc;
     BeamAttackConfig beam;
     AreaAttackConfig area;

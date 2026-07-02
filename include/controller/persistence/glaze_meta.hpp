@@ -25,8 +25,8 @@ struct glz::meta<game::EnemyType> {
 template <>
 struct glz::meta<game::DamageKind> {
     static constexpr auto value =
-        glz::enumerate("Projectile", game::DamageKind::Projectile, "MeleeArc", game::DamageKind::MeleeArc, "Beam",
-                       game::DamageKind::Beam, "Area", game::DamageKind::Area);
+        glz::enumerate("Projectile", game::DamageKind::Projectile, "Unicorn", game::DamageKind::Unicorn, "MeleeArc",
+                       game::DamageKind::MeleeArc, "Beam", game::DamageKind::Beam, "Area", game::DamageKind::Area);
 };
 
 template <>

@@ -241,7 +241,7 @@ void EnemyAI::spawnPendingAreaAttack(Registry &registry, const config::GameConfi
     const Damage damageComponent{.amount = attackProfile.amount,
                                  .pushBackForce = attackProfile.pushBackForce,
                                  .stunChance = attackProfile.stunChance,
-                                 .kind = attackProfile.kind,
+                                 .kind = DamageKind::Area,
                                  .params = AreaDamage{.radius = attackProfile.area.radius,
                                                       .activeTimeSec = attackProfile.area.activeTimeSec,
                                                       .elapsedSec = 0.0f,

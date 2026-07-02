@@ -162,7 +162,6 @@
                 "attackRange": 1
             },
             "attack": {
-                "kind": "MeleeArc",
                 "amount": 14,
                 "isMultiHit": false,
                 "pushBackForce": 0,
@@ -778,7 +777,6 @@
                 "attackRange": 1000
             },
             "attack": {
-                "kind": "Projectile",
                 "amount": 10,
                 "isMultiHit": false,
                 "pushBackForce": 0,
@@ -812,6 +810,61 @@
                                                 "size": {
                                                     "x": 6,
                                                     "y": 6
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "unicorn": {
+                    "velocityScale": 2,
+                    "animations": {
+                        "stateToStateConfig": {
+                            "Walk": {
+                                "frameDuration": 0.16,
+                                "moveSpeedMultiplier": 1,
+                                "directionToFrames": {
+                                    "Left": [
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn_left_1.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "Right": [
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn_right_1.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
                                                 }
                                             }
                                         }
@@ -1408,7 +1461,7 @@
             },
             "sounds": {
                 "attack": "assets/audio/sounds/character/ranged_attack.wav",
-                "special": "",
+                "special": "assets/audio/sounds/character/ranged_attack.wav",
                 "hit": "",
                 "dash": ""
             }
@@ -1430,7 +1483,6 @@
                 "attackRange": 1
             },
             "attack": {
-                "kind": "Area",
                 "amount": 30,
                 "isMultiHit": false,
                 "pushBackForce": 0,
@@ -2150,7 +2202,6 @@
                 "attackRange": 0
             },
             "attack": {
-                "kind": "MeleeArc",
                 "amount": 2,
                 "isMultiHit": false,
                 "pushBackForce": 0,

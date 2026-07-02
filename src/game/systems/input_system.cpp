@@ -139,22 +139,22 @@ void InputSystem::handleAttack(Registry &registry, const config::GameConfig &con
     const config::AttackProfileConfig &attackProfile = config.playerClasses.getByType(stats.characterType).attack;
 
     if (input.mouseLeftPressed) {
-        if (attackProfile.kind == DamageKind::MeleeArc) {
+        if (stats.characterType == CharacterType::Melee) {
             attackMelee(registry, config, playerEntity, input, attackProfile);
             timeSinceLastAttack_ = 0.0f;
-        } else if (attackProfile.kind == DamageKind::Projectile) {
-            attackRanged(registry, config, playerEntity, input, attackProfile);
+        } else if (stats.characterType == CharacterType::Ranged) {
+            attackRanged(registry, config, playerEntity, input, attackProfile, false);
             timeSinceLastAttack_ = 0.0f;
         }
         return; // only handle one attack per update
     }
 
     if (input.mouseRightPressed) {
-        if (attackProfile.kind == DamageKind::MeleeArc) {
+        if (stats.characterType == CharacterType::Melee) {
             // attackMeleeSpecialMove(registry, config, playerEntity, input, attackProfile);
             timeSinceLastAttack_ = 0.0f;
-        } else if (attackProfile.kind == DamageKind::Projectile) {
-            // attackRangedSpecialMove(registry, config, playerEntity, input, attackProfile);
+        } else if (stats.characterType == CharacterType::Ranged) {
+            attackRanged(registry, config, playerEntity, input, attackProfile, true);
             timeSinceLastAttack_ = 0.0f;
         }
         return; // only handle one attack per update
@@ -179,7 +179,7 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
     const Damage damageComponent{.amount = attackProfile.amount,
                                  .pushBackForce = attackProfile.pushBackForce,
                                  .stunChance = attackProfile.stunChance,
-                                 .kind = attackProfile.kind,
+                                 .kind = DamageKind::MeleeArc,
                                  .params = MeleeArcDamage{
                                      .reach = attackProfile.meleeArc.reach,
                                      .activeTimeSec = animationDuration + attackProfile.meleeArc.activeTimePaddingSec,
@@ -209,7 +209,8 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
 }
 
 void InputSystem::attackRanged(Registry &registry, const config::GameConfig &config, Entity playerEntity,
-                               const controller::InputState &input, const config::AttackProfileConfig &attackProfile)
+                               const controller::InputState &input, const config::AttackProfileConfig &attackProfile,
+                               bool specialAttack)
 {
     const auto playerPosition = registry.getComponent<Position>(playerEntity).p;
     const PlayerStats &playerStats = registry.getComponent<PlayerStats>(playerEntity);
@@ -220,53 +221,66 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
 
     applyAnimation(registry, config, playerEntity, AnimationState::Attack, playerStats.characterType, attackDirection);
 
-    // add projectile
-    const SoundComponent sound = {config.playerClasses.ranged.sounds.attack};
-    const config::AnimationFrame projectileFrame = config::AnimationConfigHelper::getProjectileAnimationFrame(
-        config, attackProfile.projectile, AnimationState::Idle, AnimationDirection::None, 0);
-    const config::SpriteConfig &projectileSpriteConfig = projectileFrame.spriteConfig;
+    // add ranged object: either a projectile or a invincible unicorn
+    const SoundComponent sound = {specialAttack ? config.playerClasses.ranged.sounds.special
+                                                : config.playerClasses.ranged.sounds.attack};
+    const config::AnimationFrame rangedObjFrame =
+        specialAttack ? config::AnimationConfigHelper::getUnicornAnimationFrame(
+                            config, attackProfile.unicorn, AnimationState::Walk, attackDirection, 0)
+                      : config::AnimationConfigHelper::getProjectileAnimationFrame(
+                            config, attackProfile.projectile, AnimationState::Idle, AnimationDirection::None, 0);
+    const config::SpriteConfig &rangedObjSpriteConfig = rangedObjFrame.spriteConfig;
 
-    const float projectileOffsetX =
-        attackDirection == AnimationDirection::Right ? playerSprite.size.x : -projectileSpriteConfig.texture.size.x;
-    const geometry::Vec2<float> projectileLaunchPosition{.x = playerPosition.x + projectileOffsetX,
-                                                         .y = playerPosition.y + (playerSprite.size.y / 2)
-                                                              - (projectileSpriteConfig.texture.size.y / 2)};
+    const float rangedObjOffsetX =
+        attackDirection == AnimationDirection::Right ? playerSprite.size.x : -rangedObjSpriteConfig.texture.size.x;
+    const geometry::Vec2<float> rangedObjLaunchPosition{.x = playerPosition.x + rangedObjOffsetX,
+                                                        .y = playerPosition.y + (playerSprite.size.y / 2)
+                                                             - (rangedObjSpriteConfig.texture.size.y / 2)};
 
-    const float projectileLaunchAngle =
-        std::atan2(input.mouseGrid.y - projectileLaunchPosition.y, input.mouseGrid.x - projectileLaunchPosition.x);
-    const Velocity projectileLaunchVelocity{
-        {.x = playerStats.speedOfAttack * attackProfile.projectile.velocityScale * std::cos(projectileLaunchAngle),
-         .y = playerStats.speedOfAttack * attackProfile.projectile.velocityScale * std::sin(projectileLaunchAngle)}};
+    const float rangedObjLaunchAngle =
+        std::atan2(input.mouseGrid.y - rangedObjLaunchPosition.y, input.mouseGrid.x - rangedObjLaunchPosition.x);
 
-    const Damage projectileDamage{.amount = attackProfile.amount,
-                                  .pushBackForce = attackProfile.pushBackForce,
-                                  .stunChance = attackProfile.stunChance,
-                                  .kind = attackProfile.kind,
-                                  .params = ProjectileDamage{
-                                      .speed = playerStats.speedOfAttack,
-                                      .maxRange = playerStats.attackRange,
-                                      .distanceTraveled = 0.0f,
-                                      .maxTargets = 1,
-                                  }};
+    float velocityScale = specialAttack ? attackProfile.unicorn.velocityScale : attackProfile.projectile.velocityScale;
+    const Velocity rangedObjLaunchVelocity{
+        {.x = playerStats.speedOfAttack * velocityScale * std::cos(rangedObjLaunchAngle),
+         .y = playerStats.speedOfAttack * velocityScale * std::sin(rangedObjLaunchAngle)}};
 
-    const view::Sprite projectileSprite{
-        .rect = {projectileLaunchPosition, projectileSpriteConfig.texture.size},
-        .imagePath = projectileSpriteConfig.texture.path,
+    Damage rangedObjDamage;
+
+    rangedObjDamage.pushBackForce = attackProfile.pushBackForce;
+    rangedObjDamage.stunChance = attackProfile.stunChance;
+
+    if (specialAttack) {
+        rangedObjDamage.amount = -1; // kills all enemies in its path
+        rangedObjDamage.kind = DamageKind::Unicorn;
+        rangedObjDamage.params = UnicornDamage{.speed = playerStats.speedOfAttack};
+    } else {
+        rangedObjDamage.amount = attackProfile.amount;
+        rangedObjDamage.kind = DamageKind::Projectile;
+        rangedObjDamage.params = ProjectileDamage{.speed = playerStats.speedOfAttack,
+                                                  .maxRange = playerStats.attackRange,
+                                                  .distanceTraveled = 0.0f,
+                                                  .maxTargets = 1};
+    }
+
+    const view::Sprite rangedObjSprite{
+        .rect = {rangedObjLaunchPosition, rangedObjSpriteConfig.texture.size},
+        .imagePath = rangedObjSpriteConfig.texture.path,
     };
 
-    const HitBox projectileHitBox{projectileSpriteConfig.hitBox.offset, projectileSpriteConfig.hitBox.size};
+    const HitBox rangedObjHitBox{rangedObjSpriteConfig.hitBox.offset, rangedObjSpriteConfig.hitBox.size};
 
-    // add projectile entity with all components
+    // add rangedObj entity with all components
     // component references may be invalid: retrieve again from registry if used after this point
-    const Entity projectileEntity = registry.createEntity();
+    const Entity rangedObjEntity = registry.createEntity();
     registry.addComponent<SoundComponent>(playerEntity, sound);
-    registry.addComponent<Damage>(projectileEntity, projectileDamage);
-    registry.addComponent<view::Sprite>(projectileEntity, projectileSprite);
-    registry.addComponent<Position>(projectileEntity, {projectileLaunchPosition});
-    registry.addComponent<Velocity>(projectileEntity, projectileLaunchVelocity);
-    registry.addComponent<HitBox>(projectileEntity, projectileHitBox);
-    registry.addComponent<PlayerAttackTag>(projectileEntity, {}); // Mark as player's attack for collision detection
-    registry.addComponent<DamageTag>(projectileEntity, {});
+    registry.addComponent<Damage>(rangedObjEntity, rangedObjDamage);
+    registry.addComponent<view::Sprite>(rangedObjEntity, rangedObjSprite);
+    registry.addComponent<Position>(rangedObjEntity, {rangedObjLaunchPosition});
+    registry.addComponent<Velocity>(rangedObjEntity, rangedObjLaunchVelocity);
+    registry.addComponent<HitBox>(rangedObjEntity, rangedObjHitBox);
+    registry.addComponent<PlayerAttackTag>(rangedObjEntity, {}); // Mark as player's attack for collision detection
+    registry.addComponent<DamageTag>(rangedObjEntity, {});
 }
 
 void InputSystem::applyAnimationMoveSpeedModifier(Registry &registry, const config::GameConfig &config,

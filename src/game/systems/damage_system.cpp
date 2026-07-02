@@ -2,6 +2,9 @@
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/map_tag.hpp"
+#include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "logging/log.hpp"
@@ -42,6 +45,36 @@ DamageInformation DamageSystem::updateProjectile(Registry &registry, Damage &dam
         amount.shouldBeRemoved = true;
     }
     return amount;
+}
+
+DamageInformation DamageSystem::updateUnicorn(const Registry &registry, Entity entity, const Damage &damage)
+{
+    DamageInformation result;
+    result.actualDamageAmount = damage.amount;
+    result.shouldBeRemoved = false;
+
+    auto mapEntities = registry.view<MapTag, HitBox>();
+
+    if (mapEntities.empty()) {
+        logger::log(logger::LogLevel::WARNING, "No map entity found in the registry.");
+        return result;
+    }
+
+    if (registry.hasComponent<Position>(entity)) {
+        const Position &unicornPosition = registry.getComponent<Position>(entity);
+        const HitBox &unicornHitBox = registry.getComponent<HitBox>(entity);
+        const Position &mapPosition = registry.getComponent<Position>(mapEntities.front());
+        const HitBox &mapHitBox = registry.getComponent<HitBox>(mapEntities.front());
+
+        const geometry::Rectangle<float> hitBoxRectUnicorn{unicornHitBox.offset + unicornPosition.p,
+                                                           unicornHitBox.size};
+        const geometry::Rectangle<float> hitBoxRectMap{mapHitBox.offset + mapPosition.p, mapHitBox.size};
+
+        if (!hitBoxRectUnicorn.intersects(hitBoxRectMap)) {
+            result.shouldBeRemoved = true;
+        }
+    }
+    return result;
 }
 
 DamageInformation DamageSystem::updateMelee(Damage &damage, MeleeArcDamage &melee, float dtSec)
@@ -124,6 +157,11 @@ void DamageSystem::update(Registry &registry, float dtSec)
                 currentDamage = updateProjectile(registry, damage, projectile, damageEntity, dtSec);
             }
             break;
+        case DamageKind::Unicorn:
+            if (std::holds_alternative<UnicornDamage>(damage.params)) {
+                currentDamage = updateUnicorn(registry, damageEntity, damage);
+            }
+            break;
         case DamageKind::Beam:
             if (std::holds_alternative<BeamDamage>(damage.params)) {
                 auto &beam = std::get<BeamDamage>(damage.params);
@@ -159,7 +197,13 @@ void DamageSystem::update(Registry &registry, float dtSec)
 
             if (registry.hasComponent<PlayerStats>(targetEntity)) {
                 PlayerStats &playerStats = registry.getComponent<PlayerStats>(targetEntity);
-                playerStats.health -= currentDamage.actualDamageAmount;
+
+                if (currentDamage.actualDamageAmount < 0.0f) {
+                    // If the damage amount is negative, set health to 0 to indicate instant death
+                    playerStats.health = 0.0f;
+                } else {
+                    playerStats.health -= currentDamage.actualDamageAmount;
+                }
                 if (playerStats.health <= 0.0f) {
                     registry.destroyEntity(targetEntity);
                 } else {
@@ -167,7 +211,12 @@ void DamageSystem::update(Registry &registry, float dtSec)
                 }
             } else if (registry.hasComponent<EnemyStats>(targetEntity)) {
                 EnemyStats &enemyStats = registry.getComponent<EnemyStats>(targetEntity);
-                enemyStats.health -= currentDamage.actualDamageAmount;
+                if (currentDamage.actualDamageAmount < 0.0f) {
+                    // If the damage amount is negative, set health to 0 to indicate instant death
+                    enemyStats.health = 0.0f;
+                } else {
+                    enemyStats.health -= currentDamage.actualDamageAmount;
+                }
                 if (enemyStats.health <= 0.0f) {
                     auto players = registry.view<PlayerStats>();
                     if (!players.empty()) {

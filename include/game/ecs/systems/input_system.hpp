@@ -20,7 +20,8 @@ class InputSystem {
     void attackMelee(Registry &registry, const config::GameConfig &config, const Entity entity,
                      const controller::InputState &input, const config::AttackProfileConfig &attackProfile);
     void attackRanged(Registry &registry, const config::GameConfig &config, const Entity entity,
-                      const controller::InputState &input, const config::AttackProfileConfig &attackProfile);
+                      const controller::InputState &input, const config::AttackProfileConfig &attackProfile,
+                      bool specialAttack);
     void applyAnimationMoveSpeedModifier(Registry &registry, const config::GameConfig &config, Entity playerEntity);
 
   public:
