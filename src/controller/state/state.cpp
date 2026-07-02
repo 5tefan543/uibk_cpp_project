@@ -109,7 +109,7 @@ StateTransitionAction MenuState::update(const InputState &input, [[maybe_unused]
         if (buttonPressed) {
             switch (selectedButtonId_) {
             case 0:
-                stateTransitionAction = StateTransitionAction::ReplaceCurrentWithMainMenu;
+                stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithMainMenu;
                 break;
             case 1:
                 stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
@@ -137,7 +137,7 @@ void MenuState::initView()
         backgroundCard.rect = {.position = {0, 0}, .size = view::grid.size};
 
         view::Card &mainMenuCard = cards_.emplace_back(view::Card());
-        mainMenuCard.backgroundColor = {50, 50, 50};
+        mainMenuCard.backgroundColor = view::color::deepGray;
         const auto mainMenuCardCenter = mainMenuCard.rect.getCenter();
 
         view::Text &title = texts_.emplace_back(view::Text());
@@ -176,7 +176,7 @@ void MenuState::initView()
         backgroundCard.rect = view::grid;
 
         view::Card &mainMenuCard = cards_.emplace_back(view::Card());
-        mainMenuCard.backgroundColor = {50, 50, 50};
+        mainMenuCard.backgroundColor = view::color::deepGray;
         const auto mainMenuCardCenter = mainMenuCard.rect.getCenter();
 
         view::Text &title = texts_.emplace_back(view::Text());
@@ -206,7 +206,7 @@ void MenuState::initView()
         backgroundCard.rect = view::grid;
 
         view::Card &mainMenuCard = cards_.emplace_back(view::Card());
-        mainMenuCard.backgroundColor = {50, 50, 50};
+        mainMenuCard.backgroundColor = view::color::deepGray;
         const auto mainMenuCardCenter = mainMenuCard.rect.getCenter();
 
         view::Text &title = texts_.emplace_back(view::Text());
@@ -236,13 +236,13 @@ void MenuState::initView()
         backgroundCard.rect = view::grid;
 
         view::Card &mainMenuCard = cards_.emplace_back(view::Card());
-        mainMenuCard.backgroundColor = {50, 50, 50};
+        mainMenuCard.backgroundColor = view::color::deepGray;
         const auto mainMenuCardCenter = mainMenuCard.rect.getCenter();
 
         view::Text &title = texts_.emplace_back(view::Text());
         title.position.y = (mainMenuCard.rect.position.y + mainMenuCard.rect.size.y / 10);
         title.text = std::string("Game Over!");
-        title.color = {255, 0, 0};
+        title.color = view::color::red;
 
         view::Button &mainMenuButton = buttons_.emplace_back(view::Button());
         mainMenuButton.rect.centerizeY(mainMenuCardCenter.y - mainMenuButton.rect.size.y);
@@ -361,92 +361,45 @@ const view::View &GameplayState::getView()
     return view_;
 }
 
-ProgressionStoreState::ProgressionStoreState()
+ProgressionStoreState::ProgressionStoreState(game::Game &game) : store_(game)
 {
     initView();
 }
 
-std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore()
+std::unique_ptr<ProgressionStoreState> ProgressionStoreState::createStore(game::Game &game)
 {
-    return std::unique_ptr<ProgressionStoreState>(new ProgressionStoreState());
+    return std::unique_ptr<ProgressionStoreState>(new ProgressionStoreState(game));
 }
 
 void ProgressionStoreState::initView()
 {
-    view::Card &backgroundCard = cards_.emplace_back(view::Card());
-    backgroundCard.rect = view::grid;
-
-    view::Card &storeCard = cards_.emplace_back(view::Card());
-    storeCard.backgroundColor = {50, 50, 50};
-    const auto storeCardCenter = storeCard.rect.getCenter();
-
-    view::Text &title = texts_.emplace_back(view::Text());
-    title.position.y = (storeCard.rect.position.y + storeCard.rect.size.y / 10);
-    title.text = std::string("Store Menu");
-
-    view::Button &startGameButton = buttons_.emplace_back(view::Button());
-    startGameButton.rect.centerizeY(storeCardCenter.y - startGameButton.rect.size.y);
-    startGameButton.text.position.y = startGameButton.rect.getCenter().y;
-    startGameButton.text.text = std::string("Continue Game");
-
-    view::Button &quitButton = buttons_.emplace_back(view::Button());
-    quitButton.rect.centerizeY(storeCardCenter.y + quitButton.rect.size.y);
-    quitButton.text.position.y = quitButton.rect.getCenter().y;
-    quitButton.text.text = std::string("Quit Game");
-
-    storeCard.elements.push_back(title);
-    storeCard.elements.push_back(startGameButton);
-    storeCard.elements.push_back(quitButton);
-    backgroundCard.elements.push_back(storeCard);
-    view_.nodes.push_back({view::ViewMode::FixedToScreen, backgroundCard});
-
-    buttons_[selectedButtonId_].isSelected = true;
+    store_.initView(view_);
 }
 
 StateTransitionAction ProgressionStoreState::update(const InputState &input,
                                                     [[maybe_unused]] const controller::timeDelta &dt)
 {
-    prevSelectedButtonId_ = selectedButtonId_;
-
-    StateTransitionAction stateTransitionAction = StateTransitionAction::None;
-    bool isMouseSelectionActive = input.mouseMoved || input.mouseLeftPressed;
-
-    const std::optional<std::size_t> hoveredButtonId = MouseUtil::getHoveredButtonId(input, buttons_);
-    if (isMouseSelectionActive && hoveredButtonId.has_value()) {
-        selectedButtonId_ = hoveredButtonId.value();
-    }
-
-    const bool isButtonHovered = hoveredButtonId.has_value();
-    const bool buttonPressed = input.confirmPressed || (input.mouseLeftPressed && isButtonHovered);
-
-    if (input.downPressed) {
-        selectedButtonId_ = (selectedButtonId_ + 1) % buttons_.size();
-    }
-    if (input.upPressed) {
-        selectedButtonId_ = (selectedButtonId_ + buttons_.size() - 1) % buttons_.size();
-    }
-
-    if (buttonPressed) {
-        switch (selectedButtonId_) {
-        case 0:
-
-            stateTransitionAction = StateTransitionAction::Pop;
-            break;
-        case 1:
-            stateTransitionAction = StateTransitionAction::ReplaceAllStatesWithExit;
-            break;
-        }
-    }
-
-    buttons_[prevSelectedButtonId_].isSelected = false;
-    buttons_[selectedButtonId_].isSelected = true;
-
-    return stateTransitionAction;
+    return store_.update(input);
 }
 
 bool ProgressionStoreState::selectedButtonChanged()
 {
-    return selectedButtonId_ != prevSelectedButtonId_;
+    return store_.selectedButtonChanged();
+}
+
+bool ProgressionStoreState::storeItemHoveredChanged()
+{
+    return store_.storeItemHoveredChanged();
+}
+
+bool ProgressionStoreState::selectedStoreItemChanged()
+{
+    return store_.selectedStoreItemChanged();
+}
+
+bool ProgressionStoreState::buyButtonPressed()
+{
+    return store_.buyButtonPressed();
 }
 
 std::string ProgressionStoreState::toString() const

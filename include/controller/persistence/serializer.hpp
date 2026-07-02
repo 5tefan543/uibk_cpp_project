@@ -22,6 +22,7 @@ class Serializer {
     static inline const std::filesystem::path saveFilePath = configDir / "persisted-game.json";
     static inline const std::filesystem::path leaderboardFilePath = configDir / "leaderboard.json";
     static inline const std::filesystem::path configFilePath = configDir / "game-config.json";
+    static inline const std::filesystem::path storeFilePath = configDir / "persisted-store.json";
 
     template <typename T>
     static bool writeJsonToFile(const T &value, const std::filesystem::path &path)

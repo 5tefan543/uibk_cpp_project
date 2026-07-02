@@ -58,6 +58,8 @@ add_library(roguelike_game
   src/game/systems/sound_system.cpp
   src/game/systems/health_bar_system.cpp
   src/game/location_table.cpp
+  src/game/store/progression_store.cpp
+  src/game/store/progression_store_helper.cpp
 )
 
 roguelike_cxx_flags(roguelike_game)
@@ -189,6 +191,8 @@ add_executable(roguelike_test_runner
   tests/view/font_test.cpp
   tests/config/animation_config_helper_test.cpp
   tests/geometry/rectangle_test.cpp
+  tests/game/store/progression_store_test.cpp
+  tests/game/store/store_item_test.cpp
 )
 
 roguelike_cxx_flags(roguelike_test_runner)

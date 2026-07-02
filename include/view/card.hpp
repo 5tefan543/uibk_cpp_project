@@ -7,7 +7,7 @@
 namespace view {
 
 struct Card {
-    Color backgroundColor = {150, 150, 150};
+    Color backgroundColor = color::lightGray;
     geometry::Rectangle<float> rect = geometry::Rectangle<float>::centered(grid.getCenter(), grid.size / 2);
     std::vector<ViewElement> elements;
 };
