@@ -830,7 +830,64 @@
                                     "Left": [
                                         {
                                             "texture": {
-                                                "path": "assets/effects/unicorn_left_1.png",
+                                                "path": "assets/effects/unicorn/unicorn_left_1.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_left_2.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_left_3.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_left_4.png",
                                                 "size": {
                                                     "x": 128,
                                                     "y": 128
@@ -851,7 +908,64 @@
                                     "Right": [
                                         {
                                             "texture": {
-                                                "path": "assets/effects/unicorn_right_1.png",
+                                                "path": "assets/effects/unicorn/unicorn_right_1.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_right_2.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_right_3.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_right_4.png",
                                                 "size": {
                                                     "x": 128,
                                                     "y": 128
