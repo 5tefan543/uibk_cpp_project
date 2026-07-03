@@ -8,16 +8,10 @@ namespace game {
 
 struct EnemyAI {
   private:
-    void blobAreaAttack(Registry &registry, const config::GameConfig &config, Entity blobEntity,
-                        const Position &playerPosition);
-    void spawnPendingAreaAttack(Registry &registry, const config::GameConfig &config, Entity blobEntity);
     void updateEnemyVelocityTowardsPlayer(Registry &registry, LocationTable &locationTable, const Position &playerPos,
                                           Entity enemy);
     void updateEnemyAnimationState(Registry &registry, Entity enemy, float dtSec);
     void applyAnimationMoveSpeedModifier(Registry &registry, const config::GameConfig &config, Entity enemyEntity);
-    void updateAttack(Registry &registry, const config::GameConfig &config, Entity enemyEntity,
-                      const Position &playerPos);
-    void updateCoolDowns(Registry &registry, Entity enemyEntity, float dt);
 
   public:
     void update(Registry &registry, const config::GameConfig &config, LocationTable &locationTable, float dtSec);

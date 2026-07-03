@@ -339,6 +339,9 @@ void Game::updateSystems(const controller::InputState &input, const controller::
     const float dtSec = controller::toSeconds(dt);
     locationTable_.update(registry_);
     enemyAI_.update(registry_, config_, locationTable_, dtSec);
+    playerDistanceSystem_.update(registry_);
+    blobAttackSystem_.update(registry_, config_, dtSec);
+    bossAttackSystem_.update(registry_, config_, dtSec);
     inputSystem_.update(registry_, config_, input, dtSec);
     movementSystem_.update(registry_, dtSec);
     animationSystem_.update(registry_, config_, dtSec);

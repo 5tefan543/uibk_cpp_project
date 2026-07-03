@@ -1,6 +1,7 @@
 #include "game/ecs/systems/spawn_enemy_system.hpp"
 #include "config/animation_config_helper.hpp"
 #include "game/ecs/components/animation.hpp"
+#include "game/ecs/components/boss_phase.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/health_bar_state.hpp"
 #include "game/ecs/components/hitbox.hpp"
@@ -109,6 +110,10 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const config::Ga
     registry.addComponent<view::Sprite>(enemy, enemySprite);
     registry.addComponent<HitBox>(enemy, hitBox);
     registry.addComponent<HealthBarState>(enemy, {});
+
+    if (enemyType == EnemyType::Boss) {
+        registry.addComponent<BossPhase>(enemy, {});
+    }
 }
 
 Position SpawnEnemySystem::generateSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite,
