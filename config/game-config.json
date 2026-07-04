@@ -1575,7 +1575,7 @@
             },
             "sounds": {
                 "attack": "assets/audio/sounds/character/ranged_attack.wav",
-                "special": "assets/audio/sounds/character/ranged_attack.wav",
+                "special": "assets/audio/sounds/character/unicorn_special_attack.wav",
                 "hit": "",
                 "dash": ""
             }
