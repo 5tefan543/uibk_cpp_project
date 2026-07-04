@@ -3,6 +3,7 @@
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/player_attack_cooldown.hpp"
 #include "game/ecs/components/player_attack_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
@@ -115,7 +116,8 @@ game::PlayerStats makePlayerStats(game::CharacterType characterType)
     game::PlayerStats stats{};
     stats.characterType = characterType;
     stats.moveSpeed = 100.0f;
-    stats.attackSpeed = 2.0f; // cooldown = 0.5 seconds
+    stats.attackSpeed = 2.0f;        // cooldown = 0.5 seconds
+    stats.specialAttackSpeed = 2.0f; // cooldown = 0.5 seconds
     stats.speedOfAttack = 50.0f;
     stats.attackRange = 3.0f;
     return stats;
@@ -151,6 +153,7 @@ game::Entity addPlayer(game::Registry &registry, game::CharacterType characterTy
     registry.addComponent<game::Position>(player, {100.0f, 100.0f});
     registry.addComponent<view::Sprite>(player, makePlayerSprite());
     registry.addComponent<game::Animation>(player, makeAnimation());
+    registry.addComponent<game::PlayerAttackCooldown>(player, {});
 
     return player;
 }

@@ -156,6 +156,7 @@
                 "maxHealth": 100,
                 "attackPower": 14,
                 "attackSpeed": 1.25,
+                "specialAttackSpeed": 0.0167,
                 "defense": 0,
                 "moveSpeed": 700,
                 "speedOfAttack": 220,
@@ -166,6 +167,20 @@
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
+                "attackIcon": {
+                    "path": "assets/icons/store/icons-common_10.png",
+                    "size": {
+                        "x": 32,
+                        "y": 32
+                    }
+                },
+                "specialAttackIcon": {
+                    "path": "assets/icons/special_attack_icon.png",
+                    "size": {
+                        "x": 32,
+                        "y": 32
+                    }
+                },
                 "projectile": {
                     "velocityScale": 10,
                     "animations": {
@@ -771,6 +786,7 @@
                 "maxHealth": 100,
                 "attackPower": 100,
                 "attackSpeed": 3,
+                "specialAttackSpeed": 0.0167,
                 "defense": 0,
                 "moveSpeed": 750,
                 "speedOfAttack": 240,
@@ -781,6 +797,20 @@
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
+                "attackIcon": {
+                    "path": "assets/icons/store/icons-common_10.png",
+                    "size": {
+                        "x": 32,
+                        "y": 32
+                    }
+                },
+                "specialAttackIcon": {
+                    "path": "assets/icons/store/icons-common_10.png",
+                    "size": {
+                        "x": 32,
+                        "y": 32
+                    }
+                },
                 "projectile": {
                     "velocityScale": 10,
                     "animations": {
@@ -1591,6 +1621,7 @@
                 "maxHealth": 10,
                 "attackPower": 2,
                 "attackSpeed": 1,
+                "specialAttackSpeed": 1,
                 "defense": 0.25,
                 "moveSpeed": 100,
                 "speedOfAttack": 0,
@@ -2310,6 +2341,7 @@
                 "maxHealth": 10,
                 "attackPower": 2,
                 "attackSpeed": 1,
+                "specialAttackSpeed": 1,
                 "defense": 0.25,
                 "moveSpeed": 100,
                 "speedOfAttack": 0,

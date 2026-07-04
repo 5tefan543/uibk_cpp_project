@@ -4,6 +4,7 @@
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/player_attack_cooldown.hpp"
 #include "game/ecs/components/player_attack_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
@@ -40,9 +41,8 @@ float applyAnimation(Registry &registry, const config::GameConfig &config, const
 void InputSystem::update(Registry &registry, const config::GameConfig &config, const controller::InputState &input,
                          float dtSec)
 {
-    updateCooldown(dtSec);
-
-    auto players = registry.view<PlayerTag, Velocity, PlayerStats, view::Sprite, Position, Animation>();
+    auto players =
+        registry.view<PlayerTag, Velocity, PlayerStats, view::Sprite, Position, Animation, PlayerAttackCooldown>();
 
     if (players.empty()) {
         return;
@@ -55,18 +55,18 @@ void InputSystem::update(Registry &registry, const config::GameConfig &config, c
 
     Entity playerEntity = players.front();
 
+    updateCooldown(registry, playerEntity, dtSec);
     updatePlayerVelocity(registry, playerEntity, input);
     updatePlayerAnimationState(registry, playerEntity, dtSec);
     handleAttack(registry, config, playerEntity, input);
     applyAnimationMoveSpeedModifier(registry, config, playerEntity);
 }
 
-void InputSystem::updateCooldown(float dtSec)
+void InputSystem::updateCooldown(Registry &registry, Entity entity, float dtSec)
 {
-    // possible since we have only one player
-    timeSinceLastAttack_ += dtSec;
-    timeSinceLastSpecialMove_ += dtSec;
-    timeSinceLastDash_ += dtSec;
+    PlayerAttackCooldown &cooldown = registry.getComponent<PlayerAttackCooldown>(entity);
+    cooldown.attackRemainingSec = std::max(0.0f, cooldown.attackRemainingSec - dtSec);
+    cooldown.specialAttackRemainingSec = std::max(0.0f, cooldown.specialAttackRemainingSec - dtSec);
 }
 
 void InputSystem::updatePlayerVelocity(Registry &registry, const Entity entity, const controller::InputState &input)
@@ -122,11 +122,11 @@ void InputSystem::updatePlayerAnimationState(Registry &registry, Entity enemy, f
 void InputSystem::handleAttack(Registry &registry, const config::GameConfig &config, Entity playerEntity,
                                const controller::InputState &input)
 {
-    PlayerStats &stats = registry.getComponent<PlayerStats>(playerEntity);
+    const PlayerStats &stats = registry.getComponent<PlayerStats>(playerEntity);
+    PlayerAttackCooldown &cooldown = registry.getComponent<PlayerAttackCooldown>(playerEntity);
 
-    if (timeSinceLastAttack_ <= 1.0f / stats.attackSpeed) {
-        return;
-    }
+    cooldown.attackDurationSec = 1.0f / stats.attackSpeed;
+    cooldown.specialAttackDurationSec = 1.0f / stats.specialAttackSpeed;
 
     if (registry.hasComponent<Animation>(playerEntity)) {
         const Animation &animation = registry.getComponent<Animation>(playerEntity);
@@ -139,25 +139,37 @@ void InputSystem::handleAttack(Registry &registry, const config::GameConfig &con
     const config::AttackProfileConfig &attackProfile = config.playerClasses.getByType(stats.characterType).attack;
 
     if (input.mouseLeftPressed) {
+
+        if (cooldown.attackRemainingSec > 0.0f) {
+            return;
+        }
+
         if (stats.characterType == CharacterType::Melee) {
             attackMelee(registry, config, playerEntity, input, attackProfile);
-            timeSinceLastAttack_ = 0.0f;
+            cooldown.attackRemainingSec = cooldown.attackDurationSec;
         } else if (stats.characterType == CharacterType::Ranged) {
             attackRanged(registry, config, playerEntity, input, attackProfile, false);
-            timeSinceLastAttack_ = 0.0f;
+            cooldown.attackRemainingSec = cooldown.attackDurationSec;
         }
-        return; // only handle one attack per update
+
+        return;
     }
 
     if (input.mouseRightPressed) {
+
+        if (cooldown.specialAttackRemainingSec > 0.0f) {
+            return;
+        }
+
         if (stats.characterType == CharacterType::Melee) {
             // attackMeleeSpecialMove(registry, config, playerEntity, input, attackProfile);
-            timeSinceLastAttack_ = 0.0f;
+            cooldown.specialAttackRemainingSec = cooldown.specialAttackDurationSec;
         } else if (stats.characterType == CharacterType::Ranged) {
             attackRanged(registry, config, playerEntity, input, attackProfile, true);
-            timeSinceLastAttack_ = 0.0f;
+            cooldown.specialAttackRemainingSec = cooldown.specialAttackDurationSec;
         }
-        return; // only handle one attack per update
+
+        return;
     }
 }
 

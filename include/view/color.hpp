@@ -28,6 +28,8 @@ inline constexpr Color charcoal = {28, 28, 28};
 inline constexpr Color green = {0, 255, 0};
 inline constexpr Color mediumGreen = {0, 200, 0};
 
+inline constexpr Color brightBlue = {0, 120, 255};
+
 inline constexpr Color red = {255, 0, 0};
 inline constexpr Color brightRed = {250, 0, 10};
 inline constexpr Color strongRed = {220, 0, 0};

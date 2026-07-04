@@ -48,6 +48,7 @@ struct CombatStatsConfig {
     float maxHealth = 1.0f;
     float attackPower = 1.0f;
     float attackSpeed = 1.0f;
+    float specialAttackSpeed = 1.0f;
     float defense = 0.0f;
     float moveSpeed = 0.0f;
     float speedOfAttack = 0.0f;
@@ -91,6 +92,8 @@ struct AttackProfileConfig {
     bool isMultiHit = false;
     float pushBackForce = 0.0f;
     float stunChance = 0.0f;
+    TextureConfig attackIcon;
+    TextureConfig specialAttackIcon;
     ProjectileAttackConfig projectile;
     UnicornAttackConfig unicorn;
     MeleeArcAttackConfig meleeArc;

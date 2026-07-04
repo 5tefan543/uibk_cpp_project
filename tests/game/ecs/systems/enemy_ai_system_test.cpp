@@ -465,6 +465,7 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI does not spawn duplicate area attack in c
     attackConfig.area.damageTicks = 2;
     attackConfig.area.initialHit = 0.5f;
     config.enemyClasses.blob.stats.attackSpeed = 1.0f;
+    config.enemyClasses.blob.stats.specialAttackSpeed = 2.0f;
 
     auto &areaIdleState = attackConfig.area.animations.stateToStateConfig[game::AnimationState::Idle];
     areaIdleState.directionToFrames[game::AnimationDirection::None] = {makeSpriteConfig("blob_area.png")};
@@ -498,7 +499,8 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI area attack respects cooldown before allo
     attackConfig.area.activeTimeSec = 1.0f;
     attackConfig.area.damageTicks = 2;
     attackConfig.area.initialHit = 0.5f;
-    config.enemyClasses.blob.stats.attackSpeed = 2.0f; // cooldown = 0.5s
+    config.enemyClasses.blob.stats.attackSpeed = 2.0f;        // cooldown = 0.5s
+    config.enemyClasses.blob.stats.specialAttackSpeed = 2.0f; // cooldown = 0.5s
 
     auto &areaIdleState = attackConfig.area.animations.stateToStateConfig[game::AnimationState::Idle];
     areaIdleState.directionToFrames[game::AnimationDirection::None] = {makeSpriteConfig("blob_area.png")};
