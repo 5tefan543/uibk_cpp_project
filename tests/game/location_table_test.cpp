@@ -1,4 +1,5 @@
 #include "game/ecs/components/enemy_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/location_table.hpp"
@@ -13,7 +14,7 @@
 TEST_CASE("test location table", "[location-table]")
 {
     using namespace game;
-    using Sprite = view::Sprite;
+    using game::HitBox;
     using geometry::Vec2;
 
     // Tests assume grid dims are integers and dividable by 2
@@ -30,26 +31,25 @@ TEST_CASE("test location table", "[location-table]")
 
     // Sprite dimension such that they can fit in only one bucket
     const float sprBuckPadd = 0.1;
-    const Vec2<float> spriteSize = {lt.bucketSize * (1 - sprBuckPadd * 2)};
-    assert(spriteSize.x < lt.bucketSize.x); // assumed by sections
-    assert(spriteSize.y < lt.bucketSize.y); // assumed by sections
+    const Vec2<float> hitBoxSize = {lt.bucketSize * (1 - sprBuckPadd * 2)};
+    assert(hitBoxSize.x < lt.bucketSize.x); // assumed by sections
+    assert(hitBoxSize.y < lt.bucketSize.y); // assumed by sections
     const Vec2<float> sprtOffset = lt.bucketSize * sprBuckPadd;
     Entity eLookup[numCells.x][numCells.y];
     Registry registry;
 
     auto addEntity = [&](const Vec2<float> rawPosWithoutOffset,
-                         std::optional<Vec2<float>> sprtSize = std::nullopt) mutable -> Entity {
+                         std::optional<Vec2<float>> hitBoxSizeCust = std::nullopt) mutable -> Entity {
         Entity e = registry.createEntity();
         const Vec2<float> p = rawPosWithoutOffset + sprtOffset;
         registry.addComponent<EnemyTag>(e, {});
         registry.addComponent<Position>(e, {p.x, p.y});
         registry.addComponent<Velocity>(e, {0, 0});
-        if (sprtSize.has_value()) {
-            registry.addComponent<Sprite>(
-                e, Sprite{.rect = {.position = {0, 0}, .size = {sprtSize.value().x, sprtSize.value().y}}});
+        if (hitBoxSizeCust.has_value()) {
+            registry.addComponent<HitBox>(
+                e, HitBox{.offset = {0, 0}, .size = {hitBoxSizeCust.value().x, hitBoxSizeCust.value().y}});
         } else {
-            registry.addComponent<Sprite>(e,
-                                          Sprite{.rect = {.position = {0, 0}, .size = {spriteSize.x, spriteSize.y}}});
+            registry.addComponent<HitBox>(e, HitBox{.offset = {0, 0}, .size = {hitBoxSize.x, hitBoxSize.y}});
         }
         lt.update(registry);
         return e;
@@ -176,7 +176,7 @@ TEST_CASE("test location table", "[location-table]")
 
     SECTION("Sprite (its width wider than one bucket) overlaps with three buckets")
     {
-        Entity e = addEntity({0, 0}, std::optional(Vec2<float>{lt.bucketSize.x * 2, spriteSize.y}));
+        Entity e = addEntity({0, 0}, std::optional(Vec2<float>{lt.bucketSize.x * 2, hitBoxSize.y}));
 
         // Check internal state
         for (unsigned x = 0; x < numCells.x; x++) {
@@ -207,7 +207,7 @@ TEST_CASE("test location table", "[location-table]")
 
     SECTION("Sprite (its height higher than one bucket) overlaps with three buckets")
     {
-        Entity e = addEntity({0, 0}, std::optional(Vec2<float>{spriteSize.x, lt.bucketSize.y * 2}));
+        Entity e = addEntity({0, 0}, std::optional(Vec2<float>{hitBoxSize.x, lt.bucketSize.y * 2}));
 
         // Check internal state
         for (unsigned x = 0; x < numCells.x; x++) {

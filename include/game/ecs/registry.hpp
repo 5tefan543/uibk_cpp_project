@@ -144,6 +144,37 @@ class Registry {
 
         return matchingEntities;
     }
+
+    template <typename... Components>
+    class HasAllOf {};
+
+    template <typename... Components>
+    class HasAnyOf {};
+
+    template <typename... Components>
+    class HasNoneOf {};
+
+    template <typename... InclAnd, typename... InclOr, typename... Excl>
+    std::vector<Entity> view(HasAllOf<InclAnd...>, HasAnyOf<InclOr...>, HasNoneOf<Excl...>) const
+    {
+        std::vector<Entity> matchingEntities;
+
+        for (Entity entity : aliveEntities_) {
+            // Chaining boolean expressions instead of nexting for short-circuit evaluation
+            if constexpr (sizeof...(InclOr) == 0) {
+                if ((!hasComponent<Excl>(entity) && ...) && (hasComponent<InclAnd>(entity) && ...)) {
+                    matchingEntities.push_back(entity);
+                }
+            } else {
+                if ((!hasComponent<Excl>(entity) && ...) && (hasComponent<InclAnd>(entity) && ...)
+                    && (hasComponent<InclOr>(entity) || ...)) {
+                    matchingEntities.push_back(entity);
+                }
+            }
+        }
+
+        return matchingEntities;
+    }
 };
 
 } // namespace game

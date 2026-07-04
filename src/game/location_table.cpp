@@ -1,5 +1,6 @@
 #include "game/location_table.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/ecs/entity.hpp"
@@ -16,13 +17,14 @@ LocationTable::LocationTable(const geometry::Vec2<unsigned> numBuckets, const ge
     bucketGrid_ = std::vector<std::vector<Entity>>();
     bucketGrid_.reserve(numBuckets.x * numBuckets.y);
     for (size_t i = 0; i < numBuckets.x * numBuckets.y; i++) {
-        bucketGrid_.emplace_back(std::vector<Entity>());
+        auto &v = bucketGrid_.emplace_back(std::vector<Entity>());
+        v.reserve(50);
     }
 }
 
 // Return 2D (x,y) bucket indices [firstBucket, lastBucket]. lastBuck is inclusive -> iterate with "<= lastBuck"
 std::tuple<geometry::Vec2<unsigned>, geometry::Vec2<unsigned>>
-LocationTable::getBucketIndices(geometry::Vec2<float> startGrid, geometry::Vec2<float> stopGrid)
+LocationTable::getBucketIndices(geometry::Vec2<float> startGrid, geometry::Vec2<float> stopGrid) const
 {
     using geometry::Vec2;
 
@@ -43,16 +45,19 @@ void LocationTable::update(const Registry &registry)
     }
 
     // bool cleanup = false;
-    auto entities = registry.view<view::Sprite, Position, Velocity, EnemyTag>();
+    // auto entities = registry.view<view::Sprite, Position, Velocity, EnemyTag>();
+    auto entities = registry.view<Position, HitBox, EnemyTag>();
     for (auto entity : entities) {
         const auto &pos = registry.getComponent<Position>(entity).p;
-        const view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
+        // const view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
+        const HitBox &hitbox = registry.getComponent<HitBox>(entity);
 
         // Put entity in every bucket its sprite overlaps with.
         // TODO: we probably want to use hitbox instead of sprite dimensions
         // Distances can be determined either way since hitbox & sprite have the same center.
 
-        const auto [firstBuck, lastBuck] = getBucketIndices(pos, pos + sprite.rect.size);
+        const auto [firstBuck, lastBuck] = getBucketIndices(pos + hitbox.offset, pos + hitbox.size);
+        // const auto [firstBuck, lastBuck] = getBucketIndices(pos, pos + sprite.rect.size);
 
         for (unsigned buckY = firstBuck.y; buckY <= lastBuck.y; buckY++) {
             for (unsigned buckX = firstBuck.x; buckX <= lastBuck.x; buckX++) {
@@ -91,7 +96,8 @@ void LocationTable::update(const Registry &registry)
 
 // Guarantees to return all entities whose hitbox/sprite is inside the radius but there might be some included that are
 // outside. Extra filtering is required if strictly those inside the radius are required.
-std::unordered_set<Entity> LocationTable::getEntitiesNear(const geometry::Vec2<float> position, const float radius)
+std::unordered_set<Entity> LocationTable::getEntitiesNear(const geometry::Vec2<float> position,
+                                                          const float radius) const
 {
     std::unordered_set<Entity> inRange;
     const auto [firstBuck, lastBuck] = getBucketIndices(position - radius, position + radius);
@@ -107,8 +113,9 @@ std::unordered_set<Entity> LocationTable::getEntitiesNear(const geometry::Vec2<f
 }
 
 // Return Entites being precicesly inside the radius by filtering getEntitiesNear().
-std::vector<std::tuple<Entity, Position>>
-LocationTable::getEntitiesInRange(const geometry::Vec2<float> position, const float radius, const Registry &registry)
+std::vector<std::tuple<Entity, Position>> LocationTable::getEntitiesInRange(const geometry::Vec2<float> position,
+                                                                            const float radius,
+                                                                            const Registry &registry) const
 {
     auto entitiesNear = getEntitiesNear(position, radius);
     std::vector<std::tuple<Entity, Position>> inRange;
