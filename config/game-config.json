@@ -168,14 +168,14 @@
                 "pushBackForce": 0,
                 "stunChance": 0,
                 "attackIcon": {
-                    "path": "assets/icons/store/icons-common_10.png",
+                    "path": "assets/icons/melee_attack_icon.png",
                     "size": {
                         "x": 32,
                         "y": 32
                     }
                 },
                 "specialAttackIcon": {
-                    "path": "assets/icons/special_attack_icon.png",
+                    "path": "assets/icons/melee_special_attack_icon.png",
                     "size": {
                         "x": 32,
                         "y": 32
@@ -798,14 +798,14 @@
                 "pushBackForce": 0,
                 "stunChance": 0,
                 "attackIcon": {
-                    "path": "assets/icons/store/icons-common_10.png",
+                    "path": "assets/icons/ranged_attack_icon.png",
                     "size": {
                         "x": 32,
                         "y": 32
                     }
                 },
                 "specialAttackIcon": {
-                    "path": "assets/icons/store/icons-common_10.png",
+                    "path": "assets/icons/ranged_special_attack_icon.png",
                     "size": {
                         "x": 32,
                         "y": 32
