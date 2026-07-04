@@ -23,13 +23,13 @@ TEST_CASE_METHOD(TestFixture, "SoundSystem update throws on invalid sound path a
     game::SoundSystem system;
 
     game::Entity entity = registry.createEntity();
-    registry.addComponent<game::SoundComponent>(entity, {.name = "this/path/does/not/exist.wav"});
+    registry.addComponent<game::Sound>(entity, {.file = "this/path/does/not/exist.wav"});
 
     REQUIRE_THROWS(system.update(registry));
-    REQUIRE(registry.hasComponent<game::SoundComponent>(entity));
+    REQUIRE(registry.hasComponent<game::Sound>(entity));
 }
 
-TEST_CASE_METHOD(TestFixture, "SoundSystem update removes SoundComponent after successful playback")
+TEST_CASE_METHOD(TestFixture, "SoundSystem update removes Sound after successful playback")
 {
     test::writeMinimalWav("sound.wav");
 
@@ -37,13 +37,13 @@ TEST_CASE_METHOD(TestFixture, "SoundSystem update removes SoundComponent after s
     game::SoundSystem system;
 
     game::Entity entity = registry.createEntity();
-    registry.addComponent<game::SoundComponent>(entity, {.name = "sound.wav"});
+    registry.addComponent<game::Sound>(entity, {.file = "sound.wav"});
 
     REQUIRE_NOTHROW(system.update(registry));
-    REQUIRE_FALSE(registry.hasComponent<game::SoundComponent>(entity));
+    REQUIRE_FALSE(registry.hasComponent<game::Sound>(entity));
 }
 
-TEST_CASE_METHOD(TestFixture, "SoundSystem update processes all entities with SoundComponent")
+TEST_CASE_METHOD(TestFixture, "SoundSystem update processes all entities with Sound")
 {
     test::writeMinimalWav("sound.wav");
 
@@ -52,20 +52,20 @@ TEST_CASE_METHOD(TestFixture, "SoundSystem update processes all entities with So
 
     game::Entity e1 = registry.createEntity();
     game::Entity e2 = registry.createEntity();
-    registry.addComponent<game::SoundComponent>(e1, {.name = "sound.wav"});
-    registry.addComponent<game::SoundComponent>(e2, {.name = "sound.wav"});
+    registry.addComponent<game::Sound>(e1, {.file = "sound.wav"});
+    registry.addComponent<game::Sound>(e2, {.file = "sound.wav"});
 
     REQUIRE_NOTHROW(system.update(registry));
-    REQUIRE_FALSE(registry.hasComponent<game::SoundComponent>(e1));
-    REQUIRE_FALSE(registry.hasComponent<game::SoundComponent>(e2));
+    REQUIRE_FALSE(registry.hasComponent<game::Sound>(e1));
+    REQUIRE_FALSE(registry.hasComponent<game::Sound>(e2));
 }
 
-TEST_CASE_METHOD(TestFixture, "SoundSystem update leaves entities without SoundComponent unchanged")
+TEST_CASE_METHOD(TestFixture, "SoundSystem update leaves entities without Sound unchanged")
 {
     game::Registry registry;
     game::SoundSystem system;
 
-    game::Entity entity = registry.createEntity(); // no SoundComponent
+    game::Entity entity = registry.createEntity(); // no Sound
 
     REQUIRE_NOTHROW(system.update(registry));
     REQUIRE(registry.isEntityAlive(entity));

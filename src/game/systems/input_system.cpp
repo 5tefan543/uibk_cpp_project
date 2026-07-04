@@ -173,7 +173,7 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
 
     const float animationDuration = applyAnimation(registry, config, playerEntity, AnimationState::Attack,
                                                    playerStats.characterType, attackDirection);
-    const SoundComponent sound = {config.playerClasses.melee.sounds.attack};
+    const Sound sound = {config.playerClasses.melee.sounds.attack};
 
     // create melee attack entity
     const Damage damageComponent{.amount = attackProfile.amount,
@@ -204,7 +204,7 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
     registry.addComponent<DamageTag>(meleeAttackEntity, {});
     registry.addComponent<Position>(meleeAttackEntity, damagePosition);
     registry.addComponent<HitBox>(meleeAttackEntity, meleeHitBox);
-    registry.addComponent<SoundComponent>(playerEntity, sound);
+    registry.addComponent<Sound>(playerEntity, sound);
     registry.addComponent<PlayerAttackTag>(meleeAttackEntity, {}); // Mark as player's attack for collision detection
 }
 
@@ -222,14 +222,20 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
     applyAnimation(registry, config, playerEntity, AnimationState::Attack, playerStats.characterType, attackDirection);
 
     // add ranged object: either a projectile or a invincible unicorn
-    const SoundComponent sound = {specialAttack ? config.playerClasses.ranged.sounds.special
-                                                : config.playerClasses.ranged.sounds.attack};
+    Sound sound = {specialAttack ? config.playerClasses.ranged.sounds.special
+                                 : config.playerClasses.ranged.sounds.attack};
+
     const config::AnimationFrame rangedObjFrame =
         specialAttack ? config::AnimationConfigHelper::getUnicornAnimationFrame(
                             config, attackProfile.unicorn, AnimationState::Walk, attackDirection, 0)
                       : config::AnimationConfigHelper::getProjectileAnimationFrame(
                             config, attackProfile.projectile, AnimationState::Idle, AnimationDirection::None, 0);
     const config::SpriteConfig &rangedObjSpriteConfig = rangedObjFrame.spriteConfig;
+
+    std::optional<Animation> rangedObjAnimation = std::nullopt;
+    if (specialAttack) {
+        rangedObjAnimation = Animation{.state = AnimationState::Walk, .direction = attackDirection};
+    }
 
     const float rangedObjOffsetX =
         attackDirection == AnimationDirection::Right ? playerSprite.size.x : -rangedObjSpriteConfig.texture.size.x;
@@ -273,7 +279,7 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
     // add rangedObj entity with all components
     // component references may be invalid: retrieve again from registry if used after this point
     const Entity rangedObjEntity = registry.createEntity();
-    registry.addComponent<SoundComponent>(playerEntity, sound);
+    registry.addComponent<Sound>(playerEntity, sound);
     registry.addComponent<Damage>(rangedObjEntity, rangedObjDamage);
     registry.addComponent<view::Sprite>(rangedObjEntity, rangedObjSprite);
     registry.addComponent<Position>(rangedObjEntity, {rangedObjLaunchPosition});
@@ -282,8 +288,8 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
     registry.addComponent<PlayerAttackTag>(rangedObjEntity, {}); // Mark as player's attack for collision detection
     registry.addComponent<DamageTag>(rangedObjEntity, {});
 
-    if (specialAttack) {
-        registry.addComponent<Animation>(rangedObjEntity, {AnimationState::Walk, attackDirection, 0, 0});
+    if (rangedObjAnimation.has_value()) {
+        registry.addComponent<Animation>(rangedObjEntity, rangedObjAnimation.value());
     }
 }
 
