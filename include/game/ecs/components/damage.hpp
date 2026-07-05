@@ -4,6 +4,7 @@
 namespace game {
 enum class DamageKind {
     Projectile,
+    Unicorn,
     MeleeArc,
     Beam,
     Area,
@@ -14,6 +15,10 @@ struct ProjectileDamage {
     float maxRange;         // projectile lifetime distance
     float distanceTraveled; // runtime state
     int maxTargets;
+};
+
+struct UnicornDamage {
+    float speed; // units/sec
 };
 
 struct MeleeArcDamage {
@@ -52,7 +57,7 @@ struct Damage {
     float pushBackForce; // e.g. for knockback
     float stunChance;
     DamageKind kind;
-    std::variant<ProjectileDamage, MeleeArcDamage, BeamDamage, AreaDamage> params;
+    std::variant<ProjectileDamage, UnicornDamage, MeleeArcDamage, BeamDamage, AreaDamage> params;
 };
 
 } // namespace game

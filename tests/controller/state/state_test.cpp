@@ -19,6 +19,7 @@ void createSavedGameFile()
     game.playerStats.hasDash = false;
     game.playerStats.attackPower = 55.0f;
     game.playerStats.attackSpeed = 1.5f;
+    game.playerStats.specialAttackSpeed = 2.0f;
     game.playerStats.defense = 20.0f;
     PersistenceManager::saveGame(game);
 }

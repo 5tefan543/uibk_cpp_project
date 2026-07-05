@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
+
 namespace game {
-struct SoundComponent {
-    std::string name;
+
+struct Sound {
+    std::string file;
 };
 
 } // namespace game

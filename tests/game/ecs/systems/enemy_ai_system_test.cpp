@@ -384,7 +384,6 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI spawns area attack with expected componen
     auto locationTable = makeLocationTable(config);
 
     auto &attackConfig = config.enemyClasses.blob.attack;
-    attackConfig.kind = game::DamageKind::Area;
     attackConfig.amount = 12.0f;
     attackConfig.pushBackForce = 3.5f;
     attackConfig.stunChance = 0.2f;
@@ -461,12 +460,12 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI does not spawn duplicate area attack in c
     auto locationTable = makeLocationTable(config);
 
     auto &attackConfig = config.enemyClasses.blob.attack;
-    attackConfig.kind = game::DamageKind::Area;
     attackConfig.area.radius = 1.0f;
     attackConfig.area.activeTimeSec = 1.0f;
     attackConfig.area.damageTicks = 2;
     attackConfig.area.initialHit = 0.5f;
     config.enemyClasses.blob.stats.attackSpeed = 1.0f;
+    config.enemyClasses.blob.stats.specialAttackSpeed = 2.0f;
 
     auto &areaIdleState = attackConfig.area.animations.stateToStateConfig[game::AnimationState::Idle];
     areaIdleState.directionToFrames[game::AnimationDirection::None] = {makeSpriteConfig("blob_area.png")};
@@ -496,12 +495,12 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI area attack respects cooldown before allo
     auto locationTable = makeLocationTable(config);
 
     auto &attackConfig = config.enemyClasses.blob.attack;
-    attackConfig.kind = game::DamageKind::Area;
     attackConfig.area.radius = 1.0f;
     attackConfig.area.activeTimeSec = 1.0f;
     attackConfig.area.damageTicks = 2;
     attackConfig.area.initialHit = 0.5f;
-    config.enemyClasses.blob.stats.attackSpeed = 2.0f; // cooldown = 0.5s
+    config.enemyClasses.blob.stats.attackSpeed = 2.0f;        // cooldown = 0.5s
+    config.enemyClasses.blob.stats.specialAttackSpeed = 2.0f; // cooldown = 0.5s
 
     auto &areaIdleState = attackConfig.area.animations.stateToStateConfig[game::AnimationState::Idle];
     areaIdleState.directionToFrames[game::AnimationDirection::None] = {makeSpriteConfig("blob_area.png")};
