@@ -198,16 +198,18 @@ void DamageSystem::update(Registry &registry, float dtSec)
 
             hasAliveTarget = true;
 
+            float damageAmount = currentDamage.actualDamageAmount;
+
             if (registry.hasComponent<PlayerStats>(targetEntity)) {
                 PlayerStats &playerStats = registry.getComponent<PlayerStats>(targetEntity);
 
-                if (currentDamage.actualDamageAmount < 0.0f) {
+                if (damageAmount < 0.0f) {
                     // Negative damage values represent percentage-based damage.
                     // Example: -0.25f means 25% of the player's max health.
-                    currentDamage.actualDamageAmount = playerStats.maxHealth * (-currentDamage.actualDamageAmount);
+                    damageAmount = playerStats.maxHealth * (-damageAmount);
                 }
 
-                playerStats.health -= currentDamage.actualDamageAmount;
+                playerStats.health -= damageAmount;
 
                 if (playerStats.health <= 0.0f) {
                     registry.destroyEntity(targetEntity);
@@ -216,13 +218,14 @@ void DamageSystem::update(Registry &registry, float dtSec)
                 }
             } else if (registry.hasComponent<EnemyStats>(targetEntity)) {
                 EnemyStats &enemyStats = registry.getComponent<EnemyStats>(targetEntity);
-                if (currentDamage.actualDamageAmount < 0.0f) {
+
+                if (damageAmount < 0.0f) {
                     // Negative damage values represent percentage-based damage.
                     // Example: -0.25f means 25% of the enemy's max health.
-                    currentDamage.actualDamageAmount = enemyStats.maxHealth * (-currentDamage.actualDamageAmount);
+                    damageAmount = enemyStats.maxHealth * (-damageAmount);
                 }
 
-                enemyStats.health -= currentDamage.actualDamageAmount;
+                enemyStats.health -= damageAmount;
 
                 if (enemyStats.health <= 0.0f) {
                     auto players = registry.view<PlayerStats>();
