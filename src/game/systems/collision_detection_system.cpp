@@ -49,9 +49,6 @@ bool CollisionDetectionSystem::checkProjectileCollision(const Entity &projectile
     if (registry.hasComponent<PlayerTag>(projectile) && registry.hasComponent<PlayerTag>(target)) {
         return false; // Skip player-player collision
     }
-    if (registry.hasComponent<EnemyTag>(projectile) && registry.hasComponent<EnemyTag>(target)) {
-        return false; // Skip enemy-enemy collision
-    }
     if (registry.hasComponent<Damage>(projectile) && registry.hasComponent<Damage>(target)) {
         return false; // Skip damage-damage collision
     }
@@ -78,13 +75,6 @@ bool CollisionDetectionSystem::checkProjectileCollision(const Entity &projectile
     }
     for (unsigned i = 0; i < (unsigned)numSteps; i++) {
         hitBoxRectProj.position += step;
-        if (hitBoxRectProj.intersects(hitBoxRectTarg)) {
-            return true;
-        }
-    }
-    float stepFract = numSteps - std::floor(numSteps);
-    if (stepFract > 0) {
-        hitBoxRectProj.position += stepFract;
         if (hitBoxRectProj.intersects(hitBoxRectTarg)) {
             return true;
         }
@@ -166,8 +156,11 @@ void CollisionDetectionSystem::update(Registry &registry, const LocationTable &l
     for (const Entity nonEnemy : nonEnemies) {
         enforceMapBound(nonEnemy, registry);
         const auto p = registry.getComponent<Position>(nonEnemy).p;
+
+        DamageKind dmgKind;
         if (registry.hasComponent<PlayerAttackTag>(nonEnemy) && registry.hasComponent<Damage>(nonEnemy)
-            && registry.getComponent<Damage>(nonEnemy).kind == DamageKind::Projectile) { // TODO: or unicorn
+            && ((dmgKind = registry.getComponent<Damage>(nonEnemy).kind) == DamageKind::Projectile
+                || dmgKind == DamageKind::Unicorn)) {
             // Projectile collision handled extra because they can, with a combination of high velocity and high dtSec,
             // skip over entire enemy hitboxes without registering a collision.
             const auto v = registry.getComponent<Velocity>(nonEnemy).v;
