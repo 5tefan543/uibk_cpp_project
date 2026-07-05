@@ -8,11 +8,8 @@
 #include "game/ecs/components/player_attack_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
-#include "game/ecs/components/stats.hpp"
+#include "game/ecs/components/velocity.hpp"
 #include "game/ecs/registry.hpp"
-#include "view/sprite.hpp"
-
-#include <iostream>
 
 namespace game {
 
@@ -40,6 +37,60 @@ bool CollisionDetectionSystem::checkCollision(const Entity &entityA, const Entit
     const geometry::Rectangle<float> hitBoxRectB{hitBoxB.offset + positionB, hitBoxB.size};
 
     return hitBoxRectA.intersects(hitBoxRectB);
+}
+
+bool CollisionDetectionSystem::checkProjectileCollision(const Entity &projectile, const Entity &target,
+                                                        Registry &registry, const float dtSec)
+{
+    using geometry::Rectangle;
+
+    // collision pairs to skip checking:
+
+    if (registry.hasComponent<PlayerTag>(projectile) && registry.hasComponent<PlayerTag>(target)) {
+        return false; // Skip player-player collision
+    }
+    if (registry.hasComponent<EnemyTag>(projectile) && registry.hasComponent<EnemyTag>(target)) {
+        return false; // Skip enemy-enemy collision
+    }
+    if (registry.hasComponent<Damage>(projectile) && registry.hasComponent<Damage>(target)) {
+        return false; // Skip damage-damage collision
+    }
+
+    const auto &posProjEnd = registry.getComponent<Position>(projectile).p;
+    const auto &vProj = registry.getComponent<Velocity>(projectile).v;
+    const auto posProjStart = posProjEnd - (vProj * dtSec); // Revert position update the movement system just did
+    const auto &hitBoxProj = registry.getComponent<HitBox>(projectile);
+
+    const auto &posTarg = registry.getComponent<Position>(target).p;
+    const auto &hitBoxTarg = registry.getComponent<HitBox>(target);
+    const Rectangle<float> hitBoxRectTarg{hitBoxTarg.offset + posTarg, hitBoxTarg.size};
+
+    // === Move projectile hitbox in small steps through dt movement interval and check for collision in every step.
+    // === It does not guarantee pixel-perfect collisions but it's good enough.
+    auto step = vProj;
+    step.setLength(std::min(hitBoxProj.size.x, hitBoxProj.size.y));
+    const float numSteps = (vProj * dtSec).length() / step.length();
+    Rectangle<float> hitBoxRectProj{hitBoxProj.offset + posProjStart, hitBoxProj.size};
+
+    if (hitBoxRectProj.intersects(hitBoxRectTarg)) {
+        // 1 check garanteed if 0 < step length < 1
+        return true;
+    }
+    for (unsigned i = 0; i < (unsigned)numSteps; i++) {
+        hitBoxRectProj.position += step;
+        if (hitBoxRectProj.intersects(hitBoxRectTarg)) {
+            return true;
+        }
+    }
+    float stepFract = numSteps - std::floor(numSteps);
+    if (stepFract > 0) {
+        hitBoxRectProj.position += stepFract;
+        if (hitBoxRectProj.intersects(hitBoxRectTarg)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 // Maybe move into own system
@@ -104,9 +155,9 @@ void CollisionDetectionSystem::enforceMapBound(const Entity &entity, Registry &r
     position = entityHitBoxRect.position - hitBox.offset;
 }
 
-void CollisionDetectionSystem::update(Registry &registry, const LocationTable &locationTable)
+void CollisionDetectionSystem::update(Registry &registry, const LocationTable &locationTable, const float dtSec)
 {
-    constexpr float locTableLookupRadius = 130;
+    constexpr float locTableLookupDistance = 130;
 
     // === Check/Activate Collision/Damage Player's -> Enemies'
     const std::vector<Entity> nonEnemies = registry.view(Registry::HasAllOf<HitBox, Position>(), Registry::HasAnyOf<>(),
@@ -114,12 +165,24 @@ void CollisionDetectionSystem::update(Registry &registry, const LocationTable &l
 
     for (const Entity nonEnemy : nonEnemies) {
         enforceMapBound(nonEnemy, registry);
-
-        // TODO: simply leave radius hardcoded? Currently all enemy sprites are of size 128x128
         const auto p = registry.getComponent<Position>(nonEnemy).p;
-        for (const auto enemyNear : locationTable.getEntitiesNear(p, locTableLookupRadius)) {
-            if (checkCollision(nonEnemy, enemyNear, registry)) {
-                activateDamage(nonEnemy, enemyNear, registry);
+        if (registry.hasComponent<PlayerAttackTag>(nonEnemy) && registry.hasComponent<Damage>(nonEnemy)
+            && registry.getComponent<Damage>(nonEnemy).kind == DamageKind::Projectile) { // TODO: or unicorn
+            // Projectile collision handled extra because they can, with a combination of high velocity and high dtSec,
+            // skip over entire enemy hitboxes without registering a collision.
+            const auto v = registry.getComponent<Velocity>(nonEnemy).v;
+            const auto radius = locTableLookupDistance + (v * dtSec).length();
+            for (const auto enemyNear : locationTable.getEntitiesNear(p, radius)) {
+                if (checkProjectileCollision(nonEnemy, enemyNear, registry, dtSec)) {
+                    activateDamage(nonEnemy, enemyNear, registry);
+                }
+            }
+        } else {
+            // Non-Projectile collision, slow enough wo work without considering velocity.
+            for (const auto enemyNear : locationTable.getEntitiesNear(p, locTableLookupDistance)) {
+                if (checkCollision(nonEnemy, enemyNear, registry)) {
+                    activateDamage(nonEnemy, enemyNear, registry);
+                }
             }
         }
     }
