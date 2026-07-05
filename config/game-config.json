@@ -218,47 +218,47 @@
                                     "None": [
                                         {
                                             "texture": {
-                                                "path": "assets/characters/blob_enemy/blob_atk_1.png",
+                                                "path": "assets/effects/lava_area/lava_area_1.png",
                                                 "position": {
                                                     "x": 0,
                                                     "y": 0
                                                 },
                                                 "size": {
-                                                    "x": 256,
-                                                    "y": 256
+                                                    "x": 128,
+                                                    "y": 128
                                                 }
                                             },
                                             "hitBox": {
                                                 "offset": {
-                                                    "x": 36,
-                                                    "y": 36
+                                                    "x": 18,
+                                                    "y": 18
                                                 },
                                                 "size": {
-                                                    "x": 188,
-                                                    "y": 188
+                                                    "x": 94,
+                                                    "y": 94
                                                 }
                                             }
                                         },
                                         {
                                             "texture": {
-                                                "path": "assets/characters/blob_enemy/blob_atk_2.png",
+                                                "path": "assets/effects/lava_area/lava_area_2.png",
                                                 "position": {
                                                     "x": 0,
                                                     "y": 0
                                                 },
                                                 "size": {
-                                                    "x": 256,
-                                                    "y": 256
+                                                    "x": 128,
+                                                    "y": 128
                                                 }
                                             },
                                             "hitBox": {
                                                 "offset": {
-                                                    "x": 36,
-                                                    "y": 36
+                                                    "x": 18,
+                                                    "y": 18
                                                 },
                                                 "size": {
-                                                    "x": 188,
-                                                    "y": 188
+                                                    "x": 94,
+                                                    "y": 94
                                                 }
                                             }
                                         }
