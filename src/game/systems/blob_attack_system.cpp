@@ -124,7 +124,7 @@ void BlobAttackSystem::spawnPendingAreaAttack(Registry &registry, const config::
     registry.addComponent<HitBox>(areaAttackEntity, areaHitbox);
     registry.addComponent<view::Sprite>(areaAttackEntity, sprite);
     registry.addComponent<Animation>(areaAttackEntity, areaAnimation);
-    registry.addComponent<EnemyAttackTag>(areaAttackEntity, {blobEntity});
+    registry.addComponent<EnemyAttackTag>(areaAttackEntity, {enemyStats.enemyType});
 }
 
 void BlobAttackSystem::update(Registry &registry, const config::GameConfig &config, float dtSec)

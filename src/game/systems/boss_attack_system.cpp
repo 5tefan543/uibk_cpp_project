@@ -111,7 +111,7 @@ void BossAttackSystem::spawnRadialProjectileBurst(Registry &registry, const conf
                                             {.rect = {projectilePosition, projectileSpriteConfig.texture.size},
                                              .imagePath = projectileSpriteConfig.texture.path});
         registry.addComponent<DamageTag>(projectileEntity, {});
-        registry.addComponent<EnemyAttackTag>(projectileEntity, {bossEntity});
+        registry.addComponent<EnemyAttackTag>(projectileEntity, {bossStats.enemyType});
     }
 }
 
@@ -162,7 +162,7 @@ void BossAttackSystem::spawnPhaseTwoLightning(Registry &registry, const config::
             lightningEntity, {.rect = {strikePosition, spriteSize}, .imagePath = lightningSpriteConfig.texture.path});
         registry.addComponent<Animation>(lightningEntity, {});
         registry.addComponent<DamageTag>(lightningEntity, {});
-        registry.addComponent<EnemyAttackTag>(lightningEntity, bossStats.enemyType);
+        registry.addComponent<EnemyAttackTag>(lightningEntity, {bossStats.enemyType});
     }
 }
 

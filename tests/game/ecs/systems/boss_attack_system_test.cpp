@@ -100,26 +100,26 @@ game::Entity addBoss(game::Registry &registry, float x, float y)
     return boss;
 }
 
-std::vector<game::Entity> getBossProjectiles(game::Registry &registry, game::Entity boss)
+std::vector<game::Entity> getBossProjectiles(game::Registry &registry)
 {
     std::vector<game::Entity> projectiles;
     for (const game::Entity entity : registry.view<game::EnemyAttackTag, game::Damage, game::Velocity>()) {
         const auto &tag = registry.getComponent<game::EnemyAttackTag>(entity);
         const auto &damage = registry.getComponent<game::Damage>(entity);
-        if (tag.source == boss && damage.kind == game::DamageKind::Projectile) {
+        if (tag.enemyType == game::EnemyType::Boss && damage.kind == game::DamageKind::Projectile) {
             projectiles.push_back(entity);
         }
     }
     return projectiles;
 }
 
-std::vector<game::Entity> getBossLightning(game::Registry &registry, game::Entity boss)
+std::vector<game::Entity> getBossLightning(game::Registry &registry)
 {
     std::vector<game::Entity> lightning;
     for (const game::Entity entity : registry.view<game::EnemyAttackTag, game::Damage>()) {
         const auto &tag = registry.getComponent<game::EnemyAttackTag>(entity);
         const auto &damage = registry.getComponent<game::Damage>(entity);
-        if (tag.source == boss && damage.kind == game::DamageKind::Area) {
+        if (tag.enemyType == game::EnemyType::Boss && damage.kind == game::DamageKind::Area) {
             lightning.push_back(entity);
         }
     }
@@ -164,7 +164,7 @@ TEST_CASE_METHOD(TestFixture, "BossAttackSystem spawns radial projectile burst w
     distanceSystem.update(registry);
     bossSystem.update(registry, config, 0.0f);
 
-    const auto projectiles = getBossProjectiles(registry, boss);
+    const auto projectiles = getBossProjectiles(registry);
     REQUIRE(projectiles.size() == 12);
 
     const auto &bossPosition = registry.getComponent<game::Position>(boss).p;
@@ -203,7 +203,7 @@ TEST_CASE_METHOD(TestFixture, "BossAttackSystem phase 2 lightning triggers regar
     distanceSystem.update(registry);
     bossSystem.update(registry, config, 0.0f);
 
-    const auto lightning = getBossLightning(registry, boss);
+    const auto lightning = getBossLightning(registry);
     REQUIRE_FALSE(lightning.empty());
 
     for (const game::Entity lightningEntity : lightning) {
@@ -223,16 +223,16 @@ TEST_CASE_METHOD(TestFixture, "BossAttackSystem cooldown prevents immediate retr
 
     addMap(registry);
     addPlayer(registry, 250.0f, 250.0f);
-    const game::Entity boss = addBoss(registry, 100.0f, 100.0f);
+    addBoss(registry, 100.0f, 100.0f);
 
     distanceSystem.update(registry);
     bossSystem.update(registry, config, 0.0f);
-    const std::size_t firstCount = getBossProjectiles(registry, boss).size();
+    const std::size_t firstCount = getBossProjectiles(registry).size();
     REQUIRE(firstCount == 12);
 
     distanceSystem.update(registry);
     bossSystem.update(registry, config, 0.1f);
-    const std::size_t secondCount = getBossProjectiles(registry, boss).size();
+    const std::size_t secondCount = getBossProjectiles(registry).size();
 
     REQUIRE(secondCount == firstCount);
 }
