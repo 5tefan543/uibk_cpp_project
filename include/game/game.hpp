@@ -52,6 +52,8 @@ class Game {
     int stage_ = 1;
     int wave_ = 1;
     view::Text stageWaveInfo_;
+    view::Sprite attackCooldownIcon_;
+    view::Sprite specialAttackCooldownIcon_;
 
     explicit Game(int wave, CharacterType characterType);
 
@@ -66,6 +68,13 @@ class Game {
     void updateSystems(const controller::InputState &input, const controller::timeDelta &dt);
     void addScore(int score);
     bool isWaveFinished();
+
+    void renderHealthBars(view::View &view);
+    void setCameraPosition(view::View &view);
+    void renderSprites(view::View &view);
+    void renderDebugHitBoxes(view::View &view);
+    void renderStageWaveInfo(view::View &view);
+    void renderCooldownBars(view::View &view);
 
   public:
     Game();

@@ -156,17 +156,31 @@
                 "maxHealth": 100,
                 "attackPower": 14,
                 "attackSpeed": 1.25,
+                "specialAttackSpeed": 0.0167,
                 "defense": 0,
                 "moveSpeed": 700,
                 "speedOfAttack": 220,
                 "attackRange": 1
             },
             "attack": {
-                "kind": "MeleeArc",
                 "amount": 14,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
+                "attackIcon": {
+                    "path": "assets/icons/melee_attack_icon.png",
+                    "size": {
+                        "x": 32,
+                        "y": 32
+                    }
+                },
+                "specialAttackIcon": {
+                    "path": "assets/icons/melee_special_attack_icon.png",
+                    "size": {
+                        "x": 32,
+                        "y": 32
+                    }
+                },
                 "projectile": {
                     "velocityScale": 10,
                     "animations": {
@@ -605,12 +619,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 72,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 },
@@ -628,12 +642,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 68,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 },
@@ -651,12 +665,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 72,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 },
@@ -674,12 +688,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 72,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 }
@@ -699,12 +713,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 12,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 },
@@ -722,12 +736,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 16,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 },
@@ -745,12 +759,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 12,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 },
@@ -768,12 +782,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 12,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 44,
+                                            "y": 84
                                         }
                                     }
                                 }
@@ -804,17 +818,31 @@
                 "maxHealth": 100,
                 "attackPower": 100,
                 "attackSpeed": 3,
+                "specialAttackSpeed": 0.0167,
                 "defense": 0,
                 "moveSpeed": 750,
                 "speedOfAttack": 240,
                 "attackRange": 1000
             },
             "attack": {
-                "kind": "Projectile",
                 "amount": 10,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
+                "attackIcon": {
+                    "path": "assets/icons/ranged_attack_icon.png",
+                    "size": {
+                        "x": 32,
+                        "y": 32
+                    }
+                },
+                "specialAttackIcon": {
+                    "path": "assets/icons/ranged_special_attack_icon.png",
+                    "size": {
+                        "x": 32,
+                        "y": 32
+                    }
+                },
                 "projectile": {
                     "velocityScale": 10,
                     "animations": {
@@ -844,6 +872,175 @@
                                                 "size": {
                                                     "x": 6,
                                                     "y": 6
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "unicorn": {
+                    "velocityScale": 2,
+                    "animations": {
+                        "stateToStateConfig": {
+                            "Walk": {
+                                "frameDuration": 0.16,
+                                "moveSpeedMultiplier": 1,
+                                "directionToFrames": {
+                                    "Left": [
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_left_1.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_left_2.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_left_3.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_left_4.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "Right": [
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_right_1.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_right_2.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_right_3.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/effects/unicorn/unicorn_right_4.png",
+                                                "size": {
+                                                    "x": 128,
+                                                    "y": 128
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 10,
+                                                    "y": 10
+                                                },
+                                                "size": {
+                                                    "x": 108,
+                                                    "y": 108
                                                 }
                                             }
                                         }
@@ -1253,12 +1450,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 80,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 30,
+                                            "y": 80
                                         }
                                     }
                                 },
@@ -1276,12 +1473,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 80,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 30,
+                                            "y": 80
                                         }
                                     }
                                 },
@@ -1299,12 +1496,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 80,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 30,
+                                            "y": 80
                                         }
                                     }
                                 },
@@ -1322,12 +1519,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 80,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 30,
+                                            "y": 80
                                         }
                                     }
                                 }
@@ -1347,12 +1544,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 18,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 30,
+                                            "y": 80
                                         }
                                     }
                                 },
@@ -1370,12 +1567,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 18,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 30,
+                                            "y": 80
                                         }
                                     }
                                 },
@@ -1393,12 +1590,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 18,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 30,
+                                            "y": 80
                                         }
                                     }
                                 },
@@ -1416,12 +1613,12 @@
                                     },
                                     "hitBox": {
                                         "offset": {
-                                            "x": 0,
-                                            "y": 0
+                                            "x": 18,
+                                            "y": 32
                                         },
                                         "size": {
-                                            "x": 128,
-                                            "y": 128
+                                            "x": 30,
+                                            "y": 80
                                         }
                                     }
                                 }
@@ -1440,7 +1637,7 @@
             },
             "sounds": {
                 "attack": "assets/audio/sounds/character/ranged_attack.wav",
-                "special": "",
+                "special": "assets/audio/sounds/character/unicorn_special_attack.wav",
                 "hit": "",
                 "dash": ""
             }
@@ -1456,13 +1653,13 @@
                 "maxHealth": 10,
                 "attackPower": 2,
                 "attackSpeed": 1,
+                "specialAttackSpeed": 1,
                 "defense": 0.25,
                 "moveSpeed": 100,
                 "speedOfAttack": 0,
                 "attackRange": 1
             },
             "attack": {
-                "kind": "Area",
                 "amount": 30,
                 "isMultiHit": false,
                 "pushBackForce": 0,
@@ -2176,13 +2373,13 @@
                 "maxHealth": 10,
                 "attackPower": 2,
                 "attackSpeed": 1,
+                "specialAttackSpeed": 1,
                 "defense": 0.25,
                 "moveSpeed": 100,
                 "speedOfAttack": 0,
                 "attackRange": 0
             },
             "attack": {
-                "kind": "MeleeArc",
                 "amount": 2,
                 "isMultiHit": false,
                 "pushBackForce": 0,

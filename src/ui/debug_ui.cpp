@@ -216,6 +216,7 @@ void DebugUI::renderComponent(game::Stats &c)
         ImGui::InputFloat("health", &c.health);
         ImGui::InputFloat("attackPower", &c.attackPower);
         ImGui::InputFloat("attackSpeed", &c.attackSpeed);
+        ImGui::InputFloat("specialAttackSpeed", &c.specialAttackSpeed);
         ImGui::InputFloat("speedOfAttack", &c.speedOfAttack);
         ImGui::InputFloat("attackRange", &c.attackRange);
         ImGui::InputFloat("defense", &c.defense);

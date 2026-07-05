@@ -130,7 +130,6 @@ TEST_CASE_METHOD(TestFixture, "BlobAttackSystem spawns area attack with expected
     auto locationTable = makeLocationTable(config);
 
     auto &attackConfig = config.enemyClasses.blob.attack;
-    attackConfig.kind = game::DamageKind::Area;
     attackConfig.amount = 12.0f;
     attackConfig.pushBackForce = 3.5f;
     attackConfig.stunChance = 0.2f;
@@ -206,7 +205,6 @@ TEST_CASE_METHOD(TestFixture, "BlobAttackSystem does not spawn duplicate area at
     auto locationTable = makeLocationTable(config);
 
     auto &attackConfig = config.enemyClasses.blob.attack;
-    attackConfig.kind = game::DamageKind::Area;
     attackConfig.area.radius = 1.0f;
     attackConfig.area.activeTimeSec = 1.0f;
     attackConfig.area.damageTicks = 2;
@@ -242,7 +240,6 @@ TEST_CASE_METHOD(TestFixture, "BlobAttackSystem area attack respects cooldown be
     auto locationTable = makeLocationTable(config);
 
     auto &attackConfig = config.enemyClasses.blob.attack;
-    attackConfig.kind = game::DamageKind::Area;
     attackConfig.area.radius = 1.0f;
     attackConfig.area.activeTimeSec = 1.0f;
     attackConfig.area.damageTicks = 2;

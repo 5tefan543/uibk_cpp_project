@@ -166,6 +166,7 @@ EnemyStats SpawnEnemySystem::createEnemyStats(int wave, const config::EnemyClass
     stats.health = stats.maxHealth;
     stats.attackPower = classConfig.stats.attackPower * combatScaling;
     stats.attackSpeed = classConfig.stats.attackSpeed;
+    stats.specialAttackSpeed = classConfig.stats.specialAttackSpeed;
     stats.defense = classConfig.stats.defense * combatScaling;
     stats.moveSpeed = generateEnemyMoveSpeed(wave, classConfig, spawnConfig, context);
     stats.speedOfAttack = classConfig.stats.speedOfAttack;

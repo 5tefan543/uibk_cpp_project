@@ -16,6 +16,7 @@ class DamageSystem {
     DamageInformation updateMelee(Damage &damage, MeleeArcDamage &melee, float dtSec);
     DamageInformation updateProjectile(Registry &registry, Damage &damage, ProjectileDamage &projectile,
                                        Entity damageEntity, float dtSec);
+    DamageInformation updateUnicorn(const Registry &registry, Entity entity, const Damage &damage);
     DamageInformation updateBeam(Damage &damage, BeamDamage &beam, DamageTag &tag, float dtSec);
     DamageInformation updateArea(Damage &damage, AreaDamage &area, DamageTag &tag, float dtSec);
 

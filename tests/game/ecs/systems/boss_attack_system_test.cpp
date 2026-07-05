@@ -31,7 +31,6 @@ config::GameConfig makeBossAttackTestConfig()
     config.fallbackSprite.hitBox.offset = {0.0f, 0.0f};
     config.fallbackSprite.hitBox.size = {16.0f, 16.0f};
 
-    config.enemyClasses.boss.attack.kind = game::DamageKind::Projectile;
     config.enemyClasses.boss.attack.amount = 5.0f;
     config.enemyClasses.boss.attack.pushBackForce = 0.0f;
     config.enemyClasses.boss.attack.stunChance = 0.0f;

@@ -10,6 +10,7 @@
 #include "game/ecs/components/health_bar_state.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/map_tag.hpp"
+#include "game/ecs/components/player_attack_cooldown.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
@@ -28,6 +29,7 @@ void applyClassStats(const config::PlayerClassConfig &classConfig, PlayerStats &
     playerStats.health = playerStats.maxHealth;
     playerStats.attackPower = classConfig.stats.attackPower;
     playerStats.attackSpeed = classConfig.stats.attackSpeed;
+    playerStats.specialAttackSpeed = classConfig.stats.specialAttackSpeed;
     playerStats.defense = classConfig.stats.defense;
     playerStats.moveSpeed = classConfig.stats.moveSpeed;
     playerStats.speedOfAttack = classConfig.stats.speedOfAttack;
@@ -35,6 +37,7 @@ void applyClassStats(const config::PlayerClassConfig &classConfig, PlayerStats &
     playerStats.hasDash = classConfig.hasDash;
     playerStats.characterType = classConfig.characterType;
 }
+
 } // namespace
 
 Game::Game(int wave, CharacterType characterType)
@@ -162,6 +165,7 @@ void Game::initPlayer(Position position, PlayerStats playerStats)
     registry_.addComponent<view::Sprite>(player, playerSprite);
     registry_.addComponent<HitBox>(player, hitBox);
     registry_.addComponent<HealthBarState>(player, {});
+    registry_.addComponent<PlayerAttackCooldown>(player, {});
 }
 
 void Game::initWave(int waveNumber)
@@ -390,13 +394,24 @@ void Game::updateView(view::View &view)
         return;
     }
 
-    // Get camera data
+    setCameraPosition(view);
+    renderSprites(view);
+    renderHealthBars(view);
+    renderDebugHitBoxes(view);
+    renderStageWaveInfo(view);
+    renderCooldownBars(view);
+}
+
+void Game::setCameraPosition(view::View &view)
+{
     auto cameraEntities = registry_.view<CameraTag, Position>();
     if (!cameraEntities.empty()) {
         view.cameraPosition = registry_.getComponent<Position>(cameraEntities.front()).p;
     }
+}
 
-    // Render sprite entities
+void Game::renderSprites(view::View &view)
+{
     for (auto entity : registry_.view<Position, view::Sprite>()) {
 
         view::Sprite &sprite = registry_.getComponent<view::Sprite>(entity);
@@ -404,77 +419,79 @@ void Game::updateView(view::View &view)
 
         view.nodes.push_back({view::ViewMode::FixedToWorld, sprite});
     }
+}
 
-    // Render health bars
-    {
-        constexpr float barHeight = 10.0f;
-        constexpr float barGap = 5.0f;
-        constexpr float borderThickness = 2.0f;
+void game::Game::renderHealthBars(view::View &view)
+{
+    constexpr float barHeight = 10.0f;
+    constexpr float barGap = 5.0f;
+    constexpr float borderThickness = 2.0f;
 
-        auto renderHealthBar = [&](Entity entity, const game::Stats &stats, const HealthBarState &bar) {
-            const auto &pos = registry_.getComponent<Position>(entity).p;
-            const auto &sprite = registry_.getComponent<view::Sprite>(entity);
-            const float barWidth = sprite.rect.size.x;
-            const float barX = pos.x;
-            const float barY = pos.y - barHeight - barGap;
+    auto renderHealthBar = [&](Entity entity, const game::Stats &stats, const HealthBarState &bar) {
+        const auto &pos = registry_.getComponent<Position>(entity).p;
+        const auto &sprite = registry_.getComponent<view::Sprite>(entity);
+        const float barWidth = sprite.rect.size.x;
+        const float barX = pos.x;
+        const float barY = pos.y - barHeight - barGap;
 
-            // 1. Black background with green border (full bar width)
-            view::Rectangle bgRect = {
-                .rect = {{barX, barY}, {barWidth, barHeight}},
-                .borderColor = view::color::mediumGreen,
-                .thickness = borderThickness,
-                .fillColor = view::color::black,
-            };
-            view.nodes.push_back({view::ViewMode::FixedToWorld, bgRect});
+        // 1. Black background with green border (full bar width)
+        view::Rectangle bgRect = {
+            .rect = {{barX, barY}, {barWidth, barHeight}},
+            .borderColor = view::color::mediumGreen,
+            .thickness = borderThickness,
+            .fillColor = view::color::black,
+        };
+        view.nodes.push_back({view::ViewMode::FixedToWorld, bgRect});
 
-            // 2. Red flash section (right of the green portion)
-            if (bar.redBarTimer > 0.0f) {
-                const float greenWidth = (stats.health / stats.maxHealth) * barWidth;
-                const float currentRedNorm =
-                    bar.initialRedBarNorm * (bar.redBarTimer / HealthBarState::redFlashDuration);
-                const float redWidth = currentRedNorm * barWidth;
-                if (redWidth > 0.0f) {
-                    view::Rectangle redRect = {
-                        .rect = {{barX + greenWidth, barY}, {redWidth, barHeight}},
-                        .borderColor = view::color::black,
-                        .thickness = 0.0f,
-                        .fillColor = view::color::strongRed,
-                    };
-                    view.nodes.push_back({view::ViewMode::FixedToWorld, redRect});
-                }
-            }
-
-            // 3. Green current-health section
+        // 2. Red flash section (right of the green portion)
+        if (bar.redBarTimer > 0.0f) {
             const float greenWidth = (stats.health / stats.maxHealth) * barWidth;
-            if (greenWidth > 0.0f) {
-                view::Rectangle greenRect = {
-                    .rect = {{barX, barY}, {greenWidth, barHeight}},
+            const float currentRedNorm = bar.initialRedBarNorm * (bar.redBarTimer / HealthBarState::redFlashDuration);
+            const float redWidth = currentRedNorm * barWidth;
+            if (redWidth > 0.0f) {
+                view::Rectangle redRect = {
+                    .rect = {{barX + greenWidth, barY}, {redWidth, barHeight}},
                     .borderColor = view::color::black,
                     .thickness = 0.0f,
-                    .fillColor = view::color::mediumGreen,
+                    .fillColor = view::color::strongRed,
                 };
-                view.nodes.push_back({view::ViewMode::FixedToWorld, greenRect});
+                view.nodes.push_back({view::ViewMode::FixedToWorld, redRect});
             }
-        };
-
-        // Player — always show
-        for (auto entity : registry_.view<PlayerTag, Position, view::Sprite, PlayerStats, HealthBarState>()) {
-            const auto &stats = registry_.getComponent<PlayerStats>(entity);
-            const auto &bar = registry_.getComponent<HealthBarState>(entity);
-            renderHealthBar(entity, stats, bar);
         }
 
-        // Enemies — only when not at full health
-        for (auto entity : registry_.view<EnemyTag, Position, view::Sprite, EnemyStats, HealthBarState>()) {
-            const auto &stats = registry_.getComponent<EnemyStats>(entity);
-            if (stats.health >= stats.maxHealth) {
-                continue;
-            }
-            const auto &bar = registry_.getComponent<HealthBarState>(entity);
-            renderHealthBar(entity, stats, bar);
+        // 3. Green current-health section
+        const float greenWidth = (stats.health / stats.maxHealth) * barWidth;
+        if (greenWidth > 0.0f) {
+            view::Rectangle greenRect = {
+                .rect = {{barX, barY}, {greenWidth, barHeight}},
+                .borderColor = view::color::black,
+                .thickness = 0.0f,
+                .fillColor = view::color::mediumGreen,
+            };
+            view.nodes.push_back({view::ViewMode::FixedToWorld, greenRect});
         }
+    };
+
+    // Player — always show
+    for (auto entity : registry_.view<PlayerTag, Position, view::Sprite, PlayerStats, HealthBarState>()) {
+        const auto &stats = registry_.getComponent<PlayerStats>(entity);
+        const auto &bar = registry_.getComponent<HealthBarState>(entity);
+        renderHealthBar(entity, stats, bar);
     }
 
+    // Enemies — only when not at full health
+    for (auto entity : registry_.view<EnemyTag, Position, view::Sprite, EnemyStats, HealthBarState>()) {
+        const auto &stats = registry_.getComponent<EnemyStats>(entity);
+        if (stats.health >= stats.maxHealth) {
+            continue;
+        }
+        const auto &bar = registry_.getComponent<HealthBarState>(entity);
+        renderHealthBar(entity, stats, bar);
+    }
+}
+
+void Game::renderDebugHitBoxes(view::View &view)
+{
     controller::DebugContext &debug = controller::DebugContext::get();
     if (debug.active && debug.gameSettings.showHitboxes) {
         for (auto entity : registry_.view<Position, HitBox>()) {
@@ -490,7 +507,10 @@ void Game::updateView(view::View &view)
             view.nodes.push_back({view::ViewMode::FixedToWorld, hitboxRect});
         }
     }
+}
 
+void Game::renderStageWaveInfo(view::View &view)
+{
     stageWaveInfo_ = {
         .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_) + " Time remaining: "
                 + std::to_string(config_.waveDurationSeconds
@@ -504,4 +524,79 @@ void Game::updateView(view::View &view)
     };
     view.nodes.push_back({view::ViewMode::FixedToScreen, std::cref(stageWaveInfo_)});
 }
+
+void Game::renderCooldownBars(view::View &view)
+{
+    auto players = registry_.view<PlayerTag, PlayerStats, PlayerAttackCooldown>();
+    if (!players.empty()) {
+        const Entity player = players.front();
+        const PlayerAttackCooldown &cooldown = registry_.getComponent<PlayerAttackCooldown>(player);
+        const PlayerStats &playerStats = registry_.getComponent<PlayerStats>(player);
+
+        constexpr float barWidth = 120.0f;
+        constexpr float barHeight = 14.0f;
+        constexpr float borderThickness = 2.0f;
+
+        constexpr float startX = 15.0f;
+        constexpr float startY = 60.0f;
+        constexpr float gapBetween = barWidth + 100.0f;
+        constexpr float iconBarGap = 10.0f;
+
+        auto renderCooldown = [&](float x, float y, const view::Sprite &iconSprite, float remainingSec,
+                                  float durationSec) {
+            float progress = 1.0f;
+            if (durationSec > 0.0f) {
+                progress = std::clamp(1.0f - (remainingSec / durationSec), 0.0f, 1.0f);
+            }
+
+            const float fillWidth = barWidth * progress;
+
+            view.nodes.push_back({view::ViewMode::FixedToScreen, iconSprite});
+
+            const float barX = x + iconSprite.rect.size.x + iconBarGap;
+            const float barY = y + (iconSprite.rect.size.y - barHeight) / 2.0f;
+
+            view::Rectangle barBackground = {
+                .rect = {{barX, barY}, {barWidth, barHeight}},
+                .borderColor = view::color::white,
+                .thickness = borderThickness,
+                .fillColor = view::color::black,
+            };
+
+            view.nodes.push_back({view::ViewMode::FixedToScreen, barBackground});
+
+            if (fillWidth > 0.0f) {
+                view::Rectangle barFill = {
+                    .rect = {{barX, barY}, {fillWidth, barHeight}},
+                    .borderColor = view::color::black,
+                    .thickness = 0.0f,
+                    .fillColor = remainingSec <= 0.0f ? view::color::mediumGreen : view::color::brightBlue,
+                };
+
+                view.nodes.push_back({view::ViewMode::FixedToScreen, barFill});
+            }
+        };
+
+        const config::TextureConfig &attackIconConfig =
+            config_.playerClasses.getByType(playerStats.characterType).attack.attackIcon;
+
+        const config::TextureConfig &specialAttackIconConfig =
+            config_.playerClasses.getByType(playerStats.characterType).attack.specialAttackIcon;
+
+        attackCooldownIcon_ = {
+            .rect = {{startX, startY}, attackIconConfig.size},
+            .imagePath = attackIconConfig.path,
+        };
+
+        specialAttackCooldownIcon_ = {
+            .rect = {{startX + gapBetween, startY}, specialAttackIconConfig.size},
+            .imagePath = specialAttackIconConfig.path,
+        };
+
+        renderCooldown(startX, startY, attackCooldownIcon_, cooldown.attackRemainingSec, cooldown.attackDurationSec);
+        renderCooldown(startX + gapBetween, startY, specialAttackCooldownIcon_, cooldown.specialAttackRemainingSec,
+                       cooldown.specialAttackDurationSec);
+    }
+}
+
 } // namespace game

@@ -40,6 +40,15 @@ std::optional<config::AnimationFrame> getAnimationFrameForEntity(Registry &regis
                                                                       animation.direction, animation.currentFrame);
     }
 
+    if (registry.hasComponent<Damage>(entity)) {
+        const Damage &damage = registry.getComponent<Damage>(entity);
+        if (damage.kind == DamageKind::Unicorn) {
+            return config::AnimationConfigHelper::getUnicornAnimationFrame(
+                config, config.playerClasses.ranged.attack.unicorn, animation.state, animation.direction,
+                animation.currentFrame);
+        }
+    }
+
     if (registry.hasComponent<EnemyTag>(entity) && registry.hasComponent<EnemyStats>(entity)) {
         const EnemyStats &stats = registry.getComponent<EnemyStats>(entity);
         return config::AnimationConfigHelper::getEnemyAnimationFrame(config, stats.enemyType, animation.state,

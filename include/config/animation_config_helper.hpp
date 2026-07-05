@@ -32,6 +32,10 @@ class AnimationConfigHelper {
                                                       const game::AnimationState state,
                                                       const game::AnimationDirection direction, const size_t frameNum);
 
+    static AnimationFrame getUnicornAnimationFrame(const GameConfig &config, const UnicornAttackConfig &unicornConfig,
+                                                   const game::AnimationState state,
+                                                   const game::AnimationDirection direction, const size_t frameNum);
+
     static AnimationFrame getAreaAnimationFrame(const GameConfig &config, const AreaAttackConfig &areaConfig,
                                                 const game::AnimationState state,
                                                 const game::AnimationDirection direction, const size_t frameNum);
