@@ -114,7 +114,9 @@ DamageInformation DamageSystem::updateArea(Damage &damage, AreaDamage &area, Dam
 
     // graceTime should be duration of animation
     DamageInformation result;
-    if (area.elapsedSec <= graceTimeSec) {
+    if (damage.amount < 0.0f) {
+        result.actualDamageAmount = damage.amount;
+    } else if (area.elapsedSec <= graceTimeSec) {
         result.actualDamageAmount = damage.amount * area.initialHit;
     } else {
         result.actualDamageAmount = damage.amount * (1.0f - area.initialHit) / area.damageTicks;
@@ -132,6 +134,7 @@ DamageInformation DamageSystem::updateArea(Damage &damage, AreaDamage &area, Dam
     }
     return result;
 }
+
 void DamageSystem::update(Registry &registry, float dtSec)
 {
     auto damageEntities = registry.view<Damage, DamageTag>();
@@ -195,15 +198,19 @@ void DamageSystem::update(Registry &registry, float dtSec)
 
             hasAliveTarget = true;
 
+            float damageAmount = currentDamage.actualDamageAmount;
+
             if (registry.hasComponent<PlayerStats>(targetEntity)) {
                 PlayerStats &playerStats = registry.getComponent<PlayerStats>(targetEntity);
 
-                if (currentDamage.actualDamageAmount < 0.0f) {
-                    // If the damage amount is negative, set health to 0 to indicate instant death
-                    playerStats.health = 0.0f;
-                } else {
-                    playerStats.health -= currentDamage.actualDamageAmount;
+                if (damageAmount < 0.0f) {
+                    // Negative damage values represent percentage-based damage.
+                    // Example: -0.25f means 25% of the player's max health.
+                    damageAmount = playerStats.maxHealth * (-damageAmount);
                 }
+
+                playerStats.health -= damageAmount;
+
                 if (playerStats.health <= 0.0f) {
                     registry.destroyEntity(targetEntity);
                 } else {
@@ -211,12 +218,15 @@ void DamageSystem::update(Registry &registry, float dtSec)
                 }
             } else if (registry.hasComponent<EnemyStats>(targetEntity)) {
                 EnemyStats &enemyStats = registry.getComponent<EnemyStats>(targetEntity);
-                if (currentDamage.actualDamageAmount < 0.0f) {
-                    // If the damage amount is negative, set health to 0 to indicate instant death
-                    enemyStats.health = 0.0f;
-                } else {
-                    enemyStats.health -= currentDamage.actualDamageAmount;
+
+                if (damageAmount < 0.0f) {
+                    // Negative damage values represent percentage-based damage.
+                    // Example: -0.25f means 25% of the enemy's max health.
+                    damageAmount = enemyStats.maxHealth * (-damageAmount);
                 }
+
+                enemyStats.health -= damageAmount;
+
                 if (enemyStats.health <= 0.0f) {
                     auto players = registry.view<PlayerStats>();
                     if (!players.empty()) {
