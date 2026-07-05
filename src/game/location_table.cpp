@@ -2,12 +2,8 @@
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/position.hpp"
-#include "game/ecs/components/velocity.hpp"
 #include "game/ecs/entity.hpp"
 #include "game/ecs/registry.hpp"
-#include "view/grid.hpp"
-#include "view/sprite.hpp"
-#include <iostream>
 #include <unordered_set>
 
 namespace game {
