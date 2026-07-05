@@ -6,11 +6,13 @@
 #include "controller/timing.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/camera_tag.hpp"
+#include "game/ecs/components/enemy_attack_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/health_bar_state.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/map_tag.hpp"
 #include "game/ecs/components/player_attack_cooldown.hpp"
+#include "game/ecs/components/player_attack_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
@@ -409,13 +411,66 @@ void Game::setCameraPosition(view::View &view)
 
 void Game::renderSprites(view::View &view)
 {
-    for (auto entity : registry_.view<Position, view::Sprite>()) {
+    std::vector<view::ViewNode> players;
+    std::vector<view::ViewNode> enemiesDefault;
+    std::vector<view::ViewNode> enemiesBoss;
+    std::vector<view::ViewNode> attacksUpper;
+    std::vector<view::ViewNode> attacksLower;
+    std::vector<view::ViewNode> unsorted;
 
-        view::Sprite &sprite = registry_.getComponent<view::Sprite>(entity);
-        sprite.rect.position = registry_.getComponent<Position>(entity).p;
+    for (const auto entity : registry_.view<Position, view::Sprite>()) {
 
-        view.nodes.push_back({view::ViewMode::FixedToWorld, sprite});
+        auto addNode = [&](std::vector<view::ViewNode> &nodes) {
+            view::Sprite &sprite = registry_.getComponent<view::Sprite>(entity);
+            sprite.rect.position = registry_.getComponent<Position>(entity).p;
+            nodes.push_back({view::ViewMode::FixedToWorld, sprite});
+        };
+
+        if (registry_.hasComponent<Damage>(entity)) {
+            switch (registry_.getComponent<Damage>(entity).kind) {
+            case DamageKind::Projectile:
+            case DamageKind::Beam:
+            case DamageKind::MeleeArc:
+            case DamageKind::Unicorn:
+                addNode(attacksUpper);
+                break;
+            case DamageKind::Area:
+                addNode(attacksLower);
+                break;
+            }
+
+        } else if (registry_.hasComponent<PlayerTag>(entity)) {
+            addNode(players);
+
+        } else if (registry_.hasComponent<EnemyTag>(entity)) {
+            if (registry_.hasComponent<EnemyType>(entity)) {
+                switch (registry_.getComponent<EnemyType>(entity)) {
+                case game::EnemyType::Blob:
+                    addNode(enemiesDefault);
+                    break;
+                case game::EnemyType::Boss:
+                    addNode(enemiesBoss);
+                    break;
+                }
+            } else {
+                addNode(enemiesDefault);
+            }
+        } else {
+            addNode(unsorted);
+        }
     }
+
+    auto queueNodes = [&](std::vector<view::ViewNode> &additions) {
+        view.nodes.insert(view.nodes.cend(), additions.cbegin(), additions.cend());
+    };
+
+    // Later added -> later drawn -> less sprites that can occlude
+    queueNodes(unsorted);
+    queueNodes(attacksLower);
+    queueNodes(enemiesDefault);
+    queueNodes(enemiesBoss);
+    queueNodes(players);
+    queueNodes(attacksUpper);
 }
 
 void game::Game::renderHealthBars(view::View &view)
