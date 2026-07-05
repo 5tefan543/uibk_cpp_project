@@ -93,8 +93,7 @@ void LocationTable::update(const Registry &registry)
 
 // Guarantees to return all entities whose hitbox/sprite is inside the radius but there might be some included that are
 // outside. Extra filtering is required if strictly those inside the radius are required.
-std::unordered_set<Entity> LocationTable::getEntitiesNear(const geometry::Vec2<float> position,
-                                                          const float radius) const
+std::unordered_set<Entity> LocationTable::getEnemiesNear(const geometry::Vec2<float> position, const float radius) const
 {
     std::unordered_set<Entity> inRange;
     const auto [firstBuck, lastBuck] = getBucketIndices(position - radius, position + radius);
@@ -110,11 +109,11 @@ std::unordered_set<Entity> LocationTable::getEntitiesNear(const geometry::Vec2<f
 }
 
 // Return Entites being precicesly inside the radius by filtering getEntitiesNear().
-std::vector<std::tuple<Entity, Position>> LocationTable::getEntitiesInRange(const geometry::Vec2<float> position,
-                                                                            const float radius,
-                                                                            const Registry &registry) const
+std::vector<std::tuple<Entity, Position>> LocationTable::getEnemiesInRange(const geometry::Vec2<float> position,
+                                                                           const float radius,
+                                                                           const Registry &registry) const
 {
-    auto entitiesNear = getEntitiesNear(position, radius);
+    auto entitiesNear = getEnemiesNear(position, radius);
     std::vector<std::tuple<Entity, Position>> inRange;
 
     for (auto e : entitiesNear) {

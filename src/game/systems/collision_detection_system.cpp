@@ -44,15 +44,6 @@ bool CollisionDetectionSystem::checkProjectileCollision(const Entity &projectile
 {
     using geometry::Rectangle;
 
-    // collision pairs to skip checking:
-
-    if (registry.hasComponent<PlayerTag>(projectile) && registry.hasComponent<PlayerTag>(target)) {
-        return false; // Skip player-player collision
-    }
-    if (registry.hasComponent<Damage>(projectile) && registry.hasComponent<Damage>(target)) {
-        return false; // Skip damage-damage collision
-    }
-
     const auto &posProjEnd = registry.getComponent<Position>(projectile).p;
     const auto &vProj = registry.getComponent<Velocity>(projectile).v;
     const auto posProjStart = posProjEnd - (vProj * dtSec); // Revert position update the movement system just did
@@ -156,7 +147,6 @@ void CollisionDetectionSystem::update(Registry &registry, const LocationTable &l
     for (const Entity nonEnemy : nonEnemies) {
         enforceMapBound(nonEnemy, registry);
         const auto p = registry.getComponent<Position>(nonEnemy).p;
-
         DamageKind dmgKind;
         if (registry.hasComponent<PlayerAttackTag>(nonEnemy) && registry.hasComponent<Damage>(nonEnemy)
             && ((dmgKind = registry.getComponent<Damage>(nonEnemy).kind) == DamageKind::Projectile
@@ -165,14 +155,14 @@ void CollisionDetectionSystem::update(Registry &registry, const LocationTable &l
             // skip over entire enemy hitboxes without registering a collision.
             const auto v = registry.getComponent<Velocity>(nonEnemy).v;
             const auto radius = locTableLookupDistance + (v * dtSec).length();
-            for (const auto enemyNear : locationTable.getEntitiesNear(p, radius)) {
+            for (const auto enemyNear : locationTable.getEnemiesNear(p, radius)) {
                 if (checkProjectileCollision(nonEnemy, enemyNear, registry, dtSec)) {
                     activateDamage(nonEnemy, enemyNear, registry);
                 }
             }
         } else {
             // Non-Projectile collision, slow enough wo work without considering velocity.
-            for (const auto enemyNear : locationTable.getEntitiesNear(p, locTableLookupDistance)) {
+            for (const auto enemyNear : locationTable.getEnemiesNear(p, locTableLookupDistance)) {
                 if (checkCollision(nonEnemy, enemyNear, registry)) {
                     activateDamage(nonEnemy, enemyNear, registry);
                 }

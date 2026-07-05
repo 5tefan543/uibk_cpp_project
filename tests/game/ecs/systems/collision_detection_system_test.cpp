@@ -122,8 +122,31 @@ TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update activates player 
 
 TEST_CASE_METHOD(
     TestFixture,
-    "CollisionDetectionSystem update activates player projectile (moving) damage against enemy with large dt",
-    "[debug]")
+    "CollisionDetectionSystem update does not activate player projectile damage against enemy if no collision occurs")
+{
+    game::Registry registry;
+    game::CollisionDetectionSystem system;
+    game::LocationTable locTab({5, 5}, {100, 100});
+    const game::Entity attack = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 10.0f, 10.0f);
+    registry.addComponent(attack, game::Velocity{{0, 0}});
+
+    registry.addComponent<game::Damage>(attack, makeProjectileDamage(12.0f));
+    registry.addComponent<game::PlayerAttackTag>(attack, {});
+
+    const game::Entity enemy = addEntityWithHitBox(registry, 20.0f, 20.0f, 0.0f, 0.0f, 10.0f, 10.0f);
+
+    registry.addComponent<game::EnemyTag>(enemy, {});
+
+    registry.addComponent(enemy, game::Velocity{{0, 0}});
+    locTab.update(registry);
+    system.update(registry, locTab, 0.01);
+
+    REQUIRE(!registry.hasComponent<game::DamageTag>(attack));
+}
+
+TEST_CASE_METHOD(
+    TestFixture,
+    "CollisionDetectionSystem update activates player projectile (moving) damage against enemy with large dt")
 {
     game::Registry registry;
     game::CollisionDetectionSystem system;
@@ -148,50 +171,6 @@ TEST_CASE_METHOD(
 
     const auto &damageTag = registry.getComponent<game::DamageTag>(attack);
     REQUIRE(damageTag.targets.contains(enemy));
-}
-
-TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not activate for player-player")
-{
-    game::Registry registry;
-    game::CollisionDetectionSystem system;
-    game::LocationTable locTab({5, 5}, {100, 100});
-
-    const game::Entity attack = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 10.0f, 10.0f);
-    registry.addComponent(attack, game::Velocity{{0, 0}});
-    registry.addComponent<game::Damage>(attack, makeProjectileDamage(12.0f));
-    registry.addComponent<game::PlayerAttackTag>(attack, {});
-
-    const game::Entity player = addEntityWithHitBox(registry, 5.0f, 5.0f, 0.0f, 0.0f, 10.0f, 10.0f);
-    registry.addComponent<game::PlayerTag>(player, {});
-    registry.addComponent(player, game::Velocity{{0, 0}});
-
-    locTab.update(registry);
-    system.update(registry, locTab, 0.01);
-
-    REQUIRE(!registry.hasComponent<game::DamageTag>(player));
-}
-
-TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not activate for damage-damage")
-{
-    game::Registry registry;
-    game::CollisionDetectionSystem system;
-    game::LocationTable locTab({5, 5}, {100, 100});
-
-    const game::Entity attack1 = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 10.0f, 10.0f);
-    registry.addComponent(attack1, game::Velocity{{0, 0}});
-    registry.addComponent<game::Damage>(attack1, makeProjectileDamage(12.0f));
-    registry.addComponent<game::PlayerAttackTag>(attack1, {});
-
-    const game::Entity attack2 = addEntityWithHitBox(registry, 0.0f, 0.0f, 0.0f, 0.0f, 10.0f, 10.0f);
-    registry.addComponent(attack2, game::Velocity{{0, 0}});
-    registry.addComponent<game::Damage>(attack2, makeProjectileDamage(12.0f));
-    registry.addComponent<game::PlayerAttackTag>(attack2, {});
-
-    locTab.update(registry);
-    system.update(registry, locTab, 0.01);
-
-    REQUIRE(!registry.hasComponent<game::DamageTag>(attack1));
-    REQUIRE(!registry.hasComponent<game::DamageTag>(attack2));
 }
 
 TEST_CASE_METHOD(TestFixture, "CollisionDetectionSystem update does not activate damage when hitboxes do not overlap")
