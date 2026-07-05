@@ -1,5 +1,6 @@
 #include "game/ecs/systems/boss_attack_system.hpp"
 #include "config/animation_config_helper.hpp"
+#include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/boss_phase.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
@@ -159,6 +160,7 @@ void BossAttackSystem::spawnPhaseTwoLightning(Registry &registry, const config::
                                                         .size = lightningSpriteConfig.hitBox.size * scale});
         registry.addComponent<view::Sprite>(
             lightningEntity, {.rect = {strikePosition, spriteSize}, .imagePath = lightningSpriteConfig.texture.path});
+        registry.addComponent<Animation>(lightningEntity, {});
         registry.addComponent<DamageTag>(lightningEntity, {});
         registry.addComponent<EnemyAttackTag>(lightningEntity, {bossEntity});
     }

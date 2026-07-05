@@ -37,10 +37,28 @@ config::GameConfig makeBossAttackTestConfig()
     config.enemyClasses.boss.attack.stunChance = 0.0f;
     config.enemyClasses.boss.attack.projectile.velocityScale = 1.0f;
 
+    config::SpriteConfig projectileSpriteConfig{};
+    projectileSpriteConfig.texture.path = "boss_projectile.png";
+    projectileSpriteConfig.texture.size = {128.0f, 128.0f};
+    projectileSpriteConfig.hitBox.offset = {0.0f, 0.0f};
+    projectileSpriteConfig.hitBox.size = {128.0f, 128.0f};
+    auto &projectileIdle =
+        config.enemyClasses.boss.attack.projectile.animations.stateToStateConfig[game::AnimationState::Idle];
+    projectileIdle.directionToFrames[game::AnimationDirection::None] = {projectileSpriteConfig};
+
     config.enemyClasses.boss.attack.area.radius = 80.0f;
     config.enemyClasses.boss.attack.area.activeTimeSec = 0.5f;
     config.enemyClasses.boss.attack.area.initialHit = 0.25f;
     config.enemyClasses.boss.attack.area.damageTicks = 2;
+
+    config::SpriteConfig lightningSpriteConfig{};
+    lightningSpriteConfig.texture.path = "boss_lightning_1.png";
+    lightningSpriteConfig.texture.size = {128.0f, 128.0f};
+    lightningSpriteConfig.hitBox.offset = {0.0f, 0.0f};
+    lightningSpriteConfig.hitBox.size = {128.0f, 128.0f};
+    auto &lightningIdle =
+        config.enemyClasses.boss.attack.area.animations.stateToStateConfig[game::AnimationState::Idle];
+    lightningIdle.directionToFrames[game::AnimationDirection::None] = {lightningSpriteConfig};
 
     return config;
 }
@@ -156,11 +174,13 @@ TEST_CASE_METHOD(TestFixture, "BossAttackSystem spawns radial projectile burst w
 
     for (const game::Entity projectile : projectiles) {
         const auto &position = registry.getComponent<game::Position>(projectile).p;
-        const auto &sprite = registry.getComponent<view::Sprite>(projectile).rect;
+        const auto &spriteComponent = registry.getComponent<view::Sprite>(projectile);
+        const auto &sprite = spriteComponent.rect;
         const auto projectileCenter = position + (sprite.size / 2.0f);
         const auto direction = projectileCenter - bossCenter;
         const auto &velocity = registry.getComponent<game::Velocity>(projectile).v;
 
+        REQUIRE(spriteComponent.imagePath == "boss_projectile.png");
         const float dot = (direction.x * velocity.x) + (direction.y * velocity.y);
         REQUIRE(dot > 0.0f);
     }
@@ -186,6 +206,13 @@ TEST_CASE_METHOD(TestFixture, "BossAttackSystem phase 2 lightning triggers regar
 
     const auto lightning = getBossLightning(registry, boss);
     REQUIRE_FALSE(lightning.empty());
+
+    for (const game::Entity lightningEntity : lightning) {
+        REQUIRE(registry.hasComponent<game::Animation>(lightningEntity));
+
+        const auto &sprite = registry.getComponent<view::Sprite>(lightningEntity);
+        REQUIRE(sprite.imagePath == "boss_lightning_1.png");
+    }
 }
 
 TEST_CASE_METHOD(TestFixture, "BossAttackSystem cooldown prevents immediate retrigger")
