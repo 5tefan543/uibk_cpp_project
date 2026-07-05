@@ -7,11 +7,11 @@ namespace game {
 
 void SoundSystem::update(Registry &registry)
 {
-    auto entities = registry.view<SoundComponent>();
+    auto entities = registry.view<Sound>();
     for (Entity entity : entities) {
-        SoundComponent &sound = registry.getComponent<SoundComponent>(entity);
-        manager_.playSound(sound.name);
-        registry.removeComponent<SoundComponent>(entity);
+        Sound &sound = registry.getComponent<Sound>(entity);
+        manager_.playSound(sound.file);
+        registry.removeComponent<Sound>(entity);
     }
 };
 } // namespace game

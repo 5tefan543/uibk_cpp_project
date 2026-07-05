@@ -91,6 +91,8 @@ config::GameConfig makeAnimationHelperTestConfig()
 
     config.playerClasses.ranged.attack.projectile.animations = makeValidAnimationConfig("projectile_walk_right_1.png");
 
+    config.playerClasses.ranged.attack.unicorn.animations = makeValidAnimationConfig("unicorn_walk_right_1.png");
+
     return config;
 }
 
@@ -159,6 +161,50 @@ TEST_CASE("AnimationConfigHelper returns projectile animation frame")
     REQUIRE(frame.moveSpeedMultiplier == Catch::Approx(0.75f));
 }
 
+TEST_CASE("AnimationConfigHelper returns unicorn animation frame")
+{
+    const config::GameConfig config = makeAnimationHelperTestConfig();
+
+    const config::AnimationFrame frame = config::AnimationConfigHelper::getUnicornAnimationFrame(
+        config, config.playerClasses.ranged.attack.unicorn, game::AnimationState::Walk, game::AnimationDirection::Right,
+        0);
+
+    REQUIRE(frame.spriteConfig.texture.path == "unicorn_walk_right_1.png");
+    REQUIRE(frame.spriteConfig.texture.size.x == Catch::Approx(32.0f));
+    REQUIRE(frame.spriteConfig.texture.size.y == Catch::Approx(48.0f));
+
+    REQUIRE(frame.spriteConfig.hitBox.offset.x == Catch::Approx(1.0f));
+    REQUIRE(frame.spriteConfig.hitBox.offset.y == Catch::Approx(2.0f));
+    REQUIRE(frame.spriteConfig.hitBox.size.x == Catch::Approx(20.0f));
+    REQUIRE(frame.spriteConfig.hitBox.size.y == Catch::Approx(40.0f));
+
+    REQUIRE(frame.totalFrames == 2);
+    REQUIRE(frame.frameDuration == Catch::Approx(0.25f));
+    REQUIRE(frame.moveSpeedMultiplier == Catch::Approx(0.75f));
+}
+
+TEST_CASE("AnimationConfigHelper returns selected unicorn animation frame")
+{
+    const config::GameConfig config = makeAnimationHelperTestConfig();
+
+    const config::AnimationFrame frame = config::AnimationConfigHelper::getUnicornAnimationFrame(
+        config, config.playerClasses.ranged.attack.unicorn, game::AnimationState::Walk, game::AnimationDirection::Right,
+        1);
+
+    REQUIRE(frame.spriteConfig.texture.path == "walk_right_2.png");
+    REQUIRE(frame.spriteConfig.texture.size.x == Catch::Approx(33.0f));
+    REQUIRE(frame.spriteConfig.texture.size.y == Catch::Approx(49.0f));
+
+    REQUIRE(frame.spriteConfig.hitBox.offset.x == Catch::Approx(3.0f));
+    REQUIRE(frame.spriteConfig.hitBox.offset.y == Catch::Approx(4.0f));
+    REQUIRE(frame.spriteConfig.hitBox.size.x == Catch::Approx(21.0f));
+    REQUIRE(frame.spriteConfig.hitBox.size.y == Catch::Approx(41.0f));
+
+    REQUIRE(frame.totalFrames == 2);
+    REQUIRE(frame.frameDuration == Catch::Approx(0.25f));
+    REQUIRE(frame.moveSpeedMultiplier == Catch::Approx(0.75f));
+}
+
 TEST_CASE("AnimationConfigHelper returns fallback when animation state is missing")
 {
     const config::GameConfig config = makeAnimationHelperTestConfig();
@@ -219,6 +265,17 @@ TEST_CASE("AnimationConfigHelper returns fallback through projectile wrapper")
 
     const config::AnimationFrame frame = config::AnimationConfigHelper::getProjectileAnimationFrame(
         config, config.playerClasses.ranged.attack.projectile, game::AnimationState::Death,
+        game::AnimationDirection::Right, 0);
+
+    requireFallbackFrame(frame, config.fallbackSprite);
+}
+
+TEST_CASE("AnimationConfigHelper returns fallback through unicorn wrapper")
+{
+    const config::GameConfig config = makeAnimationHelperTestConfig();
+
+    const config::AnimationFrame frame = config::AnimationConfigHelper::getUnicornAnimationFrame(
+        config, config.playerClasses.ranged.attack.unicorn, game::AnimationState::Death,
         game::AnimationDirection::Right, 0);
 
     requireFallbackFrame(frame, config.fallbackSprite);

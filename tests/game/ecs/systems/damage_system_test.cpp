@@ -1,6 +1,9 @@
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/map_tag.hpp"
+#include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/ecs/registry.hpp"
@@ -433,4 +436,74 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem sets enemy animation to Hit when dam
     REQUIRE(animation.currentFrame == 0);
     REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
     REQUIRE(animation.stateTimeRemaining == Catch::Approx(0.16f));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem keeps unicorn damage entity while intersecting map")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity map = registry.createEntity();
+    registry.addComponent<game::MapTag>(map, {});
+    registry.addComponent<game::Position>(map, {.p = {0.0f, 0.0f}});
+    registry.addComponent<game::HitBox>(map, {.offset = {0.0f, 0.0f}, .size = {100.0f, 100.0f}});
+
+    const game::Entity unicorn = registry.createEntity();
+    registry.addComponent<game::Position>(unicorn, {.p = {20.0f, 20.0f}});
+    registry.addComponent<game::HitBox>(unicorn, {.offset = {0.0f, 0.0f}, .size = {16.0f, 16.0f}});
+    registry.addComponent<game::Damage>(unicorn, {.amount = 15.0f,
+                                                  .pushBackForce = 0.0f,
+                                                  .stunChance = 0.0f,
+                                                  .kind = game::DamageKind::Unicorn,
+                                                  .params = game::UnicornDamage{}});
+    registry.addComponent<game::DamageTag>(unicorn, {});
+
+    system.update(registry, 0.016f);
+
+    REQUIRE(registry.isEntityAlive(unicorn));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem destroys unicorn damage entity after leaving map")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity map = registry.createEntity();
+    registry.addComponent<game::MapTag>(map, {});
+    registry.addComponent<game::Position>(map, {.p = {0.0f, 0.0f}});
+    registry.addComponent<game::HitBox>(map, {.offset = {0.0f, 0.0f}, .size = {100.0f, 100.0f}});
+
+    const game::Entity unicorn = registry.createEntity();
+    registry.addComponent<game::Position>(unicorn, {.p = {150.0f, 20.0f}});
+    registry.addComponent<game::HitBox>(unicorn, {.offset = {0.0f, 0.0f}, .size = {16.0f, 16.0f}});
+    registry.addComponent<game::Damage>(unicorn, {.amount = 15.0f,
+                                                  .pushBackForce = 0.0f,
+                                                  .stunChance = 0.0f,
+                                                  .kind = game::DamageKind::Unicorn,
+                                                  .params = game::UnicornDamage{}});
+    registry.addComponent<game::DamageTag>(unicorn, {});
+
+    system.update(registry, 0.016f);
+
+    REQUIRE_FALSE(registry.isEntityAlive(unicorn));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem keeps unicorn damage entity when map entity is missing")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity unicorn = registry.createEntity();
+    registry.addComponent<game::Position>(unicorn, {.p = {150.0f, 20.0f}});
+    registry.addComponent<game::HitBox>(unicorn, {.offset = {0.0f, 0.0f}, .size = {16.0f, 16.0f}});
+    registry.addComponent<game::Damage>(unicorn, {.amount = 15.0f,
+                                                  .pushBackForce = 0.0f,
+                                                  .stunChance = 0.0f,
+                                                  .kind = game::DamageKind::Unicorn,
+                                                  .params = game::UnicornDamage{}});
+    registry.addComponent<game::DamageTag>(unicorn, {});
+
+    system.update(registry, 0.016f);
+
+    REQUIRE(registry.isEntityAlive(unicorn));
 }

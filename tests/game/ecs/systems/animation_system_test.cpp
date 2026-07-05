@@ -89,6 +89,22 @@ config::GameConfig makeAnimationSystemTestConfig()
             },
     };
 
+    config.playerClasses.ranged.characterType = game::CharacterType::Ranged;
+    config.playerClasses.ranged.attack.unicorn.animations.stateToStateConfig[game::AnimationState::Walk] = {
+        .frameDuration = 0.3f,
+        .moveSpeedMultiplier = 1.0f,
+        .directionToFrames =
+            {
+                {
+                    game::AnimationDirection::Right,
+                    {
+                        makeSpriteConfig("unicorn_walk_right_1.png", 32.0f, 32.0f, 4.0f, 5.0f, 24.0f, 25.0f),
+                        makeSpriteConfig("unicorn_walk_right_2.png", 33.0f, 33.0f, 6.0f, 7.0f, 26.0f, 27.0f),
+                    },
+                },
+            },
+    };
+
     return config;
 }
 
@@ -446,6 +462,120 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem skips enemy area attack entity wh
     REQUIRE(animation.frameTimer == Catch::Approx(0.1f));
 
     REQUIRE(sprite.imagePath == "unchanged_attack.png");
+    REQUIRE(sprite.rect.size.x == Catch::Approx(11.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(22.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem applies unicorn damage animation config")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity unicorn = registry.createEntity();
+
+    registry.addComponent<game::Damage>(unicorn, {
+                                                     .amount = 15.0f,
+                                                     .pushBackForce = 0.0f,
+                                                     .stunChance = 0.0f,
+                                                     .kind = game::DamageKind::Unicorn,
+                                                     .params = game::UnicornDamage{},
+                                                 });
+    registry.addComponent<game::Animation>(unicorn, {
+                                                        .state = game::AnimationState::Walk,
+                                                        .direction = game::AnimationDirection::Right,
+                                                        .currentFrame = 0,
+                                                        .frameTimer = 0.0f,
+                                                    });
+    registry.addComponent<view::Sprite>(unicorn, {});
+    registry.addComponent<game::HitBox>(unicorn, {});
+
+    system.update(registry, config, 0.0f);
+
+    const auto &sprite = registry.getComponent<view::Sprite>(unicorn);
+    const auto &hitBox = registry.getComponent<game::HitBox>(unicorn);
+    const auto &animation = registry.getComponent<game::Animation>(unicorn);
+
+    REQUIRE(sprite.imagePath == "unicorn_walk_right_1.png");
+    REQUIRE(sprite.rect.size.x == Catch::Approx(32.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(32.0f));
+
+    REQUIRE(hitBox.offset.x == Catch::Approx(4.0f));
+    REQUIRE(hitBox.offset.y == Catch::Approx(5.0f));
+    REQUIRE(hitBox.size.x == Catch::Approx(24.0f));
+    REQUIRE(hitBox.size.y == Catch::Approx(25.0f));
+
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem advances unicorn damage animation frame")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity unicorn = registry.createEntity();
+
+    registry.addComponent<game::Damage>(unicorn, {
+                                                     .amount = 15.0f,
+                                                     .pushBackForce = 0.0f,
+                                                     .stunChance = 0.0f,
+                                                     .kind = game::DamageKind::Unicorn,
+                                                     .params = game::UnicornDamage{},
+                                                 });
+    registry.addComponent<game::Animation>(unicorn, {
+                                                        .state = game::AnimationState::Walk,
+                                                        .direction = game::AnimationDirection::Right,
+                                                        .currentFrame = 0,
+                                                        .frameTimer = 0.0f,
+                                                    });
+    registry.addComponent<view::Sprite>(unicorn, {});
+
+    system.update(registry, config, 0.3f);
+
+    const auto &animation = registry.getComponent<game::Animation>(unicorn);
+
+    REQUIRE(animation.currentFrame == 1);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem skips non-unicorn damage entity")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity damageEntity = registry.createEntity();
+
+    registry.addComponent<game::Damage>(damageEntity, {
+                                                          .amount = 5.0f,
+                                                          .pushBackForce = 0.0f,
+                                                          .stunChance = 0.0f,
+                                                          .kind = game::DamageKind::Projectile,
+                                                          .params = game::ProjectileDamage{},
+                                                      });
+    registry.addComponent<game::Animation>(damageEntity, {
+                                                             .state = game::AnimationState::Walk,
+                                                             .direction = game::AnimationDirection::Right,
+                                                             .currentFrame = 0,
+                                                             .frameTimer = 0.1f,
+                                                         });
+    registry.addComponent<view::Sprite>(damageEntity, {});
+
+    auto &spriteBeforeUpdate = registry.getComponent<view::Sprite>(damageEntity);
+    spriteBeforeUpdate.imagePath = "unchanged_damage.png";
+    spriteBeforeUpdate.rect.size = {11.0f, 22.0f};
+
+    system.update(registry, config, 0.3f);
+
+    const auto &animation = registry.getComponent<game::Animation>(damageEntity);
+    const auto &sprite = registry.getComponent<view::Sprite>(damageEntity);
+
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.1f));
+
+    REQUIRE(sprite.imagePath == "unchanged_damage.png");
     REQUIRE(sprite.rect.size.x == Catch::Approx(11.0f));
     REQUIRE(sprite.rect.size.y == Catch::Approx(22.0f));
 }

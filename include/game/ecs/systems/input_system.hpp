@@ -8,11 +8,7 @@ namespace game {
 
 class InputSystem {
   private:
-    float timeSinceLastAttack_ = 0.0f;
-    float timeSinceLastSpecialMove_ = 0.0f;
-    float timeSinceLastDash_ = 0.0f;
-
-    void updateCooldown(float dtSec);
+    void updateCooldown(Registry &registry, Entity entity, float dtSec);
     void updatePlayerVelocity(Registry &registry, const Entity entity, const controller::InputState &input);
     void updatePlayerAnimationState(Registry &registry, const Entity entity, float dtSec);
     void handleAttack(Registry &registry, const config::GameConfig &config, Entity playerEntity,
@@ -20,7 +16,8 @@ class InputSystem {
     void attackMelee(Registry &registry, const config::GameConfig &config, const Entity entity,
                      const controller::InputState &input, const config::AttackProfileConfig &attackProfile);
     void attackRanged(Registry &registry, const config::GameConfig &config, const Entity entity,
-                      const controller::InputState &input, const config::AttackProfileConfig &attackProfile);
+                      const controller::InputState &input, const config::AttackProfileConfig &attackProfile,
+                      bool specialAttack);
     void applyAnimationMoveSpeedModifier(Registry &registry, const config::GameConfig &config, Entity playerEntity);
 
   public:

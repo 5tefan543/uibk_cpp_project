@@ -4,6 +4,7 @@
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/player_attack_cooldown.hpp"
 #include "game/ecs/components/player_attack_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
@@ -40,9 +41,8 @@ float applyAnimation(Registry &registry, const config::GameConfig &config, const
 void InputSystem::update(Registry &registry, const config::GameConfig &config, const controller::InputState &input,
                          float dtSec)
 {
-    updateCooldown(dtSec);
-
-    auto players = registry.view<PlayerTag, Velocity, PlayerStats, view::Sprite, Position, Animation>();
+    auto players =
+        registry.view<PlayerTag, Velocity, PlayerStats, view::Sprite, Position, Animation, PlayerAttackCooldown>();
 
     if (players.empty()) {
         return;
@@ -55,18 +55,18 @@ void InputSystem::update(Registry &registry, const config::GameConfig &config, c
 
     Entity playerEntity = players.front();
 
+    updateCooldown(registry, playerEntity, dtSec);
     updatePlayerVelocity(registry, playerEntity, input);
     updatePlayerAnimationState(registry, playerEntity, dtSec);
     handleAttack(registry, config, playerEntity, input);
     applyAnimationMoveSpeedModifier(registry, config, playerEntity);
 }
 
-void InputSystem::updateCooldown(float dtSec)
+void InputSystem::updateCooldown(Registry &registry, Entity entity, float dtSec)
 {
-    // possible since we have only one player
-    timeSinceLastAttack_ += dtSec;
-    timeSinceLastSpecialMove_ += dtSec;
-    timeSinceLastDash_ += dtSec;
+    PlayerAttackCooldown &cooldown = registry.getComponent<PlayerAttackCooldown>(entity);
+    cooldown.attackRemainingSec = std::max(0.0f, cooldown.attackRemainingSec - dtSec);
+    cooldown.specialAttackRemainingSec = std::max(0.0f, cooldown.specialAttackRemainingSec - dtSec);
 }
 
 void InputSystem::updatePlayerVelocity(Registry &registry, const Entity entity, const controller::InputState &input)
@@ -122,11 +122,11 @@ void InputSystem::updatePlayerAnimationState(Registry &registry, Entity enemy, f
 void InputSystem::handleAttack(Registry &registry, const config::GameConfig &config, Entity playerEntity,
                                const controller::InputState &input)
 {
-    PlayerStats &stats = registry.getComponent<PlayerStats>(playerEntity);
+    const PlayerStats &stats = registry.getComponent<PlayerStats>(playerEntity);
+    PlayerAttackCooldown &cooldown = registry.getComponent<PlayerAttackCooldown>(playerEntity);
 
-    if (timeSinceLastAttack_ <= 1.0f / stats.attackSpeed) {
-        return;
-    }
+    cooldown.attackDurationSec = 1.0f / stats.attackSpeed;
+    cooldown.specialAttackDurationSec = 1.0f / stats.specialAttackSpeed;
 
     if (registry.hasComponent<Animation>(playerEntity)) {
         const Animation &animation = registry.getComponent<Animation>(playerEntity);
@@ -139,25 +139,37 @@ void InputSystem::handleAttack(Registry &registry, const config::GameConfig &con
     const config::AttackProfileConfig &attackProfile = config.playerClasses.getByType(stats.characterType).attack;
 
     if (input.mouseLeftPressed) {
-        if (attackProfile.kind == DamageKind::MeleeArc) {
-            attackMelee(registry, config, playerEntity, input, attackProfile);
-            timeSinceLastAttack_ = 0.0f;
-        } else if (attackProfile.kind == DamageKind::Projectile) {
-            attackRanged(registry, config, playerEntity, input, attackProfile);
-            timeSinceLastAttack_ = 0.0f;
+
+        if (cooldown.attackRemainingSec > 0.0f) {
+            return;
         }
-        return; // only handle one attack per update
+
+        if (stats.characterType == CharacterType::Melee) {
+            attackMelee(registry, config, playerEntity, input, attackProfile);
+            cooldown.attackRemainingSec = cooldown.attackDurationSec;
+        } else if (stats.characterType == CharacterType::Ranged) {
+            attackRanged(registry, config, playerEntity, input, attackProfile, false);
+            cooldown.attackRemainingSec = cooldown.attackDurationSec;
+        }
+
+        return;
     }
 
     if (input.mouseRightPressed) {
-        if (attackProfile.kind == DamageKind::MeleeArc) {
-            // attackMeleeSpecialMove(registry, config, playerEntity, input, attackProfile);
-            timeSinceLastAttack_ = 0.0f;
-        } else if (attackProfile.kind == DamageKind::Projectile) {
-            // attackRangedSpecialMove(registry, config, playerEntity, input, attackProfile);
-            timeSinceLastAttack_ = 0.0f;
+
+        if (cooldown.specialAttackRemainingSec > 0.0f) {
+            return;
         }
-        return; // only handle one attack per update
+
+        if (stats.characterType == CharacterType::Melee) {
+            // attackMeleeSpecialMove(registry, config, playerEntity, input, attackProfile);
+            cooldown.specialAttackRemainingSec = cooldown.specialAttackDurationSec;
+        } else if (stats.characterType == CharacterType::Ranged) {
+            attackRanged(registry, config, playerEntity, input, attackProfile, true);
+            cooldown.specialAttackRemainingSec = cooldown.specialAttackDurationSec;
+        }
+
+        return;
     }
 }
 
@@ -173,13 +185,13 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
 
     const float animationDuration = applyAnimation(registry, config, playerEntity, AnimationState::Attack,
                                                    playerStats.characterType, attackDirection);
-    const SoundComponent sound = {config.playerClasses.melee.sounds.attack};
+    const Sound sound = {config.playerClasses.melee.sounds.attack};
 
     // create melee attack entity
     const Damage damageComponent{.amount = attackProfile.amount,
                                  .pushBackForce = attackProfile.pushBackForce,
                                  .stunChance = attackProfile.stunChance,
-                                 .kind = attackProfile.kind,
+                                 .kind = DamageKind::MeleeArc,
                                  .params = MeleeArcDamage{
                                      .reach = attackProfile.meleeArc.reach,
                                      .activeTimeSec = animationDuration + attackProfile.meleeArc.activeTimePaddingSec,
@@ -204,12 +216,13 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
     registry.addComponent<DamageTag>(meleeAttackEntity, {});
     registry.addComponent<Position>(meleeAttackEntity, damagePosition);
     registry.addComponent<HitBox>(meleeAttackEntity, meleeHitBox);
-    registry.addComponent<SoundComponent>(playerEntity, sound);
+    registry.addComponent<Sound>(playerEntity, sound);
     registry.addComponent<PlayerAttackTag>(meleeAttackEntity, {}); // Mark as player's attack for collision detection
 }
 
 void InputSystem::attackRanged(Registry &registry, const config::GameConfig &config, Entity playerEntity,
-                               const controller::InputState &input, const config::AttackProfileConfig &attackProfile)
+                               const controller::InputState &input, const config::AttackProfileConfig &attackProfile,
+                               bool specialAttack)
 {
     const auto playerPosition = registry.getComponent<Position>(playerEntity).p;
     const PlayerStats &playerStats = registry.getComponent<PlayerStats>(playerEntity);
@@ -220,53 +233,76 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
 
     applyAnimation(registry, config, playerEntity, AnimationState::Attack, playerStats.characterType, attackDirection);
 
-    // add projectile
-    const SoundComponent sound = {config.playerClasses.ranged.sounds.attack};
-    const config::AnimationFrame projectileFrame = config::AnimationConfigHelper::getProjectileAnimationFrame(
-        config, attackProfile.projectile, AnimationState::Idle, AnimationDirection::None, 0);
-    const config::SpriteConfig &projectileSpriteConfig = projectileFrame.spriteConfig;
+    // add ranged object: either a projectile or a invincible unicorn
+    Sound sound = {specialAttack ? config.playerClasses.ranged.sounds.special
+                                 : config.playerClasses.ranged.sounds.attack};
 
-    const float projectileOffsetX =
-        attackDirection == AnimationDirection::Right ? playerSprite.size.x : -projectileSpriteConfig.texture.size.x;
-    const geometry::Vec2<float> projectileLaunchPosition{.x = playerPosition.x + projectileOffsetX,
-                                                         .y = playerPosition.y + (playerSprite.size.y / 2)
-                                                              - (projectileSpriteConfig.texture.size.y / 2)};
+    const config::AnimationFrame rangedObjFrame =
+        specialAttack ? config::AnimationConfigHelper::getUnicornAnimationFrame(
+                            config, attackProfile.unicorn, AnimationState::Walk, attackDirection, 0)
+                      : config::AnimationConfigHelper::getProjectileAnimationFrame(
+                            config, attackProfile.projectile, AnimationState::Idle, AnimationDirection::None, 0);
+    const config::SpriteConfig &rangedObjSpriteConfig = rangedObjFrame.spriteConfig;
 
-    const float projectileLaunchAngle =
-        std::atan2(input.mouseGrid.y - projectileLaunchPosition.y, input.mouseGrid.x - projectileLaunchPosition.x);
-    const Velocity projectileLaunchVelocity{
-        {.x = playerStats.speedOfAttack * attackProfile.projectile.velocityScale * std::cos(projectileLaunchAngle),
-         .y = playerStats.speedOfAttack * attackProfile.projectile.velocityScale * std::sin(projectileLaunchAngle)}};
+    std::optional<Animation> rangedObjAnimation = std::nullopt;
+    if (specialAttack) {
+        rangedObjAnimation = Animation{.state = AnimationState::Walk, .direction = attackDirection};
+    }
 
-    const Damage projectileDamage{.amount = attackProfile.amount,
-                                  .pushBackForce = attackProfile.pushBackForce,
-                                  .stunChance = attackProfile.stunChance,
-                                  .kind = attackProfile.kind,
-                                  .params = ProjectileDamage{
-                                      .speed = playerStats.speedOfAttack,
-                                      .maxRange = playerStats.attackRange,
-                                      .distanceTraveled = 0.0f,
-                                      .maxTargets = 1,
-                                  }};
+    const float rangedObjOffsetX =
+        attackDirection == AnimationDirection::Right ? playerSprite.size.x : -rangedObjSpriteConfig.texture.size.x;
+    const geometry::Vec2<float> rangedObjLaunchPosition{.x = playerPosition.x + rangedObjOffsetX,
+                                                        .y = playerPosition.y + (playerSprite.size.y / 2)
+                                                             - (rangedObjSpriteConfig.texture.size.y / 2)};
 
-    const view::Sprite projectileSprite{
-        .rect = {projectileLaunchPosition, projectileSpriteConfig.texture.size},
-        .imagePath = projectileSpriteConfig.texture.path,
+    const float rangedObjLaunchAngle =
+        std::atan2(input.mouseGrid.y - rangedObjLaunchPosition.y, input.mouseGrid.x - rangedObjLaunchPosition.x);
+
+    float velocityScale = specialAttack ? attackProfile.unicorn.velocityScale : attackProfile.projectile.velocityScale;
+    const Velocity rangedObjLaunchVelocity{
+        {.x = playerStats.speedOfAttack * velocityScale * std::cos(rangedObjLaunchAngle),
+         .y = playerStats.speedOfAttack * velocityScale * std::sin(rangedObjLaunchAngle)}};
+
+    Damage rangedObjDamage;
+
+    rangedObjDamage.pushBackForce = attackProfile.pushBackForce;
+    rangedObjDamage.stunChance = attackProfile.stunChance;
+
+    if (specialAttack) {
+        rangedObjDamage.amount = -1; // kills all enemies in its path
+        rangedObjDamage.kind = DamageKind::Unicorn;
+        rangedObjDamage.params = UnicornDamage{.speed = playerStats.speedOfAttack};
+    } else {
+        rangedObjDamage.amount = attackProfile.amount;
+        rangedObjDamage.kind = DamageKind::Projectile;
+        rangedObjDamage.params = ProjectileDamage{.speed = playerStats.speedOfAttack,
+                                                  .maxRange = playerStats.attackRange,
+                                                  .distanceTraveled = 0.0f,
+                                                  .maxTargets = 1};
+    }
+
+    const view::Sprite rangedObjSprite{
+        .rect = {rangedObjLaunchPosition, rangedObjSpriteConfig.texture.size},
+        .imagePath = rangedObjSpriteConfig.texture.path,
     };
 
-    const HitBox projectileHitBox{projectileSpriteConfig.hitBox.offset, projectileSpriteConfig.hitBox.size};
+    const HitBox rangedObjHitBox{rangedObjSpriteConfig.hitBox.offset, rangedObjSpriteConfig.hitBox.size};
 
-    // add projectile entity with all components
+    // add rangedObj entity with all components
     // component references may be invalid: retrieve again from registry if used after this point
-    const Entity projectileEntity = registry.createEntity();
-    registry.addComponent<SoundComponent>(playerEntity, sound);
-    registry.addComponent<Damage>(projectileEntity, projectileDamage);
-    registry.addComponent<view::Sprite>(projectileEntity, projectileSprite);
-    registry.addComponent<Position>(projectileEntity, {projectileLaunchPosition});
-    registry.addComponent<Velocity>(projectileEntity, projectileLaunchVelocity);
-    registry.addComponent<HitBox>(projectileEntity, projectileHitBox);
-    registry.addComponent<PlayerAttackTag>(projectileEntity, {}); // Mark as player's attack for collision detection
-    registry.addComponent<DamageTag>(projectileEntity, {});
+    const Entity rangedObjEntity = registry.createEntity();
+    registry.addComponent<Sound>(playerEntity, sound);
+    registry.addComponent<Damage>(rangedObjEntity, rangedObjDamage);
+    registry.addComponent<view::Sprite>(rangedObjEntity, rangedObjSprite);
+    registry.addComponent<Position>(rangedObjEntity, {rangedObjLaunchPosition});
+    registry.addComponent<Velocity>(rangedObjEntity, rangedObjLaunchVelocity);
+    registry.addComponent<HitBox>(rangedObjEntity, rangedObjHitBox);
+    registry.addComponent<PlayerAttackTag>(rangedObjEntity, {}); // Mark as player's attack for collision detection
+    registry.addComponent<DamageTag>(rangedObjEntity, {});
+
+    if (rangedObjAnimation.has_value()) {
+        registry.addComponent<Animation>(rangedObjEntity, rangedObjAnimation.value());
+    }
 }
 
 void InputSystem::applyAnimationMoveSpeedModifier(Registry &registry, const config::GameConfig &config,
