@@ -162,7 +162,7 @@ void BossAttackSystem::spawnPhaseTwoLightning(Registry &registry, const config::
             lightningEntity, {.rect = {strikePosition, spriteSize}, .imagePath = lightningSpriteConfig.texture.path});
         registry.addComponent<Animation>(lightningEntity, {});
         registry.addComponent<DamageTag>(lightningEntity, {});
-        registry.addComponent<EnemyAttackTag>(lightningEntity, {bossEntity});
+        registry.addComponent<EnemyAttackTag>(lightningEntity, bossStats.enemyType);
     }
 }
 

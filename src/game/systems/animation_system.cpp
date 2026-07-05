@@ -4,6 +4,7 @@
 #include "game/ecs/components/enemy_attack_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/player_attack_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "geometry/vector.hpp"
@@ -55,19 +56,27 @@ std::optional<config::AnimationFrame> getAnimationFrameForEntity(Registry &regis
                                                                      animation.direction, animation.currentFrame);
     }
 
-    if (registry.hasComponent<EnemyAttackTag>(entity) && registry.hasComponent<Damage>(entity)) {
+    if (registry.hasComponent<Damage>(entity)) {
         const Damage &damage = registry.getComponent<Damage>(entity);
-        Entity enemyId = registry.getComponent<EnemyAttackTag>(entity).source;
-        if (!registry.hasComponent<EnemyStats>(enemyId))
-            return std::nullopt;
 
-        const EnemyStats &stats = registry.getComponent<EnemyStats>(enemyId);
+        const config::AreaAttackConfig *areaAttackConfig = nullptr;
+        if (registry.hasComponent<PlayerAttackTag>(entity)) {
+            CharacterType characterType = registry.getComponent<PlayerAttackTag>(entity).characterType;
+            areaAttackConfig = &config.playerClasses.getByType(characterType).attack.area;
+        }
+        if (registry.hasComponent<EnemyAttackTag>(entity)) {
+            EnemyType enemyType = registry.getComponent<EnemyAttackTag>(entity).enemyType;
+            areaAttackConfig = &config.enemyClasses.getByType(enemyType).attack.area;
+        }
+
+        if (!areaAttackConfig) {
+            return std::nullopt;
+        }
 
         switch (damage.kind) {
         case DamageKind::Area: {
-            const config::AreaAttackConfig &area = config.enemyClasses.getByType(stats.enemyType).attack.area;
-            return config::AnimationConfigHelper::getAreaAnimationFrame(
-                config, area, AnimationState::Idle, AnimationDirection::None, animation.currentFrame);
+            return config::AnimationConfigHelper::getAreaAnimationFrame(config, *areaAttackConfig, animation.state,
+                                                                        animation.direction, animation.currentFrame);
         }
         default:
             break;
