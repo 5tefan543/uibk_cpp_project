@@ -7,6 +7,7 @@
 #include "game/ecs/registry.hpp"
 #include "view/grid.hpp"
 #include "view/sprite.hpp"
+#include <iostream>
 #include <unordered_set>
 
 namespace game {
@@ -56,7 +57,7 @@ void LocationTable::update(const Registry &registry)
         // TODO: we probably want to use hitbox instead of sprite dimensions
         // Distances can be determined either way since hitbox & sprite have the same center.
 
-        const auto [firstBuck, lastBuck] = getBucketIndices(pos + hitbox.offset, pos + hitbox.size);
+        const auto [firstBuck, lastBuck] = getBucketIndices(pos + hitbox.offset, pos + hitbox.offset + hitbox.size);
         // const auto [firstBuck, lastBuck] = getBucketIndices(pos, pos + sprite.rect.size);
 
         for (unsigned buckY = firstBuck.y; buckY <= lastBuck.y; buckY++) {
