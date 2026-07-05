@@ -205,12 +205,67 @@
                     }
                 },
                 "area": {
-                    "radius": 80,
-                    "activeTimeSec": 0.2,
-                    "damageTicks": 0,
-                    "initialHit": 4.1878E-41,
+                    "radius": 64,
+                    "activeTimeSec": 15,
+                    "damageTicks": 5,
+                    "initialHit": 1,
                     "animations": {
-                        "stateToStateConfig": {}
+                        "stateToStateConfig": {
+                            "Idle": {
+                                "frameDuration": 0.16,
+                                "moveSpeedMultiplier": 1,
+                                "directionToFrames": {
+                                    "None": [
+                                        {
+                                            "texture": {
+                                                "path": "assets/characters/blob_enemy/blob_atk_1.png",
+                                                "position": {
+                                                    "x": 0,
+                                                    "y": 0
+                                                },
+                                                "size": {
+                                                    "x": 256,
+                                                    "y": 256
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 36,
+                                                    "y": 36
+                                                },
+                                                "size": {
+                                                    "x": 188,
+                                                    "y": 188
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "texture": {
+                                                "path": "assets/characters/blob_enemy/blob_atk_2.png",
+                                                "position": {
+                                                    "x": 0,
+                                                    "y": 0
+                                                },
+                                                "size": {
+                                                    "x": 256,
+                                                    "y": 256
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 36,
+                                                    "y": 36
+                                                },
+                                                "size": {
+                                                    "x": 188,
+                                                    "y": 188
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -774,7 +829,7 @@
             },
             "sounds": {
                 "attack": "assets/audio/sounds/character/melee_attack.wav",
-                "special": "",
+                "special": "assets/audio/sounds/character/lava_area_special_attack.wav",
                 "hit": "",
                 "dash": ""
             }

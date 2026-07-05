@@ -425,7 +425,7 @@ TEST_CASE_METHOD(TestFixture, "EnemyAI spawns area attack with expected componen
     const auto &hitBox = registry.getComponent<game::HitBox>(areaEntity);
     const auto &damage = registry.getComponent<game::Damage>(areaEntity);
 
-    REQUIRE(attackTag.source == enemy);
+    REQUIRE(attackTag.enemyType == game::EnemyType::Blob);
     REQUIRE(position.p.x == Catch::Approx(100.0f));
     REQUIRE(position.p.y == Catch::Approx(100.0f));
     REQUIRE(sprite.imagePath == "blob_area.png");
