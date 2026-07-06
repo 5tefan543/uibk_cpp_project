@@ -45,7 +45,9 @@ class Game {
 
     int stage_ = 1;
     int wave_ = 1;
-    view::Text stageWaveInfo_;
+    view::Text waveCounterInfo_;
+    view::Text waveTimeInfo_;
+    view::Text goldScoreInfo_;
     view::Sprite attackCooldownIcon_;
     view::Sprite specialAttackCooldownIcon_;
 
