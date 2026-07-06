@@ -2,6 +2,7 @@
 #include "controller/persistence/persistence_manager.hpp"
 #include "controller/state/state_manager.hpp"
 #include "shared/test_fixture.hpp"
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 using namespace controller;
@@ -183,6 +184,8 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay crea
     game.wave = 4;
     game.playerStats.currency = 777;
     game.playerStats.moveSpeed = 360.0f;
+    game.playerStats.defense = 9.0f;
+    game.playerStats.healthRegen = 1.5f;
     game.playerStats.hasDash = true;
     game.playerStats.score = 12345;
     game.playerStats.maxHealth = 500.0f;
@@ -211,6 +214,8 @@ TEST_CASE_METHOD(TestFixture, "applyAction ReplaceCurrentWithLoadedGameplay crea
     REQUIRE(gameplayState->game.getDebugSession().stage == expectedStage);
     REQUIRE(loaded.playerStats.currency == 777);
     REQUIRE(loaded.playerStats.moveSpeed == 360.0f);
+    REQUIRE(loaded.playerStats.defense == Catch::Approx(9.0f));
+    REQUIRE(loaded.playerStats.healthRegen == Catch::Approx(1.5f));
 }
 
 TEST_CASE_METHOD(TestFixture, "applyAction PushPauseMenu pushes cancelPressed menu on top")

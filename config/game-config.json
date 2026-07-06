@@ -154,7 +154,7 @@
             "hasDash": true,
             "stats": {
                 "maxHealth": 100,
-                "attackPower": 14,
+                "attackPower": 10,
                 "attackSpeed": 1.25,
                 "specialAttackSpeed": 0.0167,
                 "defense": 0,
@@ -163,7 +163,7 @@
                 "attackRange": 1
             },
             "attack": {
-                "amount": 14,
+                "amount": 1.4,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
@@ -871,7 +871,7 @@
             "hasDash": false,
             "stats": {
                 "maxHealth": 100,
-                "attackPower": 100,
+                "attackPower": 10,
                 "attackSpeed": 3,
                 "specialAttackSpeed": 0.0167,
                 "defense": 0,
@@ -880,7 +880,7 @@
                 "attackRange": 1000
             },
             "attack": {
-                "amount": 10,
+                "amount": 1.0,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
@@ -1706,7 +1706,7 @@
             "moveSpeedRatioOfPlayer": 0.9,
             "stats": {
                 "maxHealth": 10,
-                "attackPower": 2,
+                "attackPower": 10,
                 "attackSpeed": 1,
                 "specialAttackSpeed": 1,
                 "defense": 0.25,
@@ -1715,7 +1715,7 @@
                 "attackRange": 1
             },
             "attack": {
-                "amount": 30,
+                "amount": 3.0,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
@@ -2467,7 +2467,7 @@
                 "attackRange": 0
             },
             "attack": {
-                "amount": 2,
+                "amount": 10,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
@@ -2530,7 +2530,7 @@
                     "radius": 80,
                     "activeTimeSec": 0.8,
                     "damageTicks": 1,
-                    "telegraphTimeSec": 0.5,
+                    "telegraphTimeSec": 0.6,
                     "initialHit": 0,
                     "animations": {
                         "stateToStateConfig": {

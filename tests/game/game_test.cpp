@@ -619,6 +619,8 @@ TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted valu
     persistedGame.wave = 5;
     persistedGame.playerStats.currency = 1234;
     persistedGame.playerStats.moveSpeed = 333.0f;
+    persistedGame.playerStats.defense = 7.0f;
+    persistedGame.playerStats.healthRegen = 2.25f;
 
     game::Game game(persistedGame);
 
@@ -628,4 +630,6 @@ TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted valu
     REQUIRE(game.getDebugSession().stage == resultStage);
     REQUIRE(snapshot.playerStats.currency == 1234);
     REQUIRE(snapshot.playerStats.moveSpeed == 333.0f);
+    REQUIRE(snapshot.playerStats.defense == Catch::Approx(7.0f));
+    REQUIRE(snapshot.playerStats.healthRegen == Catch::Approx(2.25f));
 }
