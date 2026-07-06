@@ -4,6 +4,7 @@
 #include "game/game.hpp"
 #include "view/view.hpp"
 #include <deque>
+#include <functional>
 #include <random>
 
 namespace game {

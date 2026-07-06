@@ -4,6 +4,7 @@
 namespace game {
 enum class DamageKind {
     Projectile,
+    Unicorn,
     MeleeArc,
     Beam,
     Area,
@@ -14,6 +15,10 @@ struct ProjectileDamage {
     float maxRange;         // projectile lifetime distance
     float distanceTraveled; // runtime state
     int maxTargets;
+};
+
+struct UnicornDamage {
+    float speed; // units/sec
 };
 
 struct MeleeArcDamage {
@@ -42,7 +47,8 @@ struct AreaDamage {
     float radius;        // reach
     float activeTimeSec; // short hit window
     float elapsedSec;    // runtime state
-    float initialHit;    // percentage based of damage amount the remaining damage will be divided over the damageTicks
+    float telegraphTimeSec = 0.1f;
+    float initialHit; // percentage based of damage amount the remaining damage will be divided over the damageTicks
     int damageTicks;
     float elapsedSecSinceLastTick;
 };
@@ -52,7 +58,9 @@ struct Damage {
     float pushBackForce; // e.g. for knockback
     float stunChance;
     DamageKind kind;
-    std::variant<ProjectileDamage, MeleeArcDamage, BeamDamage, AreaDamage> params;
+    enum class Mode { Flat, Percent, ScaledByAttack };
+    Mode mode = Mode::Flat; // default: flat amount subtraction
+    std::variant<ProjectileDamage, UnicornDamage, MeleeArcDamage, BeamDamage, AreaDamage> params;
 };
 
 } // namespace game

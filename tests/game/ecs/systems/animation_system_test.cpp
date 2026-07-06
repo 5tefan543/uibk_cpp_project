@@ -4,6 +4,7 @@
 #include "game/ecs/components/enemy_attack_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/player_attack_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/entity.hpp"
@@ -58,6 +59,21 @@ config::GameConfig makeAnimationSystemTestConfig()
             },
     };
 
+    config.playerClasses.melee.attack.area.animations.stateToStateConfig[game::AnimationState::Idle] = {
+        .frameDuration = 0.35f,
+        .moveSpeedMultiplier = 1.0f,
+        .directionToFrames =
+            {
+                {
+                    game::AnimationDirection::None,
+                    {
+                        makeSpriteConfig("player_area_idle_1.png", 50.0f, 54.0f, 9.0f, 10.0f, 28.0f, 29.0f),
+                        makeSpriteConfig("player_area_idle_2.png", 51.0f, 55.0f, 11.0f, 12.0f, 30.0f, 31.0f),
+                    },
+                },
+            },
+    };
+
     config.enemyClasses.blob.enemyType = game::EnemyType::Blob;
     config.enemyClasses.blob.animations.stateToStateConfig[game::AnimationState::Walk] = {
         .frameDuration = 0.5f,
@@ -84,6 +100,22 @@ config::GameConfig makeAnimationSystemTestConfig()
                     {
                         makeSpriteConfig("enemy_area_idle_1.png", 40.0f, 44.0f, 1.0f, 2.0f, 18.0f, 22.0f),
                         makeSpriteConfig("enemy_area_idle_2.png", 41.0f, 45.0f, 3.0f, 4.0f, 19.0f, 23.0f),
+                    },
+                },
+            },
+    };
+
+    config.playerClasses.ranged.characterType = game::CharacterType::Ranged;
+    config.playerClasses.ranged.attack.unicorn.animations.stateToStateConfig[game::AnimationState::Walk] = {
+        .frameDuration = 0.3f,
+        .moveSpeedMultiplier = 1.0f,
+        .directionToFrames =
+            {
+                {
+                    game::AnimationDirection::Right,
+                    {
+                        makeSpriteConfig("unicorn_walk_right_1.png", 32.0f, 32.0f, 4.0f, 5.0f, 24.0f, 25.0f),
+                        makeSpriteConfig("unicorn_walk_right_2.png", 33.0f, 33.0f, 6.0f, 7.0f, 26.0f, 27.0f),
                     },
                 },
             },
@@ -346,17 +378,15 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem skips entity when no animation fr
     REQUIRE(sprite.rect.size.y == Catch::Approx(20.0f));
 }
 
-TEST_CASE_METHOD(TestFixture, "AnimationSystem applies area attack animation for enemy attack entities")
+TEST_CASE_METHOD(TestFixture, "AnimationSystem applies area attack animation for player attack entities")
 {
     game::Registry registry;
     game::AnimationSystem system;
     const config::GameConfig config = makeAnimationSystemTestConfig();
 
-    const game::Entity sourceEnemy = registry.createEntity();
-    registry.addComponent<game::EnemyStats>(sourceEnemy, makeEnemyStats(game::EnemyType::Blob));
-
     const game::Entity attackEntity = registry.createEntity();
-    registry.addComponent<game::EnemyAttackTag>(attackEntity, {.source = sourceEnemy});
+
+    registry.addComponent<game::PlayerAttackTag>(attackEntity, {.characterType = game::CharacterType::Melee});
     registry.addComponent<game::Damage>(attackEntity, {
                                                           .amount = 5.0f,
                                                           .pushBackForce = 0.0f,
@@ -373,8 +403,60 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem applies area attack animation for
                                                               },
                                                       });
     registry.addComponent<game::Animation>(attackEntity, {
-                                                             .state = game::AnimationState::Attack,
-                                                             .direction = game::AnimationDirection::Left,
+                                                             .state = game::AnimationState::Idle,
+                                                             .direction = game::AnimationDirection::None,
+                                                             .currentFrame = 0,
+                                                             .frameTimer = 0.0f,
+                                                         });
+    registry.addComponent<view::Sprite>(attackEntity, {});
+    registry.addComponent<game::HitBox>(attackEntity, {});
+
+    system.update(registry, config, 0.0f);
+
+    const auto &sprite = registry.getComponent<view::Sprite>(attackEntity);
+    const auto &hitBox = registry.getComponent<game::HitBox>(attackEntity);
+    const auto &animation = registry.getComponent<game::Animation>(attackEntity);
+
+    REQUIRE(sprite.imagePath == "player_area_idle_1.png");
+    REQUIRE(sprite.rect.size.x == Catch::Approx(50.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(54.0f));
+
+    REQUIRE(hitBox.offset.x == Catch::Approx(9.0f));
+    REQUIRE(hitBox.offset.y == Catch::Approx(10.0f));
+    REQUIRE(hitBox.size.x == Catch::Approx(28.0f));
+    REQUIRE(hitBox.size.y == Catch::Approx(29.0f));
+
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem applies area attack animation for enemy attack entities")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity attackEntity = registry.createEntity();
+
+    registry.addComponent<game::EnemyAttackTag>(attackEntity, {.enemyType = game::EnemyType::Blob});
+    registry.addComponent<game::Damage>(attackEntity, {
+                                                          .amount = 5.0f,
+                                                          .pushBackForce = 0.0f,
+                                                          .stunChance = 0.0f,
+                                                          .kind = game::DamageKind::Area,
+                                                          .params =
+                                                              game::AreaDamage{
+                                                                  .radius = 50.0f,
+                                                                  .activeTimeSec = 1.0f,
+                                                                  .elapsedSec = 0.0f,
+                                                                  .initialHit = 0.5f,
+                                                                  .damageTicks = 3,
+                                                                  .elapsedSecSinceLastTick = 0.0f,
+                                                              },
+                                                      });
+    registry.addComponent<game::Animation>(attackEntity, {
+                                                             .state = game::AnimationState::Idle,
+                                                             .direction = game::AnimationDirection::None,
                                                              .currentFrame = 0,
                                                              .frameTimer = 0.0f,
                                                          });
@@ -400,30 +482,52 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem applies area attack animation for
     REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
 }
 
-TEST_CASE_METHOD(TestFixture, "AnimationSystem skips enemy area attack entity when source enemy stats are missing")
+TEST_CASE_METHOD(TestFixture, "AnimationSystem advances area attack animation frame")
 {
     game::Registry registry;
     game::AnimationSystem system;
     const config::GameConfig config = makeAnimationSystemTestConfig();
 
-    const game::Entity missingSourceEnemy = registry.createEntity();
+    const game::Entity attackEntity = registry.createEntity();
+
+    registry.addComponent<game::PlayerAttackTag>(attackEntity, {.characterType = game::CharacterType::Melee});
+    registry.addComponent<game::Damage>(attackEntity, {
+                                                          .amount = 5.0f,
+                                                          .pushBackForce = 0.0f,
+                                                          .stunChance = 0.0f,
+                                                          .kind = game::DamageKind::Area,
+                                                          .params = game::AreaDamage{},
+                                                      });
+    registry.addComponent<game::Animation>(attackEntity, {
+                                                             .state = game::AnimationState::Idle,
+                                                             .direction = game::AnimationDirection::None,
+                                                             .currentFrame = 0,
+                                                             .frameTimer = 0.0f,
+                                                         });
+    registry.addComponent<view::Sprite>(attackEntity, {});
+
+    system.update(registry, config, 0.35f);
+
+    const auto &animation = registry.getComponent<game::Animation>(attackEntity);
+
+    REQUIRE(animation.currentFrame == 1);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem skips area damage entity when attack tag is missing")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
 
     const game::Entity attackEntity = registry.createEntity();
-    registry.addComponent<game::EnemyAttackTag>(attackEntity, {.source = missingSourceEnemy});
+
     registry.addComponent<game::Damage>(attackEntity, {
                                                           .amount = 3.0f,
                                                           .pushBackForce = 0.0f,
                                                           .stunChance = 0.0f,
                                                           .kind = game::DamageKind::Area,
-                                                          .params =
-                                                              game::AreaDamage{
-                                                                  .radius = 30.0f,
-                                                                  .activeTimeSec = 1.0f,
-                                                                  .elapsedSec = 0.0f,
-                                                                  .initialHit = 0.5f,
-                                                                  .damageTicks = 2,
-                                                                  .elapsedSecSinceLastTick = 0.0f,
-                                                              },
+                                                          .params = game::AreaDamage{},
                                                       });
     registry.addComponent<game::Animation>(attackEntity, {
                                                              .state = game::AnimationState::Idle,
@@ -446,6 +550,120 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem skips enemy area attack entity wh
     REQUIRE(animation.frameTimer == Catch::Approx(0.1f));
 
     REQUIRE(sprite.imagePath == "unchanged_attack.png");
+    REQUIRE(sprite.rect.size.x == Catch::Approx(11.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(22.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem applies unicorn damage animation config")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity unicorn = registry.createEntity();
+
+    registry.addComponent<game::Damage>(unicorn, {
+                                                     .amount = 15.0f,
+                                                     .pushBackForce = 0.0f,
+                                                     .stunChance = 0.0f,
+                                                     .kind = game::DamageKind::Unicorn,
+                                                     .params = game::UnicornDamage{},
+                                                 });
+    registry.addComponent<game::Animation>(unicorn, {
+                                                        .state = game::AnimationState::Walk,
+                                                        .direction = game::AnimationDirection::Right,
+                                                        .currentFrame = 0,
+                                                        .frameTimer = 0.0f,
+                                                    });
+    registry.addComponent<view::Sprite>(unicorn, {});
+    registry.addComponent<game::HitBox>(unicorn, {});
+
+    system.update(registry, config, 0.0f);
+
+    const auto &sprite = registry.getComponent<view::Sprite>(unicorn);
+    const auto &hitBox = registry.getComponent<game::HitBox>(unicorn);
+    const auto &animation = registry.getComponent<game::Animation>(unicorn);
+
+    REQUIRE(sprite.imagePath == "unicorn_walk_right_1.png");
+    REQUIRE(sprite.rect.size.x == Catch::Approx(32.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(32.0f));
+
+    REQUIRE(hitBox.offset.x == Catch::Approx(4.0f));
+    REQUIRE(hitBox.offset.y == Catch::Approx(5.0f));
+    REQUIRE(hitBox.size.x == Catch::Approx(24.0f));
+    REQUIRE(hitBox.size.y == Catch::Approx(25.0f));
+
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem advances unicorn damage animation frame")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity unicorn = registry.createEntity();
+
+    registry.addComponent<game::Damage>(unicorn, {
+                                                     .amount = 15.0f,
+                                                     .pushBackForce = 0.0f,
+                                                     .stunChance = 0.0f,
+                                                     .kind = game::DamageKind::Unicorn,
+                                                     .params = game::UnicornDamage{},
+                                                 });
+    registry.addComponent<game::Animation>(unicorn, {
+                                                        .state = game::AnimationState::Walk,
+                                                        .direction = game::AnimationDirection::Right,
+                                                        .currentFrame = 0,
+                                                        .frameTimer = 0.0f,
+                                                    });
+    registry.addComponent<view::Sprite>(unicorn, {});
+
+    system.update(registry, config, 0.3f);
+
+    const auto &animation = registry.getComponent<game::Animation>(unicorn);
+
+    REQUIRE(animation.currentFrame == 1);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem skips non-unicorn damage entity")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity damageEntity = registry.createEntity();
+
+    registry.addComponent<game::Damage>(damageEntity, {
+                                                          .amount = 5.0f,
+                                                          .pushBackForce = 0.0f,
+                                                          .stunChance = 0.0f,
+                                                          .kind = game::DamageKind::Projectile,
+                                                          .params = game::ProjectileDamage{},
+                                                      });
+    registry.addComponent<game::Animation>(damageEntity, {
+                                                             .state = game::AnimationState::Walk,
+                                                             .direction = game::AnimationDirection::Right,
+                                                             .currentFrame = 0,
+                                                             .frameTimer = 0.1f,
+                                                         });
+    registry.addComponent<view::Sprite>(damageEntity, {});
+
+    auto &spriteBeforeUpdate = registry.getComponent<view::Sprite>(damageEntity);
+    spriteBeforeUpdate.imagePath = "unchanged_damage.png";
+    spriteBeforeUpdate.rect.size = {11.0f, 22.0f};
+
+    system.update(registry, config, 0.3f);
+
+    const auto &animation = registry.getComponent<game::Animation>(damageEntity);
+    const auto &sprite = registry.getComponent<view::Sprite>(damageEntity);
+
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.1f));
+
+    REQUIRE(sprite.imagePath == "unchanged_damage.png");
     REQUIRE(sprite.rect.size.x == Catch::Approx(11.0f));
     REQUIRE(sprite.rect.size.y == Catch::Approx(22.0f));
 }

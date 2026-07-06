@@ -75,7 +75,9 @@ TEST_CASE_METHOD(TestFixture, "Serializer writes and reads persisted game JSON")
     input.playerStats.maxHealth = 120.0f;
     input.playerStats.attackPower = 24.5f;
     input.playerStats.attackSpeed = 1.75f;
+    input.playerStats.specialAttackSpeed = 2.0f;
     input.playerStats.defense = 8.0f;
+    input.playerStats.healthRegen = 1.25f;
     input.playerStats.moveSpeed = 3.5f;
     input.playerStats.hasDash = true;
 
@@ -91,7 +93,9 @@ TEST_CASE_METHOD(TestFixture, "Serializer writes and reads persisted game JSON")
     REQUIRE(output.playerStats.maxHealth == Catch::Approx(120.0f));
     REQUIRE(output.playerStats.attackPower == Catch::Approx(24.5f));
     REQUIRE(output.playerStats.attackSpeed == Catch::Approx(1.75f));
+    REQUIRE(output.playerStats.specialAttackSpeed == Catch::Approx(2.0f));
     REQUIRE(output.playerStats.defense == Catch::Approx(8.0f));
+    REQUIRE(output.playerStats.healthRegen == Catch::Approx(1.25f));
     REQUIRE(output.playerStats.moveSpeed == Catch::Approx(3.5f));
     REQUIRE(output.playerStats.hasDash == true);
 }

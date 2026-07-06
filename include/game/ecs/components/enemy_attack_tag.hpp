@@ -1,11 +1,10 @@
 #pragma once
-
-#include "game/ecs/entity.hpp"
+#include "game/ecs/components/stats.hpp"
 
 namespace game {
 
 struct EnemyAttackTag {
-    Entity source;
+    EnemyType enemyType;
 };
 
 } // namespace game

@@ -6,6 +6,8 @@
 #include "controller/timing.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
+#include "game/ecs/systems/blob_attack_system.hpp"
+#include "game/ecs/systems/boss_attack_system.hpp"
 #include "game/ecs/systems/camera_system.hpp"
 #include "game/ecs/systems/collision_detection_system.hpp"
 #include "game/ecs/systems/damage_system.hpp"
@@ -14,6 +16,7 @@
 #include "game/ecs/systems/health_bar_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
+#include "game/ecs/systems/player_distance_system.hpp"
 #include "game/ecs/systems/sound_system.hpp"
 #include "game/ecs/systems/spawn_enemy_system.hpp"
 #include "game/location_table.hpp"
@@ -37,6 +40,9 @@ class Game {
     MovementSystem movementSystem_;
     DebugSelectionSystem debugSelectionSystem_;
     EnemyAI enemyAI_;
+    PlayerDistanceSystem playerDistanceSystem_;
+    BlobAttackSystem blobAttackSystem_;
+    BossAttackSystem bossAttackSystem_;
     SpawnEnemySystem spawnEnemySystem_;
     CollisionDetectionSystem collisionDetectionSystem_;
     DamageSystem damageSystem_;
@@ -45,7 +51,11 @@ class Game {
 
     int stage_ = 1;
     int wave_ = 1;
-    view::Text stageWaveInfo_;
+    view::Text waveCounterInfo_;
+    view::Text waveTimeInfo_;
+    view::Text goldScoreInfo_;
+    view::Sprite attackCooldownIcon_;
+    view::Sprite specialAttackCooldownIcon_;
 
     explicit Game(int wave, CharacterType characterType);
 
@@ -60,6 +70,13 @@ class Game {
     void updateSystems(const controller::InputState &input, const controller::timeDelta &dt);
     void addScore(int score);
     bool isWaveFinished();
+
+    void renderHealthBars(view::View &view);
+    void setCameraPosition(view::View &view);
+    void renderSprites(view::View &view);
+    void renderDebugHitBoxes(view::View &view);
+    void renderStageWaveInfo(view::View &view);
+    void renderCooldownBars(view::View &view);
 
   public:
     Game();

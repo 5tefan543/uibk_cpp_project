@@ -3,9 +3,11 @@
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/player_attack_cooldown.hpp"
 #include "game/ecs/components/player_attack_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
+#include "game/ecs/components/sound.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/ecs/registry.hpp"
@@ -86,27 +88,48 @@ config::GameConfig makeInputSystemTestConfig()
     config.fallbackSprite = makeSpriteConfig("fallback.png", 16.0f, 16.0f);
 
     config.playerClasses.melee.characterType = game::CharacterType::Melee;
-    config.playerClasses.melee.attack.kind = game::DamageKind::MeleeArc;
     config.playerClasses.melee.attack.amount = 12.0f;
     config.playerClasses.melee.attack.pushBackForce = 3.0f;
     config.playerClasses.melee.attack.stunChance = 0.25f;
     config.playerClasses.melee.attack.meleeArc.reach = 10.0f;
     config.playerClasses.melee.attack.meleeArc.hitBoxSize = {64.0f, 32.0f};
     config.playerClasses.melee.attack.meleeArc.activeTimePaddingSec = 0.1f;
+    config.playerClasses.melee.attack.area.radius = 48.0f;
+    config.playerClasses.melee.attack.area.activeTimeSec = 1.2f;
+    config.playerClasses.melee.attack.area.initialHit = 0.5f;
+    config.playerClasses.melee.attack.area.damageTicks = 3;
+    config.playerClasses.melee.sounds.attack = "melee_attack.wav";
+    config.playerClasses.melee.sounds.special = "melee_special.wav";
     addDefaultPlayerAnimations(config.playerClasses.melee);
 
+    addAnimationState(config.playerClasses.melee.attack.area.animations, game::AnimationState::Idle,
+                      game::AnimationDirection::None, 0.1f, 1.0f,
+                      {
+                          makeSpriteConfig("melee_area_idle_1.png", 32.0f, 32.0f),
+                          makeSpriteConfig("melee_area_idle_2.png", 32.0f, 32.0f),
+                      });
+
     config.playerClasses.ranged.characterType = game::CharacterType::Ranged;
-    config.playerClasses.ranged.attack.kind = game::DamageKind::Projectile;
     config.playerClasses.ranged.attack.amount = 8.0f;
     config.playerClasses.ranged.attack.pushBackForce = 2.0f;
     config.playerClasses.ranged.attack.stunChance = 0.1f;
     config.playerClasses.ranged.attack.projectile.velocityScale = 2.0f;
+    config.playerClasses.ranged.sounds.attack = "ranged_attack.wav";
+    config.playerClasses.ranged.sounds.special = "ranged_special.wav";
     addDefaultPlayerAnimations(config.playerClasses.ranged);
 
     addAnimationState(config.playerClasses.ranged.attack.projectile.animations, game::AnimationState::Idle,
                       game::AnimationDirection::None, 0.1f, 1.0f,
                       {
                           makeSpriteConfig("projectile_idle_1.png", 10.0f, 8.0f),
+                      });
+
+    config.playerClasses.ranged.attack.unicorn.velocityScale = 3.0f;
+    addAnimationState(config.playerClasses.ranged.attack.unicorn.animations, game::AnimationState::Walk,
+                      game::AnimationDirection::Right, 0.1f, 1.0f,
+                      {
+                          makeSpriteConfig("unicorn_walk_right_1.png", 32.0f, 32.0f),
+                          makeSpriteConfig("unicorn_walk_right_2.png", 32.0f, 32.0f),
                       });
 
     return config;
@@ -117,7 +140,8 @@ game::PlayerStats makePlayerStats(game::CharacterType characterType)
     game::PlayerStats stats{};
     stats.characterType = characterType;
     stats.moveSpeed = 100.0f;
-    stats.attackSpeed = 2.0f; // cooldown = 0.5 seconds
+    stats.attackSpeed = 2.0f;        // cooldown = 0.5 seconds
+    stats.specialAttackSpeed = 2.0f; // cooldown = 0.5 seconds
     stats.speedOfAttack = 50.0f;
     stats.attackRange = 3.0f;
     return stats;
@@ -153,8 +177,36 @@ game::Entity addPlayer(game::Registry &registry, game::CharacterType characterTy
     registry.addComponent<game::Position>(player, {100.0f, 100.0f});
     registry.addComponent<view::Sprite>(player, makePlayerSprite());
     registry.addComponent<game::Animation>(player, makeAnimation());
+    registry.addComponent<game::PlayerAttackCooldown>(player, {});
 
     return player;
+}
+
+std::vector<game::Entity> getPlayerAttacks(game::Registry &registry)
+{
+    return registry.view<game::Damage, game::DamageTag, game::PlayerAttackTag>();
+}
+
+game::Entity requireSinglePlayerAttack(game::Registry &registry)
+{
+    const auto attacks = getPlayerAttacks(registry);
+
+    REQUIRE(attacks.size() == 1);
+
+    return attacks.front();
+}
+
+void requireNoPlayerAttacks(game::Registry &registry)
+{
+    REQUIRE(getPlayerAttacks(registry).empty());
+}
+
+void setAttackCooldowns(game::Registry &registry, game::Entity player, float attackRemainingSec,
+                        float specialAttackRemainingSec)
+{
+    auto &cooldown = registry.getComponent<game::PlayerAttackCooldown>(player);
+    cooldown.attackRemainingSec = attackRemainingSec;
+    cooldown.specialAttackRemainingSec = specialAttackRemainingSec;
 }
 
 } // namespace
@@ -393,7 +445,106 @@ TEST_CASE_METHOD(TestFixture, "InputSystem spawns projectile attack entity")
     REQUIRE(playerAnimation.stateTimeRemaining == Catch::Approx(0.4f));
 }
 
-TEST_CASE_METHOD(TestFixture, "InputSystem does not spawn another attack before cooldown is ready")
+TEST_CASE_METHOD(TestFixture, "InputSystem does not start attack while attack animation is active")
+{
+    game::Registry registry;
+    game::InputSystem system;
+    const config::GameConfig config = makeInputSystemTestConfig();
+
+    const game::Entity player = addPlayer(registry, game::CharacterType::Melee);
+
+    auto &animation = registry.getComponent<game::Animation>(player);
+    animation.state = game::AnimationState::Attack;
+    animation.direction = game::AnimationDirection::Right;
+    animation.stateTimeRemaining = 0.5f;
+
+    controller::InputState input{};
+    input.mouseLeftPressed = true;
+    input.mouseGrid = {200.0f, 100.0f};
+
+    system.update(registry, config, input, 0.1f);
+
+    requireNoPlayerAttacks(registry);
+
+    const auto &animationAfter = registry.getComponent<game::Animation>(player);
+
+    REQUIRE(animationAfter.state == game::AnimationState::Attack);
+    REQUIRE(animationAfter.direction == game::AnimationDirection::Right);
+    REQUIRE(animationAfter.stateTimeRemaining == Catch::Approx(0.4f));
+}
+
+TEST_CASE_METHOD(TestFixture, "InputSystem spawns unicorn special attack entity")
+{
+    game::Registry registry;
+    game::InputSystem system;
+    const config::GameConfig config = makeInputSystemTestConfig();
+
+    const game::Entity player = addPlayer(registry, game::CharacterType::Ranged);
+
+    controller::InputState input{};
+    input.mouseRightPressed = true;
+    input.mouseGrid = {200.0f, 108.0f};
+
+    system.update(registry, config, input, 1.0f);
+
+    const auto unicorns = registry.view<game::Damage, game::DamageTag, game::PlayerAttackTag, game::Position,
+                                        game::Velocity, game::HitBox, view::Sprite, game::Animation>();
+
+    REQUIRE(unicorns.size() == 1);
+
+    const game::Entity unicorn = unicorns.front();
+
+    const auto &damage = registry.getComponent<game::Damage>(unicorn);
+    const auto &position = registry.getComponent<game::Position>(unicorn).p;
+    const auto &velocity = registry.getComponent<game::Velocity>(unicorn).v;
+    const auto &sprite = registry.getComponent<view::Sprite>(unicorn);
+    const auto &hitBox = registry.getComponent<game::HitBox>(unicorn);
+    const auto &animation = registry.getComponent<game::Animation>(unicorn);
+
+    REQUIRE(damage.amount == Catch::Approx(-1.0f));
+    REQUIRE(damage.pushBackForce == Catch::Approx(2.0f));
+    REQUIRE(damage.stunChance == Catch::Approx(0.1f));
+    REQUIRE(damage.kind == game::DamageKind::Unicorn);
+
+    const auto &unicornParams = std::get<game::UnicornDamage>(damage.params);
+
+    REQUIRE(unicornParams.speed == Catch::Approx(50.0f));
+
+    REQUIRE(position.x == Catch::Approx(132.0f));
+    REQUIRE(position.y == Catch::Approx(108.0f));
+
+    REQUIRE(velocity.x == Catch::Approx(150.0f));
+    REQUIRE(velocity.y == Catch::Approx(0.0f));
+
+    REQUIRE(sprite.imagePath == "unicorn_walk_right_1.png");
+    REQUIRE(sprite.rect.size.x == Catch::Approx(32.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(32.0f));
+
+    REQUIRE(hitBox.offset.x == Catch::Approx(1.0f));
+    REQUIRE(hitBox.offset.y == Catch::Approx(2.0f));
+    REQUIRE(hitBox.size.x == Catch::Approx(30.0f));
+    REQUIRE(hitBox.size.y == Catch::Approx(30.0f));
+
+    REQUIRE(animation.state == game::AnimationState::Walk);
+    REQUIRE(animation.direction == game::AnimationDirection::Right);
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+
+    const auto &playerAnimation = registry.getComponent<game::Animation>(player);
+
+    REQUIRE(playerAnimation.state == game::AnimationState::Attack);
+    REQUIRE(playerAnimation.direction == game::AnimationDirection::Right);
+    REQUIRE(playerAnimation.stateTimeRemaining == Catch::Approx(0.4f));
+
+    const auto &cooldown = registry.getComponent<game::PlayerAttackCooldown>(player);
+
+    REQUIRE(cooldown.attackDurationSec == Catch::Approx(0.5f));
+    REQUIRE(cooldown.attackRemainingSec == Catch::Approx(0.0f));
+    REQUIRE(cooldown.specialAttackDurationSec == Catch::Approx(0.5f));
+    REQUIRE(cooldown.specialAttackRemainingSec == Catch::Approx(0.5f));
+}
+
+TEST_CASE_METHOD(TestFixture, "InputSystem spawns melee area special attack entity")
 {
     game::Registry registry;
     game::InputSystem system;
@@ -402,23 +553,73 @@ TEST_CASE_METHOD(TestFixture, "InputSystem does not spawn another attack before 
     const game::Entity player = addPlayer(registry, game::CharacterType::Melee);
 
     controller::InputState input{};
-    input.mouseLeftPressed = true;
+    input.mouseRightPressed = true;
     input.mouseGrid = {200.0f, 100.0f};
 
     system.update(registry, config, input, 1.0f);
 
-    REQUIRE(registry.view<game::Damage, game::PlayerAttackTag>().size() == 1);
+    const auto areas = registry.view<game::Damage, game::DamageTag, game::PlayerAttackTag, game::Position, game::HitBox,
+                                     view::Sprite, game::Animation>();
 
-    auto &animation = registry.getComponent<game::Animation>(player);
-    animation.state = game::AnimationState::Idle;
-    animation.stateTimeRemaining = 0.0f;
+    REQUIRE(areas.size() == 1);
 
-    system.update(registry, config, input, 0.0f);
+    const game::Entity area = areas.front();
 
-    REQUIRE(registry.view<game::Damage, game::PlayerAttackTag>().size() == 1);
+    const auto &damage = registry.getComponent<game::Damage>(area);
+    const auto &position = registry.getComponent<game::Position>(area).p;
+    const auto &hitBox = registry.getComponent<game::HitBox>(area);
+    const auto &sprite = registry.getComponent<view::Sprite>(area);
+    const auto &animation = registry.getComponent<game::Animation>(area);
+
+    REQUIRE(damage.amount == Catch::Approx(-0.95f));
+    REQUIRE(damage.pushBackForce == Catch::Approx(3.0f));
+    REQUIRE(damage.stunChance == Catch::Approx(0.25f));
+    REQUIRE(damage.kind == game::DamageKind::Area);
+
+    const auto &areaParams = std::get<game::AreaDamage>(damage.params);
+
+    REQUIRE(areaParams.radius == Catch::Approx(48.0f));
+    REQUIRE(areaParams.activeTimeSec == Catch::Approx(1.2f));
+    REQUIRE(areaParams.elapsedSec == Catch::Approx(0.0f));
+    REQUIRE(areaParams.initialHit == Catch::Approx(0.5f));
+    REQUIRE(areaParams.damageTicks == 3);
+    REQUIRE(areaParams.elapsedSecSinceLastTick == Catch::Approx(0.0f));
+
+    REQUIRE(position.x == Catch::Approx(100.0f));
+    REQUIRE(position.y == Catch::Approx(100.0f));
+
+    REQUIRE(sprite.imagePath == "melee_area_idle_1.png");
+    REQUIRE(sprite.rect.size.x == Catch::Approx(32.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(32.0f));
+
+    REQUIRE(hitBox.offset.x == Catch::Approx(1.0f));
+    REQUIRE(hitBox.offset.y == Catch::Approx(2.0f));
+    REQUIRE(hitBox.size.x == Catch::Approx(30.0f));
+    REQUIRE(hitBox.size.y == Catch::Approx(30.0f));
+
+    REQUIRE(animation.state == game::AnimationState::Idle);
+    REQUIRE(animation.direction == game::AnimationDirection::None);
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+
+    REQUIRE_FALSE(registry.hasComponent<game::Velocity>(area));
+    REQUIRE(registry.hasComponent<game::Sound>(player));
+
+    const auto &playerAnimation = registry.getComponent<game::Animation>(player);
+
+    REQUIRE(playerAnimation.state == game::AnimationState::Attack);
+    REQUIRE(playerAnimation.direction == game::AnimationDirection::Right);
+    REQUIRE(playerAnimation.stateTimeRemaining == Catch::Approx(0.4f));
+
+    const auto &cooldown = registry.getComponent<game::PlayerAttackCooldown>(player);
+
+    REQUIRE(cooldown.attackDurationSec == Catch::Approx(0.5f));
+    REQUIRE(cooldown.attackRemainingSec == Catch::Approx(0.0f));
+    REQUIRE(cooldown.specialAttackDurationSec == Catch::Approx(0.5f));
+    REQUIRE(cooldown.specialAttackRemainingSec == Catch::Approx(0.5f));
 }
 
-TEST_CASE_METHOD(TestFixture, "InputSystem does not interrupt active attack animation with another attack")
+TEST_CASE_METHOD(TestFixture, "InputSystem starts melee special attack animation towards the mouse")
 {
     game::Registry registry;
     game::InputSystem system;
@@ -426,25 +627,204 @@ TEST_CASE_METHOD(TestFixture, "InputSystem does not interrupt active attack anim
 
     const game::Entity player = addPlayer(registry, game::CharacterType::Melee);
 
-    controller::InputState noInput{};
-    system.update(registry, config, noInput, 1.0f);
+    controller::InputState input{};
+    input.mouseRightPressed = true;
+    input.mouseGrid = {50.0f, 100.0f};
 
-    auto &animation = registry.getComponent<game::Animation>(player);
-    animation.state = game::AnimationState::Attack;
-    animation.direction = game::AnimationDirection::Right;
-    animation.stateTimeRemaining = 0.5f;
+    system.update(registry, config, input, 1.0f);
 
-    controller::InputState attackInput{};
-    attackInput.mouseLeftPressed = true;
-    attackInput.mouseGrid = {200.0f, 100.0f};
+    const game::Entity attack = requireSinglePlayerAttack(registry);
+    const auto &damage = registry.getComponent<game::Damage>(attack);
 
-    system.update(registry, config, attackInput, 0.1f);
+    REQUIRE(damage.kind == game::DamageKind::Area);
 
-    REQUIRE(registry.view<game::Damage, game::PlayerAttackTag>().empty());
+    const auto &playerAnimation = registry.getComponent<game::Animation>(player);
 
-    const auto &animationAfter = registry.getComponent<game::Animation>(player);
+    REQUIRE(playerAnimation.state == game::AnimationState::Attack);
+    REQUIRE(playerAnimation.direction == game::AnimationDirection::Left);
+}
 
-    REQUIRE(animationAfter.state == game::AnimationState::Attack);
-    REQUIRE(animationAfter.direction == game::AnimationDirection::Right);
-    REQUIRE(animationAfter.stateTimeRemaining == Catch::Approx(0.4f));
+TEST_CASE_METHOD(TestFixture, "InputSystem updates attack cooldowns and clamps them to zero")
+{
+    game::Registry registry;
+    game::InputSystem system;
+    const config::GameConfig config = makeInputSystemTestConfig();
+
+    const game::Entity player = addPlayer(registry, game::CharacterType::Ranged);
+
+    auto &cooldownBefore = registry.getComponent<game::PlayerAttackCooldown>(player);
+    cooldownBefore.attackRemainingSec = 0.4f;
+    cooldownBefore.specialAttackRemainingSec = 0.2f;
+
+    controller::InputState input{};
+
+    system.update(registry, config, input, 0.3f);
+
+    const auto &cooldown = registry.getComponent<game::PlayerAttackCooldown>(player);
+
+    REQUIRE(cooldown.attackDurationSec == Catch::Approx(0.5f));
+    REQUIRE(cooldown.attackRemainingSec == Catch::Approx(0.1f));
+    REQUIRE(cooldown.specialAttackDurationSec == Catch::Approx(0.5f));
+    REQUIRE(cooldown.specialAttackRemainingSec == Catch::Approx(0.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "InputSystem blocks normal attack while normal attack cooldown is active")
+{
+    game::Registry registry;
+    game::InputSystem system;
+    const config::GameConfig config = makeInputSystemTestConfig();
+
+    const game::Entity player = addPlayer(registry, game::CharacterType::Ranged);
+
+    setAttackCooldowns(registry, player, 0.5f, 0.0f);
+
+    controller::InputState input{};
+    input.mouseLeftPressed = true;
+    input.mouseGrid = {200.0f, 120.0f};
+
+    system.update(registry, config, input, 0.0f);
+
+    requireNoPlayerAttacks(registry);
+
+    const auto &cooldown = registry.getComponent<game::PlayerAttackCooldown>(player);
+
+    REQUIRE(cooldown.attackRemainingSec == Catch::Approx(0.5f));
+    REQUIRE(cooldown.specialAttackRemainingSec == Catch::Approx(0.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "InputSystem blocks special attack while special attack cooldown is active")
+{
+    game::Registry registry;
+    game::InputSystem system;
+    const config::GameConfig config = makeInputSystemTestConfig();
+
+    const game::Entity player = addPlayer(registry, game::CharacterType::Ranged);
+
+    setAttackCooldowns(registry, player, 0.0f, 0.5f);
+
+    controller::InputState input{};
+    input.mouseRightPressed = true;
+    input.mouseGrid = {200.0f, 108.0f};
+
+    system.update(registry, config, input, 0.0f);
+
+    requireNoPlayerAttacks(registry);
+
+    const auto &cooldown = registry.getComponent<game::PlayerAttackCooldown>(player);
+
+    REQUIRE(cooldown.attackRemainingSec == Catch::Approx(0.0f));
+    REQUIRE(cooldown.specialAttackRemainingSec == Catch::Approx(0.5f));
+}
+
+TEST_CASE_METHOD(TestFixture, "InputSystem does not block normal ranged attack with active special cooldown")
+{
+    game::Registry registry;
+    game::InputSystem system;
+    const config::GameConfig config = makeInputSystemTestConfig();
+
+    const game::Entity player = addPlayer(registry, game::CharacterType::Ranged);
+
+    setAttackCooldowns(registry, player, 0.0f, 0.5f);
+
+    controller::InputState input{};
+    input.mouseLeftPressed = true;
+    input.mouseGrid = {200.0f, 120.0f};
+
+    system.update(registry, config, input, 0.0f);
+
+    const game::Entity attack = requireSinglePlayerAttack(registry);
+    const auto &damage = registry.getComponent<game::Damage>(attack);
+
+    REQUIRE(damage.kind == game::DamageKind::Projectile);
+    REQUIRE_FALSE(registry.hasComponent<game::Animation>(attack));
+
+    const auto &cooldown = registry.getComponent<game::PlayerAttackCooldown>(player);
+
+    REQUIRE(cooldown.attackRemainingSec == Catch::Approx(0.5f));
+    REQUIRE(cooldown.specialAttackRemainingSec == Catch::Approx(0.5f));
+}
+
+TEST_CASE_METHOD(TestFixture, "InputSystem does not block special ranged attack with active normal cooldown")
+{
+    game::Registry registry;
+    game::InputSystem system;
+    const config::GameConfig config = makeInputSystemTestConfig();
+
+    const game::Entity player = addPlayer(registry, game::CharacterType::Ranged);
+
+    setAttackCooldowns(registry, player, 0.5f, 0.0f);
+
+    controller::InputState input{};
+    input.mouseRightPressed = true;
+    input.mouseGrid = {200.0f, 108.0f};
+
+    system.update(registry, config, input, 0.0f);
+
+    const game::Entity attack = requireSinglePlayerAttack(registry);
+    const auto &damage = registry.getComponent<game::Damage>(attack);
+
+    REQUIRE(damage.kind == game::DamageKind::Unicorn);
+    REQUIRE(registry.hasComponent<game::Animation>(attack));
+
+    const auto &cooldown = registry.getComponent<game::PlayerAttackCooldown>(player);
+
+    REQUIRE(cooldown.attackRemainingSec == Catch::Approx(0.5f));
+    REQUIRE(cooldown.specialAttackRemainingSec == Catch::Approx(0.5f));
+}
+TEST_CASE_METHOD(TestFixture, "InputSystem does not block normal melee attack with active special cooldown")
+{
+    game::Registry registry;
+    game::InputSystem system;
+    const config::GameConfig config = makeInputSystemTestConfig();
+
+    const game::Entity player = addPlayer(registry, game::CharacterType::Melee);
+
+    setAttackCooldowns(registry, player, 0.0f, 0.5f);
+
+    controller::InputState input{};
+    input.mouseLeftPressed = true;
+    input.mouseGrid = {200.0f, 100.0f};
+
+    system.update(registry, config, input, 0.0f);
+
+    const game::Entity attack = requireSinglePlayerAttack(registry);
+    const auto &damage = registry.getComponent<game::Damage>(attack);
+
+    REQUIRE(damage.kind == game::DamageKind::MeleeArc);
+    REQUIRE_FALSE(registry.hasComponent<view::Sprite>(attack));
+    REQUIRE_FALSE(registry.hasComponent<game::Animation>(attack));
+
+    const auto &cooldown = registry.getComponent<game::PlayerAttackCooldown>(player);
+
+    REQUIRE(cooldown.attackRemainingSec == Catch::Approx(0.5f));
+    REQUIRE(cooldown.specialAttackRemainingSec == Catch::Approx(0.5f));
+}
+
+TEST_CASE_METHOD(TestFixture, "InputSystem does not block special melee attack with active normal cooldown")
+{
+    game::Registry registry;
+    game::InputSystem system;
+    const config::GameConfig config = makeInputSystemTestConfig();
+
+    const game::Entity player = addPlayer(registry, game::CharacterType::Melee);
+
+    setAttackCooldowns(registry, player, 0.5f, 0.0f);
+
+    controller::InputState input{};
+    input.mouseRightPressed = true;
+    input.mouseGrid = {200.0f, 100.0f};
+
+    system.update(registry, config, input, 0.0f);
+
+    const game::Entity attack = requireSinglePlayerAttack(registry);
+    const auto &damage = registry.getComponent<game::Damage>(attack);
+
+    REQUIRE(damage.kind == game::DamageKind::Area);
+    REQUIRE(registry.hasComponent<view::Sprite>(attack));
+    REQUIRE(registry.hasComponent<game::Animation>(attack));
+
+    const auto &cooldown = registry.getComponent<game::PlayerAttackCooldown>(player);
+
+    REQUIRE(cooldown.attackRemainingSec == Catch::Approx(0.5f));
+    REQUIRE(cooldown.specialAttackRemainingSec == Catch::Approx(0.5f));
 }

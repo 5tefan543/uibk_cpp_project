@@ -482,6 +482,82 @@ TEST_CASE_METHOD(TestFixture, "Game updateView does not render enemy health bar 
     REQUIRE_FALSE(enemyBarFound);
 }
 
+TEST_CASE_METHOD(TestFixture, "Game updateView correctly overlaps sprites")
+{
+    game::Game game;
+    game::GameDebugSession &session = game.getDebugSession();
+
+    const game::Entity enemy = session.registry.createEntity();
+    session.registry.addComponent<game::EnemyTag>(enemy, {});
+    session.registry.addComponent<game::Position>(enemy, {{700.0f, 400.0f}});
+    session.registry.addComponent<view::Sprite>(enemy, {.rect = {{0.0f, 0.0f}, {80.0f, 40.0f}}});
+
+    const game::Entity boss = session.registry.createEntity();
+    session.registry.addComponent<game::EnemyTag>(boss, {});
+    session.registry.addComponent<game::Position>(boss, {{700.0f, 400.0f}});
+    session.registry.addComponent<view::Sprite>(boss, {.rect = {{0.0f, 0.0f}, {81.0f, 40.0f}}});
+
+    const game::Entity player = session.registry.createEntity();
+    session.registry.addComponent<game::PlayerTag>(player, {});
+    session.registry.addComponent<game::Position>(player, {{700.0f, 400.0f}});
+    session.registry.addComponent<view::Sprite>(player, {.rect = {{0.0f, 0.0f}, {82.0f, 40.0f}}});
+
+    const game::Entity projectile = session.registry.createEntity();
+    session.registry.addComponent<game::PlayerTag>(projectile, {});
+    session.registry.addComponent<game::Position>(projectile, {{700.0f, 400.0f}});
+    session.registry.addComponent<view::Sprite>(projectile, {.rect = {{0.0f, 0.0f}, {83.0f, 40.0f}}});
+    game::Damage damage = {
+        .amount = 42,
+        .pushBackForce = 0.0f,
+        .stunChance = 0.0f,
+        .kind = game::DamageKind::Projectile,
+        .params =
+            game::ProjectileDamage{
+                .speed = 0.0f,
+                .maxRange = 0.0f,
+                .distanceTraveled = 0.0f,
+                .maxTargets = 1,
+            },
+    };
+    session.registry.addComponent<game::Damage>(projectile, damage);
+
+    const game::Entity areaAttack = session.registry.createEntity();
+    session.registry.addComponent<game::PlayerTag>(areaAttack, {});
+    session.registry.addComponent<game::Position>(areaAttack, {{700.0f, 400.0f}});
+    session.registry.addComponent<view::Sprite>(areaAttack, {.rect = {{0.0f, 0.0f}, {83.0f, 40.0f}}});
+    game::Damage damageArea = {
+        .amount = 42,
+        .pushBackForce = 0.0f,
+        .stunChance = 0.0f,
+        .kind = game::DamageKind::Area,
+        .params =
+            game::ProjectileDamage{
+                .speed = 0.0f,
+                .maxRange = 0.0f,
+                .distanceTraveled = 0.0f,
+                .maxTargets = 1,
+            },
+    };
+    session.registry.addComponent<game::Damage>(areaAttack, damageArea);
+
+    view::View view;
+    game.updateView(view);
+
+    unsigned orderI = 0;
+    const std::array order = {areaAttack, enemy, boss, player, projectile};
+
+    for (auto node : view.nodes) {
+        auto p = std::get_if<std::reference_wrapper<const view::Sprite>>(&node.element);
+        if (p && &p->get() == &session.registry.getComponent<view::Sprite>(order[orderI])) {
+            orderI++;
+        }
+        if (orderI == order.size()) {
+            break;
+        }
+    }
+    REQUIRE(orderI == order.size());
+}
+
 TEST_CASE_METHOD(TestFixture, "Game updateView renders damaged enemy green and red health sections")
 {
     game::Game game;
@@ -543,6 +619,8 @@ TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted valu
     persistedGame.wave = 5;
     persistedGame.playerStats.currency = 1234;
     persistedGame.playerStats.moveSpeed = 333.0f;
+    persistedGame.playerStats.defense = 7.0f;
+    persistedGame.playerStats.healthRegen = 2.25f;
 
     game::Game game(persistedGame);
 
@@ -552,4 +630,6 @@ TEST_CASE_METHOD(TestFixture, "Game loadFromPersistedGame applies persisted valu
     REQUIRE(game.getDebugSession().stage == resultStage);
     REQUIRE(snapshot.playerStats.currency == 1234);
     REQUIRE(snapshot.playerStats.moveSpeed == 333.0f);
+    REQUIRE(snapshot.playerStats.defense == Catch::Approx(7.0f));
+    REQUIRE(snapshot.playerStats.healthRegen == Catch::Approx(2.25f));
 }

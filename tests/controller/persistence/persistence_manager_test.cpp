@@ -19,6 +19,7 @@ void createSavedGameFile()
     game.playerStats.hasDash = false;
     game.playerStats.attackPower = 55.0f;
     game.playerStats.attackSpeed = 1.5f;
+    game.playerStats.specialAttackSpeed = 2.0f;
     game.playerStats.defense = 20.0f;
     PersistenceManager::saveGame(game);
 }
@@ -29,6 +30,8 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads game state")
     input.wave = 9;
     input.playerStats.currency = 321;
     input.playerStats.attackPower = 42.0f;
+    input.playerStats.defense = 6.5f;
+    input.playerStats.healthRegen = 0.75f;
     input.playerStats.hasDash = true;
 
     PersistenceManager::saveGame(input);
@@ -38,6 +41,8 @@ TEST_CASE_METHOD(TestFixture, "PersistenceManager saves and loads game state")
     REQUIRE(output.wave == 9);
     REQUIRE(output.playerStats.currency == 321);
     REQUIRE(output.playerStats.attackPower == Catch::Approx(42.0f));
+    REQUIRE(output.playerStats.defense == Catch::Approx(6.5f));
+    REQUIRE(output.playerStats.healthRegen == Catch::Approx(0.75f));
     REQUIRE(output.playerStats.hasDash == true);
 }
 

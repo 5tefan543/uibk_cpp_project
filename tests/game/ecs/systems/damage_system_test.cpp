@@ -1,6 +1,9 @@
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/map_tag.hpp"
+#include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/ecs/registry.hpp"
@@ -121,6 +124,145 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem applies damage on collision and dest
     const auto &updatedPlayerStats = registry.getComponent<game::PlayerStats>(player);
     REQUIRE(updatedPlayerStats.score == 3);
     REQUIRE(updatedPlayerStats.currency == 3);
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem converts negative damage to percentage of player max health")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity player = registry.createEntity();
+    game::PlayerStats playerStats;
+    playerStats.maxHealth = 200.0f;
+    playerStats.health = 200.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+
+    const game::Entity projectile = registry.createEntity();
+    registry.addComponent<game::Damage>(
+        projectile, {.amount = -0.25f,
+                     .pushBackForce = 0.0f,
+                     .stunChance = 0.0f,
+                     .kind = game::DamageKind::Projectile,
+                     .params = game::ProjectileDamage{
+                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .maxTargets = 1}});
+    registry.addComponent<game::DamageTag>(projectile, {.targets = {player}});
+
+    system.update(registry, 0.016f);
+
+    REQUIRE_FALSE(registry.isEntityAlive(projectile));
+    REQUIRE(registry.isEntityAlive(player));
+
+    const auto &updatedPlayerStats = registry.getComponent<game::PlayerStats>(player);
+    REQUIRE(updatedPlayerStats.health == Catch::Approx(150.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem converts negative damage to percentage of enemy max health")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity enemy = registry.createEntity();
+    game::EnemyStats enemyStats;
+    enemyStats.maxHealth = 80.0f;
+    enemyStats.health = 80.0f;
+    enemyStats.scoreReward = 1;
+    registry.addComponent<game::EnemyStats>(enemy, enemyStats);
+
+    const game::Entity projectile = registry.createEntity();
+    registry.addComponent<game::Damage>(
+        projectile, {.amount = -0.5f,
+                     .pushBackForce = 0.0f,
+                     .stunChance = 0.0f,
+                     .kind = game::DamageKind::Projectile,
+                     .params = game::ProjectileDamage{
+                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .maxTargets = 1}});
+    registry.addComponent<game::DamageTag>(projectile, {.targets = {enemy}});
+
+    system.update(registry, 0.016f);
+
+    REQUIRE_FALSE(registry.isEntityAlive(projectile));
+    REQUIRE(registry.isEntityAlive(enemy));
+
+    const auto &updatedEnemyStats = registry.getComponent<game::EnemyStats>(enemy);
+    REQUIRE(updatedEnemyStats.health == Catch::Approx(40.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem rewards player when negative damage kills enemy")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity player = registry.createEntity();
+    game::PlayerStats playerStats;
+    playerStats.health = 100.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+
+    const game::Entity enemy = registry.createEntity();
+    game::EnemyStats enemyStats;
+    enemyStats.maxHealth = 80.0f;
+    enemyStats.health = 20.0f;
+    enemyStats.scoreReward = 7;
+    registry.addComponent<game::EnemyStats>(enemy, enemyStats);
+
+    const game::Entity projectile = registry.createEntity();
+    registry.addComponent<game::Damage>(
+        projectile, {.amount = -0.25f,
+                     .pushBackForce = 0.0f,
+                     .stunChance = 0.0f,
+                     .kind = game::DamageKind::Projectile,
+                     .params = game::ProjectileDamage{
+                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .maxTargets = 1}});
+    registry.addComponent<game::DamageTag>(projectile, {.targets = {enemy}});
+
+    system.update(registry, 0.016f);
+
+    REQUIRE_FALSE(registry.isEntityAlive(projectile));
+    REQUIRE_FALSE(registry.isEntityAlive(enemy));
+
+    const auto &updatedPlayerStats = registry.getComponent<game::PlayerStats>(player);
+    REQUIRE(updatedPlayerStats.score == 7);
+    REQUIRE(updatedPlayerStats.currency == 7);
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem applies negative damage independently per target max health")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity player = registry.createEntity();
+    game::PlayerStats playerStats;
+    playerStats.maxHealth = 200.0f;
+    playerStats.health = 200.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+
+    const game::Entity enemy = registry.createEntity();
+    game::EnemyStats enemyStats;
+    enemyStats.maxHealth = 80.0f;
+    enemyStats.health = 80.0f;
+    enemyStats.scoreReward = 1;
+    registry.addComponent<game::EnemyStats>(enemy, enemyStats);
+
+    const game::Entity projectile = registry.createEntity();
+    registry.addComponent<game::Damage>(
+        projectile, {.amount = -0.25f,
+                     .pushBackForce = 0.0f,
+                     .stunChance = 0.0f,
+                     .kind = game::DamageKind::Projectile,
+                     .params = game::ProjectileDamage{
+                         .speed = 0.0f, .maxRange = 100.0f, .distanceTraveled = 0.0f, .maxTargets = 2}});
+    registry.addComponent<game::DamageTag>(projectile, {.targets = {player, enemy}});
+
+    system.update(registry, 0.016f);
+
+    REQUIRE_FALSE(registry.isEntityAlive(projectile));
+    REQUIRE(registry.isEntityAlive(player));
+    REQUIRE(registry.isEntityAlive(enemy));
+
+    const auto &updatedPlayerStats = registry.getComponent<game::PlayerStats>(player);
+    const auto &updatedEnemyStats = registry.getComponent<game::EnemyStats>(enemy);
+
+    REQUIRE(updatedPlayerStats.health == Catch::Approx(150.0f));
+    REQUIRE(updatedEnemyStats.health == Catch::Approx(60.0f));
 }
 
 TEST_CASE_METHOD(TestFixture, "DamageSystem projectile uses configured speed when velocity component is absent")
@@ -365,8 +507,101 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem area damage applies initial and tick
     areaTag.targets.insert(player);
     system.update(registry, 0.5f);
 
-    REQUIRE(updatedPlayer.health == Catch::Approx(92.0f));
+    REQUIRE(updatedPlayer.health == Catch::Approx(93.0f));
     REQUIRE(areaTag.targets.empty());
+    REQUIRE(areaTag.targetsHit.contains(player));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem area negative damage uses percentage instead of initial and tick scaling")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity player = registry.createEntity();
+    game::PlayerStats playerStats;
+    playerStats.maxHealth = 200.0f;
+    playerStats.health = 200.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+
+    const game::Entity area = registry.createEntity();
+    registry.addComponent<game::Damage>(area, {.amount = -0.25f,
+                                               .pushBackForce = 0.0f,
+                                               .stunChance = 0.0f,
+                                               .kind = game::DamageKind::Area,
+                                               .params = game::AreaDamage{.radius = 40.0f,
+                                                                          .activeTimeSec = 1.0f,
+                                                                          .elapsedSec = 0.0f,
+                                                                          .initialHit = 0.4f,
+                                                                          .damageTicks = 2,
+                                                                          .elapsedSecSinceLastTick = 0.0f}});
+    registry.addComponent<game::DamageTag>(area, {.targets = {player}});
+
+    system.update(registry, 0.05f);
+
+    auto &updatedPlayer = registry.getComponent<game::PlayerStats>(player);
+    auto &areaTag = registry.getComponent<game::DamageTag>(area);
+
+    REQUIRE(updatedPlayer.health == Catch::Approx(150.0f));
+    REQUIRE(areaTag.targets.empty());
+    REQUIRE(areaTag.targetsHit.contains(player));
+
+    areaTag.targets.insert(player);
+    system.update(registry, 0.05f);
+
+    REQUIRE(updatedPlayer.health == Catch::Approx(150.0f));
+    REQUIRE(areaTag.targets.empty());
+    REQUIRE(areaTag.targetsHit.contains(player));
+
+    areaTag.targets.insert(player);
+    system.update(registry, 0.5f);
+
+    REQUIRE(updatedPlayer.health == Catch::Approx(100.0f));
+    REQUIRE(areaTag.targets.empty());
+    REQUIRE(areaTag.targetsHit.contains(player));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem area telegraph delays non-initial damage application")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity player = registry.createEntity();
+    game::PlayerStats playerStats;
+    playerStats.health = 100.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+
+    const game::Entity area = registry.createEntity();
+    registry.addComponent<game::Damage>(area, {.amount = 12.0f,
+                                               .pushBackForce = 0.0f,
+                                               .stunChance = 0.0f,
+                                               .kind = game::DamageKind::Area,
+                                               .params = game::AreaDamage{.radius = 40.0f,
+                                                                          .activeTimeSec = 1.0f,
+                                                                          .elapsedSec = 0.0f,
+                                                                          .telegraphTimeSec = 0.5f,
+                                                                          .initialHit = 0.0f,
+                                                                          .damageTicks = 1,
+                                                                          .elapsedSecSinceLastTick = 0.0f}});
+    registry.addComponent<game::DamageTag>(area, {.targets = {player}});
+
+    system.update(registry, 0.25f);
+
+    auto &updatedPlayer = registry.getComponent<game::PlayerStats>(player);
+    auto &areaTag = registry.getComponent<game::DamageTag>(area);
+
+    REQUIRE(updatedPlayer.health == Catch::Approx(100.0f));
+    REQUIRE(areaTag.targetsHit.empty());
+
+    areaTag.targets.insert(player);
+    system.update(registry, 0.25f);
+
+    REQUIRE(updatedPlayer.health == Catch::Approx(100.0f));
+    REQUIRE(areaTag.targetsHit.empty());
+
+    areaTag.targets.insert(player);
+    system.update(registry, 0.01f);
+
+    REQUIRE(updatedPlayer.health == Catch::Approx(88.0f));
     REQUIRE(areaTag.targetsHit.contains(player));
 }
 
@@ -433,4 +668,74 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem sets enemy animation to Hit when dam
     REQUIRE(animation.currentFrame == 0);
     REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
     REQUIRE(animation.stateTimeRemaining == Catch::Approx(0.16f));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem keeps unicorn damage entity while intersecting map")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity map = registry.createEntity();
+    registry.addComponent<game::MapTag>(map, {});
+    registry.addComponent<game::Position>(map, {.p = {0.0f, 0.0f}});
+    registry.addComponent<game::HitBox>(map, {.offset = {0.0f, 0.0f}, .size = {100.0f, 100.0f}});
+
+    const game::Entity unicorn = registry.createEntity();
+    registry.addComponent<game::Position>(unicorn, {.p = {20.0f, 20.0f}});
+    registry.addComponent<game::HitBox>(unicorn, {.offset = {0.0f, 0.0f}, .size = {16.0f, 16.0f}});
+    registry.addComponent<game::Damage>(unicorn, {.amount = 15.0f,
+                                                  .pushBackForce = 0.0f,
+                                                  .stunChance = 0.0f,
+                                                  .kind = game::DamageKind::Unicorn,
+                                                  .params = game::UnicornDamage{}});
+    registry.addComponent<game::DamageTag>(unicorn, {});
+
+    system.update(registry, 0.016f);
+
+    REQUIRE(registry.isEntityAlive(unicorn));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem destroys unicorn damage entity after leaving map")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity map = registry.createEntity();
+    registry.addComponent<game::MapTag>(map, {});
+    registry.addComponent<game::Position>(map, {.p = {0.0f, 0.0f}});
+    registry.addComponent<game::HitBox>(map, {.offset = {0.0f, 0.0f}, .size = {100.0f, 100.0f}});
+
+    const game::Entity unicorn = registry.createEntity();
+    registry.addComponent<game::Position>(unicorn, {.p = {150.0f, 20.0f}});
+    registry.addComponent<game::HitBox>(unicorn, {.offset = {0.0f, 0.0f}, .size = {16.0f, 16.0f}});
+    registry.addComponent<game::Damage>(unicorn, {.amount = 15.0f,
+                                                  .pushBackForce = 0.0f,
+                                                  .stunChance = 0.0f,
+                                                  .kind = game::DamageKind::Unicorn,
+                                                  .params = game::UnicornDamage{}});
+    registry.addComponent<game::DamageTag>(unicorn, {});
+
+    system.update(registry, 0.016f);
+
+    REQUIRE_FALSE(registry.isEntityAlive(unicorn));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem keeps unicorn damage entity when map entity is missing")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity unicorn = registry.createEntity();
+    registry.addComponent<game::Position>(unicorn, {.p = {150.0f, 20.0f}});
+    registry.addComponent<game::HitBox>(unicorn, {.offset = {0.0f, 0.0f}, .size = {16.0f, 16.0f}});
+    registry.addComponent<game::Damage>(unicorn, {.amount = 15.0f,
+                                                  .pushBackForce = 0.0f,
+                                                  .stunChance = 0.0f,
+                                                  .kind = game::DamageKind::Unicorn,
+                                                  .params = game::UnicornDamage{}});
+    registry.addComponent<game::DamageTag>(unicorn, {});
+
+    system.update(registry, 0.016f);
+
+    REQUIRE(registry.isEntityAlive(unicorn));
 }

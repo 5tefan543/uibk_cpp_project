@@ -251,10 +251,12 @@ view::Card &ProgressionStore::createPlayerStatsCard()
     addStatsRow("Max Health", [this]() { return floatToPrettyString(playerStats_.maxHealth); });
     addStatsRow("Attack", [this]() { return floatToPrettyString(playerStats_.attackPower); });
     addStatsRow("Attack Speed", [this]() { return floatToPrettyString(playerStats_.attackSpeed); });
-    addStatsRow("Defense", [this]() { return floatToPrettyString(playerStats_.defense); });
+    addStatsRow("Ability Cooldown", [this]() { return floatToPrettyString(playerStats_.specialAttackSpeed); });
+    addStatsRow("Armor", [this]() { return floatToPrettyString(playerStats_.defense); });
     addStatsRow("Move Speed", [this]() { return floatToPrettyString(playerStats_.moveSpeed); });
     addStatsRow("Speed of Attack", [this]() { return floatToPrettyString(playerStats_.speedOfAttack); });
     addStatsRow("Attack Range", [this]() { return floatToPrettyString(playerStats_.attackRange); });
+    addStatsRow("Health Regen", [this]() { return floatToPrettyString(playerStats_.healthRegen); });
     addStatsRow("Dash", [this]() { return std::string(playerStats_.hasDash ? "Yes" : "No"); });
 
     return statsCard;
@@ -482,10 +484,12 @@ std::string ProgressionStore::getStatChangesText(const PlayerStats &statChanges)
     addFloatChange("Max Health", statChanges.maxHealth);
     addFloatChange("Attack", statChanges.attackPower);
     addFloatChange("Attack Speed", statChanges.attackSpeed);
-    addFloatChange("Defense", statChanges.defense);
+    addFloatChange("Special Attack Speed", statChanges.specialAttackSpeed);
+    addFloatChange("Armor", statChanges.defense);
     addFloatChange("Move Speed", statChanges.moveSpeed);
     addFloatChange("Speed of Attack", statChanges.speedOfAttack);
     addFloatChange("Attack Range", statChanges.attackRange);
+    addFloatChange("Health Regen", statChanges.healthRegen);
     addIntChange("Pierce", statChanges.enemiesPierced);
 
     if (statChanges.hasDash) {
@@ -660,6 +664,8 @@ void ProgressionStore::applyStatChanges(const PlayerStats &statChanges)
     playerStats_.health += statChanges.health;
     playerStats_.attackPower += statChanges.attackPower;
     playerStats_.attackSpeed += statChanges.attackSpeed;
+    playerStats_.specialAttackSpeed += statChanges.specialAttackSpeed;
+    playerStats_.healthRegen += statChanges.healthRegen;
     playerStats_.defense += statChanges.defense;
     playerStats_.moveSpeed += statChanges.moveSpeed;
     playerStats_.speedOfAttack += statChanges.speedOfAttack;

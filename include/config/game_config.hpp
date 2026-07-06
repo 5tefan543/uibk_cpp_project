@@ -48,6 +48,7 @@ struct CombatStatsConfig {
     float maxHealth = 1.0f;
     float attackPower = 1.0f;
     float attackSpeed = 1.0f;
+    float specialAttackSpeed = 1.0f;
     float defense = 0.0f;
     float moveSpeed = 0.0f;
     float speedOfAttack = 0.0f;
@@ -55,6 +56,11 @@ struct CombatStatsConfig {
 };
 
 struct ProjectileAttackConfig {
+    float velocityScale = 10.0f;
+    AnimationConfig animations;
+};
+
+struct UnicornAttackConfig {
     float velocityScale = 10.0f;
     AnimationConfig animations;
 };
@@ -77,17 +83,20 @@ struct AreaAttackConfig {
     float radius = 0.0f;
     float activeTimeSec = 0.0f;
     int damageTicks = 0;
+    float telegraphTimeSec = 0.1f;
     float initialHit; // percentage based of damage amount the remaining damage will be divided over the damageTicks
     AnimationConfig animations;
 };
 
 struct AttackProfileConfig {
-    game::DamageKind kind = game::DamageKind::Projectile;
     float amount = 1.0f;
     bool isMultiHit = false;
     float pushBackForce = 0.0f;
     float stunChance = 0.0f;
+    TextureConfig attackIcon;
+    TextureConfig specialAttackIcon;
     ProjectileAttackConfig projectile;
+    UnicornAttackConfig unicorn;
     MeleeArcAttackConfig meleeArc;
     BeamAttackConfig beam;
     AreaAttackConfig area;

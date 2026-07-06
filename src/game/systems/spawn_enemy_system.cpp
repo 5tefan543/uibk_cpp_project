@@ -1,6 +1,8 @@
 #include "game/ecs/systems/spawn_enemy_system.hpp"
 #include "config/animation_config_helper.hpp"
 #include "game/ecs/components/animation.hpp"
+#include "game/ecs/components/boss_phase.hpp"
+#include "game/ecs/components/enemy_attack_cooldown.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/health_bar_state.hpp"
 #include "game/ecs/components/hitbox.hpp"
@@ -15,6 +17,7 @@
 namespace game {
 
 constexpr float pi = 3.14159265358979323846f;
+constexpr float bossSpriteScale = 2.0f;
 
 SpawnEnemySystem::SpawnEnemySystem() : randomEngine_(std::random_device{}()) {}
 
@@ -100,6 +103,12 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const config::Ga
 
     HitBox hitBox{animationFrame.spriteConfig.hitBox.offset, animationFrame.spriteConfig.hitBox.size};
 
+    if (enemyType == EnemyType::Boss) {
+        enemySprite.rect.size *= bossSpriteScale;
+        hitBox.offset *= bossSpriteScale;
+        hitBox.size *= bossSpriteScale;
+    }
+
     Entity enemy = registry.createEntity();
     registry.addComponent<EnemyTag>(enemy, {});
     registry.addComponent<Position>(enemy, spawnPosition);
@@ -109,6 +118,11 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const config::Ga
     registry.addComponent<view::Sprite>(enemy, enemySprite);
     registry.addComponent<HitBox>(enemy, hitBox);
     registry.addComponent<HealthBarState>(enemy, {});
+
+    if (enemyType == EnemyType::Boss) {
+        registry.addComponent<EnemyAttackCooldown>(enemy, {1.5f});
+        registry.addComponent<BossPhase>(enemy, {});
+    }
 }
 
 Position SpawnEnemySystem::generateSpawnPosition(const SpawnContext &context, const view::Sprite &enemySprite,
@@ -161,6 +175,7 @@ EnemyStats SpawnEnemySystem::createEnemyStats(int wave, const config::EnemyClass
     stats.health = stats.maxHealth;
     stats.attackPower = classConfig.stats.attackPower * combatScaling;
     stats.attackSpeed = classConfig.stats.attackSpeed;
+    stats.specialAttackSpeed = classConfig.stats.specialAttackSpeed;
     stats.defense = classConfig.stats.defense * combatScaling;
     stats.moveSpeed = generateEnemyMoveSpeed(wave, classConfig, spawnConfig, context);
     stats.speedOfAttack = classConfig.stats.speedOfAttack;

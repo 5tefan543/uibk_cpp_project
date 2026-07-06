@@ -35,11 +35,13 @@ struct Stats {
     float maxHealth = 1.0f;
     float health = 1.0f;
     float attackPower = 1.0f;
-    float attackSpeed = 1.0f; // Attacks per seconds
+    float attackSpeed = 1.0f;        // Attacks per seconds
+    float specialAttackSpeed = 1.0f; // Special attacks per seconds
     float defense = 0.0f;
     float moveSpeed = 0.0f;
     float speedOfAttack = 0.0f; // More travel speed of projectiles, or speed of swing animation etc..
     float attackRange = 0.0;
+    float healthRegen = 0.0f; // Health per second, default 0 (no regen)
 };
 
 struct PlayerStats : Stats {
@@ -63,10 +65,12 @@ inline game::PlayerStats getDefaultPlayerStatChanges()
     stats.health = 0.0f;
     stats.attackPower = 0.0f;
     stats.attackSpeed = 0.0f;
+    stats.specialAttackSpeed = 0.0f;
     stats.defense = 0.0f;
     stats.moveSpeed = 0.0f;
     stats.speedOfAttack = 0.0f;
     stats.attackRange = 0.0f;
+    stats.healthRegen = 0.0f;
 
     stats.hasDash = false;
     stats.enemiesPierced = 0;

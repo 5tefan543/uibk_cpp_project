@@ -2,6 +2,9 @@
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/damage.hpp"
 #include "game/ecs/components/damage_tag.hpp"
+#include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/map_tag.hpp"
+#include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "logging/log.hpp"
@@ -44,6 +47,36 @@ DamageInformation DamageSystem::updateProjectile(Registry &registry, Damage &dam
     return amount;
 }
 
+DamageInformation DamageSystem::updateUnicorn(const Registry &registry, Entity entity, const Damage &damage)
+{
+    DamageInformation result;
+    result.actualDamageAmount = damage.amount;
+    result.shouldBeRemoved = false;
+
+    auto mapEntities = registry.view<MapTag, HitBox>();
+
+    if (mapEntities.empty()) {
+        logger::log(logger::LogLevel::WARNING, "No map entity found in the registry.");
+        return result;
+    }
+
+    if (registry.hasComponent<Position>(entity)) {
+        const Position &unicornPosition = registry.getComponent<Position>(entity);
+        const HitBox &unicornHitBox = registry.getComponent<HitBox>(entity);
+        const Position &mapPosition = registry.getComponent<Position>(mapEntities.front());
+        const HitBox &mapHitBox = registry.getComponent<HitBox>(mapEntities.front());
+
+        const geometry::Rectangle<float> hitBoxRectUnicorn{unicornHitBox.offset + unicornPosition.p,
+                                                           unicornHitBox.size};
+        const geometry::Rectangle<float> hitBoxRectMap{mapHitBox.offset + mapPosition.p, mapHitBox.size};
+
+        if (!hitBoxRectUnicorn.intersects(hitBoxRectMap)) {
+            result.shouldBeRemoved = true;
+        }
+    }
+    return result;
+}
+
 DamageInformation DamageSystem::updateMelee(Damage &damage, MeleeArcDamage &melee, float dtSec)
 {
     DamageInformation result;
@@ -77,19 +110,21 @@ DamageInformation DamageSystem::updateBeam(Damage &damage, BeamDamage &beam, Dam
 
 DamageInformation DamageSystem::updateArea(Damage &damage, AreaDamage &area, DamageTag &tag, float dtSec)
 {
-    float graceTimeSec = 0.1f;
+    const int damageTickCount = std::max(1, area.damageTicks);
+    const bool isTelegraphing = area.elapsedSec < area.telegraphTimeSec;
 
-    // graceTime should be duration of animation
     DamageInformation result;
-    if (area.elapsedSec <= graceTimeSec) {
+    if (damage.amount < 0.0f) {
+        result.actualDamageAmount = damage.amount;
+    } else if (isTelegraphing) {
         result.actualDamageAmount = damage.amount * area.initialHit;
     } else {
-        result.actualDamageAmount = damage.amount * (1.0f - area.initialHit) / area.damageTicks;
+        result.actualDamageAmount = damage.amount * (1.0f - area.initialHit) / damageTickCount;
     }
     result.shouldBeRemoved = false;
     area.elapsedSec += dtSec;
     area.elapsedSecSinceLastTick += dtSec;
-    bool resetHitTargets = area.elapsedSecSinceLastTick > area.elapsedSec / area.damageTicks;
+    const bool resetHitTargets = area.elapsedSecSinceLastTick > area.elapsedSec / damageTickCount;
     if (resetHitTargets) {
         tag.targetsHit = {};
         area.elapsedSecSinceLastTick = 0.0f;
@@ -99,8 +134,26 @@ DamageInformation DamageSystem::updateArea(Damage &damage, AreaDamage &area, Dam
     }
     return result;
 }
+
 void DamageSystem::update(Registry &registry, float dtSec)
 {
+    // Apply health regeneration (health per second) before processing damage
+    for (Entity e : registry.view<PlayerStats>()) {
+        if (!registry.isEntityAlive(e))
+            continue;
+        PlayerStats &ps = registry.getComponent<PlayerStats>(e);
+        if (ps.healthRegen > 0.0f && ps.health < ps.maxHealth) {
+            ps.health = std::min(ps.maxHealth, ps.health + ps.healthRegen * dtSec);
+        }
+    }
+    for (Entity e : registry.view<EnemyStats>()) {
+        if (!registry.isEntityAlive(e))
+            continue;
+        EnemyStats &es = registry.getComponent<EnemyStats>(e);
+        if (es.healthRegen > 0.0f && es.health < es.maxHealth) {
+            es.health = std::min(es.maxHealth, es.health + es.healthRegen * dtSec);
+        }
+    }
     auto damageEntities = registry.view<Damage, DamageTag>();
     for (Entity damageEntity : damageEntities) {
         if (!registry.isEntityAlive(damageEntity)) {
@@ -122,6 +175,11 @@ void DamageSystem::update(Registry &registry, float dtSec)
             if (std::holds_alternative<ProjectileDamage>(damage.params)) {
                 auto &projectile = std::get<ProjectileDamage>(damage.params);
                 currentDamage = updateProjectile(registry, damage, projectile, damageEntity, dtSec);
+            }
+            break;
+        case DamageKind::Unicorn:
+            if (std::holds_alternative<UnicornDamage>(damage.params)) {
+                currentDamage = updateUnicorn(registry, damageEntity, damage);
             }
             break;
         case DamageKind::Beam:
@@ -157,9 +215,27 @@ void DamageSystem::update(Registry &registry, float dtSec)
 
             hasAliveTarget = true;
 
+            float damageAmount = currentDamage.actualDamageAmount;
+
+            if (damageAmount == 0.0f) {
+                continue;
+            }
+
             if (registry.hasComponent<PlayerStats>(targetEntity)) {
                 PlayerStats &playerStats = registry.getComponent<PlayerStats>(targetEntity);
-                playerStats.health -= currentDamage.actualDamageAmount;
+
+                if (damageAmount < 0.0f) {
+                    // Negative damage values represent percentage-based damage.
+                    // Example: -0.25f means 25% of the player's max health.
+                    damageAmount = playerStats.maxHealth * (-damageAmount);
+                    // Percentage-based damage bypasses flat defense reduction.
+                    playerStats.health -= damageAmount;
+                } else {
+                    // Flat damage is reduced by the target's defense (additive flat reduction).
+                    const float effective = std::max(0.0f, damageAmount - playerStats.defense);
+                    playerStats.health -= effective;
+                }
+
                 if (playerStats.health <= 0.0f) {
                     registry.destroyEntity(targetEntity);
                 } else {
@@ -167,7 +243,19 @@ void DamageSystem::update(Registry &registry, float dtSec)
                 }
             } else if (registry.hasComponent<EnemyStats>(targetEntity)) {
                 EnemyStats &enemyStats = registry.getComponent<EnemyStats>(targetEntity);
-                enemyStats.health -= currentDamage.actualDamageAmount;
+
+                if (damageAmount < 0.0f) {
+                    // Negative damage values represent percentage-based damage.
+                    // Example: -0.25f means 25% of the enemy's max health.
+                    damageAmount = enemyStats.maxHealth * (-damageAmount);
+                    // Percentage-based damage bypasses flat defense reduction.
+                    enemyStats.health -= damageAmount;
+                } else {
+                    // Flat damage is reduced by the target's defense (additive flat reduction).
+                    const float effective = std::max(0.0f, damageAmount - enemyStats.defense);
+                    enemyStats.health -= effective;
+                }
+
                 if (enemyStats.health <= 0.0f) {
                     auto players = registry.view<PlayerStats>();
                     if (!players.empty()) {
