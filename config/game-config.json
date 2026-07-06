@@ -1706,7 +1706,7 @@
             "moveSpeedRatioOfPlayer": 0.9,
             "stats": {
                 "maxHealth": 10,
-                "attackPower": 8,
+                "attackPower": 6,
                 "attackSpeed": 1,
                 "specialAttackSpeed": 1,
                 "defense": 0.25,
@@ -3134,9 +3134,9 @@
                             }
                         },
                         "statChanges": {
-                            "maxHealth": 100
+                            "maxHealth": 40
                         },
-                        "cost": 500
+                        "cost": 200
                     },
                     "Rare": {
                         "icon": {
@@ -3147,9 +3147,9 @@
                             }
                         },
                         "statChanges": {
-                            "maxHealth": 40
+                            "maxHealth": 60
                         },
-                        "cost": 200
+                        "cost": 300
                     },
                     "Epic": {
                         "icon": {
@@ -3160,9 +3160,9 @@
                             }
                         },
                         "statChanges": {
-                            "maxHealth": 60
+                            "maxHealth": 100
                         },
-                        "cost": 300
+                        "cost": 500
                     }
                 }
             },
@@ -3194,7 +3194,7 @@
                         "statChanges": {
                             "moveSpeed": 10
                         },
-                        "cost": 500
+                        "cost": 200
                     },
                     "Rare": {
                         "icon": {
@@ -3207,7 +3207,7 @@
                         "statChanges": {
                             "moveSpeed": 15
                         },
-                        "cost": 200
+                        "cost": 300
                     },
                     "Epic": {
                         "icon": {
@@ -3220,7 +3220,7 @@
                         "statChanges": {
                             "moveSpeed": 20
                         },
-                        "cost": 300
+                        "cost": 400
                     }
                 }
             },
@@ -3342,7 +3342,7 @@
             },
             {
                 "name": "Armor",
-                "description": "Increases the flat armor of the player, reducing incoming damage.",
+                "description": "Reducing incoming damage.",
                 "typeToConfig": {
                     "Common": {
                         "icon": {
@@ -3355,7 +3355,7 @@
                         "statChanges": {
                             "defense": 1
                         },
-                        "cost": 100
+                        "cost": 150
                     },
                     "Uncommon": {
                         "icon": {
@@ -3368,7 +3368,7 @@
                         "statChanges": {
                             "defense": 2
                         },
-                        "cost": 500
+                        "cost": 300
                     },
                     "Rare": {
                         "icon": {
@@ -3381,7 +3381,7 @@
                         "statChanges": {
                             "defense": 3
                         },
-                        "cost": 200
+                        "cost": 450
                     },
                     "Epic": {
                         "icon": {
@@ -3392,9 +3392,9 @@
                             }
                         },
                         "statChanges": {
-                            "defense": 4
+                            "defense": 5
                         },
-                        "cost": 300
+                        "cost": 600
                     }
                 }
             },
@@ -3411,7 +3411,7 @@
                             }
                         },
                         "statChanges": {
-                            "healthRegen": 0.5
+                            "healthRegen": 1.0
                         },
                         "cost": 100
                     },
@@ -3424,9 +3424,9 @@
                             }
                         },
                         "statChanges": {
-                            "healthRegen": 1.0
+                            "healthRegen": 2.0
                         },
-                        "cost": 500
+                        "cost": 200
                     },
                     "Rare": {
                         "icon": {
@@ -3437,9 +3437,9 @@
                             }
                         },
                         "statChanges": {
-                            "healthRegen": 1.5
+                            "healthRegen": 3.0
                         },
-                        "cost": 200
+                        "cost": 300
                     },
                     "Epic": {
                         "icon": {
@@ -3450,9 +3450,9 @@
                             }
                         },
                         "statChanges": {
-                            "healthRegen": 2.0
+                            "healthRegen": 5.0
                         },
-                        "cost": 300
+                        "cost": 400
                     }
                 }
             }
