@@ -31,14 +31,15 @@ struct glz::meta<game::DamageKind> {
 
 template <>
 struct glz::meta<game::PlayerStats> {
-    static constexpr auto value = glz::object(
-        "maxHealth", &game::PlayerStats::maxHealth, "health", &game::PlayerStats::health, "attackPower",
-        &game::PlayerStats::attackPower, "attackSpeed", &game::PlayerStats::attackSpeed, "specialAttackSpeed",
-        &game::PlayerStats::specialAttackSpeed, "defense", &game::PlayerStats::defense, "moveSpeed",
-        &game::PlayerStats::moveSpeed, "speedOfAttack", &game::PlayerStats::speedOfAttack, "attackRange",
-        &game::PlayerStats::attackRange, "hasDash", &game::PlayerStats::hasDash, "enemiesPierced",
-        &game::PlayerStats::enemiesPierced, "score", &game::PlayerStats::score, "currency",
-        &game::PlayerStats::currency, "characterType", &game::PlayerStats::characterType);
+    static constexpr auto value =
+        glz::object("maxHealth", &game::PlayerStats::maxHealth, "health", &game::PlayerStats::health, "attackPower",
+                    &game::PlayerStats::attackPower, "attackSpeed", &game::PlayerStats::attackSpeed,
+                    "specialAttackSpeed", &game::PlayerStats::specialAttackSpeed, "defense",
+                    &game::PlayerStats::defense, "moveSpeed", &game::PlayerStats::moveSpeed, "speedOfAttack",
+                    &game::PlayerStats::speedOfAttack, "attackRange", &game::PlayerStats::attackRange, "healthRegen",
+                    &game::PlayerStats::healthRegen, "hasDash", &game::PlayerStats::hasDash, "enemiesPierced",
+                    &game::PlayerStats::enemiesPierced, "score", &game::PlayerStats::score, "currency",
+                    &game::PlayerStats::currency, "characterType", &game::PlayerStats::characterType);
 };
 
 template <>

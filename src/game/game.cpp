@@ -378,10 +378,11 @@ int Game::getWaveNumber()
 
 void Game::addScore(int score)
 {
+    const int scoreFactor = 10;
     for (Entity player : registry_.view<PlayerTag>()) {
         PlayerStats &playerStats = registry_.getComponent<PlayerStats>(player);
-        playerStats.score += score;
-        playerStats.currency += score;
+        playerStats.score += scoreFactor * score;
+        playerStats.currency += scoreFactor * score;
     }
 }
 

@@ -137,7 +137,7 @@ void BossAttackSystem::spawnRadialProjectileBurst(Registry &registry, const conf
 
         registry.addComponent<Damage>(
             projectileEntity,
-            {.amount = attackProfile.amount,
+            {.amount = bossStats.attackPower * attackProfile.amount,
              .pushBackForce = attackProfile.pushBackForce,
              .stunChance = attackProfile.stunChance,
              .kind = DamageKind::Projectile,
@@ -202,7 +202,7 @@ void BossAttackSystem::spawnPhaseTwoLightning(Registry &registry, const config::
 
         const Entity lightningEntity = registry.createEntity();
         registry.addComponent<Damage>(lightningEntity,
-                                      {.amount = attackProfile.amount,
+                                      {.amount = bossStats.attackPower * attackProfile.amount,
                                        .pushBackForce = attackProfile.pushBackForce,
                                        .stunChance = attackProfile.stunChance,
                                        .kind = DamageKind::Area,

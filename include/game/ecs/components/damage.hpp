@@ -58,6 +58,8 @@ struct Damage {
     float pushBackForce; // e.g. for knockback
     float stunChance;
     DamageKind kind;
+    enum class Mode { Flat, Percent, ScaledByAttack };
+    Mode mode = Mode::Flat; // default: flat amount subtraction
     std::variant<ProjectileDamage, UnicornDamage, MeleeArcDamage, BeamDamage, AreaDamage> params;
 };
 

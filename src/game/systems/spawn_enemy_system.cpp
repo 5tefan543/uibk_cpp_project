@@ -2,6 +2,7 @@
 #include "config/animation_config_helper.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/boss_phase.hpp"
+#include "game/ecs/components/enemy_attack_cooldown.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/health_bar_state.hpp"
 #include "game/ecs/components/hitbox.hpp"
@@ -119,6 +120,7 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const config::Ga
     registry.addComponent<HealthBarState>(enemy, {});
 
     if (enemyType == EnemyType::Boss) {
+        registry.addComponent<EnemyAttackCooldown>(enemy, {1.5f});
         registry.addComponent<BossPhase>(enemy, {});
     }
 }

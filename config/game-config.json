@@ -2,8 +2,8 @@
     "initialStage": 1,
     "initialWave": 1,
     "initialCurrency": 0,
-    "waveDurationSeconds": 1000,
-    "wavesPerStage": 2,
+    "waveDurationSeconds": 60,
+    "wavesPerStage": 5,
     "maxEnemyCount": 500,
     "windowConfig": {
         "width": 1920,
@@ -11,7 +11,7 @@
         "title": "Robotato"
     },
     "logConfig": {
-        "level": "Debug",
+        "level": "Info",
         "useColor": true
     },
     "mapConfig": {
@@ -151,19 +151,19 @@
     "playerClasses": {
         "melee": {
             "characterType": "Melee",
-            "hasDash": true,
+            "hasDash": false,
             "stats": {
-                "maxHealth": 100,
-                "attackPower": 14,
+                "maxHealth": 150,
+                "attackPower": 10,
                 "attackSpeed": 1.25,
                 "specialAttackSpeed": 0.0167,
-                "defense": 0,
-                "moveSpeed": 700,
+                "defense": 1,
+                "moveSpeed": 650,
                 "speedOfAttack": 220,
                 "attackRange": 1
             },
             "attack": {
-                "amount": 14,
+                "amount": 1.4,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
@@ -182,7 +182,7 @@
                     }
                 },
                 "projectile": {
-                    "velocityScale": 10,
+                    "velocityScale": 8,
                     "animations": {
                         "stateToStateConfig": {
                             "Idle": {
@@ -871,16 +871,16 @@
             "hasDash": false,
             "stats": {
                 "maxHealth": 100,
-                "attackPower": 100,
+                "attackPower": 10,
                 "attackSpeed": 3,
                 "specialAttackSpeed": 0.0167,
                 "defense": 0,
-                "moveSpeed": 750,
+                "moveSpeed": 550,
                 "speedOfAttack": 240,
                 "attackRange": 1000
             },
             "attack": {
-                "amount": 10,
+                "amount": 1.0,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
@@ -1706,16 +1706,16 @@
             "moveSpeedRatioOfPlayer": 0.9,
             "stats": {
                 "maxHealth": 10,
-                "attackPower": 2,
+                "attackPower": 6,
                 "attackSpeed": 1,
                 "specialAttackSpeed": 1,
                 "defense": 0.25,
                 "moveSpeed": 100,
                 "speedOfAttack": 0,
-                "attackRange": 1
+                "attackRange": 2
             },
             "attack": {
-                "amount": 30,
+                "amount": 1.0,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
@@ -1755,23 +1755,6 @@
                                 }
                             }
                         }
-                    }
-                },
-                "meleeArc": {
-                    "reach": 45.0,
-                    "hitBoxSize": {
-                        "x": 64.0,
-                        "y": 64.0
-                    },
-                    "activeTimePaddingSec": 0.1
-                },
-                "beam": {
-                    "length": 0,
-                    "width": 0,
-                    "activeTimeSec": 0,
-                    "damageTicks": 0,
-                    "animations": {
-                        "stateToStateConfig": {}
                     }
                 },
                 "area": {
@@ -2458,21 +2441,21 @@
             "moveSpeedRatioOfPlayer": 0.5,
             "stats": {
                 "maxHealth": 10,
-                "attackPower": 2,
-                "attackSpeed": 1,
-                "specialAttackSpeed": 1,
+                "attackPower": 5,
+                "attackSpeed": 0.75,
+                "specialAttackSpeed": 0.75,
                 "defense": 0.25,
-                "moveSpeed": 100,
+                "moveSpeed": 350,
                 "speedOfAttack": 0,
                 "attackRange": 0
             },
             "attack": {
-                "amount": 2,
+                "amount": 1.0,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
                 "projectile": {
-                    "velocityScale": 10,
+                    "velocityScale": 8,
                     "animations": {
                         "stateToStateConfig": {
                             "Idle": {
@@ -2509,28 +2492,11 @@
                         }
                     }
                 },
-                "meleeArc": {
-                    "reach": 80.0,
-                    "hitBoxSize": {
-                        "x": 96.0,
-                        "y": 96.0
-                    },
-                    "activeTimePaddingSec": 0.1
-                },
-                "beam": {
-                    "length": 0,
-                    "width": 0,
-                    "activeTimeSec": 0,
-                    "damageTicks": 0,
-                    "animations": {
-                        "stateToStateConfig": {}
-                    }
-                },
                 "area": {
                     "radius": 80,
                     "activeTimeSec": 0.8,
-                    "damageTicks": 1,
-                    "telegraphTimeSec": 0.5,
+                    "damageTicks": 8,
+                    "telegraphTimeSec": 0.1,
                     "initialHit": 0,
                     "animations": {
                         "stateToStateConfig": {
@@ -3125,7 +3091,7 @@
         "enemyScalingVariationStddev": 0.1,
         "minEnemyScalingVariation": 0.8,
         "maxEnemyScalingVariation": 1.2,
-        "baseEnemyMoveSpeed": 100,
+        "baseEnemyMoveSpeed": 250,
         "enemyMoveSpeedGrowthPerWave": 3,
         "enemyMoveSpeedVariationMean": 1,
         "enemyMoveSpeedVariationStddev": 0.08,
@@ -3168,9 +3134,9 @@
                             }
                         },
                         "statChanges": {
-                            "maxHealth": 100
+                            "maxHealth": 40
                         },
-                        "cost": 500
+                        "cost": 200
                     },
                     "Rare": {
                         "icon": {
@@ -3181,9 +3147,9 @@
                             }
                         },
                         "statChanges": {
-                            "maxHealth": 40
+                            "maxHealth": 60
                         },
-                        "cost": 200
+                        "cost": 300
                     },
                     "Epic": {
                         "icon": {
@@ -3194,9 +3160,9 @@
                             }
                         },
                         "statChanges": {
-                            "maxHealth": 60
+                            "maxHealth": 100
                         },
-                        "cost": 300
+                        "cost": 500
                     }
                 }
             },
@@ -3228,7 +3194,7 @@
                         "statChanges": {
                             "moveSpeed": 10
                         },
-                        "cost": 500
+                        "cost": 200
                     },
                     "Rare": {
                         "icon": {
@@ -3241,7 +3207,7 @@
                         "statChanges": {
                             "moveSpeed": 15
                         },
-                        "cost": 200
+                        "cost": 300
                     },
                     "Epic": {
                         "icon": {
@@ -3254,7 +3220,7 @@
                         "statChanges": {
                             "moveSpeed": 20
                         },
-                        "cost": 300
+                        "cost": 400
                     }
                 }
             },
@@ -3371,6 +3337,122 @@
                             "attackPower": 4
                         },
                         "cost": 300
+                    }
+                }
+            },
+            {
+                "name": "Armor",
+                "description": "Reducing incoming damage.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_2.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "defense": 0.5
+                        },
+                        "cost": 150
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_2.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "defense": 1
+                        },
+                        "cost": 300
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_2.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "defense": 1.5
+                        },
+                        "cost": 450
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_2.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "defense": 2.5
+                        },
+                        "cost": 600
+                    }
+                }
+            },
+            {
+                "name": "Health Regen",
+                "description": "Grants passive health regeneration per second.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_4.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "healthRegen": 1.0
+                        },
+                        "cost": 100
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_4.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "healthRegen": 2.0
+                        },
+                        "cost": 200
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_4.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "healthRegen": 3.0
+                        },
+                        "cost": 300
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_4.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "healthRegen": 5.0
+                        },
+                        "cost": 400
                     }
                 }
             }
