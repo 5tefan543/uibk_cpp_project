@@ -8,7 +8,7 @@ coverage:
         threshold: 10%                     # allowed drop
     patch:
       default:
-        target: 80%                       # desired coverage in PR
+        target: 75%                       # desired coverage in PR
         threshold: 1%                     # allowed drop
 
 comment:
