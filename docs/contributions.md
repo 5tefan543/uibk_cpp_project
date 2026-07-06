@@ -10,10 +10,10 @@ Martin Ehrle:
 
 Stefan Wagner:
 
-- ECS - include/game/ecs/registry.hpp:1-146, include/game/ecs/component_storage.hpp
-- Progression Store
-- Spawn Enemy System
-- View Abstraction - include/view
+- ECS - `include/game/ecs/registry.hpp:1-146`, `include/game/ecs/component_storage.hpp`
+- Progression Store - `include/game/progression_store.hpp`, `src/game/progression_store.cpp`
+- Spawn Enemy System - `include/game/systems/spawn_enemy_system.hpp`, `src/game/systems/spawn_enemy_system.cpp`
+- View Abstraction - `include/view`
 - Debug UI
 - Renderer
 - GameConfig
