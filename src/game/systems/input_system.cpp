@@ -145,7 +145,7 @@ void InputSystem::handleAttack(Registry &registry, const config::GameConfig &con
         }
 
         if (stats.characterType == CharacterType::Melee) {
-            attackMelee(registry, config, playerEntity, input, attackProfile);
+            attackMelee(registry, config, playerEntity, input, attackProfile, false);
             cooldown.attackRemainingSec = cooldown.attackDurationSec;
         } else if (stats.characterType == CharacterType::Ranged) {
             attackRanged(registry, config, playerEntity, input, attackProfile, false);
@@ -162,7 +162,7 @@ void InputSystem::handleAttack(Registry &registry, const config::GameConfig &con
         }
 
         if (stats.characterType == CharacterType::Melee) {
-            // attackMeleeSpecialMove(registry, config, playerEntity, input, attackProfile);
+            attackMelee(registry, config, playerEntity, input, attackProfile, true);
             cooldown.specialAttackRemainingSec = cooldown.specialAttackDurationSec;
         } else if (stats.characterType == CharacterType::Ranged) {
             attackRanged(registry, config, playerEntity, input, attackProfile, true);
@@ -174,7 +174,8 @@ void InputSystem::handleAttack(Registry &registry, const config::GameConfig &con
 }
 
 void InputSystem::attackMelee(Registry &registry, const config::GameConfig &config, Entity playerEntity,
-                              const controller::InputState &input, const config::AttackProfileConfig &attackProfile)
+                              const controller::InputState &input, const config::AttackProfileConfig &attackProfile,
+                              bool specialAttack)
 {
     const auto &playerPosition = registry.getComponent<Position>(playerEntity).p;
     const PlayerStats &playerStats = registry.getComponent<PlayerStats>(playerEntity);
@@ -185,39 +186,74 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
 
     const float animationDuration = applyAnimation(registry, config, playerEntity, AnimationState::Attack,
                                                    playerStats.characterType, attackDirection);
-    const Sound sound = {config.playerClasses.melee.sounds.attack};
 
-    // create melee attack entity
-    const Damage damageComponent{.amount = attackProfile.amount,
-                                 .pushBackForce = attackProfile.pushBackForce,
-                                 .stunChance = attackProfile.stunChance,
-                                 .kind = DamageKind::MeleeArc,
-                                 .params = MeleeArcDamage{
-                                     .reach = attackProfile.meleeArc.reach,
-                                     .activeTimeSec = animationDuration + attackProfile.meleeArc.activeTimePaddingSec,
-                                     .elapsedSec = 0.0f,
-                                 }};
+    // add melee attack object: either a melee arc or a area attack
+    Damage meleeAttackObjDamage;
+    meleeAttackObjDamage.pushBackForce = attackProfile.pushBackForce;
+    meleeAttackObjDamage.stunChance = attackProfile.stunChance;
+
+    if (specialAttack) {
+        meleeAttackObjDamage.amount = -0.95; // on each damage tick reduce the damage by 95% of the enemy's max health
+        meleeAttackObjDamage.kind = DamageKind::Area;
+        meleeAttackObjDamage.params = AreaDamage{.radius = attackProfile.area.radius,
+                                                 .activeTimeSec = attackProfile.area.activeTimeSec,
+                                                 .elapsedSec = 0.0f,
+                                                 .initialHit = attackProfile.area.initialHit,
+                                                 .damageTicks = attackProfile.area.damageTicks,
+                                                 .elapsedSecSinceLastTick = 0.0f};
+    } else {
+        meleeAttackObjDamage.amount = attackProfile.amount;
+        meleeAttackObjDamage.kind = DamageKind::MeleeArc;
+        meleeAttackObjDamage.params =
+            MeleeArcDamage{.reach = attackProfile.meleeArc.reach,
+                           .activeTimeSec = animationDuration + attackProfile.meleeArc.activeTimePaddingSec,
+                           .elapsedSec = 0.0f};
+    }
 
     const Position damagePosition{playerPosition.x, playerPosition.y};
+    HitBox meleeAttackObjHitBox;
+    std::optional<view::Sprite> meleeAttackObjSprite = std::nullopt;
+    std::optional<Animation> meleeAttackObjAnimation = std::nullopt;
 
-    const geometry::Vec2<float> hitBoxOffset = {
-        .x = attackDirection == AnimationDirection::Right ? playerSprite.size.x / 2 : -playerSprite.size.x / 2,
-        .y = -(attackProfile.meleeArc.reach) * playerStats.attackRange};
+    if (specialAttack) {
+        const config::AnimationFrame meleeObjFrame = config::AnimationConfigHelper::getAreaAnimationFrame(
+            config, attackProfile.area, AnimationState::Idle, AnimationDirection::None, 0);
 
-    const HitBox meleeHitBox{
-        .offset = hitBoxOffset,
-        .size = attackProfile.meleeArc.hitBoxSize + 2 * attackProfile.meleeArc.reach * playerStats.attackRange,
-    };
+        const config::SpriteConfig &meleeAttackObjSpriteConfig = meleeObjFrame.spriteConfig;
+        meleeAttackObjHitBox = {meleeAttackObjSpriteConfig.hitBox.offset, meleeAttackObjSpriteConfig.hitBox.size};
+        meleeAttackObjSprite = view::Sprite{};
+        meleeAttackObjSprite.value().rect.size = meleeAttackObjSpriteConfig.texture.size;
+        meleeAttackObjSprite.value().imagePath = meleeAttackObjSpriteConfig.texture.path;
+        meleeAttackObjAnimation = Animation{.state = AnimationState::Idle, .direction = AnimationDirection::None};
+    } else {
+        const geometry::Vec2<float> hitBoxOffset = {
+            .x = attackDirection == AnimationDirection::Right ? playerSprite.size.x / 2 : -playerSprite.size.x / 2,
+            .y = -(attackProfile.meleeArc.reach) * playerStats.attackRange};
+
+        meleeAttackObjHitBox = {
+            .offset = hitBoxOffset,
+            .size = attackProfile.meleeArc.hitBoxSize + 2 * attackProfile.meleeArc.reach * playerStats.attackRange,
+        };
+    }
+
+    const Sound sound = {specialAttack ? config.playerClasses.melee.sounds.special
+                                       : config.playerClasses.melee.sounds.attack};
 
     // add melee attack entity with all components
     // component references may be invalid: retrieve again from registry if used after this point
     const Entity meleeAttackEntity = registry.createEntity();
-    registry.addComponent<Damage>(meleeAttackEntity, damageComponent);
+    registry.addComponent<Damage>(meleeAttackEntity, meleeAttackObjDamage);
     registry.addComponent<DamageTag>(meleeAttackEntity, {});
     registry.addComponent<Position>(meleeAttackEntity, damagePosition);
-    registry.addComponent<HitBox>(meleeAttackEntity, meleeHitBox);
+    registry.addComponent<HitBox>(meleeAttackEntity, meleeAttackObjHitBox);
     registry.addComponent<Sound>(playerEntity, sound);
-    registry.addComponent<PlayerAttackTag>(meleeAttackEntity, {}); // Mark as player's attack for collision detection
+    registry.addComponent<PlayerAttackTag>(
+        meleeAttackEntity, {playerStats.characterType}); // Mark as player's attack for collision detection
+
+    if (meleeAttackObjSprite.has_value() && meleeAttackObjAnimation.has_value()) {
+        registry.addComponent<view::Sprite>(meleeAttackEntity, meleeAttackObjSprite.value());
+        registry.addComponent<Animation>(meleeAttackEntity, meleeAttackObjAnimation.value());
+    }
 }
 
 void InputSystem::attackRanged(Registry &registry, const config::GameConfig &config, Entity playerEntity,
@@ -297,7 +333,8 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
     registry.addComponent<Position>(rangedObjEntity, {rangedObjLaunchPosition});
     registry.addComponent<Velocity>(rangedObjEntity, rangedObjLaunchVelocity);
     registry.addComponent<HitBox>(rangedObjEntity, rangedObjHitBox);
-    registry.addComponent<PlayerAttackTag>(rangedObjEntity, {}); // Mark as player's attack for collision detection
+    registry.addComponent<PlayerAttackTag>(
+        rangedObjEntity, {playerStats.characterType}); // Mark as player's attack for collision detection
     registry.addComponent<DamageTag>(rangedObjEntity, {});
 
     if (rangedObjAnimation.has_value()) {

@@ -14,7 +14,8 @@ class InputSystem {
     void handleAttack(Registry &registry, const config::GameConfig &config, Entity playerEntity,
                       const controller::InputState &input);
     void attackMelee(Registry &registry, const config::GameConfig &config, const Entity entity,
-                     const controller::InputState &input, const config::AttackProfileConfig &attackProfile);
+                     const controller::InputState &input, const config::AttackProfileConfig &attackProfile,
+                     bool isSpecialAttack);
     void attackRanged(Registry &registry, const config::GameConfig &config, const Entity entity,
                       const controller::InputState &input, const config::AttackProfileConfig &attackProfile,
                       bool specialAttack);
