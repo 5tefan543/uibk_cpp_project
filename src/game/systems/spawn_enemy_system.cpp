@@ -16,6 +16,7 @@
 namespace game {
 
 constexpr float pi = 3.14159265358979323846f;
+constexpr float bossSpriteScale = 2.0f;
 
 SpawnEnemySystem::SpawnEnemySystem() : randomEngine_(std::random_device{}()) {}
 
@@ -100,6 +101,12 @@ void SpawnEnemySystem::spawnEnemy(Registry &registry, int wave, const config::Ga
     EnemyStats enemyStats = createEnemyStats(wave, enemyClass, spawnConfig, context);
 
     HitBox hitBox{animationFrame.spriteConfig.hitBox.offset, animationFrame.spriteConfig.hitBox.size};
+
+    if (enemyType == EnemyType::Boss) {
+        enemySprite.rect.size *= bossSpriteScale;
+        hitBox.offset *= bossSpriteScale;
+        hitBox.size *= bossSpriteScale;
+    }
 
     Entity enemy = registry.createEntity();
     registry.addComponent<EnemyTag>(enemy, {});

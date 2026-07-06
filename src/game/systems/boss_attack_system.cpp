@@ -12,6 +12,7 @@
 #include "game/ecs/components/map_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
+#include "game/ecs/components/sound.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "view/sprite.hpp"
@@ -29,6 +30,14 @@ constexpr int phaseTwoLightningStrikeCount = 3;
 constexpr float defaultProjectileSpeed = 250.0f;
 constexpr float defaultProjectileRange = 800.0f;
 constexpr float minProjectileRangeTrigger = 512.0f;
+
+Animation createAttackAnimation(const config::AnimationFrame &frame)
+{
+    Animation animation{.state = AnimationState::Idle, .direction = AnimationDirection::None};
+    const float animationDuration = static_cast<float>(frame.totalFrames) * frame.frameDuration;
+    startTimedAnimation(animation, AnimationState::Idle, AnimationDirection::None, animationDuration);
+    return animation;
+}
 
 float applyBossAttackAnimation(Registry &registry, const config::GameConfig &config, const Entity bossEntity,
                                const EnemyType enemyType, AnimationDirection direction)
@@ -105,6 +114,7 @@ void BossAttackSystem::spawnRadialProjectileBurst(Registry &registry, const conf
     const EnemyStats &bossStats = registry.getComponent<EnemyStats>(bossEntity);
 
     const config::AttackProfileConfig &attackProfile = config.enemyClasses.boss.attack;
+    const config::EnemyClassConfig &bossConfig = config.enemyClasses.boss;
     const config::AnimationFrame projectileFrame = config::AnimationConfigHelper::getProjectileAnimationFrame(
         config, attackProfile.projectile, AnimationState::Idle, AnimationDirection::None, 0);
     const config::SpriteConfig &projectileSpriteConfig = projectileFrame.spriteConfig;
@@ -141,10 +151,13 @@ void BossAttackSystem::spawnRadialProjectileBurst(Registry &registry, const conf
         registry.addComponent<view::Sprite>(projectileEntity,
                                             {.rect = {projectilePosition, projectileSpriteConfig.texture.size},
                                              .imagePath = projectileSpriteConfig.texture.path});
-        registry.addComponent<Animation>(projectileEntity,
-                                         {.state = AnimationState::Idle, .direction = AnimationDirection::None});
+        registry.addComponent<Animation>(projectileEntity, createAttackAnimation(projectileFrame));
         registry.addComponent<DamageTag>(projectileEntity, {});
         registry.addComponent<EnemyAttackTag>(projectileEntity, {bossStats.enemyType});
+
+        if (i == 0 && !bossConfig.sounds.attack.empty()) {
+            registry.addComponent<Sound>(projectileEntity, {bossConfig.sounds.attack});
+        }
     }
 }
 
@@ -163,6 +176,7 @@ void BossAttackSystem::spawnPhaseTwoLightning(Registry &registry, const config::
     const Position &playerPosition = registry.getComponent<Position>(playerEntity);
 
     const config::AttackProfileConfig &attackProfile = config.enemyClasses.boss.attack;
+    const config::EnemyClassConfig &bossConfig = config.enemyClasses.boss;
     const EnemyStats &bossStats = registry.getComponent<EnemyStats>(bossEntity);
     const config::AnimationFrame lightningFrame = config::AnimationConfigHelper::getAreaAnimationFrame(
         config, attackProfile.area, AnimationState::Idle, AnimationDirection::None, 0);
@@ -204,9 +218,13 @@ void BossAttackSystem::spawnPhaseTwoLightning(Registry &registry, const config::
                                                         .size = lightningSpriteConfig.hitBox.size});
         registry.addComponent<view::Sprite>(
             lightningEntity, {.rect = {strikePosition, spriteSize}, .imagePath = lightningSpriteConfig.texture.path});
-        registry.addComponent<Animation>(lightningEntity, {});
+        registry.addComponent<Animation>(lightningEntity, createAttackAnimation(lightningFrame));
         registry.addComponent<DamageTag>(lightningEntity, {});
         registry.addComponent<EnemyAttackTag>(lightningEntity, {bossStats.enemyType});
+
+        if (i == 0 && !bossConfig.sounds.special.empty()) {
+            registry.addComponent<Sound>(lightningEntity, {bossConfig.sounds.special});
+        }
     }
 }
 

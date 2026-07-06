@@ -17,17 +17,29 @@ namespace game {
 
 namespace {
 
-void applySpriteConfig(Registry &registry, Entity entity, const config::SpriteConfig &spriteConfig)
+constexpr float bossSpriteScale = 2.0f;
+
+void applySpriteConfig(Registry &registry, Entity entity, const config::SpriteConfig &spriteConfig, float scale)
 {
     view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
     sprite.imagePath = spriteConfig.texture.path;
-    sprite.rect.size = spriteConfig.texture.size;
+    sprite.rect.size = spriteConfig.texture.size * scale;
 
     if (registry.hasComponent<HitBox>(entity)) {
         HitBox &hitBox = registry.getComponent<HitBox>(entity);
-        hitBox.offset = spriteConfig.hitBox.offset;
-        hitBox.size = spriteConfig.hitBox.size;
+        hitBox.offset = spriteConfig.hitBox.offset * scale;
+        hitBox.size = spriteConfig.hitBox.size * scale;
     }
+}
+
+float getSpriteScaleForEntity(Registry &registry, Entity entity)
+{
+    if (!registry.hasComponent<EnemyStats>(entity)) {
+        return 1.0f;
+    }
+
+    const EnemyStats &enemyStats = registry.getComponent<EnemyStats>(entity);
+    return enemyStats.enemyType == EnemyType::Boss ? bossSpriteScale : 1.0f;
 }
 
 std::optional<config::AnimationFrame> getAnimationFrameForEntity(Registry &registry, Entity entity,
@@ -113,7 +125,7 @@ void AnimationSystem::update(Registry &registry, const config::GameConfig &confi
             continue;
         }
 
-        applySpriteConfig(registry, entity, frame->spriteConfig);
+        applySpriteConfig(registry, entity, frame->spriteConfig, getSpriteScaleForEntity(registry, entity));
 
         animation.frameTimer += dtSec;
 
