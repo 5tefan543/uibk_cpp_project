@@ -202,7 +202,7 @@ void BossAttackSystem::spawnPhaseTwoLightning(Registry &registry, const config::
 
         const Entity lightningEntity = registry.createEntity();
         registry.addComponent<Damage>(lightningEntity,
-                                      {.amount = bossStats.attackPower * 2 * attackProfile.amount,
+                                      {.amount = bossStats.attackPower * attackProfile.amount,
                                        .pushBackForce = attackProfile.pushBackForce,
                                        .stunChance = attackProfile.stunChance,
                                        .kind = DamageKind::Area,

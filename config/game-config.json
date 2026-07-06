@@ -2495,7 +2495,7 @@
                 "area": {
                     "radius": 80,
                     "activeTimeSec": 0.8,
-                    "damageTicks": 1,
+                    "damageTicks": 8,
                     "telegraphTimeSec": 0.1,
                     "initialHit": 0,
                     "animations": {
