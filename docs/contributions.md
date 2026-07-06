@@ -21,9 +21,9 @@ Stefan Wagner:
 
 Robert Zacchia:
 
-- Damage System
-- Audio Controller
-- Persistence
-- Blob / Boss Attack Systems
+- Damage System `include/game/ecs/systems/damage_system.hpp`, 
+- Audio Controller `include/audio/audio_cache.hpp`, `include/audio/audio_controller.hpp`, `src/audio/audio_controller.cpp`
+- Game Logic `include/game/game.hpp`, `src/game/game.cpp`
+- Blob / Boss Attack Systems `include/game/ecs/systems/blob_attack_system.hpp`, `include/game/ecs/systems/boss_attack_system.hpp`, `src/game/systems/blob_attack_system.cpp`, `src/game/systems/boss_attack_system.cpp`
+- Persistence 
 - GameConfig
-- Game Logic - src/game/game.cpp:?
