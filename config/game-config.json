@@ -158,7 +158,7 @@
                 "attackSpeed": 1.25,
                 "specialAttackSpeed": 0.0167,
                 "defense": 0,
-                "moveSpeed": 400,
+                "moveSpeed": 650,
                 "speedOfAttack": 220,
                 "attackRange": 1
             },
@@ -875,7 +875,7 @@
                 "attackSpeed": 3,
                 "specialAttackSpeed": 0.0167,
                 "defense": 0,
-                "moveSpeed": 750,
+                "moveSpeed": 550,
                 "speedOfAttack": 240,
                 "attackRange": 1000
             },
@@ -2462,12 +2462,12 @@
                 "attackSpeed": 1,
                 "specialAttackSpeed": 1,
                 "defense": 0.25,
-                "moveSpeed": 100,
+                "moveSpeed": 350,
                 "speedOfAttack": 0,
                 "attackRange": 0
             },
             "attack": {
-                "amount": 0.5,
+                "amount": 0.2,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
@@ -3125,7 +3125,7 @@
         "enemyScalingVariationStddev": 0.1,
         "minEnemyScalingVariation": 0.8,
         "maxEnemyScalingVariation": 1.2,
-        "baseEnemyMoveSpeed": 100,
+        "baseEnemyMoveSpeed": 250,
         "enemyMoveSpeedGrowthPerWave": 3,
         "enemyMoveSpeedVariationMean": 1,
         "enemyMoveSpeedVariationStddev": 0.08,
