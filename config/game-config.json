@@ -157,7 +157,7 @@
                 "attackPower": 10,
                 "attackSpeed": 1.25,
                 "specialAttackSpeed": 0.0167,
-                "defense": 10,
+                "defense": 1,
                 "moveSpeed": 650,
                 "speedOfAttack": 220,
                 "attackRange": 1
@@ -2441,7 +2441,7 @@
             "moveSpeedRatioOfPlayer": 0.5,
             "stats": {
                 "maxHealth": 10,
-                "attackPower": 8,
+                "attackPower": 5,
                 "attackSpeed": 0.75,
                 "specialAttackSpeed": 0.75,
                 "defense": 0.25,
@@ -3353,7 +3353,7 @@
                             }
                         },
                         "statChanges": {
-                            "defense": 1
+                            "defense": 0.5
                         },
                         "cost": 150
                     },
@@ -3366,7 +3366,7 @@
                             }
                         },
                         "statChanges": {
-                            "defense": 2
+                            "defense": 1
                         },
                         "cost": 300
                     },
@@ -3379,7 +3379,7 @@
                             }
                         },
                         "statChanges": {
-                            "defense": 3
+                            "defense": 1.5
                         },
                         "cost": 450
                     },
@@ -3392,7 +3392,7 @@
                             }
                         },
                         "statChanges": {
-                            "defense": 5
+                            "defense": 2.5
                         },
                         "cost": 600
                     }
