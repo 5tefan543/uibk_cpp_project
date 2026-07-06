@@ -1,12 +1,12 @@
 Martin Ehrle:
 
-- ECS - include/game/ecs/registry.hpp:148-178
-- SFML Viewport Adjustment
+- Location Table - `src/game/location_table.cpp`, `include/game/location_table.hpp`
+- Vector - `include/geometry/vector.hpp`
+- ECS - `include/game/ecs/registry.hpp:148-178`
+- EnemyAI System (Movement)
 - Logging
-- EnemyAI System (Movement) : 
-- Location Table
 - Collision Detection System
-- Vector
+- SFML Viewport Adjustment
 
 Stefan Wagner:
 
