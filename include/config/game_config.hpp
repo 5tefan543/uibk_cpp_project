@@ -83,6 +83,7 @@ struct AreaAttackConfig {
     float radius = 0.0f;
     float activeTimeSec = 0.0f;
     int damageTicks = 0;
+    float telegraphTimeSec = 0.1f;
     float initialHit; // percentage based of damage amount the remaining damage will be divided over the damageTicks
     AnimationConfig animations;
 };

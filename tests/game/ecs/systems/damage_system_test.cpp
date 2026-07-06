@@ -507,7 +507,7 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem area damage applies initial and tick
     areaTag.targets.insert(player);
     system.update(registry, 0.5f);
 
-    REQUIRE(updatedPlayer.health == Catch::Approx(92.0f));
+    REQUIRE(updatedPlayer.health == Catch::Approx(93.0f));
     REQUIRE(areaTag.targets.empty());
     REQUIRE(areaTag.targetsHit.contains(player));
 }
@@ -557,6 +557,51 @@ TEST_CASE_METHOD(TestFixture, "DamageSystem area negative damage uses percentage
 
     REQUIRE(updatedPlayer.health == Catch::Approx(100.0f));
     REQUIRE(areaTag.targets.empty());
+    REQUIRE(areaTag.targetsHit.contains(player));
+}
+
+TEST_CASE_METHOD(TestFixture, "DamageSystem area telegraph delays non-initial damage application")
+{
+    game::Registry registry;
+    game::DamageSystem system;
+
+    const game::Entity player = registry.createEntity();
+    game::PlayerStats playerStats;
+    playerStats.health = 100.0f;
+    registry.addComponent<game::PlayerStats>(player, playerStats);
+
+    const game::Entity area = registry.createEntity();
+    registry.addComponent<game::Damage>(area, {.amount = 12.0f,
+                                               .pushBackForce = 0.0f,
+                                               .stunChance = 0.0f,
+                                               .kind = game::DamageKind::Area,
+                                               .params = game::AreaDamage{.radius = 40.0f,
+                                                                          .activeTimeSec = 1.0f,
+                                                                          .elapsedSec = 0.0f,
+                                                                          .telegraphTimeSec = 0.5f,
+                                                                          .initialHit = 0.0f,
+                                                                          .damageTicks = 1,
+                                                                          .elapsedSecSinceLastTick = 0.0f}});
+    registry.addComponent<game::DamageTag>(area, {.targets = {player}});
+
+    system.update(registry, 0.25f);
+
+    auto &updatedPlayer = registry.getComponent<game::PlayerStats>(player);
+    auto &areaTag = registry.getComponent<game::DamageTag>(area);
+
+    REQUIRE(updatedPlayer.health == Catch::Approx(100.0f));
+    REQUIRE(areaTag.targetsHit.empty());
+
+    areaTag.targets.insert(player);
+    system.update(registry, 0.25f);
+
+    REQUIRE(updatedPlayer.health == Catch::Approx(100.0f));
+    REQUIRE(areaTag.targetsHit.empty());
+
+    areaTag.targets.insert(player);
+    system.update(registry, 0.01f);
+
+    REQUIRE(updatedPlayer.health == Catch::Approx(88.0f));
     REQUIRE(areaTag.targetsHit.contains(player));
 }
 

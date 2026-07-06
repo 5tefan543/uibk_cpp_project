@@ -60,21 +60,34 @@ std::optional<config::AnimationFrame> getAnimationFrameForEntity(Registry &regis
         const Damage &damage = registry.getComponent<Damage>(entity);
 
         const config::AreaAttackConfig *areaAttackConfig = nullptr;
+        const config::ProjectileAttackConfig *projectileAttackConfig = nullptr;
         if (registry.hasComponent<PlayerAttackTag>(entity)) {
             CharacterType characterType = registry.getComponent<PlayerAttackTag>(entity).characterType;
             areaAttackConfig = &config.playerClasses.getByType(characterType).attack.area;
+            projectileAttackConfig = &config.playerClasses.getByType(characterType).attack.projectile;
         }
         if (registry.hasComponent<EnemyAttackTag>(entity)) {
             EnemyType enemyType = registry.getComponent<EnemyAttackTag>(entity).enemyType;
             areaAttackConfig = &config.enemyClasses.getByType(enemyType).attack.area;
+            projectileAttackConfig = &config.enemyClasses.getByType(enemyType).attack.projectile;
         }
 
-        if (!areaAttackConfig) {
+        if (!areaAttackConfig && !projectileAttackConfig) {
             return std::nullopt;
         }
 
         switch (damage.kind) {
+        case DamageKind::Projectile: {
+            if (!projectileAttackConfig) {
+                return std::nullopt;
+            }
+            return config::AnimationConfigHelper::getProjectileAnimationFrame(
+                config, *projectileAttackConfig, animation.state, animation.direction, animation.currentFrame);
+        }
         case DamageKind::Area: {
+            if (!areaAttackConfig) {
+                return std::nullopt;
+            }
             return config::AnimationConfigHelper::getAreaAnimationFrame(config, *areaAttackConfig, animation.state,
                                                                         animation.direction, animation.currentFrame);
         }

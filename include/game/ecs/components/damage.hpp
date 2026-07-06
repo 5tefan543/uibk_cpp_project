@@ -47,7 +47,8 @@ struct AreaDamage {
     float radius;        // reach
     float activeTimeSec; // short hit window
     float elapsedSec;    // runtime state
-    float initialHit;    // percentage based of damage amount the remaining damage will be divided over the damageTicks
+    float telegraphTimeSec = 0.1f;
+    float initialHit; // percentage based of damage amount the remaining damage will be divided over the damageTicks
     int damageTicks;
     float elapsedSecSinceLastTick;
 };

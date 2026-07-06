@@ -20,6 +20,8 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include <cmath>
+
 namespace {
 
 config::GameConfig makeBossAttackTestConfig()
@@ -46,7 +48,8 @@ config::GameConfig makeBossAttackTestConfig()
     projectileIdle.directionToFrames[game::AnimationDirection::None] = {projectileSpriteConfig};
 
     config.enemyClasses.boss.attack.area.radius = 80.0f;
-    config.enemyClasses.boss.attack.area.activeTimeSec = 0.5f;
+    config.enemyClasses.boss.attack.area.activeTimeSec = 0.8f;
+    config.enemyClasses.boss.attack.area.telegraphTimeSec = 0.5f;
     config.enemyClasses.boss.attack.area.initialHit = 0.25f;
     config.enemyClasses.boss.attack.area.damageTicks = 2;
 
@@ -58,6 +61,31 @@ config::GameConfig makeBossAttackTestConfig()
     auto &lightningIdle =
         config.enemyClasses.boss.attack.area.animations.stateToStateConfig[game::AnimationState::Idle];
     lightningIdle.directionToFrames[game::AnimationDirection::None] = {lightningSpriteConfig};
+
+    config::SpriteConfig bossSpriteFrameOne{};
+    bossSpriteFrameOne.texture.path = "boss_1.png";
+    bossSpriteFrameOne.texture.size = {128.0f, 128.0f};
+    bossSpriteFrameOne.hitBox.offset = {0.0f, 0.0f};
+    bossSpriteFrameOne.hitBox.size = {128.0f, 128.0f};
+
+    config::SpriteConfig bossSpriteFrameTwo = bossSpriteFrameOne;
+    bossSpriteFrameTwo.texture.path = "boss_2.png";
+
+    config::SpriteConfig bossHitFrameOne = bossSpriteFrameOne;
+    bossHitFrameOne.texture.path = "boss_hit_1.png";
+
+    config::SpriteConfig bossHitFrameTwo = bossSpriteFrameOne;
+    bossHitFrameTwo.texture.path = "boss_hit_2.png";
+
+    for (const auto state : {game::AnimationState::Idle, game::AnimationState::Walk, game::AnimationState::Attack}) {
+        auto &animationState = config.enemyClasses.boss.animations.stateToStateConfig[state];
+        animationState.directionToFrames[game::AnimationDirection::Left] = {bossSpriteFrameOne, bossSpriteFrameTwo};
+        animationState.directionToFrames[game::AnimationDirection::Right] = {bossSpriteFrameOne, bossSpriteFrameTwo};
+    }
+
+    auto &hitState = config.enemyClasses.boss.animations.stateToStateConfig[game::AnimationState::Hit];
+    hitState.directionToFrames[game::AnimationDirection::Left] = {bossHitFrameOne, bossHitFrameTwo};
+    hitState.directionToFrames[game::AnimationDirection::Right] = {bossHitFrameOne, bossHitFrameTwo};
 
     return config;
 }
@@ -167,6 +195,10 @@ TEST_CASE_METHOD(TestFixture, "BossAttackSystem spawns radial projectile burst w
     const auto projectiles = getBossProjectiles(registry);
     REQUIRE(projectiles.size() == 12);
 
+    const auto &animation = registry.getComponent<game::Animation>(boss);
+    REQUIRE(animation.state == game::AnimationState::Attack);
+    REQUIRE(animation.stateTimeRemaining > 0.0f);
+
     const auto &bossPosition = registry.getComponent<game::Position>(boss).p;
     const auto &bossSprite = registry.getComponent<view::Sprite>(boss).rect;
     const auto bossCenter = bossPosition + (bossSprite.size / 2.0f);
@@ -193,7 +225,8 @@ TEST_CASE_METHOD(TestFixture, "BossAttackSystem phase 2 lightning triggers regar
     const config::GameConfig config = makeBossAttackTestConfig();
 
     addMap(registry);
-    addPlayer(registry, 2000.0f, 2000.0f);
+    const geometry::Vec2<float> playerPosition{1000.0f, 1000.0f};
+    addPlayer(registry, playerPosition.x, playerPosition.y);
     const game::Entity boss = addBoss(registry, 0.0f, 0.0f);
 
     auto &stats = registry.getComponent<game::EnemyStats>(boss);
@@ -206,11 +239,21 @@ TEST_CASE_METHOD(TestFixture, "BossAttackSystem phase 2 lightning triggers regar
     const auto lightning = getBossLightning(registry);
     REQUIRE_FALSE(lightning.empty());
 
+    const auto players = registry.view<game::PlayerTag, game::Position>();
+    REQUIRE(players.size() == 1);
+    const auto &storedPlayerPosition = registry.getComponent<game::Position>(players.front()).p;
+    CAPTURE(storedPlayerPosition.x, storedPlayerPosition.y);
+
     for (const game::Entity lightningEntity : lightning) {
         REQUIRE(registry.hasComponent<game::Animation>(lightningEntity));
 
         const auto &sprite = registry.getComponent<view::Sprite>(lightningEntity);
+        const auto &position = registry.getComponent<game::Position>(lightningEntity).p;
+        const auto lightningCenter = position + (sprite.rect.size / 2.0f);
+        const auto offset = lightningCenter - playerPosition;
+        CAPTURE(position.x, position.y, lightningCenter.x, lightningCenter.y, offset.x, offset.y);
         REQUIRE(sprite.imagePath == "boss_lightning_1.png");
+        REQUIRE(offset.length() <= Catch::Approx(1400.0f));
     }
 }
 

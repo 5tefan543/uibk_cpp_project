@@ -100,6 +100,7 @@ void BlobAttackSystem::spawnPendingAreaAttack(Registry &registry, const config::
                                  .params = AreaDamage{.radius = attackProfile.area.radius,
                                                       .activeTimeSec = attackProfile.area.activeTimeSec,
                                                       .elapsedSec = 0.0f,
+                                                      .telegraphTimeSec = attackProfile.area.telegraphTimeSec,
                                                       .initialHit = attackProfile.area.initialHit,
                                                       .damageTicks = attackProfile.area.damageTicks,
                                                       .elapsedSecSinceLastTick = 0.0f}};

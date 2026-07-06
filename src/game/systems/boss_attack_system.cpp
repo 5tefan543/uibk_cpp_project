@@ -10,11 +10,13 @@
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/map_tag.hpp"
+#include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "view/sprite.hpp"
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace game {
@@ -26,7 +28,36 @@ constexpr int radialProjectileCount = 12;
 constexpr int phaseTwoLightningStrikeCount = 3;
 constexpr float defaultProjectileSpeed = 250.0f;
 constexpr float defaultProjectileRange = 800.0f;
-constexpr float minProjectileRangeTrigger = 256.0f;
+constexpr float minProjectileRangeTrigger = 512.0f;
+
+float applyBossAttackAnimation(Registry &registry, const config::GameConfig &config, const Entity bossEntity,
+                               const EnemyType enemyType, AnimationDirection direction)
+{
+    if (direction == AnimationDirection::None) {
+        direction = AnimationDirection::Right;
+    }
+
+    Animation &bossAnimation = registry.getComponent<Animation>(bossEntity);
+    const config::AnimationFrame firstBossFrame =
+        config::AnimationConfigHelper::getEnemyAnimationFrame(config, enemyType, AnimationState::Attack, direction, 0);
+    const float animationDuration = static_cast<float>(firstBossFrame.totalFrames) * firstBossFrame.frameDuration;
+    startTimedAnimation(bossAnimation, AnimationState::Attack, direction, animationDuration);
+
+    return animationDuration;
+}
+
+geometry::Vec2<float> clampSpritePositionToMap(const geometry::Vec2<float> &position,
+                                               const geometry::Vec2<float> &spriteSize,
+                                               const geometry::Vec2<float> &mapPosition,
+                                               const geometry::Vec2<float> &mapSize)
+{
+    const float minX = mapPosition.x;
+    const float minY = mapPosition.y;
+    const float maxX = std::max(minX, mapPosition.x + mapSize.x - spriteSize.x);
+    const float maxY = std::max(minY, mapPosition.y + mapSize.y - spriteSize.y);
+
+    return {std::clamp(position.x, minX, maxX), std::clamp(position.y, minY, maxY)};
+}
 
 } // namespace
 
@@ -110,6 +141,8 @@ void BossAttackSystem::spawnRadialProjectileBurst(Registry &registry, const conf
         registry.addComponent<view::Sprite>(projectileEntity,
                                             {.rect = {projectilePosition, projectileSpriteConfig.texture.size},
                                              .imagePath = projectileSpriteConfig.texture.path});
+        registry.addComponent<Animation>(projectileEntity,
+                                         {.state = AnimationState::Idle, .direction = AnimationDirection::None});
         registry.addComponent<DamageTag>(projectileEntity, {});
         registry.addComponent<EnemyAttackTag>(projectileEntity, {bossStats.enemyType});
     }
@@ -118,13 +151,16 @@ void BossAttackSystem::spawnRadialProjectileBurst(Registry &registry, const conf
 void BossAttackSystem::spawnPhaseTwoLightning(Registry &registry, const config::GameConfig &config, Entity bossEntity)
 {
     const auto mapEntities = registry.view<MapTag, Position, view::Sprite>();
-    if (mapEntities.empty()) {
+    const auto playerEntities = registry.view<PlayerTag, Position>();
+    if (mapEntities.empty() || playerEntities.empty()) {
         return;
     }
 
     const Entity mapEntity = mapEntities.front();
+    const Entity playerEntity = playerEntities.front();
     const Position &mapPosition = registry.getComponent<Position>(mapEntity);
     const view::Sprite &mapSprite = registry.getComponent<view::Sprite>(mapEntity);
+    const Position &playerPosition = registry.getComponent<Position>(playerEntity);
 
     const config::AttackProfileConfig &attackProfile = config.enemyClasses.boss.attack;
     const EnemyStats &bossStats = registry.getComponent<EnemyStats>(bossEntity);
@@ -132,16 +168,23 @@ void BossAttackSystem::spawnPhaseTwoLightning(Registry &registry, const config::
         config, attackProfile.area, AnimationState::Idle, AnimationDirection::None, 0);
     const config::SpriteConfig &lightningSpriteConfig = lightningFrame.spriteConfig;
 
-    const float scale = std::max(1.0f, bossStats.attackRange);
-    const geometry::Vec2<float> spriteSize = lightningSpriteConfig.texture.size * scale;
+    const geometry::Vec2<float> spriteSize = lightningSpriteConfig.texture.size;
 
-    std::uniform_real_distribution<float> distX(mapPosition.p.x,
-                                                mapPosition.p.x + mapSprite.rect.size.x - spriteSize.x);
-    std::uniform_real_distribution<float> distY(mapPosition.p.y,
-                                                mapPosition.p.y + mapSprite.rect.size.y - spriteSize.y);
+    const float strikeRadius = std::max(lightningSpriteConfig.texture.size.x, lightningSpriteConfig.texture.size.y);
+    const std::array<geometry::Vec2<float>, phaseTwoLightningStrikeCount> strikeOffsets = {
+        geometry::Vec2<float>{0.0f, 0.0f},
+        geometry::Vec2<float>{strikeRadius * 0.75f, 0.0f},
+        geometry::Vec2<float>{-strikeRadius * 0.75f, 0.0f},
+    };
 
     for (int i = 0; i < phaseTwoLightningStrikeCount; ++i) {
-        const geometry::Vec2<float> strikePosition{distX(randomEngine_), distY(randomEngine_)};
+        const geometry::Vec2<float> &strikeOffset = strikeOffsets[static_cast<std::size_t>(i)];
+        const geometry::Vec2<float> unclampedStrikePosition = {
+            playerPosition.p.x + strikeOffset.x - (spriteSize.x / 2.0f),
+            playerPosition.p.y + strikeOffset.y - (spriteSize.y / 2.0f),
+        };
+        const geometry::Vec2<float> strikePosition =
+            clampSpritePositionToMap(unclampedStrikePosition, spriteSize, mapPosition.p, mapSprite.rect.size);
 
         const Entity lightningEntity = registry.createEntity();
         registry.addComponent<Damage>(lightningEntity,
@@ -152,12 +195,13 @@ void BossAttackSystem::spawnPhaseTwoLightning(Registry &registry, const config::
                                        .params = AreaDamage{.radius = attackProfile.area.radius,
                                                             .activeTimeSec = attackProfile.area.activeTimeSec,
                                                             .elapsedSec = 0.0f,
+                                                            .telegraphTimeSec = attackProfile.area.telegraphTimeSec,
                                                             .initialHit = attackProfile.area.initialHit,
                                                             .damageTicks = std::max(1, attackProfile.area.damageTicks),
                                                             .elapsedSecSinceLastTick = 0.0f}});
-        registry.addComponent<Position>(lightningEntity, {strikePosition});
+        registry.addComponent<Position>(lightningEntity, {.p = strikePosition});
         registry.addComponent<HitBox>(lightningEntity, {.offset = lightningSpriteConfig.hitBox.offset,
-                                                        .size = lightningSpriteConfig.hitBox.size * scale});
+                                                        .size = lightningSpriteConfig.hitBox.size});
         registry.addComponent<view::Sprite>(
             lightningEntity, {.rect = {strikePosition, spriteSize}, .imagePath = lightningSpriteConfig.texture.path});
         registry.addComponent<Animation>(lightningEntity, {});
@@ -193,6 +237,10 @@ void BossAttackSystem::update(Registry &registry, const config::GameConfig &conf
         }
 
         if (shouldTriggerMainAttack) {
+            const AnimationDirection attackDirection = registry.hasComponent<Animation>(enemy)
+                                                           ? registry.getComponent<Animation>(enemy).direction
+                                                           : AnimationDirection::Right;
+            applyBossAttackAnimation(registry, config, enemy, enemyStats.enemyType, attackDirection);
             spawnRadialProjectileBurst(registry, config, enemy);
         }
 

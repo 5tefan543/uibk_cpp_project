@@ -1722,7 +1722,39 @@
                 "projectile": {
                     "velocityScale": 10,
                     "animations": {
-                        "stateToStateConfig": {}
+                        "stateToStateConfig": {
+                            "Idle": {
+                                "frameDuration": 0.16,
+                                "moveSpeedMultiplier": 1,
+                                "directionToFrames": {
+                                    "None": [
+                                        {
+                                            "texture": {
+                                                "path": "assets/characters/boss/boss_projectile.png",
+                                                "position": {
+                                                    "x": 0,
+                                                    "y": 0
+                                                },
+                                                "size": {
+                                                    "x": 32,
+                                                    "y": 32
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 0,
+                                                    "y": 0
+                                                },
+                                                "size": {
+                                                    "x": 32,
+                                                    "y": 32
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 },
                 "meleeArc": {
@@ -2442,7 +2474,39 @@
                 "projectile": {
                     "velocityScale": 10,
                     "animations": {
-                        "stateToStateConfig": {}
+                        "stateToStateConfig": {
+                            "Idle": {
+                                "frameDuration": 0.16,
+                                "moveSpeedMultiplier": 1,
+                                "directionToFrames": {
+                                    "None": [
+                                        {
+                                            "texture": {
+                                                "path": "assets/characters/boss/boss_projectile.png",
+                                                "position": {
+                                                    "x": 0,
+                                                    "y": 0
+                                                },
+                                                "size": {
+                                                    "x": 32,
+                                                    "y": 32
+                                                }
+                                            },
+                                            "hitBox": {
+                                                "offset": {
+                                                    "x": 0,
+                                                    "y": 0
+                                                },
+                                                "size": {
+                                                    "x": 32,
+                                                    "y": 32
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 },
                 "meleeArc": {
@@ -2464,8 +2528,9 @@
                 },
                 "area": {
                     "radius": 80,
-                    "activeTimeSec": 0.2,
-                    "damageTicks": 0,
+                    "activeTimeSec": 0.8,
+                    "damageTicks": 1,
+                    "telegraphTimeSec": 0.5,
                     "initialHit": 0,
                     "animations": {
                         "stateToStateConfig": {
@@ -2626,32 +2691,408 @@
                         "frameDuration": 0.16,
                         "moveSpeedMultiplier": 1,
                         "directionToFrames": {
-                            "Left": [],
-                            "Right": []
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "Walk": {
                         "frameDuration": 0.16,
                         "moveSpeedMultiplier": 1,
                         "directionToFrames": {
-                            "Left": [],
-                            "Right": []
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "Attack": {
                         "frameDuration": 0.16,
                         "moveSpeedMultiplier": 1,
                         "directionToFrames": {
-                            "Left": [],
-                            "Right": []
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "Hit": {
                         "frameDuration": 0.16,
                         "moveSpeedMultiplier": 1,
                         "directionToFrames": {
-                            "Left": [],
-                            "Right": []
+                            "Left": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_hit_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_hit_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                }
+                            ],
+                            "Right": [
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_hit_1.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                },
+                                {
+                                    "texture": {
+                                        "path": "assets/characters/boss/boss_hit_2.png",
+                                        "position": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    },
+                                    "hitBox": {
+                                        "offset": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "size": {
+                                            "x": 128,
+                                            "y": 128
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "Death": {
