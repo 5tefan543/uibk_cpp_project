@@ -6,11 +6,13 @@
 #include "controller/timing.hpp"
 #include "game/ecs/components/animation.hpp"
 #include "game/ecs/components/camera_tag.hpp"
+#include "game/ecs/components/enemy_attack_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/health_bar_state.hpp"
 #include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/map_tag.hpp"
 #include "game/ecs/components/player_attack_cooldown.hpp"
+#include "game/ecs/components/player_attack_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
 #include "game/ecs/components/stats.hpp"
@@ -409,13 +411,66 @@ void Game::setCameraPosition(view::View &view)
 
 void Game::renderSprites(view::View &view)
 {
-    for (auto entity : registry_.view<Position, view::Sprite>()) {
+    std::vector<view::ViewNode> players;
+    std::vector<view::ViewNode> enemiesDefault;
+    std::vector<view::ViewNode> enemiesBoss;
+    std::vector<view::ViewNode> attacksUpper;
+    std::vector<view::ViewNode> attacksLower;
+    std::vector<view::ViewNode> unsorted;
 
-        view::Sprite &sprite = registry_.getComponent<view::Sprite>(entity);
-        sprite.rect.position = registry_.getComponent<Position>(entity).p;
+    for (const auto entity : registry_.view<Position, view::Sprite>()) {
 
-        view.nodes.push_back({view::ViewMode::FixedToWorld, sprite});
+        auto addNode = [&](std::vector<view::ViewNode> &nodes) {
+            view::Sprite &sprite = registry_.getComponent<view::Sprite>(entity);
+            sprite.rect.position = registry_.getComponent<Position>(entity).p;
+            nodes.push_back({view::ViewMode::FixedToWorld, sprite});
+        };
+
+        if (registry_.hasComponent<Damage>(entity)) {
+            switch (registry_.getComponent<Damage>(entity).kind) {
+            case DamageKind::Projectile:
+            case DamageKind::Beam:
+            case DamageKind::MeleeArc:
+            case DamageKind::Unicorn:
+                addNode(attacksUpper);
+                break;
+            case DamageKind::Area:
+                addNode(attacksLower);
+                break;
+            }
+
+        } else if (registry_.hasComponent<PlayerTag>(entity)) {
+            addNode(players);
+
+        } else if (registry_.hasComponent<EnemyTag>(entity)) {
+            if (registry_.hasComponent<EnemyType>(entity)) {
+                switch (registry_.getComponent<EnemyType>(entity)) {
+                case game::EnemyType::Blob:
+                    addNode(enemiesDefault);
+                    break;
+                case game::EnemyType::Boss:
+                    addNode(enemiesBoss);
+                    break;
+                }
+            } else {
+                addNode(enemiesDefault);
+            }
+        } else {
+            addNode(unsorted);
+        }
     }
+
+    auto queueNodes = [&](std::vector<view::ViewNode> &additions) {
+        view.nodes.insert(view.nodes.cend(), additions.cbegin(), additions.cend());
+    };
+
+    // Later added -> later drawn -> less sprites that can occlude
+    queueNodes(unsorted);
+    queueNodes(attacksLower);
+    queueNodes(enemiesDefault);
+    queueNodes(enemiesBoss);
+    queueNodes(players);
+    queueNodes(attacksUpper);
 }
 
 void game::Game::renderHealthBars(view::View &view)
@@ -508,19 +563,50 @@ void Game::renderDebugHitBoxes(view::View &view)
 
 void Game::renderStageWaveInfo(view::View &view)
 {
-    stageWaveInfo_ = {
-        .text = "Stage: " + std::to_string(stage_) + " Wave: " + std::to_string(wave_) + " Time remaining: "
-                + std::to_string(config_.waveDurationSeconds
-                                 - static_cast<int>(controller::toSeconds(currentWaveDuration_)))
-                + " score: "
-                + std::to_string(registry_.getComponent<PlayerStats>(registry_.view<PlayerTag>().front()).score)
-                + " currency: "
-                + std::to_string(registry_.getComponent<PlayerStats>(registry_.view<PlayerTag>().front()).currency),
-        .size = 24,
-        .position = {960.0f, 75.0f},
+    // === Top, black background
+    const view::Rectangle barBackground = {
+        .rect = {{0, 0}, {view::grid.size.x, 50}}, .thickness = 0, .fillColor = view::color::black};
+    view.nodes.push_back({view::ViewMode::FixedToScreen, barBackground});
+
+    // === Top, Text left, right, center
+    const float textYOffset = 30;
+    waveCounterInfo_ = {
+        .text = std::format("Wave: {}", wave_), .position = {30, textYOffset}, .alignment = view::TextAlignment::Left};
+    view.nodes.push_back({view::ViewMode::FixedToScreen, waveCounterInfo_});
+
+    const auto timeRemaining =
+        static_cast<float>(config_.waveDurationSeconds) - controller::toSeconds(currentWaveDuration_);
+    waveTimeInfo_ = {.text = std::format("Time Remaining: {}", static_cast<int>(timeRemaining)),
+                     .alignment = view::TextAlignment::Center};
+    waveTimeInfo_.position = {view::grid.size.x / 2, textYOffset};
+    view.nodes.push_back({view::ViewMode::FixedToScreen, waveTimeInfo_});
+
+    const auto playerStats = registry_.getComponent<PlayerStats>(registry_.view<PlayerTag>().front());
+    goldScoreInfo_ = {.text = std::format("Gold: {} Score: {}", playerStats.currency, playerStats.score),
+                      .alignment = view::TextAlignment::Right};
+    goldScoreInfo_.position = {view::grid.size.x - 30, textYOffset};
+    view.nodes.push_back({view::ViewMode::FixedToScreen, goldScoreInfo_});
+
+    // === Top, Colorful countdown bar
+    const float bcPercentage =
+        timeRemaining / static_cast<float>(std::chrono::seconds(config_.waveDurationSeconds).count());
+    auto barColor = view::color::brightBlue;
+    if (bcPercentage >= 0.70f) {
+        barColor = view::color::brightBlue;
+    } else if (bcPercentage >= 0.30) {
+        barColor = view::color::yellow;
+    } else {
+        barColor = view::color::red;
+    }
+    view::Rectangle barCountdown = {
+        .rect = {{0, 50}, {bcPercentage * view::grid.size.x, 7}},
+        .borderColor = view::color::black,
+        .thickness = 0.0f,
+        .fillColor = barColor,
     };
-    view.nodes.push_back({view::ViewMode::FixedToScreen, std::cref(stageWaveInfo_)});
-}
+    barCountdown.rect.centerizeX(view::grid.size.x / 2);
+    view.nodes.push_back({view::ViewMode::FixedToScreen, barCountdown});
+} // namespace game
 
 void Game::renderCooldownBars(view::View &view)
 {
@@ -535,7 +621,7 @@ void Game::renderCooldownBars(view::View &view)
         constexpr float borderThickness = 2.0f;
 
         constexpr float startX = 15.0f;
-        constexpr float startY = 60.0f;
+        constexpr float startY = view::grid.size.y - 60;
         constexpr float gapBetween = barWidth + 100.0f;
         constexpr float iconBarGap = 10.0f;
 
@@ -548,8 +634,6 @@ void Game::renderCooldownBars(view::View &view)
 
             const float fillWidth = barWidth * progress;
 
-            view.nodes.push_back({view::ViewMode::FixedToScreen, iconSprite});
-
             const float barX = x + iconSprite.rect.size.x + iconBarGap;
             const float barY = y + (iconSprite.rect.size.y - barHeight) / 2.0f;
 
@@ -560,7 +644,17 @@ void Game::renderCooldownBars(view::View &view)
                 .fillColor = view::color::black,
             };
 
+            view::Rectangle background = {
+                .rect = {{iconSprite.rect.position},
+                         {(barBackground.rect.size.x + barBackground.rect.position.x) - iconSprite.rect.position.x,
+                          iconSprite.rect.size.y}},
+                .borderColor = view::color::darkGray,
+                .thickness = 10,
+                .fillColor = view::color::darkGray};
+
+            view.nodes.push_back({view::ViewMode::FixedToScreen, background});
             view.nodes.push_back({view::ViewMode::FixedToScreen, barBackground});
+            view.nodes.push_back({view::ViewMode::FixedToScreen, iconSprite});
 
             if (fillWidth > 0.0f) {
                 view::Rectangle barFill = {
