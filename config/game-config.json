@@ -151,13 +151,13 @@
     "playerClasses": {
         "melee": {
             "characterType": "Melee",
-            "hasDash": true,
+            "hasDash": false,
             "stats": {
-                "maxHealth": 100,
+                "maxHealth": 150,
                 "attackPower": 10,
                 "attackSpeed": 1.25,
                 "specialAttackSpeed": 0.0167,
-                "defense": 0,
+                "defense": 10,
                 "moveSpeed": 650,
                 "speedOfAttack": 220,
                 "attackRange": 1
@@ -2442,8 +2442,8 @@
             "stats": {
                 "maxHealth": 10,
                 "attackPower": 8,
-                "attackSpeed": 1,
-                "specialAttackSpeed": 1,
+                "attackSpeed": 0.75,
+                "specialAttackSpeed": 0.75,
                 "defense": 0.25,
                 "moveSpeed": 350,
                 "speedOfAttack": 0,
