@@ -271,7 +271,7 @@ void EnemyAI::spawnPendingAreaAttack(Registry &registry, const config::GameConfi
     registry.addComponent<view::Sprite>(areaAttackEntity, sprite);
     registry.addComponent<Animation>(areaAttackEntity, areaAnimation);
     registry.addComponent<EnemyAttackTag>(areaAttackEntity,
-                                          {blobEntity}); // Mark as enemy's attack for collision detection
+                                          {enemyStats.enemyType}); // Mark as enemy's attack for collision detection
 }
 
 } // namespace game

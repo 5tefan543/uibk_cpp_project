@@ -4,6 +4,7 @@
 #include "game/ecs/components/enemy_attack_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
 #include "game/ecs/components/hitbox.hpp"
+#include "game/ecs/components/player_attack_tag.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/entity.hpp"
@@ -53,6 +54,21 @@ config::GameConfig makeAnimationSystemTestConfig()
                     {
                         makeSpriteConfig("player_idle_left_1.png", 32.0f, 48.0f),
                         makeSpriteConfig("player_idle_left_2.png", 33.0f, 49.0f),
+                    },
+                },
+            },
+    };
+
+    config.playerClasses.melee.attack.area.animations.stateToStateConfig[game::AnimationState::Idle] = {
+        .frameDuration = 0.35f,
+        .moveSpeedMultiplier = 1.0f,
+        .directionToFrames =
+            {
+                {
+                    game::AnimationDirection::None,
+                    {
+                        makeSpriteConfig("player_area_idle_1.png", 50.0f, 54.0f, 9.0f, 10.0f, 28.0f, 29.0f),
+                        makeSpriteConfig("player_area_idle_2.png", 51.0f, 55.0f, 11.0f, 12.0f, 30.0f, 31.0f),
                     },
                 },
             },
@@ -362,17 +378,15 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem skips entity when no animation fr
     REQUIRE(sprite.rect.size.y == Catch::Approx(20.0f));
 }
 
-TEST_CASE_METHOD(TestFixture, "AnimationSystem applies area attack animation for enemy attack entities")
+TEST_CASE_METHOD(TestFixture, "AnimationSystem applies area attack animation for player attack entities")
 {
     game::Registry registry;
     game::AnimationSystem system;
     const config::GameConfig config = makeAnimationSystemTestConfig();
 
-    const game::Entity sourceEnemy = registry.createEntity();
-    registry.addComponent<game::EnemyStats>(sourceEnemy, makeEnemyStats(game::EnemyType::Blob));
-
     const game::Entity attackEntity = registry.createEntity();
-    registry.addComponent<game::EnemyAttackTag>(attackEntity, {.source = sourceEnemy});
+
+    registry.addComponent<game::PlayerAttackTag>(attackEntity, {.characterType = game::CharacterType::Melee});
     registry.addComponent<game::Damage>(attackEntity, {
                                                           .amount = 5.0f,
                                                           .pushBackForce = 0.0f,
@@ -389,8 +403,60 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem applies area attack animation for
                                                               },
                                                       });
     registry.addComponent<game::Animation>(attackEntity, {
-                                                             .state = game::AnimationState::Attack,
-                                                             .direction = game::AnimationDirection::Left,
+                                                             .state = game::AnimationState::Idle,
+                                                             .direction = game::AnimationDirection::None,
+                                                             .currentFrame = 0,
+                                                             .frameTimer = 0.0f,
+                                                         });
+    registry.addComponent<view::Sprite>(attackEntity, {});
+    registry.addComponent<game::HitBox>(attackEntity, {});
+
+    system.update(registry, config, 0.0f);
+
+    const auto &sprite = registry.getComponent<view::Sprite>(attackEntity);
+    const auto &hitBox = registry.getComponent<game::HitBox>(attackEntity);
+    const auto &animation = registry.getComponent<game::Animation>(attackEntity);
+
+    REQUIRE(sprite.imagePath == "player_area_idle_1.png");
+    REQUIRE(sprite.rect.size.x == Catch::Approx(50.0f));
+    REQUIRE(sprite.rect.size.y == Catch::Approx(54.0f));
+
+    REQUIRE(hitBox.offset.x == Catch::Approx(9.0f));
+    REQUIRE(hitBox.offset.y == Catch::Approx(10.0f));
+    REQUIRE(hitBox.size.x == Catch::Approx(28.0f));
+    REQUIRE(hitBox.size.y == Catch::Approx(29.0f));
+
+    REQUIRE(animation.currentFrame == 0);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem applies area attack animation for enemy attack entities")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
+
+    const game::Entity attackEntity = registry.createEntity();
+
+    registry.addComponent<game::EnemyAttackTag>(attackEntity, {.enemyType = game::EnemyType::Blob});
+    registry.addComponent<game::Damage>(attackEntity, {
+                                                          .amount = 5.0f,
+                                                          .pushBackForce = 0.0f,
+                                                          .stunChance = 0.0f,
+                                                          .kind = game::DamageKind::Area,
+                                                          .params =
+                                                              game::AreaDamage{
+                                                                  .radius = 50.0f,
+                                                                  .activeTimeSec = 1.0f,
+                                                                  .elapsedSec = 0.0f,
+                                                                  .initialHit = 0.5f,
+                                                                  .damageTicks = 3,
+                                                                  .elapsedSecSinceLastTick = 0.0f,
+                                                              },
+                                                      });
+    registry.addComponent<game::Animation>(attackEntity, {
+                                                             .state = game::AnimationState::Idle,
+                                                             .direction = game::AnimationDirection::None,
                                                              .currentFrame = 0,
                                                              .frameTimer = 0.0f,
                                                          });
@@ -416,30 +482,52 @@ TEST_CASE_METHOD(TestFixture, "AnimationSystem applies area attack animation for
     REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
 }
 
-TEST_CASE_METHOD(TestFixture, "AnimationSystem skips enemy area attack entity when source enemy stats are missing")
+TEST_CASE_METHOD(TestFixture, "AnimationSystem advances area attack animation frame")
 {
     game::Registry registry;
     game::AnimationSystem system;
     const config::GameConfig config = makeAnimationSystemTestConfig();
 
-    const game::Entity missingSourceEnemy = registry.createEntity();
+    const game::Entity attackEntity = registry.createEntity();
+
+    registry.addComponent<game::PlayerAttackTag>(attackEntity, {.characterType = game::CharacterType::Melee});
+    registry.addComponent<game::Damage>(attackEntity, {
+                                                          .amount = 5.0f,
+                                                          .pushBackForce = 0.0f,
+                                                          .stunChance = 0.0f,
+                                                          .kind = game::DamageKind::Area,
+                                                          .params = game::AreaDamage{},
+                                                      });
+    registry.addComponent<game::Animation>(attackEntity, {
+                                                             .state = game::AnimationState::Idle,
+                                                             .direction = game::AnimationDirection::None,
+                                                             .currentFrame = 0,
+                                                             .frameTimer = 0.0f,
+                                                         });
+    registry.addComponent<view::Sprite>(attackEntity, {});
+
+    system.update(registry, config, 0.35f);
+
+    const auto &animation = registry.getComponent<game::Animation>(attackEntity);
+
+    REQUIRE(animation.currentFrame == 1);
+    REQUIRE(animation.frameTimer == Catch::Approx(0.0f));
+}
+
+TEST_CASE_METHOD(TestFixture, "AnimationSystem skips area damage entity when attack tag is missing")
+{
+    game::Registry registry;
+    game::AnimationSystem system;
+    const config::GameConfig config = makeAnimationSystemTestConfig();
 
     const game::Entity attackEntity = registry.createEntity();
-    registry.addComponent<game::EnemyAttackTag>(attackEntity, {.source = missingSourceEnemy});
+
     registry.addComponent<game::Damage>(attackEntity, {
                                                           .amount = 3.0f,
                                                           .pushBackForce = 0.0f,
                                                           .stunChance = 0.0f,
                                                           .kind = game::DamageKind::Area,
-                                                          .params =
-                                                              game::AreaDamage{
-                                                                  .radius = 30.0f,
-                                                                  .activeTimeSec = 1.0f,
-                                                                  .elapsedSec = 0.0f,
-                                                                  .initialHit = 0.5f,
-                                                                  .damageTicks = 2,
-                                                                  .elapsedSecSinceLastTick = 0.0f,
-                                                              },
+                                                          .params = game::AreaDamage{},
                                                       });
     registry.addComponent<game::Animation>(attackEntity, {
                                                              .state = game::AnimationState::Idle,
