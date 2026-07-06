@@ -123,7 +123,7 @@ void EnemyAI::updateEnemyVelocityTowardsPlayer(Registry &registry, LocationTable
     }
 
     // Calc. repelling force between enemies
-    auto enemiesInRange = locationTable.getEntitiesInRange(enemyPos, enemyRepelRadius, registry);
+    auto enemiesInRange = locationTable.getEnemiesInRange(enemyPos, enemyRepelRadius, registry);
     Vec2<float> repelOffset = {0, 0};
     for (const auto &[otherEnemy, otherPos] : enemiesInRange) {
         if (otherEnemy == enemy) {
