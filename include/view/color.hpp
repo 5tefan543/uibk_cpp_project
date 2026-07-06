@@ -38,6 +38,8 @@ inline constexpr Color darkMutedPurple = {55, 45, 55};
 inline constexpr Color mutedPurple = {75, 60, 90};
 inline constexpr Color lightMutedPurple = {90, 70, 110};
 
+inline constexpr Color yellow = {245, 194, 17};
+
 } // namespace color
 
 } // namespace view
