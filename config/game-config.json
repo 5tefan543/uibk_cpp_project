@@ -182,7 +182,7 @@
                     }
                 },
                 "projectile": {
-                    "velocityScale": 10,
+                    "velocityScale": 8,
                     "animations": {
                         "stateToStateConfig": {
                             "Idle": {
@@ -1706,16 +1706,16 @@
             "moveSpeedRatioOfPlayer": 0.9,
             "stats": {
                 "maxHealth": 10,
-                "attackPower": 10,
+                "attackPower": 8,
                 "attackSpeed": 1,
                 "specialAttackSpeed": 1,
                 "defense": 0.25,
                 "moveSpeed": 100,
                 "speedOfAttack": 0,
-                "attackRange": 1
+                "attackRange": 2
             },
             "attack": {
-                "amount": 3.0,
+                "amount": 1.0,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
@@ -1755,23 +1755,6 @@
                                 }
                             }
                         }
-                    }
-                },
-                "meleeArc": {
-                    "reach": 45.0,
-                    "hitBoxSize": {
-                        "x": 64.0,
-                        "y": 64.0
-                    },
-                    "activeTimePaddingSec": 0.1
-                },
-                "beam": {
-                    "length": 0,
-                    "width": 0,
-                    "activeTimeSec": 0,
-                    "damageTicks": 0,
-                    "animations": {
-                        "stateToStateConfig": {}
                     }
                 },
                 "area": {
@@ -2458,7 +2441,7 @@
             "moveSpeedRatioOfPlayer": 0.5,
             "stats": {
                 "maxHealth": 10,
-                "attackPower": 20,
+                "attackPower": 8,
                 "attackSpeed": 1,
                 "specialAttackSpeed": 1,
                 "defense": 0.25,
@@ -2467,12 +2450,12 @@
                 "attackRange": 0
             },
             "attack": {
-                "amount": 0.2,
+                "amount": 1.0,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,
                 "projectile": {
-                    "velocityScale": 10,
+                    "velocityScale": 8,
                     "animations": {
                         "stateToStateConfig": {
                             "Idle": {
@@ -2509,28 +2492,11 @@
                         }
                     }
                 },
-                "meleeArc": {
-                    "reach": 80.0,
-                    "hitBoxSize": {
-                        "x": 96.0,
-                        "y": 96.0
-                    },
-                    "activeTimePaddingSec": 0.1
-                },
-                "beam": {
-                    "length": 0,
-                    "width": 0,
-                    "activeTimeSec": 0,
-                    "damageTicks": 0,
-                    "animations": {
-                        "stateToStateConfig": {}
-                    }
-                },
                 "area": {
                     "radius": 80,
                     "activeTimeSec": 0.8,
                     "damageTicks": 1,
-                    "telegraphTimeSec": 0.6,
+                    "telegraphTimeSec": 0.1,
                     "initialHit": 0,
                     "animations": {
                         "stateToStateConfig": {
