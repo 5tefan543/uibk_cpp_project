@@ -158,7 +158,7 @@
                 "attackSpeed": 1.25,
                 "specialAttackSpeed": 0.0167,
                 "defense": 0,
-                "moveSpeed": 700,
+                "moveSpeed": 400,
                 "speedOfAttack": 220,
                 "attackRange": 1
             },
