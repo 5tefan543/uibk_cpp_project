@@ -110,21 +110,21 @@ DamageInformation DamageSystem::updateBeam(Damage &damage, BeamDamage &beam, Dam
 
 DamageInformation DamageSystem::updateArea(Damage &damage, AreaDamage &area, DamageTag &tag, float dtSec)
 {
-    float graceTimeSec = 0.1f;
+    const int damageTickCount = std::max(1, area.damageTicks);
+    const bool isTelegraphing = area.elapsedSec < area.telegraphTimeSec;
 
-    // graceTime should be duration of animation
     DamageInformation result;
     if (damage.amount < 0.0f) {
         result.actualDamageAmount = damage.amount;
-    } else if (area.elapsedSec <= graceTimeSec) {
+    } else if (isTelegraphing) {
         result.actualDamageAmount = damage.amount * area.initialHit;
     } else {
-        result.actualDamageAmount = damage.amount * (1.0f - area.initialHit) / area.damageTicks;
+        result.actualDamageAmount = damage.amount * (1.0f - area.initialHit) / damageTickCount;
     }
     result.shouldBeRemoved = false;
     area.elapsedSec += dtSec;
     area.elapsedSecSinceLastTick += dtSec;
-    bool resetHitTargets = area.elapsedSecSinceLastTick > area.elapsedSec / area.damageTicks;
+    const bool resetHitTargets = area.elapsedSecSinceLastTick > area.elapsedSec / damageTickCount;
     if (resetHitTargets) {
         tag.targetsHit = {};
         area.elapsedSecSinceLastTick = 0.0f;
@@ -199,6 +199,10 @@ void DamageSystem::update(Registry &registry, float dtSec)
             hasAliveTarget = true;
 
             float damageAmount = currentDamage.actualDamageAmount;
+
+            if (damageAmount == 0.0f) {
+                continue;
+            }
 
             if (registry.hasComponent<PlayerStats>(targetEntity)) {
                 PlayerStats &playerStats = registry.getComponent<PlayerStats>(targetEntity);

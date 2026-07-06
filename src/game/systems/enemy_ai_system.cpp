@@ -2,59 +2,20 @@
 #include "config/animation_config_helper.hpp"
 #include "config/game_config.hpp"
 #include "game/ecs/components/animation.hpp"
-#include "game/ecs/components/damage_tag.hpp"
-#include "game/ecs/components/enemy_attack_cooldown.hpp"
-#include "game/ecs/components/enemy_attack_tag.hpp"
-#include "game/ecs/components/enemy_pending_area_spawn_tag.hpp"
 #include "game/ecs/components/enemy_tag.hpp"
-#include "game/ecs/components/hitbox.hpp"
 #include "game/ecs/components/player_tag.hpp"
 #include "game/ecs/components/position.hpp"
-#include "game/ecs/components/sound.hpp"
 #include "game/ecs/components/stats.hpp"
 #include "game/ecs/components/velocity.hpp"
 #include "game/location_table.hpp"
-#include "view/sprite.hpp"
 #include <cmath>
-#include <format>
 
 namespace game {
-
-namespace {
-
-float applyAnimation(Registry &registry, const config::GameConfig &config, const Entity entity,
-                     const AnimationState attackState, const EnemyType enemyType, const AnimationDirection direction)
-{
-    Animation &enemyAnimation = registry.getComponent<Animation>(entity);
-
-    const config::AnimationFrame firstEnemyFrame =
-        config::AnimationConfigHelper::getEnemyAnimationFrame(config, enemyType, attackState, direction, 0);
-
-    const float animationDuration = static_cast<float>(firstEnemyFrame.totalFrames) * firstEnemyFrame.frameDuration;
-    startTimedAnimation(enemyAnimation, attackState, direction, animationDuration);
-
-    return animationDuration;
-}
-
-} // namespace
 
 const float minDistanceEnemyPlayer = 5;
 const float enemyRepelRadius = 50;
 const float enemyRepelProximityRampParam = 1.5;
 const float enemyRelSpeedCutoffPercentage = 0.02;
-
-void EnemyAI::updateCoolDowns(Registry &registry, Entity enemyEntity, float dtSec)
-{
-    if (!registry.hasComponent<EnemyAttackCooldown>(enemyEntity)) {
-        return;
-    }
-
-    EnemyAttackCooldown &cooldown = registry.getComponent<EnemyAttackCooldown>(enemyEntity);
-    cooldown.remainingSec -= dtSec;
-    if (cooldown.remainingSec <= 0.0f) {
-        registry.removeComponent<EnemyAttackCooldown>(enemyEntity);
-    }
-}
 
 void EnemyAI::update(Registry &registry, const config::GameConfig &config, LocationTable &locationTable, float dtSec)
 {
@@ -66,27 +27,10 @@ void EnemyAI::update(Registry &registry, const config::GameConfig &config, Locat
     const Position &playerPos = registry.getComponent<Position>(player);
 
     for (auto enemy : registry.view<EnemyTag, Velocity, EnemyStats, Position, Animation>()) {
-        spawnPendingAreaAttack(registry, config, enemy);
         updateEnemyVelocityTowardsPlayer(registry, locationTable, playerPos, enemy);
         updateEnemyAnimationState(registry, enemy, dtSec);
-        updateAttack(registry, config, enemy, playerPos);
         applyAnimationMoveSpeedModifier(registry, config, enemy);
-        updateCoolDowns(registry, enemy, dtSec);
     }
-}
-
-void EnemyAI::updateAttack(Registry &registry, const config::GameConfig &config, Entity enemy,
-                           const Position &playerPos)
-{
-    if (registry.hasComponent<EnemyAttackCooldown>(enemy)) {
-        return;
-    }
-    registry.addComponent<EnemyAttackCooldown>(enemy,
-                                               {
-                                                   .remainingSec = 1 / config.enemyClasses.blob.stats.attackSpeed,
-                                               });
-
-    blobAreaAttack(registry, config, enemy, playerPos);
 }
 
 void EnemyAI::updateEnemyVelocityTowardsPlayer(Registry &registry, LocationTable &locationTable,
@@ -195,83 +139,6 @@ void EnemyAI::applyAnimationMoveSpeedModifier(Registry &registry, const config::
         config, enemyStats.enemyType, enemyAnimation.state, enemyAnimation.direction, enemyAnimation.currentFrame);
 
     enemyVelocity *= currentFrame.moveSpeedMultiplier;
-}
-
-void EnemyAI::blobAreaAttack(Registry &registry, const config::GameConfig &config, Entity blobEntity,
-                             const Position &playerPosition)
-{
-    const geometry::Vec2 playerPosVec{playerPosition.p.x, playerPosition.p.y};
-    const Position blobPosition = registry.getComponent<Position>(blobEntity);
-    geometry::Vec2 enemyPosVec{blobPosition.p.x, blobPosition.p.y};
-
-    geometry::Vec2 v = playerPosVec - enemyPosVec;
-    const config::AttackProfileConfig &attackProfile = config.enemyClasses.blob.attack;
-    const EnemyStats &enemyStats = registry.getComponent<EnemyStats>(blobEntity);
-
-    if (v.length() >= (enemyStats.attackRange * attackProfile.area.radius)) {
-        return;
-    }
-
-    const AnimationDirection attackDirection =
-        playerPosition.p.x >= blobPosition.p.x ? AnimationDirection::Right : AnimationDirection::Left;
-    applyAnimation(registry, config, blobEntity, AnimationState::Attack, enemyStats.enemyType, attackDirection);
-
-    if (!registry.hasComponent<EnemyPendingAreaSpawnTag>(blobEntity)) {
-        registry.addComponent<EnemyPendingAreaSpawnTag>(blobEntity, {});
-    }
-}
-
-void EnemyAI::spawnPendingAreaAttack(Registry &registry, const config::GameConfig &config, Entity blobEntity)
-{
-    if (!registry.hasComponent<EnemyPendingAreaSpawnTag>(blobEntity)) {
-        return;
-    }
-
-    const Animation &animation = registry.getComponent<Animation>(blobEntity);
-    if (animation.stateTimeRemaining > 0.0f) {
-        return;
-    }
-
-    registry.removeComponent<EnemyPendingAreaSpawnTag>(blobEntity);
-
-    const config::AttackProfileConfig &attackProfile = config.enemyClasses.blob.attack;
-    const EnemyStats &enemyStats = registry.getComponent<EnemyStats>(blobEntity);
-    const Position blobPosition = registry.getComponent<Position>(blobEntity);
-
-    const Damage damageComponent{.amount = attackProfile.amount,
-                                 .pushBackForce = attackProfile.pushBackForce,
-                                 .stunChance = attackProfile.stunChance,
-                                 .kind = DamageKind::Area,
-                                 .params = AreaDamage{.radius = attackProfile.area.radius,
-                                                      .activeTimeSec = attackProfile.area.activeTimeSec,
-                                                      .elapsedSec = 0.0f,
-                                                      .initialHit = attackProfile.area.initialHit,
-                                                      .damageTicks = attackProfile.area.damageTicks,
-                                                      .elapsedSecSinceLastTick = 0.0f}};
-    const config::AnimationFrame areaFrame = config::AnimationConfigHelper::getAreaAnimationFrame(
-        config, attackProfile.area, AnimationState::Idle, AnimationDirection::None, 0);
-    const config::SpriteConfig &areaSpriteConfig = areaFrame.spriteConfig;
-    const Position damagePosition{blobPosition.p.x, blobPosition.p.y};
-    const view::Sprite sprite{.rect = {damagePosition.p,
-                                       {areaSpriteConfig.texture.size.x * enemyStats.attackRange,
-                                        areaSpriteConfig.texture.size.y * enemyStats.attackRange}},
-                              .imagePath = areaSpriteConfig.texture.path};
-    const Animation areaAnimation{};
-
-    const HitBox areaHitbox{.offset = {areaSpriteConfig.hitBox.offset.x, areaSpriteConfig.hitBox.offset.y},
-                            .size = {areaSpriteConfig.hitBox.size.x * enemyStats.attackRange,
-                                     areaSpriteConfig.hitBox.size.y * enemyStats.attackRange}};
-
-    // component references may be invalid: retrieve again from registry if used after this point
-    const Entity areaAttackEntity = registry.createEntity();
-    registry.addComponent<Damage>(areaAttackEntity, damageComponent);
-    registry.addComponent<DamageTag>(areaAttackEntity, {});
-    registry.addComponent<Position>(areaAttackEntity, damagePosition);
-    registry.addComponent<HitBox>(areaAttackEntity, areaHitbox);
-    registry.addComponent<view::Sprite>(areaAttackEntity, sprite);
-    registry.addComponent<Animation>(areaAttackEntity, areaAnimation);
-    registry.addComponent<EnemyAttackTag>(areaAttackEntity,
-                                          {enemyStats.enemyType}); // Mark as enemy's attack for collision detection
 }
 
 } // namespace game

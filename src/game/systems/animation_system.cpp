@@ -17,17 +17,29 @@ namespace game {
 
 namespace {
 
-void applySpriteConfig(Registry &registry, Entity entity, const config::SpriteConfig &spriteConfig)
+constexpr float bossSpriteScale = 2.0f;
+
+void applySpriteConfig(Registry &registry, Entity entity, const config::SpriteConfig &spriteConfig, float scale)
 {
     view::Sprite &sprite = registry.getComponent<view::Sprite>(entity);
     sprite.imagePath = spriteConfig.texture.path;
-    sprite.rect.size = spriteConfig.texture.size;
+    sprite.rect.size = spriteConfig.texture.size * scale;
 
     if (registry.hasComponent<HitBox>(entity)) {
         HitBox &hitBox = registry.getComponent<HitBox>(entity);
-        hitBox.offset = spriteConfig.hitBox.offset;
-        hitBox.size = spriteConfig.hitBox.size;
+        hitBox.offset = spriteConfig.hitBox.offset * scale;
+        hitBox.size = spriteConfig.hitBox.size * scale;
     }
+}
+
+float getSpriteScaleForEntity(Registry &registry, Entity entity)
+{
+    if (!registry.hasComponent<EnemyStats>(entity)) {
+        return 1.0f;
+    }
+
+    const EnemyStats &enemyStats = registry.getComponent<EnemyStats>(entity);
+    return enemyStats.enemyType == EnemyType::Boss ? bossSpriteScale : 1.0f;
 }
 
 std::optional<config::AnimationFrame> getAnimationFrameForEntity(Registry &registry, Entity entity,
@@ -60,21 +72,34 @@ std::optional<config::AnimationFrame> getAnimationFrameForEntity(Registry &regis
         const Damage &damage = registry.getComponent<Damage>(entity);
 
         const config::AreaAttackConfig *areaAttackConfig = nullptr;
+        const config::ProjectileAttackConfig *projectileAttackConfig = nullptr;
         if (registry.hasComponent<PlayerAttackTag>(entity)) {
             CharacterType characterType = registry.getComponent<PlayerAttackTag>(entity).characterType;
             areaAttackConfig = &config.playerClasses.getByType(characterType).attack.area;
+            projectileAttackConfig = &config.playerClasses.getByType(characterType).attack.projectile;
         }
         if (registry.hasComponent<EnemyAttackTag>(entity)) {
             EnemyType enemyType = registry.getComponent<EnemyAttackTag>(entity).enemyType;
             areaAttackConfig = &config.enemyClasses.getByType(enemyType).attack.area;
+            projectileAttackConfig = &config.enemyClasses.getByType(enemyType).attack.projectile;
         }
 
-        if (!areaAttackConfig) {
+        if (!areaAttackConfig && !projectileAttackConfig) {
             return std::nullopt;
         }
 
         switch (damage.kind) {
+        case DamageKind::Projectile: {
+            if (!projectileAttackConfig) {
+                return std::nullopt;
+            }
+            return config::AnimationConfigHelper::getProjectileAnimationFrame(
+                config, *projectileAttackConfig, animation.state, animation.direction, animation.currentFrame);
+        }
         case DamageKind::Area: {
+            if (!areaAttackConfig) {
+                return std::nullopt;
+            }
             return config::AnimationConfigHelper::getAreaAnimationFrame(config, *areaAttackConfig, animation.state,
                                                                         animation.direction, animation.currentFrame);
         }
@@ -100,7 +125,7 @@ void AnimationSystem::update(Registry &registry, const config::GameConfig &confi
             continue;
         }
 
-        applySpriteConfig(registry, entity, frame->spriteConfig);
+        applySpriteConfig(registry, entity, frame->spriteConfig, getSpriteScaleForEntity(registry, entity));
 
         animation.frameTimer += dtSec;
 

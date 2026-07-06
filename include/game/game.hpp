@@ -6,6 +6,8 @@
 #include "controller/timing.hpp"
 #include "game/ecs/registry.hpp"
 #include "game/ecs/systems/animation_system.hpp"
+#include "game/ecs/systems/blob_attack_system.hpp"
+#include "game/ecs/systems/boss_attack_system.hpp"
 #include "game/ecs/systems/camera_system.hpp"
 #include "game/ecs/systems/collision_detection_system.hpp"
 #include "game/ecs/systems/damage_system.hpp"
@@ -14,6 +16,7 @@
 #include "game/ecs/systems/health_bar_system.hpp"
 #include "game/ecs/systems/input_system.hpp"
 #include "game/ecs/systems/movement_system.hpp"
+#include "game/ecs/systems/player_distance_system.hpp"
 #include "game/ecs/systems/sound_system.hpp"
 #include "game/ecs/systems/spawn_enemy_system.hpp"
 #include "game/location_table.hpp"
@@ -37,6 +40,9 @@ class Game {
     MovementSystem movementSystem_;
     DebugSelectionSystem debugSelectionSystem_;
     EnemyAI enemyAI_;
+    PlayerDistanceSystem playerDistanceSystem_;
+    BlobAttackSystem blobAttackSystem_;
+    BossAttackSystem bossAttackSystem_;
     SpawnEnemySystem spawnEnemySystem_;
     CollisionDetectionSystem collisionDetectionSystem_;
     DamageSystem damageSystem_;
