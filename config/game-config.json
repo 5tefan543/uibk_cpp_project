@@ -3,7 +3,7 @@
     "initialWave": 1,
     "initialCurrency": 0,
     "waveDurationSeconds": 60,
-    "wavesPerStage": 5,
+    "wavesPerStage": 2,
     "maxEnemyCount": 500,
     "windowConfig": {
         "width": 1920,
@@ -2458,7 +2458,7 @@
             "moveSpeedRatioOfPlayer": 0.5,
             "stats": {
                 "maxHealth": 10,
-                "attackPower": 2,
+                "attackPower": 20,
                 "attackSpeed": 1,
                 "specialAttackSpeed": 1,
                 "defense": 0.25,
@@ -2467,7 +2467,7 @@
                 "attackRange": 0
             },
             "attack": {
-                "amount": 10,
+                "amount": 0.5,
                 "isMultiHit": false,
                 "pushBackForce": 0,
                 "stunChance": 0,

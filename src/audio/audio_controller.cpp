@@ -25,7 +25,7 @@ void AudioController::playMusic(const std::string &file)
         logger::log(logger::LogLevel::ERROR, std::format("Failed to load music: {}", file));
         return;
     }
-
+    music_.setVolume(70.0f);
     music_.setLooping(true);
     music_.play();
 }

@@ -66,7 +66,7 @@ TEST_CASE("test location table", "[location-table]")
     {
         for (unsigned x = 0; x < numCells.x; x++) {
             for (unsigned y = 0; y < numCells.y; y++) {
-                auto entities = lt.getEntitiesNear((lt.numBuckets * Vec2{x, y}).into<float>(), 0);
+                auto entities = lt.getEnemiesNear((lt.numBuckets * Vec2{x, y}).into<float>(), 0);
                 REQUIRE(entities.size() == 1);
             }
         }
@@ -90,14 +90,14 @@ TEST_CASE("test location table", "[location-table]")
 
     SECTION("Getting position outside of grid (x,y 'overflow')")
     {
-        auto entities = lt.getEntitiesNear(Vec2{view::grid.size} * 2, 0);
+        auto entities = lt.getEnemiesNear(Vec2{view::grid.size} * 2, 0);
         REQUIRE(entities.size() == 1);
         REQUIRE(entities.contains(eLookup[numCells.x - 1][numCells.y - 1]));
     }
 
     SECTION("Getting position outside of grid (x,y 'underflow')")
     {
-        auto entities = lt.getEntitiesNear(view::grid.size * -1, 0);
+        auto entities = lt.getEnemiesNear(view::grid.size * -1, 0);
         REQUIRE(entities.size() == 1);
         REQUIRE(entities.contains(eLookup[0][0]));
     }
@@ -109,7 +109,7 @@ TEST_CASE("test location table", "[location-table]")
         for (unsigned x = 0; x < numCells.x; x++) {
             for (unsigned y = 0; y < numCells.y; y++) {
                 const auto ents =
-                    lt.getEntitiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
+                    lt.getEnemiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
                 if (x == 0 && y == 0) {
                     REQUIRE(ents.size() == 2);
                     REQUIRE(ents.contains(eLookup[x][y]));
@@ -129,7 +129,7 @@ TEST_CASE("test location table", "[location-table]")
         for (unsigned x = 0; x < numCells.x; x++) {
             for (unsigned y = 0; y < numCells.y; y++) {
                 const auto ents =
-                    lt.getEntitiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
+                    lt.getEnemiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
                 if (x == numCells.x - 1 && y == numCells.y - 1) {
                     REQUIRE(ents.size() == 2);
                     REQUIRE(ents.contains(eLookup[x][y]));
@@ -162,7 +162,7 @@ TEST_CASE("test location table", "[location-table]")
         // Check interface output
         for (unsigned x = 0; x < numCells.x; x++) {
             for (unsigned y = 0; y < numCells.y; y++) {
-                auto ents = lt.getEntitiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
+                auto ents = lt.getEnemiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
                 if (x >= 1 && x <= 2 && y >= 1 && y <= 2) {
                     REQUIRE(ents.size() == 2);
                     REQUIRE(ents.contains(e));
@@ -193,7 +193,7 @@ TEST_CASE("test location table", "[location-table]")
         // Check interface output
         for (unsigned x = 0; x < numCells.x; x++) {
             for (unsigned y = 0; y < numCells.y; y++) {
-                auto ents = lt.getEntitiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
+                auto ents = lt.getEnemiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
                 if (x <= 2 && y == 0) {
                     REQUIRE(ents.size() == 2);
                     REQUIRE(ents.contains(e));
@@ -224,7 +224,7 @@ TEST_CASE("test location table", "[location-table]")
         // Check interface output
         for (unsigned x = 0; x < numCells.x; x++) {
             for (unsigned y = 0; y < numCells.y; y++) {
-                auto ents = lt.getEntitiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
+                auto ents = lt.getEnemiesNear(Vec2{lt.bucketSize.x, lt.bucketSize.y} * Vec2{x, y}.into<float>(), 0);
                 if (x == 0 && y <= 2) {
                     REQUIRE(ents.size() == 2);
                     REQUIRE(ents.contains(e));

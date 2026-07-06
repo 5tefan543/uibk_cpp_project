@@ -23,9 +23,9 @@ class LocationTable {
 
     LocationTable(const geometry::Vec2<unsigned> numBuckets, const geometry::Vec2<float> totalGridSize);
     void update(const Registry &registry);
-    std::unordered_set<Entity> getEntitiesNear(const geometry::Vec2<float> position, const float radius) const;
-    std::vector<std::tuple<Entity, Position>> getEntitiesInRange(const geometry::Vec2<float> position,
-                                                                 const float radius, const Registry &registry) const;
+    std::unordered_set<Entity> getEnemiesNear(const geometry::Vec2<float> position, const float radius) const;
+    std::vector<std::tuple<Entity, Position>> getEnemiesInRange(const geometry::Vec2<float> position,
+                                                                const float radius, const Registry &registry) const;
     const std::vector<Entity> &cgetBucket(const unsigned buckIx, const unsigned buckIy) const;
     const std::vector<std::vector<Entity>> &cgetGrid();
 };
