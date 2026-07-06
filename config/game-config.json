@@ -2,8 +2,8 @@
     "initialStage": 1,
     "initialWave": 1,
     "initialCurrency": 0,
-    "waveDurationSeconds": 1000,
-    "wavesPerStage": 2,
+    "waveDurationSeconds": 60,
+    "wavesPerStage": 5,
     "maxEnemyCount": 500,
     "windowConfig": {
         "width": 1920,
@@ -11,7 +11,7 @@
         "title": "Robotato"
     },
     "logConfig": {
-        "level": "Debug",
+        "level": "Info",
         "useColor": true
     },
     "mapConfig": {
@@ -3369,6 +3369,122 @@
                         },
                         "statChanges": {
                             "attackPower": 4
+                        },
+                        "cost": 300
+                    }
+                }
+            },
+            {
+                "name": "Armor",
+                "description": "Increases the flat armor of the player, reducing incoming damage.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_2.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "defense": 1
+                        },
+                        "cost": 100
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_2.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "defense": 2
+                        },
+                        "cost": 500
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_2.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "defense": 3
+                        },
+                        "cost": 200
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_2.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "defense": 4
+                        },
+                        "cost": 300
+                    }
+                }
+            },
+            {
+                "name": "Health Regen",
+                "description": "Grants passive health regeneration per second.",
+                "typeToConfig": {
+                    "Common": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-common_4.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "healthRegen": 0.5
+                        },
+                        "cost": 100
+                    },
+                    "Uncommon": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-uncommon_4.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "healthRegen": 1.0
+                        },
+                        "cost": 500
+                    },
+                    "Rare": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-rare_4.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "healthRegen": 1.5
+                        },
+                        "cost": 200
+                    },
+                    "Epic": {
+                        "icon": {
+                            "path": "assets/icons/store/icons-epic_4.png",
+                            "size": {
+                                "x": 64,
+                                "y": 64
+                            }
+                        },
+                        "statChanges": {
+                            "healthRegen": 2.0
                         },
                         "cost": 300
                     }

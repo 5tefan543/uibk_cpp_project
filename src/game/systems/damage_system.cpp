@@ -137,6 +137,23 @@ DamageInformation DamageSystem::updateArea(Damage &damage, AreaDamage &area, Dam
 
 void DamageSystem::update(Registry &registry, float dtSec)
 {
+    // Apply health regeneration (health per second) before processing damage
+    for (Entity e : registry.view<PlayerStats>()) {
+        if (!registry.isEntityAlive(e))
+            continue;
+        PlayerStats &ps = registry.getComponent<PlayerStats>(e);
+        if (ps.healthRegen > 0.0f && ps.health < ps.maxHealth) {
+            ps.health = std::min(ps.maxHealth, ps.health + ps.healthRegen * dtSec);
+        }
+    }
+    for (Entity e : registry.view<EnemyStats>()) {
+        if (!registry.isEntityAlive(e))
+            continue;
+        EnemyStats &es = registry.getComponent<EnemyStats>(e);
+        if (es.healthRegen > 0.0f && es.health < es.maxHealth) {
+            es.health = std::min(es.maxHealth, es.health + es.healthRegen * dtSec);
+        }
+    }
     auto damageEntities = registry.view<Damage, DamageTag>();
     for (Entity damageEntity : damageEntities) {
         if (!registry.isEntityAlive(damageEntity)) {
@@ -211,9 +228,13 @@ void DamageSystem::update(Registry &registry, float dtSec)
                     // Negative damage values represent percentage-based damage.
                     // Example: -0.25f means 25% of the player's max health.
                     damageAmount = playerStats.maxHealth * (-damageAmount);
+                    // Percentage-based damage bypasses flat defense reduction.
+                    playerStats.health -= damageAmount;
+                } else {
+                    // Flat damage is reduced by the target's defense (additive flat reduction).
+                    const float effective = std::max(0.0f, damageAmount - playerStats.defense);
+                    playerStats.health -= effective;
                 }
-
-                playerStats.health -= damageAmount;
 
                 if (playerStats.health <= 0.0f) {
                     registry.destroyEntity(targetEntity);
@@ -227,9 +248,13 @@ void DamageSystem::update(Registry &registry, float dtSec)
                     // Negative damage values represent percentage-based damage.
                     // Example: -0.25f means 25% of the enemy's max health.
                     damageAmount = enemyStats.maxHealth * (-damageAmount);
+                    // Percentage-based damage bypasses flat defense reduction.
+                    enemyStats.health -= damageAmount;
+                } else {
+                    // Flat damage is reduced by the target's defense (additive flat reduction).
+                    const float effective = std::max(0.0f, damageAmount - enemyStats.defense);
+                    enemyStats.health -= effective;
                 }
-
-                enemyStats.health -= damageAmount;
 
                 if (enemyStats.health <= 0.0f) {
                     auto players = registry.view<PlayerStats>();

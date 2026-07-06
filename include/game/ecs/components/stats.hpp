@@ -41,6 +41,7 @@ struct Stats {
     float moveSpeed = 0.0f;
     float speedOfAttack = 0.0f; // More travel speed of projectiles, or speed of swing animation etc..
     float attackRange = 0.0;
+    float healthRegen = 0.0f; // Health per second, default 0 (no regen)
 };
 
 struct PlayerStats : Stats {
@@ -69,6 +70,7 @@ inline game::PlayerStats getDefaultPlayerStatChanges()
     stats.moveSpeed = 0.0f;
     stats.speedOfAttack = 0.0f;
     stats.attackRange = 0.0f;
+    stats.healthRegen = 0.0f;
 
     stats.hasDash = false;
     stats.enemiesPierced = 0;

@@ -203,7 +203,8 @@ void InputSystem::attackMelee(Registry &registry, const config::GameConfig &conf
                                                  .damageTicks = attackProfile.area.damageTicks,
                                                  .elapsedSecSinceLastTick = 0.0f};
     } else {
-        meleeAttackObjDamage.amount = attackProfile.amount;
+        // Treat attackProfile.amount as a multiplier applied to the attacker's `attackPower`.
+        meleeAttackObjDamage.amount = playerStats.attackPower * attackProfile.amount;
         meleeAttackObjDamage.kind = DamageKind::MeleeArc;
         meleeAttackObjDamage.params =
             MeleeArcDamage{.reach = attackProfile.meleeArc.reach,
@@ -310,7 +311,8 @@ void InputSystem::attackRanged(Registry &registry, const config::GameConfig &con
         rangedObjDamage.kind = DamageKind::Unicorn;
         rangedObjDamage.params = UnicornDamage{.speed = playerStats.speedOfAttack};
     } else {
-        rangedObjDamage.amount = attackProfile.amount;
+        // Treat attackProfile.amount as a multiplier applied to the attacker's `attackPower`.
+        rangedObjDamage.amount = playerStats.attackPower * attackProfile.amount;
         rangedObjDamage.kind = DamageKind::Projectile;
         rangedObjDamage.params = ProjectileDamage{.speed = playerStats.speedOfAttack,
                                                   .maxRange = playerStats.attackRange,

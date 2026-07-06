@@ -93,7 +93,7 @@ void BlobAttackSystem::spawnPendingAreaAttack(Registry &registry, const config::
     const EnemyStats &enemyStats = registry.getComponent<EnemyStats>(blobEntity);
     const Position blobPosition = registry.getComponent<Position>(blobEntity);
 
-    const Damage damageComponent{.amount = attackProfile.amount,
+    const Damage damageComponent{.amount = enemyStats.attackPower * attackProfile.amount,
                                  .pushBackForce = attackProfile.pushBackForce,
                                  .stunChance = attackProfile.stunChance,
                                  .kind = DamageKind::Area,
